@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Play, Pause, RotateCcw, Volume2, VolumeX, BookOpen, 
-  CheckCircle, Circle, Brain, MessageSquare, Lightbulb,
-  FileText, Users, Video, Calculator, Target, Clock
+  Play, Pause, RotateCcw, Volume2, VolumeX, 
+  BookOpen, CheckCircle, MessageSquare, Clock,
+  Target, Lightbulb, Brain, FileText, Star,
+  ChevronRight, ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AITutorDialog from './AITutorDialog';
@@ -28,229 +29,345 @@ interface LearningSection {
   content: string;
   audioText: string;
   duration: number;
-  difficulty: 'Basic' | 'Intermediate' | 'Advanced';
-  keyPoints: string[];
-  examples: string[];
-  isCompleted: boolean;
-  hasQuiz: boolean;
+  difficulty: 'basic' | 'intermediate' | 'advanced';
+  completed: boolean;
+  subsections?: LearningSubsection[];
 }
 
-const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ 
-  conceptName,
-  globalAudioState 
-}) => {
-  // Audio and progress states
-  const [isLocalAudioPlaying, setIsLocalAudioPlaying] = useState(false);
-  const [currentAudioProgress, setCurrentAudioProgress] = useState(0);
-  const [currentSection, setCurrentSection] = useState(0);
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [showAITutor, setShowAITutor] = useState(false);
-  const [selectedContext, setSelectedContext] = useState('');
-  
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+interface LearningSubsection {
+  id: string;
+  title: string;
+  content: string;
+  audioText: string;
+  examples?: string[];
+  keyPoints?: string[];
+}
 
-  // Mock learning sections data
+const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({
+  conceptName,
+  globalAudioState
+}) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [activeSection, setActiveSection] = useState(0);
+  const [activeSubsection, setActiveSubsection] = useState(0);
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['intro']));
+  const [showAITutor, setShowAITutor] = useState(false);
+  const [aiContext, setAiContext] = useState('');
+  const [readingSpeed, setReadingSpeed] = useState(1);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const progressIntervalRef = useRef<number | null>(null);
+
+  // Comprehensive learning sections for Newton's Laws
   const learningSections: LearningSection[] = [
     {
-      id: 'introduction',
-      title: 'Introduction to the Concept',
-      content: `${conceptName} is a fundamental principle in ${globalAudioState ? 'physics' : 'science'} that describes the relationship between various forces and their effects. Understanding this concept is crucial for mastering more advanced topics.`,
-      audioText: `Welcome to your comprehensive study of ${conceptName}. In this introduction, we'll explore what makes this concept so important and how it connects to broader scientific principles. This foundational understanding will prepare you for the more detailed analysis that follows.`,
-      duration: 12000,
-      difficulty: 'Basic',
-      keyPoints: [
-        'Definition and core principles',
-        'Historical context and discovery',
-        'Real-world applications',
-        'Connection to other concepts'
-      ],
-      examples: [
-        'Everyday examples you can observe',
-        'Simple demonstrations',
-        'Conceptual analogies'
-      ],
-      isCompleted: false,
-      hasQuiz: true
+      id: 'intro',
+      title: 'Introduction to Newton\'s Laws',
+      content: 'Newton\'s Laws of Motion are three fundamental principles that describe the relationship between forces and motion. These laws form the foundation of classical mechanics.',
+      audioText: 'Welcome to Newton\'s Laws of Motion. These three fundamental principles, formulated by Sir Isaac Newton in 1687, describe the relationship between forces acting on a body and its motion. They form the foundation of classical mechanics and help us understand everything from walking to rocket launches.',
+      duration: 45,
+      difficulty: 'basic',
+      completed: false,
+      subsections: [
+        {
+          id: 'historical-context',
+          title: 'Historical Context',
+          content: 'Sir Isaac Newton published these laws in his work "Principia Mathematica" in 1687.',
+          audioText: 'Sir Isaac Newton published these revolutionary laws in his masterwork "Philosophiæ Naturalis Principia Mathematica" in 1687, fundamentally changing our understanding of physics and motion.',
+          keyPoints: [
+            'Published in 1687 in Principia Mathematica',
+            'Revolutionary understanding of motion and forces',
+            'Foundation for all of classical mechanics'
+          ]
+        },
+        {
+          id: 'importance',
+          title: 'Why These Laws Matter',
+          content: 'These laws explain everyday phenomena and enable technological advances.',
+          audioText: 'These laws are not just theoretical concepts. They explain why you feel pushed back in your seat when a car accelerates, how rockets reach space, and why satellites orbit Earth.',
+          examples: [
+            'Car acceleration and deceleration',
+            'Rocket propulsion',
+            'Satellite orbital mechanics',
+            'Sports physics'
+          ]
+        }
+      ]
     },
     {
-      id: 'fundamental-principles',
-      title: 'Fundamental Principles',
-      content: `The core principles underlying ${conceptName} involve several key relationships. These principles form the theoretical foundation that explains observed phenomena and allows us to make predictions.`,
-      audioText: `Now let's dive deep into the fundamental principles that govern ${conceptName}. These principles are like the building blocks - once you understand them, everything else becomes much clearer. Pay attention to how these principles interconnect and support each other.`,
-      duration: 18000,
-      difficulty: 'Intermediate',
-      keyPoints: [
-        'Primary governing equations',
-        'Key variables and their relationships',
-        'Underlying assumptions',
-        'Boundary conditions'
-      ],
-      examples: [
-        'Mathematical derivations',
-        'Theoretical applications',
-        'Problem-solving strategies'
-      ],
-      isCompleted: false,
-      hasQuiz: true
+      id: 'first-law',
+      title: 'First Law - Law of Inertia',
+      content: 'An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.',
+      audioText: 'Newton\'s First Law, also known as the Law of Inertia, states that an object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force. This law introduces the concept of inertia.',
+      duration: 60,
+      difficulty: 'basic',
+      completed: false,
+      subsections: [
+        {
+          id: 'inertia-concept',
+          title: 'Understanding Inertia',
+          content: 'Inertia is the resistance of any physical object to any change in its velocity.',
+          audioText: 'Inertia is the tendency of objects to resist changes in their state of motion. The more massive an object, the greater its inertia.',
+          keyPoints: [
+            'Resistance to changes in motion',
+            'Directly related to mass',
+            'Applies to both rest and motion'
+          ]
+        },
+        {
+          id: 'first-law-examples',
+          title: 'Real-World Examples',
+          content: 'Examples of the first law in everyday life.',
+          audioText: 'You experience the first law when you\'re in a moving car that suddenly stops. Your body continues moving forward due to inertia until the seatbelt applies a force to stop you.',
+          examples: [
+            'Passengers jerking forward when car brakes',
+            'Objects sliding on a table when table is pulled',
+            'Hockey puck sliding on ice',
+            'Coins staying in place when paper is pulled quickly'
+          ]
+        }
+      ]
     },
     {
-      id: 'mathematical-framework',
-      title: 'Mathematical Framework',
-      content: `The mathematical representation of ${conceptName} provides precise tools for analysis and calculation. This framework includes equations, formulas, and computational methods.`,
-      audioText: `Mathematics is the language that allows us to precisely describe ${conceptName}. In this section, we'll explore the mathematical framework step by step. Don't worry if it seems complex at first - we'll break down each equation and show you how to apply them practically.`,
-      duration: 22000,
-      difficulty: 'Advanced',
-      keyPoints: [
-        'Key equations and formulas',
-        'Variable definitions',
-        'Mathematical relationships',
-        'Calculation methods'
-      ],
-      examples: [
-        'Worked examples',
-        'Step-by-step solutions',
-        'Common calculation errors to avoid'
-      ],
-      isCompleted: false,
-      hasQuiz: true
+      id: 'second-law',
+      title: 'Second Law - F = ma',
+      content: 'The acceleration of an object is directly proportional to the net force acting on the object, is in the direction of the net force, and is inversely proportional to the mass of the object.',
+      audioText: 'Newton\'s Second Law quantifies the relationship between force, mass, and acceleration. It states that force equals mass times acceleration, written as F equals m a. This law allows us to calculate exactly how objects will move when forces are applied.',
+      duration: 75,
+      difficulty: 'intermediate',
+      completed: false,
+      subsections: [
+        {
+          id: 'formula-breakdown',
+          title: 'Breaking Down F = ma',
+          content: 'Understanding each component of the famous equation.',
+          audioText: 'In the equation F equals m a, F represents the net force in Newtons, m is the mass in kilograms, and a is the acceleration in meters per second squared.',
+          keyPoints: [
+            'F = Net force (Newtons)',
+            'm = Mass (kilograms)',  
+            'a = Acceleration (m/s²)',
+            'Force and acceleration are vectors'
+          ]
+        },
+        {
+          id: 'applications',
+          title: 'Practical Applications',
+          content: 'How the second law applies in engineering and daily life.',
+          audioText: 'Engineers use the second law to design everything from car brakes to rocket engines. The law helps calculate the force needed to achieve desired accelerations.',
+          examples: [
+            'Car engine power calculations',
+            'Rocket thrust requirements',
+            'Elevator design specifications',
+            'Athletic performance analysis'
+          ]
+        }
+      ]
     },
     {
-      id: 'practical-applications',
-      title: 'Practical Applications',
-      content: `Real-world applications of ${conceptName} span multiple industries and disciplines. Understanding these applications helps connect theory to practice.`,
-      audioText: `This is where theory meets reality! Let's explore how ${conceptName} is applied in real-world scenarios. From engineering applications to everyday phenomena, you'll see how this concept shapes our world in ways you might never have realized.`,
-      duration: 16000,
-      difficulty: 'Intermediate',
-      keyPoints: [
-        'Industrial applications',
-        'Engineering uses',
-        'Scientific research applications',
-        'Emerging technologies'
-      ],
-      examples: [
-        'Case studies',
-        'Industry examples',
-        'Current research'
-      ],
-      isCompleted: false,
-      hasQuiz: false
+      id: 'third-law',
+      title: 'Third Law - Action-Reaction',
+      content: 'For every action, there is an equal and opposite reaction.',
+      audioText: 'Newton\'s Third Law states that for every action, there is an equal and opposite reaction. When one object exerts a force on a second object, the second object simultaneously exerts a force equal in magnitude and opposite in direction on the first object.',
+      duration: 55,
+      difficulty: 'intermediate',
+      completed: false,
+      subsections: [
+        {
+          id: 'action-reaction-pairs',
+          title: 'Understanding Action-Reaction Pairs',
+          content: 'Forces always come in pairs that act on different objects.',
+          audioText: 'Action-reaction pairs are forces that act on different objects. When you push on a wall, the wall pushes back on you with equal force.',
+          keyPoints: [
+            'Forces always occur in pairs',
+            'Equal magnitude, opposite direction',
+            'Act on different objects',
+            'Simultaneous occurrence'
+          ]
+        },
+        {
+          id: 'third-law-examples',
+          title: 'Examples in Nature and Technology',
+          content: 'How the third law enables movement and propulsion.',
+          audioText: 'Walking is possible because of the third law. When you push backward against the ground, the ground pushes forward on you, propelling you forward.',
+          examples: [
+            'Walking and running',
+            'Swimming stroke mechanics',
+            'Rocket and jet propulsion',
+            'Recoil in firearms'
+          ]
+        }
+      ]
     },
     {
-      id: 'advanced-topics',
-      title: 'Advanced Topics and Extensions',
-      content: `Advanced aspects of ${conceptName} include cutting-edge research, complex scenarios, and connections to other advanced concepts.`,
-      audioText: `For those ready to push further, let's explore the advanced frontiers of ${conceptName}. These topics represent current research areas and complex applications that showcase the full power and elegance of this concept.`,
-      duration: 20000,
-      difficulty: 'Advanced',
-      keyPoints: [
-        'Current research directions',
-        'Complex scenarios',
-        'Interdisciplinary connections',
-        'Future developments'
-      ],
-      examples: [
-        'Research papers',
-        'Advanced problem sets',
-        'Cutting-edge applications'
-      ],
-      isCompleted: false,
-      hasQuiz: true
+      id: 'applications',
+      title: 'Real-World Applications',
+      content: 'How Newton\'s laws apply to modern technology and everyday situations.',
+      audioText: 'Newton\'s laws are not just academic concepts but practical tools used in engineering, sports science, space exploration, and countless other fields. Understanding these laws helps us design better machines and understand natural phenomena.',
+      duration: 80,
+      difficulty: 'advanced',
+      completed: false,
+      subsections: [
+        {
+          id: 'transportation',
+          title: 'Transportation Systems',
+          content: 'How the laws govern vehicle design and operation.',
+          audioText: 'In transportation, all three laws work together. Cars use friction for acceleration and braking, follow inertial motion on highways, and rely on action-reaction forces for propulsion.',
+          examples: [
+            'Automotive safety systems',
+            'Aircraft lift and propulsion',
+            'Train braking systems',
+            'Ship navigation'
+          ]
+        },
+        {
+          id: 'space-exploration',
+          title: 'Space Exploration',
+          content: 'Critical role in rocket design and orbital mechanics.',
+          audioText: 'Space exploration is impossible without understanding Newton\'s laws. Rockets work by expelling mass in one direction to create thrust in the opposite direction, following the third law.',
+          examples: [
+            'Rocket propulsion systems',
+            'Satellite orbital mechanics',
+            'Spacecraft maneuvering',
+            'Planetary mission planning'
+          ]
+        }
+      ]
     }
   ];
 
-  // Audio control functions
-  const handleLocalAudioToggle = () => {
-    const newPlayingState = !isLocalAudioPlaying;
-    setIsLocalAudioPlaying(newPlayingState);
-    
-    if (newPlayingState) {
-      startAudioNarration();
+  const [sections, setSections] = useState(learningSections);
+
+  // Enhanced audio synthesis with progress tracking
+  const speakText = (text: string, onComplete?: () => void) => {
+    if (isMuted || !globalAudioState?.isEnabled) return;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = readingSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+
+    let progress = 0;
+    const words = text.split(' ');
+    const wordsPerSecond = readingSpeed * 3; // Approximate words per second
+
+    utterance.onstart = () => {
+      setIsPlaying(true);
+      // Start progress tracking
+      progressIntervalRef.current = window.setInterval(() => {
+        progress += 100 / (words.length / wordsPerSecond);
+        setCurrentProgress(Math.min(progress, 100));
+      }, 1000);
+    };
+
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setCurrentProgress(100);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+      markSectionCompleted();
+      if (onComplete) onComplete();
+    };
+
+    utterance.onerror = () => {
+      setIsPlaying(false);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
     } else {
-      stopAudioNarration();
+      const currentSection = sections[activeSection];
+      const currentSubsection = currentSection.subsections?.[activeSubsection];
+      const textToSpeak = currentSubsection?.audioText || currentSection.audioText;
+      speakText(textToSpeak);
     }
   };
 
-  const startAudioNarration = () => {
-    const section = learningSections[currentSection];
-    if (section) {
-      const totalDuration = section.duration;
-      let elapsed = 0;
-      
-      intervalRef.current = setInterval(() => {
-        elapsed += 100;
-        const progress = Math.min((elapsed / totalDuration) * 100, 100);
-        setCurrentAudioProgress(progress);
-        
-        if (progress >= 100) {
-          setIsLocalAudioPlaying(false);
-          markSectionCompleted(section.id);
-          clearInterval(intervalRef.current!);
-        }
-      }, 100);
+  const handleReset = () => {
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
+    setCurrentProgress(0);
+    setActiveSection(0);
+    setActiveSubsection(0);
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
     }
   };
 
-  const stopAudioNarration = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+  const markSectionCompleted = () => {
+    const currentSectionId = sections[activeSection].id;
+    setCompletedSections(prev => new Set([...prev, currentSectionId]));
+    
+    setSections(prev => prev.map((section, index) => 
+      index === activeSection ? { ...section, completed: true } : section
+    ));
   };
 
-  const resetAudio = () => {
-    stopAudioNarration();
-    setCurrentAudioProgress(0);
-    setIsLocalAudioPlaying(false);
+  const toggleSectionExpansion = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
   };
 
-  const markSectionCompleted = (sectionId: string) => {
-    setCompletedSections(prev => new Set([...prev, sectionId]));
-  };
-
-  const navigateToSection = (sectionIndex: number) => {
-    setCurrentSection(sectionIndex);
-    resetAudio();
-  };
-
-  const openAITutor = (context: string) => {
-    setSelectedContext(context);
+  const handleAskAI = (context: string) => {
+    setAiContext(context);
     setShowAITutor(true);
   };
 
-  // Global audio synchronization
-  useEffect(() => {
-    if (globalAudioState?.isPlaying && !globalAudioState.isEnabled) {
-      stopAudioNarration();
-      setIsLocalAudioPlaying(false);
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'basic': return 'bg-green-100 text-green-800 border-green-200';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'advanced': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-  }, [globalAudioState]);
+  };
 
-  // Cleanup
   useEffect(() => {
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
       }
     };
   }, []);
 
-  const currentSectionData = learningSections[currentSection];
-  const overallProgress = (completedSections.size / learningSections.length) * 100;
-
   return (
     <div className="space-y-6">
-      {/* Header with Progress */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+      {/* Header with Controls */}
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-blue-600" />
-                Comprehensive Learning Guide
+                Learn - {conceptName}
               </CardTitle>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Master {conceptName} with structured, audio-guided learning
+              <p className="text-sm text-gray-600 mt-1">
+                Comprehensive learning with synchronized audio and AI assistance
               </p>
             </div>
             
@@ -259,328 +376,287 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleLocalAudioToggle}
+                onClick={handlePlayPause}
+                disabled={isMuted}
                 className="flex items-center gap-2"
               >
-                {isLocalAudioPlaying ? (
-                  <Pause className="h-4 w-4" />
-                ) : (
-                  <Play className="h-4 w-4" />
-                )}
-                {isLocalAudioPlaying ? 'Pause' : 'Play'} Audio
+                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isPlaying ? 'Pause' : 'Start Learning'}
               </Button>
               
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetAudio}
-              >
+              <Button variant="outline" size="sm" onClick={handleReset}>
                 <RotateCcw className="h-4 w-4" />
               </Button>
               
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => openAITutor('learning-assistance')}
+                onClick={() => setIsMuted(!isMuted)}
+              >
+                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleAskAI('comprehensive learning')}
                 className="flex items-center gap-2"
               >
-                <Brain className="h-4 w-4" />
-                AI Tutor
+                <MessageSquare className="h-4 w-4" />
+                Ask AI
               </Button>
             </div>
           </div>
           
-          {/* Progress Indicators */}
-          <div className="mt-4 space-y-3">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Current Section Progress</span>
-                <span>{Math.round(currentAudioProgress)}%</span>
-              </div>
-              <Progress value={currentAudioProgress} className="h-2" />
+          {/* Progress */}
+          <div className="mt-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Section {activeSection + 1} of {sections.length}</span>
+              <span>{completedSections.size}/{sections.length} completed</span>
             </div>
+            <Progress value={(completedSections.size / sections.length) * 100} className="h-2" />
             
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Overall Learning Progress</span>
-                <span>{Math.round(overallProgress)}% ({completedSections.size}/{learningSections.length} sections)</span>
+            {/* Audio Progress */}
+            {isPlaying && (
+              <div className="mt-2">
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Audio Progress</span>
+                  <span>{Math.round(currentProgress)}%</span>
+                </div>
+                <Progress value={currentProgress} className="h-1" />
               </div>
-              <Progress value={overallProgress} className="h-2" />
-            </div>
+            )}
           </div>
         </CardHeader>
       </Card>
 
+      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Content Area */}
+        {/* Content Area */}
         <div className="lg:col-span-3">
-          <Card className="min-h-[600px]">
+          <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl">{currentSectionData.title}</CardTitle>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge className={`${
-                      currentSectionData.difficulty === 'Basic' ? 'bg-green-100 text-green-800' :
-                      currentSectionData.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {currentSectionData.difficulty}
-                    </Badge>
-                    
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <Clock className="h-4 w-4" />
-                      <span>{Math.round(currentSectionData.duration / 1000)} min read</span>
-                    </div>
-                    
-                    {completedSections.has(currentSectionData.id) && (
-                      <Badge className="bg-green-100 text-green-800">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Completed
-                      </Badge>
+                  <CardTitle className="flex items-center gap-2">
+                    {sections[activeSection].completed && (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
                     )}
+                    {sections[activeSection].title}
+                  </CardTitle>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge className={getDifficultyColor(sections[activeSection].difficulty)}>
+                      {sections[activeSection].difficulty}
+                    </Badge>
+                    <Badge variant="outline">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {sections[activeSection].duration}s
+                    </Badge>
                   </div>
                 </div>
                 
+                {/* Reading Speed Control */}
                 <div className="flex items-center gap-2">
-                  {currentSection > 0 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigateToSection(currentSection - 1)}
-                    >
-                      Previous
-                    </Button>
-                  )}
-                  
-                  {currentSection < learningSections.length - 1 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigateToSection(currentSection + 1)}
-                    >
-                      Next
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-6">
-              {/* Main Content */}
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {currentSectionData.content}
-                </p>
-                
-                {isLocalAudioPlaying && (
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Volume2 className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                        Now Playing Audio Narration
-                      </span>
-                    </div>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 italic">
-                      "{currentSectionData.audioText.substring(0, 100)}..."
-                    </p>
-                  </div>
-                )}
-              </div>
-              
-              <Separator />
-              
-              {/* Key Points */}
-              <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <Target className="h-5 w-5 text-blue-600" />
-                  Key Learning Points
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {currentSectionData.keyPoints.map((point, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                    >
-                      <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
-                        {index + 1}
-                      </div>
-                      <span className="text-sm">{point}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-              
-              <Separator />
-              
-              {/* Examples & Applications */}
-              <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-yellow-600" />
-                  Examples & Applications
-                </h3>
-                <div className="space-y-3">
-                  {currentSectionData.examples.map((example, index) => (
-                    <div key={index} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                        <span className="font-medium text-sm">{example}</span>
-                      </div>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="p-0 h-auto"
-                        onClick={() => openAITutor(`example: ${example}`)}
-                      >
-                        <MessageSquare className="h-3 w-3 mr-1" />
-                        Explore this example
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Section Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600">Speed:</span>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => markSectionCompleted(currentSectionData.id)}
-                    disabled={completedSections.has(currentSectionData.id)}
-                    className="flex items-center gap-2"
+                    onClick={() => setReadingSpeed(0.8)}
+                    className={readingSpeed === 0.8 ? 'bg-blue-100' : ''}
                   >
-                    {completedSections.has(currentSectionData.id) ? (
-                      <CheckCircle className="h-4 w-4" />
-                    ) : (
-                      <Circle className="h-4 w-4" />
-                    )}
-                    Mark as Complete
+                    Slow
                   </Button>
-                  
-                  {currentSectionData.hasQuiz && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-2"
-                    >
-                      <Calculator className="h-4 w-4" />
-                      Take Quiz
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReadingSpeed(1)}
+                    className={readingSpeed === 1 ? 'bg-blue-100' : ''}
+                  >
+                    Normal
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReadingSpeed(1.3)}
+                    className={readingSpeed === 1.3 ? 'bg-blue-100' : ''}
+                  >
+                    Fast
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="prose prose-lg max-w-none">
+                {/* Main Section Content */}
+                <div className="mb-6">
+                  <p className="text-gray-700 leading-relaxed">
+                    {sections[activeSection].content}
+                  </p>
                 </div>
                 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openAITutor(currentSectionData.content)}
-                  className="flex items-center gap-2"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Ask AI about this section
-                </Button>
+                {/* Subsections */}
+                {sections[activeSection].subsections && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                      Detailed Analysis
+                    </h3>
+                    
+                    <Tabs value={activeSubsection.toString()} onValueChange={(value) => setActiveSubsection(parseInt(value))}>
+                      <TabsList className="grid w-full grid-cols-2">
+                        {sections[activeSection].subsections!.map((subsection, index) => (
+                          <TabsTrigger key={subsection.id} value={index.toString()}>
+                            {subsection.title}
+                          </TabsTrigger>
+                        ))}
+                      </TabsList>
+                      
+                      {sections[activeSection].subsections!.map((subsection, index) => (
+                        <TabsContent key={subsection.id} value={index.toString()} className="mt-4">
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <h4 className="font-semibold mb-2">{subsection.title}</h4>
+                            <p className="text-gray-700 mb-4">{subsection.content}</p>
+                            
+                            {/* Key Points */}
+                            {subsection.keyPoints && (
+                              <div className="mb-4">
+                                <h5 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
+                                  <Target className="h-4 w-4" />
+                                  Key Points
+                                </h5>
+                                <ul className="list-disc list-inside space-y-1">
+                                  {subsection.keyPoints.map((point, idx) => (
+                                    <li key={idx} className="text-gray-700">{point}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {/* Examples */}
+                            {subsection.examples && (
+                              <div className="mb-4">
+                                <h5 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
+                                  <Lightbulb className="h-4 w-4" />
+                                  Examples
+                                </h5>
+                                <ul className="list-disc list-inside space-y-1">
+                                  {subsection.examples.map((example, idx) => (
+                                    <li key={idx} className="text-gray-700">{example}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => speakText(subsection.audioText)}
+                              className="flex items-center gap-2"
+                            >
+                              <Volume2 className="h-3 w-3" />
+                              Play Section Audio
+                            </Button>
+                          </div>
+                        </TabsContent>
+                      ))}
+                    </Tabs>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Navigation & Progress Sidebar */}
+        {/* Navigation Sidebar */}
         <div className="space-y-4">
-          {/* Section Navigation */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Learning Sections</CardTitle>
+              <CardTitle className="text-lg">Learning Path</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {learningSections.map((section, index) => (
-                <div
+              {sections.map((section, index) => (
+                <motion.div
                   key={section.id}
-                  className={`p-3 rounded-lg cursor-pointer transition-all ${
-                    index === currentSection 
-                      ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700' 
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                  className={`rounded-lg cursor-pointer transition-all ${
+                    activeSection === index
+                      ? 'bg-blue-100 border-2 border-blue-500'
+                      : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
                   }`}
-                  onClick={() => navigateToSection(index)}
+                  onClick={() => setActiveSection(index)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                      completedSections.has(section.id) 
-                        ? 'bg-green-500 text-white' 
-                        : index === currentSection 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-600'
-                    }`}>
-                      {completedSections.has(section.id) ? '✓' : index + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{section.title}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge 
-                          className={`text-xs ${
-                            section.difficulty === 'Basic' ? 'bg-green-100 text-green-700' :
-                            section.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                          }`}
-                          variant="outline"
-                        >
+                  <div className="p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-sm">{section.title}</h4>
+                      <div className="flex items-center gap-1">
+                        {section.completed && (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        )}
+                        <Badge className={`text-xs ${getDifficultyColor(section.difficulty)}`}>
                           {section.difficulty}
                         </Badge>
-                        {section.hasQuiz && (
-                          <div className="w-2 h-2 bg-orange-400 rounded-full" title="Has Quiz"></div>
-                        )}
                       </div>
                     </div>
+                    
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <span>{section.duration}s</span>
+                      {section.subsections && (
+                        <span>{section.subsections.length} subsections</span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
+          {/* AI Assistant Panel */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Quick Actions</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                AI Assistant
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start"
-                onClick={() => openAITutor('concept-overview')}
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAskAI('current section')}
               >
-                <Brain className="h-4 w-4 mr-2" />
-                Explain Concept
+                <Lightbulb className="h-4 w-4" />
+                Explain Current Section
               </Button>
               
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start"
-                onClick={() => openAITutor('check-understanding')}
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAskAI('quiz me')}
               >
-                <Target className="h-4 w-4 mr-2" />
-                Check Understanding
+                <Target className="h-4 w-4" />
+                Quiz Me
               </Button>
               
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start"
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAskAI('real world examples')}
               >
-                <Video className="h-4 w-4 mr-2" />
-                Watch Videos
+                <Star className="h-4 w-4" />
+                More Examples
               </Button>
               
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start"
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAskAI('study tips')}
               >
-                <Users className="h-4 w-4 mr-2" />
-                Study Group
+                <FileText className="h-4 w-4" />
+                Study Tips
               </Button>
             </CardContent>
           </Card>
@@ -592,8 +668,8 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({
         isOpen={showAITutor}
         onClose={() => setShowAITutor(false)}
         conceptName={conceptName}
-        context={selectedContext}
-        subject="Physics" // You can make this dynamic
+        context={aiContext}
+        subject="Physics"
       />
     </div>
   );

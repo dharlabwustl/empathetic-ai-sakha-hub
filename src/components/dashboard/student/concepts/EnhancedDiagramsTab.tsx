@@ -6,9 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Play, Pause, RotateCcw, Volume2, VolumeX, Eye, MousePointer,
-  Layers, Zap, Brain, MessageSquare, Target, Search, Filter,
-  BarChart3, PieChart, TrendingUp, Activity
+  Play, Pause, RotateCcw, Volume2, VolumeX, 
+  Eye, Zap, Target, CheckCircle, MessageSquare,
+  Activity, BarChart3, TrendingUp, Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AITutorDialog from './AITutorDialog';
@@ -23,617 +23,496 @@ interface EnhancedDiagramsTabProps {
   };
 }
 
-interface DiagramElement {
-  id: string;
-  type: 'shape' | 'arrow' | 'label' | 'formula';
-  position: { x: number; y: number };
-  content: string;
-  explanation: string;
-  audioText: string;
-  isInteractive: boolean;
-  connections?: string[];
-}
-
-interface VisualizationType {
+interface DiagramSection {
   id: string;
   title: string;
   description: string;
-  category: 'diagram' | 'graph' | 'chart' | 'simulation';
-  elements: DiagramElement[];
-  audioNarration: string;
+  audioText: string;
+  interactiveElements: InteractiveElement[];
+  completed: boolean;
   duration: number;
-  interactiveFeatures: string[];
 }
 
-const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ 
-  conceptName, 
-  subject,
-  globalAudioState 
-}) => {
-  // Audio and interaction states
-  const [isLocalAudioPlaying, setIsLocalAudioPlaying] = useState(false);
-  const [currentAudioProgress, setCurrentAudioProgress] = useState(0);
-  const [activeVisualization, setActiveVisualization] = useState(0);
-  const [selectedElement, setSelectedElement] = useState<string | null>(null);
-  const [highlightedElements, setHighlightedElements] = useState<Set<string>>(new Set());
-  const [interactionMode, setInteractionMode] = useState<'explore' | 'analyze'>('explore');
-  const [showAITutor, setShowAITutor] = useState(false);
-  const [selectedContext, setSelectedContext] = useState('');
-  const [activeLayer, setActiveLayer] = useState('all');
-  
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+interface InteractiveElement {
+  id: string;
+  type: 'hotspot' | 'annotation' | 'animation';
+  x: number;
+  y: number;
+  label: string;
+  description: string;
+  audioExplanation: string;
+}
 
-  // Mock visualizations data
-  const visualizations: VisualizationType[] = [
+const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
+  conceptName,
+  subject,
+  globalAudioState
+}) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [activeSection, setActiveSection] = useState(0);
+  const [selectedElement, setSelectedElement] = useState<InteractiveElement | null>(null);
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [showAITutor, setShowAITutor] = useState(false);
+  const [aiContext, setAiContext] = useState('');
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // Sample diagram sections for Newton's Laws
+  const diagramSections: DiagramSection[] = [
     {
-      id: 'concept-diagram',
-      title: 'Interactive Concept Diagram',
-      description: `Visual breakdown of ${conceptName} components and relationships`,
-      category: 'diagram',
-      audioNarration: `This interactive diagram shows the key components of ${conceptName}. Click on any element to learn more about its role and how it connects to other parts.`,
-      duration: 15000,
-      interactiveFeatures: ['element-selection', 'connection-highlighting', 'layer-filtering'],
-      elements: [
+      id: 'force-diagram',
+      title: 'Force Body Diagram',
+      description: 'Understanding forces acting on objects',
+      audioText: 'In this force body diagram, we can see how different forces interact with an object. The red arrows represent applied forces, while blue arrows show reaction forces. Notice how forces are balanced in equilibrium.',
+      interactiveElements: [
         {
-          id: 'main-concept',
-          type: 'shape',
-          position: { x: 50, y: 40 },
-          content: conceptName,
-          explanation: `The central concept representing ${conceptName}`,
-          audioText: `This is the main concept we're studying: ${conceptName}. It's the foundation that connects all other elements.`,
-          isInteractive: true,
-          connections: ['element-1', 'element-2', 'element-3']
+          id: 'applied-force',
+          type: 'hotspot',
+          x: 30,
+          y: 20,
+          label: 'Applied Force',
+          description: 'The force being applied to the object',
+          audioExplanation: 'This red arrow shows the applied force. Its magnitude and direction determine how the object will accelerate according to Newton\'s second law.'
         },
         {
-          id: 'element-1',
-          type: 'shape',
-          position: { x: 20, y: 20 },
-          content: 'Component A',
-          explanation: 'First key component of the concept',
-          audioText: 'Component A plays a crucial role in understanding the fundamental principles.',
-          isInteractive: true,
-          connections: ['main-concept']
-        },
-        {
-          id: 'element-2',
-          type: 'shape',
-          position: { x: 80, y: 20 },
-          content: 'Component B',
-          explanation: 'Second key component of the concept',
-          audioText: 'Component B demonstrates the practical applications and real-world relevance.',
-          isInteractive: true,
-          connections: ['main-concept']
-        },
-        {
-          id: 'element-3',
-          type: 'shape',
-          position: { x: 50, y: 70 },
-          content: 'Component C',
-          explanation: 'Third key component showing relationships',
-          audioText: 'Component C illustrates how different parts work together in the system.',
-          isInteractive: true,
-          connections: ['main-concept']
+          id: 'friction-force',
+          type: 'hotspot',
+          x: 70,
+          y: 80,
+          label: 'Friction Force',
+          description: 'The resistance force opposing motion',
+          audioExplanation: 'Friction always opposes the direction of motion. The magnitude depends on the surface materials and the normal force.'
         }
-      ]
+      ],
+      completed: false,
+      duration: 45
     },
     {
-      id: 'process-flow',
-      title: 'Process Flow Visualization',
-      description: `Step-by-step process flow for ${conceptName}`,
-      category: 'diagram',
-      audioNarration: `Follow this process flow to understand how ${conceptName} works step by step. Each stage builds upon the previous one.`,
-      duration: 18000,
-      interactiveFeatures: ['step-progression', 'timeline-scrubbing', 'detailed-explanations'],
-      elements: [
+      id: 'motion-graph',
+      title: 'Velocity-Time Graph',
+      description: 'Analyzing motion through graphical representation',
+      audioText: 'This velocity-time graph shows how an object\'s velocity changes over time. The slope represents acceleration, and the area under the curve represents displacement.',
+      interactiveElements: [
         {
-          id: 'step-1',
-          type: 'shape',
-          position: { x: 15, y: 50 },
-          content: 'Step 1: Initialize',
-          explanation: 'Starting point of the process',
-          audioText: 'The process begins with initialization, where we set up the basic conditions.',
-          isInteractive: true,
-          connections: ['step-2']
-        },
-        {
-          id: 'step-2',
-          type: 'shape',
-          position: { x: 40, y: 50 },
-          content: 'Step 2: Process',
-          explanation: 'Main processing phase',
-          audioText: 'In the processing phase, the core transformations take place.',
-          isInteractive: true,
-          connections: ['step-1', 'step-3']
-        },
-        {
-          id: 'step-3',
-          type: 'shape',
-          position: { x: 65, y: 50 },
-          content: 'Step 3: Analyze',
-          explanation: 'Analysis and evaluation phase',
-          audioText: 'The analysis phase helps us understand the results and their implications.',
-          isInteractive: true,
-          connections: ['step-2', 'step-4']
-        },
-        {
-          id: 'step-4',
-          type: 'shape',
-          position: { x: 85, y: 50 },
-          content: 'Step 4: Conclude',
-          explanation: 'Final conclusions and outcomes',
-          audioText: 'Finally, we draw conclusions based on our analysis and observations.',
-          isInteractive: true,
-          connections: ['step-3']
+          id: 'slope-area',
+          type: 'annotation',
+          x: 50,
+          y: 40,
+          label: 'Slope = Acceleration',
+          description: 'The steepness of the line indicates acceleration',
+          audioExplanation: 'The slope of this line tells us the acceleration. A steeper positive slope means greater acceleration in the positive direction.'
         }
-      ]
+      ],
+      completed: false,
+      duration: 35
     },
     {
-      id: 'data-visualization',
-      title: 'Data & Graphs',
-      description: `Quantitative analysis and graphical representation`,
-      category: 'chart',
-      audioNarration: `These graphs and charts provide quantitative insights into ${conceptName}. Explore different data representations to understand trends and patterns.`,
-      duration: 12000,
-      interactiveFeatures: ['data-filtering', 'chart-switching', 'value-inspection'],
-      elements: [
+      id: 'energy-conservation',
+      title: 'Energy Conservation',
+      description: 'Visualizing energy transformations',
+      audioText: 'This diagram illustrates energy conservation in a pendulum. As the pendulum swings, potential energy converts to kinetic energy and back again.',
+      interactiveElements: [
         {
-          id: 'chart-1',
-          type: 'shape',
-          position: { x: 25, y: 30 },
-          content: 'Performance Chart',
-          explanation: 'Shows performance metrics over time',
-          audioText: 'This performance chart illustrates how the system behaves under different conditions.',
-          isInteractive: true
-        },
-        {
-          id: 'chart-2',
-          type: 'shape',
-          position: { x: 75, y: 30 },
-          content: 'Comparison Graph',
-          explanation: 'Comparative analysis between scenarios',
-          audioText: 'The comparison graph helps identify optimal conditions and trade-offs.',
-          isInteractive: true
-        },
-        {
-          id: 'chart-3',
-          type: 'shape',
-          position: { x: 50, y: 70 },
-          content: 'Trend Analysis',
-          explanation: 'Long-term trends and predictions',
-          audioText: 'Trend analysis reveals patterns that help predict future behavior.',
-          isInteractive: true
+          id: 'potential-energy',
+          type: 'animation',
+          x: 25,
+          y: 15,
+          label: 'Potential Energy',
+          description: 'Energy stored due to position',
+          audioExplanation: 'At the highest points, the pendulum has maximum potential energy and minimum kinetic energy.'
         }
-      ]
+      ],
+      completed: false,
+      duration: 50
     }
   ];
 
-  // Audio control functions
-  const handleLocalAudioToggle = () => {
-    const newPlayingState = !isLocalAudioPlaying;
-    setIsLocalAudioPlaying(newPlayingState);
-    
-    if (newPlayingState) {
-      startAudioNarration();
+  const [sections, setSections] = useState(diagramSections);
+
+  // Audio synthesis function
+  const speakText = (text: string) => {
+    if (isMuted || !globalAudioState?.isEnabled) return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => {
+      setIsPlaying(false);
+      markSectionCompleted();
+    };
+    utterance.onerror = () => setIsPlaying(false);
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
     } else {
-      stopAudioNarration();
+      const currentSection = sections[activeSection];
+      speakText(currentSection.audioText);
     }
   };
 
-  const startAudioNarration = () => {
-    const currentViz = visualizations[activeVisualization];
-    if (currentViz) {
-      const totalDuration = currentViz.duration;
-      let elapsed = 0;
-      
-      intervalRef.current = setInterval(() => {
-        elapsed += 100;
-        const progress = Math.min((elapsed / totalDuration) * 100, 100);
-        setCurrentAudioProgress(progress);
-        
-        // Highlight elements progressively
-        const elementIndex = Math.floor((progress / 100) * currentViz.elements.length);
-        if (elementIndex < currentViz.elements.length) {
-          const elementToHighlight = currentViz.elements[elementIndex].id;
-          setHighlightedElements(prev => new Set([...prev, elementToHighlight]));
-        }
-        
-        if (progress >= 100) {
-          setIsLocalAudioPlaying(false);
-          clearInterval(intervalRef.current!);
-        }
-      }, 100);
-    }
+  const handleReset = () => {
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
+    setCurrentProgress(0);
+    setActiveSection(0);
   };
 
-  const stopAudioNarration = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+  const markSectionCompleted = () => {
+    const currentSectionId = sections[activeSection].id;
+    setCompletedSections(prev => new Set([...prev, currentSectionId]));
+    
+    setSections(prev => prev.map((section, index) => 
+      index === activeSection ? { ...section, completed: true } : section
+    ));
   };
 
-  const resetAudio = () => {
-    stopAudioNarration();
-    setCurrentAudioProgress(0);
-    setIsLocalAudioPlaying(false);
-    setHighlightedElements(new Set());
+  const handleElementClick = (element: InteractiveElement) => {
+    setSelectedElement(element);
+    speakText(element.audioExplanation);
   };
 
-  // Element interaction handlers
-  const handleElementClick = (elementId: string) => {
-    const element = visualizations[activeVisualization].elements.find(e => e.id === elementId);
-    if (element && element.isInteractive) {
-      setSelectedElement(elementId);
-      
-      // Highlight connected elements
-      if (element.connections) {
-        setHighlightedElements(new Set([elementId, ...element.connections]));
-      } else {
-        setHighlightedElements(new Set([elementId]));
-      }
-      
-      // Play element-specific audio
-      if (element.audioText) {
-        // In a real implementation, you would play the specific audio
-        console.log('Playing audio:', element.audioText);
-      }
-    }
-  };
-
-  const openAITutor = (context: string) => {
-    setSelectedContext(context);
+  const handleAskAI = (context: string) => {
+    setAiContext(context);
     setShowAITutor(true);
   };
 
-  // Global audio synchronization
-  useEffect(() => {
-    if (globalAudioState?.isPlaying && !globalAudioState.isEnabled) {
-      stopAudioNarration();
-      setIsLocalAudioPlaying(false);
+  const getSVGDiagram = (sectionId: string) => {
+    switch (sectionId) {
+      case 'force-diagram':
+        return (
+          <svg viewBox="0 0 400 300" className="w-full h-64 border rounded-lg bg-gray-50">
+            {/* Object */}
+            <rect x="175" y="125" width="50" height="50" fill="#4F46E5" stroke="#312E81" strokeWidth="2"/>
+            <text x="200" y="155" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Object</text>
+            
+            {/* Applied Force */}
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <line x1="120" y1="150" x2="170" y2="150" stroke="#EF4444" strokeWidth="3" markerEnd="url(#arrowhead-red)"/>
+              <text x="90" y="145" fill="#EF4444" fontSize="12" fontWeight="bold">Applied Force</text>
+              <circle 
+                cx="120" 
+                cy="150" 
+                r="8" 
+                fill="#EF4444" 
+                className="cursor-pointer hover:scale-110 transition-transform"
+                onClick={() => handleElementClick(sections[0].interactiveElements[0])}
+              />
+            </motion.g>
+            
+            {/* Friction Force */}
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.0 }}
+            >
+              <line x1="280" y1="150" x2="230" y2="150" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead-blue)"/>
+              <text x="285" y="145" fill="#3B82F6" fontSize="12" fontWeight="bold">Friction</text>
+              <circle 
+                cx="280" 
+                cy="150" 
+                r="8" 
+                fill="#3B82F6" 
+                className="cursor-pointer hover:scale-110 transition-transform"
+                onClick={() => handleElementClick(sections[0].interactiveElements[1])}
+              />
+            </motion.g>
+            
+            {/* Arrow markers */}
+            <defs>
+              <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#EF4444"/>
+              </marker>
+              <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#3B82F6"/>
+              </marker>
+            </defs>
+          </svg>
+        );
+      
+      case 'motion-graph':
+        return (
+          <svg viewBox="0 0 400 300" className="w-full h-64 border rounded-lg bg-gray-50">
+            {/* Axes */}
+            <line x1="50" y1="250" x2="350" y2="250" stroke="#374151" strokeWidth="2"/>
+            <line x1="50" y1="250" x2="50" y2="50" stroke="#374151" strokeWidth="2"/>
+            
+            {/* Labels */}
+            <text x="200" y="280" textAnchor="middle" fontSize="14" fontWeight="bold">Time (s)</text>
+            <text x="25" y="150" textAnchor="middle" fontSize="14" fontWeight="bold" transform="rotate(-90 25 150)">Velocity (m/s)</text>
+            
+            {/* Graph line */}
+            <motion.path
+              d="M 50 200 Q 150 100 250 150 T 350 180"
+              stroke="#8B5CF6"
+              strokeWidth="3"
+              fill="none"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 2, delay: 0.5 }}
+            />
+            
+            {/* Interactive point */}
+            <motion.circle
+              cx="200"
+              cy="125"
+              r="6"
+              fill="#8B5CF6"
+              className="cursor-pointer hover:scale-125 transition-transform"
+              onClick={() => handleElementClick(sections[1].interactiveElements[0])}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 1.5 }}
+            />
+          </svg>
+        );
+      
+      default:
+        return (
+          <svg viewBox="0 0 400 300" className="w-full h-64 border rounded-lg bg-gray-50">
+            <circle cx="200" cy="150" r="80" fill="#10B981" opacity="0.3"/>
+            <text x="200" y="155" textAnchor="middle" fontSize="16" fontWeight="bold">Interactive Diagram</text>
+          </svg>
+        );
     }
-  }, [globalAudioState]);
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  const currentVisualization = visualizations[activeVisualization];
-  const selectedElementData = selectedElement 
-    ? currentVisualization.elements.find(e => e.id === selectedElement)
-    : null;
+  };
 
   return (
     <div className="space-y-6">
       {/* Header with Controls */}
-      <Card className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-green-600" />
-                Interactive Visualizations
+                <Eye className="h-5 w-5 text-blue-600" />
+                Interactive Visualizations - {conceptName}
               </CardTitle>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Explore interactive diagrams and visual explanations for {conceptName}
+              <p className="text-sm text-gray-600 mt-1">
+                Explore interactive diagrams with synchronized audio explanations
               </p>
             </div>
             
-            {/* Audio & Interaction Controls */}
+            {/* Audio Controls */}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleLocalAudioToggle}
+                onClick={handlePlayPause}
+                disabled={isMuted}
                 className="flex items-center gap-2"
               >
-                {isLocalAudioPlaying ? (
-                  <Pause className="h-4 w-4" />
-                ) : (
-                  <Play className="h-4 w-4" />
-                )}
-                {isLocalAudioPlaying ? 'Pause' : 'Play'} Explanation
+                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isPlaying ? 'Pause' : 'Play'}
               </Button>
               
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetAudio}
-              >
+              <Button variant="outline" size="sm" onClick={handleReset}>
                 <RotateCcw className="h-4 w-4" />
               </Button>
               
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setInteractionMode(interactionMode === 'explore' ? 'analyze' : 'explore')}
+                onClick={() => setIsMuted(!isMuted)}
               >
-                {interactionMode === 'explore' ? <Eye className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-                {interactionMode === 'explore' ? 'Explore' : 'Analyze'}
+                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </Button>
               
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => openAITutor('visual-explanation')}
+                onClick={() => handleAskAI('interactive visualizations')}
                 className="flex items-center gap-2"
               >
-                <Brain className="h-4 w-4" />
-                AI Visual Assistant
+                <MessageSquare className="h-4 w-4" />
+                Ask AI
               </Button>
             </div>
           </div>
           
-          {/* Progress Bar */}
+          {/* Progress */}
           <div className="mt-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span>Visualization Progress</span>
-              <span>{Math.round(currentAudioProgress)}%</span>
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Section {activeSection + 1} of {sections.length}</span>
+              <span>{completedSections.size}/{sections.length} completed</span>
             </div>
-            <Progress value={currentAudioProgress} className="h-2" />
+            <Progress value={(completedSections.size / sections.length) * 100} className="h-2" />
           </div>
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Visualization Area */}
-        <div className="lg:col-span-3">
-          <Card className="h-[600px]">
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Diagram Display */}
+        <div className="lg:col-span-2">
+          <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg">{currentVisualization.title}</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {currentVisualization.description}
+                  <CardTitle className="flex items-center gap-2">
+                    {sections[activeSection].completed && (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    )}
+                    {sections[activeSection].title}
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    {sections[activeSection].description}
                   </p>
                 </div>
-                <Badge className={`${
-                  currentVisualization.category === 'diagram' ? 'bg-blue-100 text-blue-800' :
-                  currentVisualization.category === 'chart' ? 'bg-green-100 text-green-800' :
-                  'bg-purple-100 text-purple-800'
-                }`}>
-                  {currentVisualization.category}
+                <Badge variant="outline">
+                  {sections[activeSection].duration}s
                 </Badge>
               </div>
             </CardHeader>
-            
-            <CardContent className="h-full">
-              {/* Interactive Diagram Area */}
-              <div className="w-full h-[450px] bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900/20 rounded-lg relative overflow-hidden border">
-                {/* Render diagram elements */}
-                {currentVisualization.elements.map((element) => (
-                  <motion.div
-                    key={element.id}
-                    className={`absolute cursor-pointer transition-all duration-300 ${
-                      highlightedElements.has(element.id) 
-                        ? 'ring-4 ring-blue-400 ring-opacity-60 z-20' 
-                        : 'hover:ring-2 hover:ring-blue-300 z-10'
-                    } ${
-                      selectedElement === element.id 
-                        ? 'ring-4 ring-green-500 ring-opacity-80' 
-                        : ''
-                    }`}
-                    style={{
-                      left: `${element.position.x}%`,
-                      top: `${element.position.y}%`,
-                      transform: 'translate(-50%, -50%)'
-                    }}
-                    onClick={() => handleElementClick(element.id)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    animate={{
-                      scale: highlightedElements.has(element.id) ? 1.1 : 1,
-                    }}
-                  >
-                    <div className={`px-4 py-3 rounded-lg shadow-lg text-center min-w-[120px] ${
-                      element.type === 'shape' ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700' :
-                      element.type === 'formula' ? 'bg-blue-100 dark:bg-blue-900 border border-blue-300' :
-                      'bg-yellow-100 dark:bg-yellow-900 border border-yellow-300'
-                    }`}>
-                      <p className="text-sm font-medium">{element.content}</p>
-                      {element.isInteractive && (
-                        <div className="mt-1 flex justify-center">
-                          <Zap className="h-3 w-3 text-blue-500" />
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
+            <CardContent>
+              <div className="relative">
+                {getSVGDiagram(sections[activeSection].id)}
                 
-                {/* Connection lines */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                  {currentVisualization.elements.map((element) =>
-                    element.connections?.map((connectionId) => {
-                      const connectedElement = currentVisualization.elements.find(e => e.id === connectionId);
-                      if (!connectedElement) return null;
-                      
-                      const x1 = (element.position.x / 100) * 100; // Convert percentage to actual position
-                      const y1 = (element.position.y / 100) * 100;
-                      const x2 = (connectedElement.position.x / 100) * 100;
-                      const y2 = (connectedElement.position.y / 100) * 100;
-                      
-                      return (
-                        <line
-                          key={`${element.id}-${connectionId}`}
-                          x1={`${x1}%`}
-                          y1={`${y1}%`}
-                          x2={`${x2}%`}
-                          y2={`${y2}%`}
-                          stroke={highlightedElements.has(element.id) || highlightedElements.has(connectionId) ? "#3B82F6" : "#D1D5DB"}
-                          strokeWidth={highlightedElements.has(element.id) || highlightedElements.has(connectionId) ? "3" : "2"}
-                          strokeDasharray={isLocalAudioPlaying ? "5,5" : "none"}
-                          className="transition-all duration-300"
-                        />
-                      );
-                    })
-                  )}
-                </svg>
-                
-                {/* Interaction Overlay */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm">
-                        <span className="font-medium">Mode:</span> {interactionMode}
-                        {selectedElement && (
-                          <span className="ml-3">
-                            <span className="font-medium">Selected:</span> {selectedElementData?.content}
-                          </span>
-                        )}
-                      </div>
+                {/* Interactive Elements Overlay */}
+                <AnimatePresence>
+                  {sections[activeSection].interactiveElements.map((element) => (
+                    <motion.div
+                      key={element.id}
+                      className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                      style={{ 
+                        left: `${element.x}%`, 
+                        top: `${element.y}%` 
+                      }}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      whileHover={{ scale: 1.2 }}
+                    >
                       <Button
-                        variant="ghost"
                         size="sm"
-                        onClick={() => openAITutor(selectedElementData?.explanation || 'diagram-analysis')}
+                        variant="secondary"
+                        className="rounded-full w-8 h-8 p-0 bg-yellow-400 hover:bg-yellow-500 text-yellow-900"
+                        onClick={() => handleElementClick(element)}
                       >
-                        <MessageSquare className="h-4 w-4" />
+                        <Zap className="h-4 w-4" />
                       </Button>
-                    </div>
-                  </div>
-                </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
               
-              {/* Visualization Selection */}
-              <div className="mt-4 flex gap-2">
-                {visualizations.map((viz, index) => (
+              {/* Selected Element Info */}
+              {selectedElement && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200"
+                >
+                  <h4 className="font-semibold text-blue-800">{selectedElement.label}</h4>
+                  <p className="text-blue-700 mt-1">{selectedElement.description}</p>
                   <Button
-                    key={viz.id}
-                    variant={activeVisualization === index ? "default" : "outline"}
                     size="sm"
-                    onClick={() => {
-                      setActiveVisualization(index);
-                      resetAudio();
-                      setSelectedElement(null);
-                      setHighlightedElements(new Set());
-                    }}
-                    className="flex-1"
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => speakText(selectedElement.audioExplanation)}
                   >
-                    {viz.title}
+                    <Volume2 className="h-3 w-3 mr-1" />
+                    Play Explanation
                   </Button>
-                ))}
-              </div>
+                </motion.div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Control Panel */}
+        {/* Section Navigation */}
         <div className="space-y-4">
-          {/* Element Details */}
-          {selectedElementData && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  Element Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <h4 className="font-medium text-sm">{selectedElementData.content}</h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                    {selectedElementData.explanation}
-                  </p>
-                </div>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => openAITutor(selectedElementData.explanation)}
-                >
-                  <Brain className="h-4 w-4 mr-2" />
-                  Explain This Element
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-          
-          {/* Visualization Controls */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Layers className="h-4 w-4" />
-                Visualization Controls
-              </CardTitle>
+              <CardTitle className="text-lg">Sections</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <label className="text-xs font-medium">Layer Filter</label>
-                <select
-                  value={activeLayer}
-                  onChange={(e) => setActiveLayer(e.target.value)}
-                  className="w-full text-sm border rounded px-2 py-1"
+            <CardContent className="space-y-2">
+              {sections.map((section, index) => (
+                <motion.div
+                  key={section.id}
+                  className={`p-3 rounded-lg cursor-pointer transition-all ${
+                    activeSection === index
+                      ? 'bg-blue-100 border-2 border-blue-500'
+                      : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                  onClick={() => setActiveSection(index)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <option value="all">All Elements</option>
-                  <option value="main">Main Components</option>
-                  <option value="details">Details Only</option>
-                  <option value="connections">Connections</option>
-                </select>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setHighlightedElements(new Set())}
-                  className="flex-1"
-                >
-                  Clear Selection
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const allIds = currentVisualization.elements.map(e => e.id);
-                    setHighlightedElements(new Set(allIds));
-                  }}
-                  className="flex-1"
-                >
-                  Highlight All
-                </Button>
-              </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium text-sm">{section.title}</h4>
+                      <p className="text-xs text-gray-600 mt-1">
+                        {section.description}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {section.completed && (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      )}
+                      <Badge variant="outline" className="text-xs">
+                        {section.duration}s
+                      </Badge>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </CardContent>
           </Card>
 
-          {/* Interactive Features */}
+          {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Interactive Features</CardTitle>
+              <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {currentVisualization.interactiveFeatures.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm">
-                  <Zap className="h-3 w-3 text-yellow-500" />
-                  <span className="capitalize">{feature.replace('-', ' ')}</span>
-                </div>
-              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAskAI('diagram explanation')}
+              >
+                <Lightbulb className="h-4 w-4" />
+                Explain This Diagram
+              </Button>
               
-              <div className="mt-4 space-y-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start"
-                  onClick={() => openAITutor('visual-understanding')}
-                >
-                  <Brain className="h-4 w-4 mr-2" />
-                  Check My Understanding
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start"
-                  onClick={() => openAITutor('suggest-interactions')}
-                >
-                  <Target className="h-4 w-4 mr-2" />
-                  Suggest Interactions
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAskAI('interactive elements')}
+              >
+                <Target className="h-4 w-4" />
+                Understand Elements
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAskAI('practice questions')}
+              >
+                <Activity className="h-4 w-4" />
+                Practice Questions
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -644,7 +523,7 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
         isOpen={showAITutor}
         onClose={() => setShowAITutor(false)}
         conceptName={conceptName}
-        context={selectedContext}
+        context={aiContext}
         subject={subject}
       />
     </div>
