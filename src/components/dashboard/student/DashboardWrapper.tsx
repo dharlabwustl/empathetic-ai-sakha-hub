@@ -11,6 +11,7 @@ import SurroundingInfluencesSection from '@/components/dashboard/student/Surroun
 import MainContent from '@/components/dashboard/student/MainContent';
 import { useIsMobile } from "@/hooks/use-mobile";
 import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
+import { formatTime, formatDate } from "@/pages/dashboard/student/utils/DateTimeFormatter";
 
 interface DashboardWrapperProps {
   userProfile: UserProfileBase;
@@ -85,7 +86,7 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
         {/* Surrounding Influences Meter */}
         <SurroundingInfluencesSection 
           userProfile={userProfile}
-          currentMood={userProfile.currentMood}
+          currentMood={userProfile.currentMood || 'motivated'}
         />
         
         {/* Mobile Navigation */}
@@ -117,6 +118,3 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
 };
 
 export default DashboardWrapper;
-
-// Import formatting utilities
-import { formatTime, formatDate } from "@/pages/dashboard/student/utils/DateTimeFormatter";

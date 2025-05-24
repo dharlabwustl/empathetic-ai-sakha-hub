@@ -1,119 +1,125 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CalendarClock, ChevronRight } from 'lucide-react';
-import { format } from 'date-fns';
-import { StudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { StudyPlan, StudyPlanTopic } from '@/types/user/studyPlan';
+import { Calendar, Clock, Target, BookOpen } from 'lucide-react';
 
 interface StudyPlanCardProps {
   plan: StudyPlan;
-  onClick: (planId: string) => void;
-  isActive?: boolean;
+  onViewDetails?: (plan: StudyPlan) => void;
+  onEdit?: (plan: StudyPlan) => void;
+  onDelete?: (planId: string) => void;
 }
 
 const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
   plan,
-  onClick,
-  isActive = false
+  onViewDetails,
+  onEdit,
+  onDelete
 }) => {
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'MMM d, yyyy');
-    } catch {
-      return dateString;
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'in-progress': return 'bg-blue-100 text-blue-800';
+      case 'paused': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  // Safely calculate subject progress if topics are available
-  const getSubjectProgress = (subject: StudyPlanSubject): number => {
-    if (!subject.topics || subject.topics.length === 0) return 0;
-    
-    const completedTopics = subject.topics.filter(topic => topic.completed).length;
-    return Math.round((completedTopics / subject.topics.length) * 100);
-  };
+  const completedTopics = plan.subjects.reduce((total, subject) => {
+    return total + subject.topics.filter(topic => {
+      if (typeof topic === 'string') return false;
+      return (topic as StudyPlanTopic).completed;
+    }).length;
+  }, 0);
 
-  const renderSubjects = () => {
-    // Show only up to 3 subjects
-    return plan.subjects.slice(0, 3).map(subject => (
-      <div key={subject.id} className="flex flex-col space-y-1">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <div 
-              className="w-3 h-3 rounded-full mr-2" 
-              style={{ backgroundColor: subject.color || '#3b82f6' }}
-            ></div>
-            <span className="text-sm font-medium">{subject.name}</span>
-          </div>
-          <span className="text-xs text-gray-500">
-            {getSubjectProgress(subject)}%
-          </span>
-        </div>
-        <Progress
-          value={getSubjectProgress(subject)}
-          className="h-1.5"
-          style={{ backgroundColor: 'rgba(200, 200, 200, 0.3)' }}
-        />
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>{subject.proficiency !== 'weak' ? 'Strong' : 'Needs Work'}</span>
-          <span>{subject.hoursPerWeek} hrs/week</span>
-        </div>
-      </div>
-    ));
-  };
+  const totalTopics = plan.subjects.reduce((total, subject) => {
+    return total + subject.topics.length;
+  }, 0);
+
+  const progressPercent = plan.progress || (totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0);
+
+  // Calculate days left
+  const today = new Date();
+  const targetDate = new Date(plan.targetDate);
+  const daysLeft = Math.max(0, Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
 
   return (
-    <Card className={`hover:shadow-md transition-all ${isActive ? 'border-2 border-primary' : ''}`}>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-lg">{plan.examGoal} Preparation</h3>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <CalendarClock className="mr-1 h-3.5 w-3.5" />
-              <span>
-                {formatDate(plan.examDate.toString())} 
-                {plan.daysLeft && plan.daysLeft > 0 ? ` • ${plan.daysLeft} days left` : ''}
-              </span>
-            </div>
+            <CardTitle className="text-lg">{plan.title}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {plan.examGoal || plan.examType} • Target: {plan.targetDate.toLocaleDateString()}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {daysLeft > 0 ? `${daysLeft} days left` : 'Target date passed'}
+            </p>
           </div>
-          
-          <div className="text-right">
-            <div className="text-sm font-semibold">
-              {plan.progressPercent || 0}% Complete
-            </div>
-            <div 
-              className={`text-xs ${
-                plan.status === 'active' ? 'text-green-600' : 
-                plan.status === 'completed' ? 'text-blue-600' : 'text-amber-600'
-              }`}
-            >
-              {plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}
-            </div>
+          <div className="flex flex-col items-end gap-2">
+            <Badge className={getStatusColor(plan.isActive ? 'in-progress' : 'paused')}>
+              {plan.isActive ? 'Active' : 'Paused'}
+            </Badge>
           </div>
         </div>
       </CardHeader>
-      
       <CardContent>
         <div className="space-y-4">
-          <div className="space-y-3">
-            {renderSubjects()}
-          </div>
-          
-          {plan.subjects.length > 3 && (
-            <div className="text-xs text-center text-muted-foreground">
-              + {plan.subjects.length - 3} more subjects
+          {/* Progress */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Overall Progress</span>
+              <span className="text-sm text-muted-foreground">{Math.round(progressPercent)}%</span>
             </div>
-          )}
-          
-          <Button 
-            variant="outline"
-            className="w-full flex items-center justify-between"
-            onClick={() => onClick(plan.id)}
-          >
-            <span>View Plan Details</span>
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
+            <Progress value={progressPercent} className="h-2" />
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center">
+              <div className="text-lg font-semibold text-blue-600">{plan.subjects.length}</div>
+              <div className="text-xs text-muted-foreground">Subjects</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-semibold text-green-600">{plan.completedHours}h</div>
+              <div className="text-xs text-muted-foreground">Completed</div>
+            </div>
+          </div>
+
+          {/* Subjects */}
+          <div>
+            <h4 className="text-sm font-medium mb-2">Subjects</h4>
+            <div className="flex flex-wrap gap-1">
+              {plan.subjects.map((subject) => (
+                <Badge key={subject.id} variant="outline" className="text-xs">
+                  {subject.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              onClick={() => onViewDetails?.(plan)}
+              className="flex-1"
+            >
+              <BookOpen className="h-4 w-4 mr-1" />
+              View Details
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => onEdit?.(plan)}
+            >
+              Edit
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -1,99 +1,91 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { CalendarDays, ChevronRight, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { StudyPlan } from '@/types/user/studyPlan';
+import { Calendar, Clock, Target } from 'lucide-react';
 
 interface ActivePlansListProps {
   plans: StudyPlan[];
-  onViewPlanDetails?: (planId: string) => void;
+  onViewPlan?: (plan: StudyPlan) => void;
 }
 
-const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans, onViewPlanDetails }) => {
-  if (!plans || plans.length === 0) {
+const ActivePlansList: React.FC<ActivePlansListProps> = ({ plans, onViewPlan }) => {
+  const activePlans = plans.filter(plan => plan.isActive);
+
+  if (activePlans.length === 0) {
     return (
       <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">
-            No active study plans. Create a new plan to get started.
-          </p>
+        <CardContent className="pt-6 text-center">
+          <p className="text-muted-foreground">No active study plans found.</p>
         </CardContent>
       </Card>
     );
   }
-  
-  const handleViewDetails = (planId: string) => {
-    if (onViewPlanDetails) onViewPlanDetails(planId);
-  };
-  
+
   return (
-    <>
-      {plans.map((plan) => (
-        <Card key={plan.id} className="hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="col-span-2">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="text-lg font-semibold">{plan.examGoal}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Created on {new Date(plan.createdAt).toLocaleDateString()}
-                    </p>
+    <div className="space-y-4">
+      {activePlans.map((plan) => {
+        // Calculate progress percentage
+        const progressPercent = plan.progress || 0;
+        
+        // Calculate days left
+        const today = new Date();
+        const targetDate = new Date(plan.targetDate);
+        const daysLeft = Math.max(0, Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+        
+        // Calculate study hours per day needed
+        const remainingHours = plan.totalHours - plan.completedHours;
+        const studyHoursPerDay = daysLeft > 0 ? Math.ceil(remainingHours / daysLeft) : 0;
+
+        return (
+          <Card 
+            key={plan.id} 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => onViewPlan?.(plan)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">{plan.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {plan.examGoal || plan.examType} • Target: {plan.targetDate.toLocaleDateString()}
+                  </p>
+                </div>
+                <Badge variant="default">Active</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Progress</span>
+                    <span className="text-sm text-muted-foreground">{Math.round(progressPercent)}%</span>
                   </div>
-                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                    Active
-                  </Badge>
+                  <Progress value={progressPercent} className="h-2" />
                 </div>
                 
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <span>Progress</span>
-                    <span className="font-medium">{plan.progressPercent || 0}%</span>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-blue-600">{daysLeft}</div>
+                    <div className="text-xs text-muted-foreground">Days Left</div>
                   </div>
-                  <Progress value={plan.progressPercent || 0} className="h-2" />
-                </div>
-                
-                <div className="flex flex-wrap gap-3">
-                  <div className="flex items-center text-sm">
-                    <CalendarDays className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span>{plan.daysLeft || 0} days left</span>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-green-600">{studyHoursPerDay}h</div>
+                    <div className="text-xs text-muted-foreground">Per Day</div>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span>{plan.studyHoursPerDay || 0} hours/day</span>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-purple-600">{plan.subjects.length}</div>
+                    <div className="text-xs text-muted-foreground">Subjects</div>
                   </div>
                 </div>
               </div>
-              
-              <div className="flex flex-col justify-between md:items-end space-y-4">
-                <div className="space-y-2 w-full md:text-right">
-                  <h4 className="text-sm font-medium text-muted-foreground">Subjects</h4>
-                  <div className="flex flex-wrap gap-2 md:justify-end">
-                    {plan.subjects.map((subject, idx) => (
-                      <Badge key={idx} variant="outline" className="bg-gray-50 dark:bg-gray-800">
-                        {subject.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <Button 
-                  variant="ghost" 
-                  className="w-fit ml-auto"
-                  onClick={() => handleViewDetails(plan.id)}
-                >
-                  View Details
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 };
 

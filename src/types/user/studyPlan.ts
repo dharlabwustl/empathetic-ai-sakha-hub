@@ -25,6 +25,7 @@ export interface StudyPlanSubject {
   estimatedHours: number;
   actualHours: number;
   topics: (string | StudyPlanTopic)[];
+  color?: string;
 }
 
 export interface StudyPlan {
@@ -32,12 +33,30 @@ export interface StudyPlan {
   title: string;
   description?: string;
   examType: string;
+  examGoal?: string;
   targetDate: Date;
+  examDate?: Date;
   subjects: StudyPlanSubject[];
   totalHours: number;
   completedHours: number;
   progress: number;
+  progressPercent?: number;
+  status?: StudyPlanStatus;
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  daysLeft?: number;
+  studyHoursPerDay?: number;
+  weeklyHours?: number;
+}
+
+export interface StudyPlanWizardData {
+  examGoal: string;
+  targetDate: Date;
+  studyHours: number;
+  subjects: string[];
+  strongSubjects: string[];
+  mediumSubjects: string[];
+  weakSubjects: string[];
+  studyPace: 'slow' | 'medium' | 'fast';
 }
