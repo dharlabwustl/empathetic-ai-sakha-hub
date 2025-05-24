@@ -2,9 +2,52 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, BookOpen, TrendingUp, Activity, DollarSign, UserCheck, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 import EnhancedKPIDashboard from './EnhancedKPIDashboard';
 
 const Overview: React.FC = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'add-student':
+        navigate('/admin?tab=users');
+        toast({
+          title: "Navigating to Users",
+          description: "Add new students in the Users section.",
+        });
+        break;
+      case 'create-content':
+        navigate('/admin?tab=content');
+        toast({
+          title: "Navigating to Content",
+          description: "Create new educational content.",
+        });
+        break;
+      case 'view-reports':
+        navigate('/admin?tab=analytics');
+        toast({
+          title: "Navigating to Reports",
+          description: "View detailed analytics and reports.",
+        });
+        break;
+      case 'analytics':
+        navigate('/admin?tab=analytics-reporting');
+        toast({
+          title: "Navigating to Analytics",
+          description: "View comprehensive analytics dashboard.",
+        });
+        break;
+      default:
+        toast({
+          title: "Feature Coming Soon",
+          description: "This feature will be available soon.",
+        });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Enhanced KPI Dashboard */}
@@ -92,19 +135,31 @@ const Overview: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
+            <button 
+              className="p-4 border rounded-lg hover:bg-gray-50 text-center transition-colors"
+              onClick={() => handleQuickAction('add-student')}
+            >
               <Users className="w-6 h-6 mx-auto mb-2 text-blue-600" />
               <span className="text-sm font-medium">Add Student</span>
             </button>
-            <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
+            <button 
+              className="p-4 border rounded-lg hover:bg-gray-50 text-center transition-colors"
+              onClick={() => handleQuickAction('create-content')}
+            >
               <BookOpen className="w-6 h-6 mx-auto mb-2 text-green-600" />
               <span className="text-sm font-medium">Create Content</span>
             </button>
-            <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
+            <button 
+              className="p-4 border rounded-lg hover:bg-gray-50 text-center transition-colors"
+              onClick={() => handleQuickAction('view-reports')}
+            >
               <BarChart3 className="w-6 h-6 mx-auto mb-2 text-purple-600" />
               <span className="text-sm font-medium">View Reports</span>
             </button>
-            <button className="p-4 border rounded-lg hover:bg-gray-50 text-center">
+            <button 
+              className="p-4 border rounded-lg hover:bg-gray-50 text-center transition-colors"
+              onClick={() => handleQuickAction('analytics')}
+            >
               <TrendingUp className="w-6 h-6 mx-auto mb-2 text-orange-600" />
               <span className="text-sm font-medium">Analytics</span>
             </button>

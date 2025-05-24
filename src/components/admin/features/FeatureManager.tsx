@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   Card, 
@@ -25,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import ActionDialog from "@/components/admin/dialogs/ActionDialog";
 import { useActionDialog } from "@/hooks/useActionDialog";
 
-// Sample feature data that matches student dashboard features
+// Expanded feature data that includes more comprehensive student dashboard features
 const featureData = [
   {
     id: "feature-1",
@@ -90,6 +91,70 @@ const featureData = [
     status: "active",
     availableIn: ["student"],
     lastUpdated: "2023-09-28"
+  },
+  {
+    id: "feature-9",
+    name: "Formula Repository",
+    description: "Access comprehensive formula collections",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-25"
+  },
+  {
+    id: "feature-10",
+    name: "Progress Tracking",
+    description: "Monitor learning progress and achievements",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-22"
+  },
+  {
+    id: "feature-11",
+    name: "Study Groups",
+    description: "Collaborate with peers in study groups",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-20"
+  },
+  {
+    id: "feature-12",
+    name: "Performance Analytics",
+    description: "Detailed analytics on study performance",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-18"
+  },
+  {
+    id: "feature-13",
+    name: "Voice Commands",
+    description: "Control dashboard with voice commands",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-15"
+  },
+  {
+    id: "feature-14",
+    name: "Stress Tracker",
+    description: "Monitor and manage stress levels",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-12"
+  },
+  {
+    id: "feature-15",
+    name: "Smart Recommendations",
+    description: "AI-powered study recommendations",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-10"
+  },
+  {
+    id: "feature-16",
+    name: "Time Management",
+    description: "Track and optimize study time",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-08"
   }
 ];
 
@@ -188,11 +253,12 @@ const FeatureManager = () => {
 
   // Handle adding a new feature
   const handleAddFeature = () => {
-    toast({
-      title: "Create New Feature",
-      description: "Feature creation form will open."
+    openDialog('add', 'New Feature', {
+      name: '',
+      description: '',
+      status: 'active',
+      availableIn: ['student']
     });
-    // In a real app, you would open a modal or navigate to a form
   };
 
   return (
@@ -220,7 +286,7 @@ const FeatureManager = () => {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex justify-between items-center">
-              <CardTitle>Student Dashboard Features</CardTitle>
+              <CardTitle>Student Dashboard Features ({filteredFeatures.length} total)</CardTitle>
               <div className="flex gap-2">
                 <Button 
                   variant="outline" 
@@ -241,7 +307,7 @@ const FeatureManager = () => {
               </div>
             </div>
             <CardDescription>
-              Manage features available on the student dashboard
+              Manage all features available on the student dashboard - currently showing {filteredFeatures.length} features
             </CardDescription>
           </CardHeader>
           <CardContent>

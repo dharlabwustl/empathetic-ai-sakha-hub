@@ -17,23 +17,51 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 const EnhancedKPIDashboard: React.FC = () => {
-  const [kpis, setKpis] = useState(kpiService.getAllKPIs());
+  const [kpis, setKpis] = useState({
+    overview: [] as KPIMetric[],
+    academic: [] as KPIMetric[],
+    engagement: [] as KPIMetric[],
+    revenue: [] as KPIMetric[],
+    wellness: [] as KPIMetric[]
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('overview');
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    loadKPIs();
+  }, []);
+
+  const loadKPIs = async () => {
+    try {
+      const data = await kpiService.getAllKPIs();
+      setKpis(data);
+    } catch (error) {
+      console.error('Error loading KPIs:', error);
+    }
+  };
+
   const refreshKPIs = async () => {
     setIsRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    kpiService.refreshKPIs();
-    setKpis(kpiService.getAllKPIs());
-    setIsRefreshing(false);
-    
-    toast({
-      title: "KPIs Updated",
-      description: "Dashboard metrics have been refreshed with latest data.",
-    });
+    try {
+      await kpiService.refreshKPIs();
+      const data = await kpiService.getAllKPIs();
+      setKpis(data);
+      
+      toast({
+        title: "KPIs Updated",
+        description: "Dashboard metrics have been refreshed with latest data.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh KPI data.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const exportKPIs = () => {
@@ -72,7 +100,7 @@ const EnhancedKPIDashboard: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          {kpi.unit && kpi.unit === '₹' ? `₹${kpi.value.toLocaleString()}` : kpi.value}
+          {kpi.unit && kpi.unit === '₹' ? `₹${Number(kpi.value).toLocaleString()}` : kpi.value}
           {kpi.unit && kpi.unit !== '₹' && <span className="text-sm ml-1">{kpi.unit}</span>}
         </div>
         <div className="flex items-center gap-2 mt-2">
