@@ -59,8 +59,44 @@ const dummyTasks = [
   }
 ];
 
+// Mock dashboard data
+const mockDashboardData = {
+  examGoal: "JEE Advanced 2025",
+  studyPlan: {
+    todaysTasks: dummyTasks,
+    totalTasks: 5,
+    completedTasks: 2
+  },
+  subjects: [
+    {
+      id: "physics",
+      name: "Physics",
+      progress: 75,
+      color: "#3B82F6"
+    },
+    {
+      id: "chemistry", 
+      name: "Chemistry",
+      progress: 68,
+      color: "#10B981"
+    },
+    {
+      id: "mathematics",
+      name: "Mathematics", 
+      progress: 82,
+      color: "#8B5CF6"
+    }
+  ],
+  progressTracker: {
+    examReadiness: 72,
+    conceptsMastered: 45,
+    totalConcepts: 60,
+    weeklyGoal: 25,
+    weeklyProgress: 18
+  }
+};
+
 export default function RedesignedDashboardOverview({ userProfile, kpis }: RedesignedDashboardOverviewProps) {
-  const { loading, dashboardData, refreshData } = useStudentDashboardData();
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
 
@@ -99,19 +135,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
   };
-
-  if (loading || !dashboardData) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   // Enhanced KPIs with icons
   const enhancedKpis = [
@@ -175,7 +198,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
             <div className="flex items-center mt-1">
               <span className="text-sm text-muted-foreground mr-2">Exam Goal:</span>
               <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-3 py-1 rounded-full text-lg font-semibold">
-                {dashboardData.examGoal}
+                {mockDashboardData.examGoal}
               </span>
             </div>
           </div>
@@ -225,7 +248,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">Target Exam:</span>
                 <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-2 py-1 rounded-full text-sm font-medium">
-                  {dashboardData.examGoal}
+                  {mockDashboardData.examGoal}
                 </span>
               </div>
             </div>
@@ -297,7 +320,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
 
       {/* Today's Plan and Mood Based Suggestions side by side */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
+        <TodaysPlanSection studyPlan={mockDashboardData.studyPlan} currentMood={currentMood} />
         <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
       </motion.div>
 
@@ -358,7 +381,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         <UpcomingTasks tasks={dummyTasks} />
       </motion.div>
 
-      {/* Smart Suggestions and Surrounding Influences */}
+      {/* Smart Suggestions and Subject Breakdown */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SmartSuggestionsCenter 
           performance={{
@@ -369,11 +392,11 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
           }}
         />
         
-        <SubjectBreakdownSection subjects={dashboardData.subjects} />
+        <SubjectBreakdownSection subjects={mockDashboardData.subjects} />
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
+        <ProgressTrackerSection progressTracker={mockDashboardData.progressTracker} />
       </motion.div>
     </motion.div>
   );
