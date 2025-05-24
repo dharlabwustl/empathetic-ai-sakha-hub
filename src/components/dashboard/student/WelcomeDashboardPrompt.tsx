@@ -8,11 +8,17 @@ import { CheckCircle2, ChevronRight } from 'lucide-react';
 interface WelcomeDashboardPromptProps {
   userName: string;
   onComplete: () => void;
+  isReturningUser?: boolean;
+  lastActivity?: string;
+  pendingTasks?: string[];
 }
 
 const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
   userName,
-  onComplete
+  onComplete,
+  isReturningUser = false,
+  lastActivity,
+  pendingTasks = []
 }) => {
   const [open, setOpen] = useState(true);
   
@@ -27,7 +33,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
-            Welcome to Your Personalized Dashboard
+            {isReturningUser ? `Welcome Back, ${userName}!` : "Welcome to Your Personalized Dashboard"}
           </DialogTitle>
         </DialogHeader>
         
@@ -50,20 +56,40 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
             </motion.div>
             
             <h3 className="text-lg font-semibold mt-4">
-              Hi {userName}, your learning journey begins now!
+              {isReturningUser 
+                ? `Great to see you again, ${userName}!` 
+                : `Hi ${userName}, your learning journey begins now!`}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Your AI-powered personalized dashboard is ready.
+              {isReturningUser 
+                ? "Your AI-powered dashboard has been updated with your latest progress." 
+                : "Your AI-powered personalized dashboard is ready."}
             </p>
+            
+            {isReturningUser && lastActivity && (
+              <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
+                Last time you were {lastActivity}
+              </p>
+            )}
+            
+            {isReturningUser && pendingTasks.length > 0 && (
+              <p className="text-sm text-orange-600 dark:text-orange-400 mt-1">
+                You have {pendingTasks.length} pending activities waiting for you.
+              </p>
+            )}
           </div>
           
           <div className="space-y-3 mt-6">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-medium">Personalized Learning Path</h4>
+                <h4 className="font-medium">
+                  {isReturningUser ? "Progress Tracking" : "Personalized Learning Path"}
+                </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Your dashboard is customized based on your learning style, goals, and preferences.
+                  {isReturningUser 
+                    ? "Your dashboard shows updated progress and personalized recommendations based on your recent activities."
+                    : "Your dashboard is customized based on your learning style, goals, and preferences."}
                 </p>
               </div>
             </div>
@@ -71,9 +97,13 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-medium">Mood-Adaptive Experience</h4>
+                <h4 className="font-medium">
+                  {isReturningUser ? "Smart Recommendations" : "Mood-Adaptive Experience"}
+                </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Your emotional state is considered to provide the most effective study resources.
+                  {isReturningUser 
+                    ? "Get AI-powered suggestions for your study plan, daily activities, and pending tasks."
+                    : "Your emotional state is considered to provide the most effective study resources."}
                 </p>
               </div>
             </div>
@@ -83,7 +113,9 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
               <div>
                 <h4 className="font-medium">Real-Time Progress Tracking</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Watch your exam readiness score improve as you complete daily tasks.
+                  {isReturningUser 
+                    ? "Continue tracking your exam readiness score and see how much you've improved."
+                    : "Watch your exam readiness score improve as you complete daily tasks."}
                 </p>
               </div>
             </div>
@@ -95,7 +127,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
             onClick={handleClose}
             className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
           >
-            Get Started <ChevronRight className="ml-2 h-4 w-4" />
+            {isReturningUser ? "Continue Learning" : "Get Started"} <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </DialogContent>
