@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
@@ -98,6 +97,83 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
     } else {
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
+  };
+
+  // Get dynamic smart suggestions based on current state
+  const getDynamicSmartSuggestions = () => {
+    const currentHour = new Date().getHours();
+    const dayOfWeek = new Date().getDay();
+    const currentDay = new Date().getDate();
+    
+    // Suggestions that change based on time, day, and performance
+    const suggestions = [];
+    
+    if (currentHour >= 6 && currentHour < 12) {
+      suggestions.push({
+        title: "Morning Focus Session",
+        description: "Your brain is fresh! Perfect time for complex concepts.",
+        action: "Study Core Concepts",
+        link: "/dashboard/student/concepts",
+        priority: "high",
+        icon: "🌅"
+      });
+    } else if (currentHour >= 12 && currentHour < 18) {
+      suggestions.push({
+        title: "Afternoon Practice",
+        description: "Great time for active recall and practice questions.",
+        action: "Take Practice Quiz",
+        link: "/dashboard/student/practice-exam",
+        priority: "medium",
+        icon: "📝"
+      });
+    } else if (currentHour >= 18 && currentHour < 22) {
+      suggestions.push({
+        title: "Evening Review",
+        description: "Perfect for reviewing and reinforcing today's learning.",
+        action: "Review Flashcards",
+        link: "/dashboard/student/flashcards",
+        priority: "medium",
+        icon: "🌆"
+      });
+    }
+
+    // Weekend suggestions
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      suggestions.push({
+        title: "Weekend Deep Dive",
+        description: "Use extra time for comprehensive chapter reviews.",
+        action: "Extended Study Session",
+        link: "/dashboard/student/today",
+        priority: "low",
+        icon: "📚"
+      });
+    }
+
+    // Performance-based suggestions
+    if (currentDay % 3 === 0) {
+      suggestions.push({
+        title: "Progress Check",
+        description: "Time to assess your learning and adjust study plan.",
+        action: "View Analytics",
+        link: "/dashboard/student/academic",
+        priority: "medium",
+        icon: "📊"
+      });
+    }
+
+    // Mood-based suggestions
+    if (currentMood === MoodType.STRESSED) {
+      suggestions.push({
+        title: "Stress Relief Study",
+        description: "Try lighter topics and take more breaks today.",
+        action: "Easy Concepts",
+        link: "/dashboard/student/concepts",
+        priority: "high",
+        icon: "😌"
+      });
+    }
+
+    return suggestions.slice(0, 3); // Return top 3 suggestions
   };
 
   if (loading || !dashboardData) {
@@ -213,7 +289,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </div>
       </motion.div>
 
-      {/* Exam Readiness Score with enhanced layout */}
+      {/* Exam Readiness Score - Without Tips Section */}
       <motion.div variants={itemVariants} className="mb-6">
         <Card className="overflow-hidden border-0 shadow-md">
           <CardContent className="p-6">
@@ -290,6 +366,50 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
                   </Button>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Dynamic Smart Suggestions Section - Replaces Tips */}
+      <motion.div variants={itemVariants} className="mb-6">
+        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Brain className="h-6 w-6 text-indigo-600" />
+              <h3 className="text-xl font-bold">Daily Smart Suggestions</h3>
+              <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">
+                Updated {new Date().toLocaleDateString()}
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {getDynamicSmartSuggestions().map((suggestion, index) => (
+                <div 
+                  key={index}
+                  className={`p-4 rounded-lg border-l-4 ${
+                    suggestion.priority === 'high' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' :
+                    suggestion.priority === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
+                    'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  } hover:shadow-md transition-shadow cursor-pointer`}
+                  onClick={() => navigate(suggestion.link)}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">{suggestion.icon}</span>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                        {suggestion.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        {suggestion.description}
+                      </p>
+                      <Button size="sm" variant="outline" className="text-xs">
+                        {suggestion.action}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
