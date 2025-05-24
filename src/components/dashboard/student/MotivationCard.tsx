@@ -1,95 +1,90 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Lightbulb } from 'lucide-react';
-import { MoodType } from '@/types/user/base';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MoodType } from "@/types/user/base";
+import { Heart, Zap, Target, Star } from 'lucide-react';
 
 interface MotivationCardProps {
-  currentMood?: MoodType;
-  className?: string;
+  mood?: MoodType;
+  userName?: string;
 }
 
-const MotivationCard: React.FC<MotivationCardProps> = ({ currentMood, className = '' }) => {
-  // Fetch a motivation message based on the current mood
-  const getMotivationMessage = () => {
-    if (!currentMood) {
-      return {
-        message: "Remember, consistent effort is the key to success. Keep going!",
-        suggestion: "Take a short break every 25-30 minutes for optimal focus."
-      };
-    }
-
-    switch (currentMood) {
-      case 'happy':
+const MotivationCard: React.FC<MotivationCardProps> = ({ mood, userName = "Student" }) => {
+  const getMotivationalMessage = () => {
+    switch (mood) {
+      case MoodType.Happy:
         return {
-          message: "Your positive energy is contagious! It's a great day to tackle challenging concepts.",
-          suggestion: "Try taking on that difficult topic you've been putting off."
+          title: "You're glowing today! ✨",
+          message: `${userName}, your positive energy is contagious! Let's channel this happiness into productive learning.`,
+          icon: <Heart className="h-5 w-5 text-pink-500" />,
+          action: "Keep the momentum going!"
         };
-      case 'motivated':
+      case MoodType.Motivated:
         return {
-          message: "Your drive today is incredible! Channel that energy into productive study sessions.",
-          suggestion: "Set ambitious goals for today - you're ready to achieve them!"
+          title: "On fire today! 🔥",
+          message: `${userName}, your motivation is inspiring! This is the perfect time to tackle challenging concepts.`,
+          icon: <Zap className="h-5 w-5 text-yellow-500" />,
+          action: "Let's achieve greatness!"
         };
-      case 'focused':
+      case MoodType.Focused:
         return {
-          message: "Your concentration is at its peak. Take advantage of this clarity of mind.",
-          suggestion: "Dive into complex problems requiring deep thinking and analysis."
+          title: "Laser focus mode activated! 🎯",
+          message: `${userName}, your focus is your superpower today. Let's make every minute count!`,
+          icon: <Target className="h-5 w-5 text-blue-500" />,
+          action: "Dive deep into learning!"
         };
-      case 'neutral':
+      case MoodType.Neutral:
         return {
-          message: "A balanced mindset provides steady progress. You're in a good place to learn.",
-          suggestion: "Maintain your routine and focus on consistent effort today."
+          title: "Steady and consistent! 📚",
+          message: `${userName}, sometimes the best progress comes from steady, consistent effort. You're building strong foundations.`,
+          icon: <Star className="h-5 w-5 text-purple-500" />,
+          action: "Small steps, big results!"
         };
-      case 'tired':
+      case MoodType.Stressed:
         return {
-          message: "It's okay to feel tired. Quality over quantity is important today.",
-          suggestion: "Try shorter, more frequent study sessions with breaks in between."
+          title: "Take a deep breath 🌸",
+          message: `${userName}, it's okay to feel stressed. Let's break things down into manageable chunks today.`,
+          icon: <Heart className="h-5 w-5 text-green-500" />,
+          action: "One step at a time!"
         };
-      case 'anxious':
+      case MoodType.Sad:
         return {
-          message: "Your anxiety shows you care about your progress. Take a deep breath, you've got this.",
-          suggestion: "Start with a brief meditation or try the 5-4-3-2-1 grounding technique."
-        };
-      case 'stressed':
-        return {
-          message: "Acknowledge your stress, then direct that energy toward productive tasks.",
-          suggestion: "Break down complex tasks into smaller, manageable chunks."
-        };
-      case 'sad':
-        return {
-          message: "It's okay to feel down sometimes. Be kind to yourself today.",
-          suggestion: "Start with a small, achievable goal to build positive momentum."
+          title: "You're stronger than you know 💪",
+          message: `${userName}, tough days don't last, but resilient learners do. Let's find small wins today.`,
+          icon: <Heart className="h-5 w-5 text-blue-400" />,
+          action: "Every small step counts!"
         };
       default:
         return {
-          message: "Remember, consistent effort is the key to success. Keep going!",
-          suggestion: "Take a short break every 25-30 minutes for optimal focus."
+          title: "Ready to learn! 🚀",
+          message: `${userName}, every learning session is a step toward your goals. Let's make today count!`,
+          icon: <Star className="h-5 w-5 text-indigo-500" />,
+          action: "Let's get started!"
         };
     }
   };
 
-  const { message, suggestion } = getMotivationMessage();
+  const motivation = getMotivationalMessage();
 
   return (
-    <Card className={`overflow-hidden border-l-4 border-l-primary ${className}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
-            <Lightbulb className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-medium mb-2">Daily Motivation</h3>
-            <p className="text-sm text-muted-foreground mb-3">{message}</p>
-            <div className="text-xs bg-muted/50 p-2 rounded mb-3">
-              <strong>Suggestion:</strong> {suggestion}
-            </div>
-            <Button variant="link" className="text-sm p-0 h-auto">
-              Get more tips
-              <ArrowRight className="h-3 w-3 ml-1" />
-            </Button>
-          </div>
-        </div>
+    <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          {motivation.icon}
+          {motivation.title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+          {motivation.message}
+        </p>
+        <Button 
+          size="sm" 
+          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+        >
+          {motivation.action}
+        </Button>
       </CardContent>
     </Card>
   );

@@ -13,7 +13,13 @@ export enum MoodType {
   Overwhelmed = 'overwhelmed',
   Confident = 'confident',
   Anxious = 'anxious',
-  Tired = 'tired'
+  Tired = 'tired',
+  Calm = 'calm',
+  Confused = 'confused',
+  Neutral = 'neutral',
+  Okay = 'okay',
+  Sad = 'sad',
+  Curious = 'curious'
 }
 
 export interface UserProfileBase {
@@ -41,6 +47,7 @@ export interface UserProfileBase {
     planType: string;
     expiryDate?: string;
   } | string;
+  subjects?: SubjectProgress[];
 }
 
 export type UserProfileType = UserProfileBase;
@@ -83,4 +90,31 @@ export interface ConceptProgress {
   attempts: number;
   correctAnswers: number;
   status: 'not-started' | 'in-progress' | 'mastered' | 'needs-review';
+}
+
+export interface SubscriptionType {
+  planType: string;
+  expiryDate?: string;
+}
+
+export type SubscriptionTypeValue = 'free' | 'premium' | 'basic' | 'pro';
+
+export interface StudyPlanSubject {
+  id: string;
+  name: string;
+  progress: number;
+  hoursSpent: number;
+  difficulty?: string;
+}
+
+export interface OnboardingData {
+  examGoal: string;
+  subjects: string[];
+  studyHours: number;
+  studyTime: string;
+}
+
+export interface LanguageOption {
+  value: string;
+  label: string;
 }
