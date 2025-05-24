@@ -28,7 +28,6 @@ export interface AdminDashboardStats {
   completedSurveys: number;
 }
 
-// Add missing interface for DashboardStats with all required fields
 export interface DashboardStats {
   totalUsers: number;
   activeUsers: number;
@@ -90,4 +89,41 @@ export interface StudentData {
   targetScore?: number;
   avatarUrl?: string;
   registrationDate?: Date;
+}
+
+export interface ContentItem {
+  id: string;
+  name: string;
+  type: string;
+  subject: string;
+  examType: string;
+  uploadDate: string;
+  size: string;
+  tags: string[];
+}
+
+export interface AdminSettings {
+  id: string;
+  key: string;
+  value: any;
+  category: string;
+  description: string;
+}
+
+export interface NotificationTemplate {
+  id: string;
+  name: string;
+  type: string;
+  subject: string;
+  content: string;
+  isActive: boolean;
+}
+
+export interface FeelGoodContent {
+  id: string;
+  title: string;
+  type: string;
+  content: string;
+  tags: string[];
+  isActive: boolean;
 }
