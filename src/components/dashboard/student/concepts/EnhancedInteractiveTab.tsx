@@ -1,661 +1,577 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Slider } from '@/components/ui/slider';
 import { 
-  Play, Pause, RotateCcw, Volume2, VolumeX, Eye, 
-  Settings, MessageSquare, Lightbulb, Zap, Activity,
-  MousePointer, Move, Hand
+  Play, Pause, RotateCcw, Volume2, VolumeX, 
+  CheckCircle, HelpCircle, Eye, Settings,
+  Lightbulb, Brain, BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AIAssistantChat from './AIAssistantChat';
 
+interface InteractiveElement {
+  id: string;
+  type: 'slider' | 'button' | 'toggle' | 'input';
+  label: string;
+  value: any;
+  min?: number;
+  max?: number;
+  step?: number;
+  description: string;
+}
+
+interface VisualizationTab {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  elements: InteractiveElement[];
+  voiceScript: string;
+}
+
 interface EnhancedInteractiveTabProps {
+  conceptId: string;
   conceptName: string;
 }
 
-const EnhancedInteractiveTab: React.FC<EnhancedInteractiveTabProps> = ({ conceptName }) => {
-  const [currentVisualization, setCurrentVisualization] = useState(0);
+const EnhancedInteractiveTab: React.FC<EnhancedInteractiveTabProps> = ({ 
+  conceptId, 
+  conceptName 
+}) => {
+  const [activeTab, setActiveTab] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audioProgress, setAudioProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState([1]);
-  const [showAIChat, setShowAIChat] = useState(false);
-  const [interactiveElements, setInteractiveElements] = useState({
-    forces: { x: 0, y: 0 },
-    mass: 5,
-    acceleration: 0
-  });
+  const [progress, setProgress] = useState(0);
+  const [completedTabs, setCompletedTabs] = useState<Set<number>>(new Set());
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [elementValues, setElementValues] = useState<Record<string, any>>({});
+  
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioProgressRef = useRef<number>(0);
 
-  // Interactive visualizations data
-  const visualizations = [
+  // Mock visualization tabs with voice scripts
+  const visualizationTabs: VisualizationTab[] = [
     {
-      id: 'force-vectors',
+      id: 'force-vector',
       title: 'Force Vector Analysis',
-      description: 'Interactive visualization of force vectors and their effects on motion',
-      duration: 120,
-      hasInteraction: true,
-      audioScript: `Welcome to the Force Vector Analysis. Here you can see how different forces affect an object's motion. Click and drag the force arrows to change their magnitude and direction. Notice how the resultant force changes as you modify individual forces.`
+      description: 'Understand how forces act as vectors with magnitude and direction',
+      completed: false,
+      voiceScript: `Welcome to Force Vector Analysis. Here you can see how forces work as vectors. A force has both magnitude, which is how strong it is, and direction, which shows where it's pointing. Try adjusting the force magnitude slider to see how the vector changes. Notice how increasing the magnitude makes the arrow longer, representing a stronger force.`,
+      elements: [
+        {
+          id: 'magnitude',
+          type: 'slider',
+          label: 'Force Magnitude (N)',
+          value: 50,
+          min: 0,
+          max: 100,
+          step: 5,
+          description: 'Adjust the strength of the force'
+        },
+        {
+          id: 'angle',
+          type: 'slider',
+          label: 'Force Direction (°)',
+          value: 45,
+          min: 0,
+          max: 360,
+          step: 15,
+          description: 'Change the direction of the force'
+        },
+        {
+          id: 'showComponents',
+          type: 'toggle',
+          label: 'Show X-Y Components',
+          value: false,
+          description: 'Display horizontal and vertical force components'
+        }
+      ]
     },
     {
-      id: 'mass-acceleration',
-      title: 'Mass vs Acceleration Relationship',
-      description: 'Explore how mass affects acceleration with constant force',
-      duration: 90,
-      hasInteraction: true,
-      audioScript: `This visualization demonstrates the inverse relationship between mass and acceleration. Use the slider to change the object's mass and observe how acceleration changes when force remains constant.`
+      id: 'equilibrium',
+      title: 'Force Equilibrium',
+      description: 'Explore how multiple forces can balance each other',
+      completed: false,
+      voiceScript: `In this Force Equilibrium simulation, you'll learn how multiple forces can balance each other out. When forces are in equilibrium, the net force is zero, meaning the object won't accelerate. Try adding different forces and see how they combine. Notice the resultant force vector - when it becomes zero, the system is in perfect equilibrium.`,
+      elements: [
+        {
+          id: 'force1',
+          type: 'slider',
+          label: 'Force 1 (N)',
+          value: 30,
+          min: 0,
+          max: 100,
+          step: 5,
+          description: 'First force in the system'
+        },
+        {
+          id: 'force2',
+          type: 'slider',
+          label: 'Force 2 (N)',
+          value: 30,
+          min: 0,
+          max: 100,
+          step: 5,
+          description: 'Second force in the system'
+        },
+        {
+          id: 'showResultant',
+          type: 'toggle',
+          label: 'Show Resultant Force',
+          value: true,
+          description: 'Display the combined effect of all forces'
+        }
+      ]
     },
     {
-      id: 'real-world-examples',
-      title: 'Real-World Applications',
-      description: 'See Newton\'s laws in everyday scenarios',
-      duration: 150,
-      hasInteraction: false,
-      audioScript: `Let's explore real-world applications of Newton's Second Law. From car crashes to sports, this law governs motion everywhere around us.`
+      id: 'acceleration',
+      title: 'Force and Acceleration',
+      description: 'See how Newton\'s second law relates force, mass, and acceleration',
+      completed: false,
+      voiceScript: `This visualization demonstrates Newton's Second Law: Force equals mass times acceleration. As you change the applied force or the object's mass, observe how the acceleration changes. A heavier object needs more force to achieve the same acceleration as a lighter object. This fundamental relationship governs all motion in our universe.`,
+      elements: [
+        {
+          id: 'appliedForce',
+          type: 'slider',
+          label: 'Applied Force (N)',
+          value: 60,
+          min: 0,
+          max: 120,
+          step: 10,
+          description: 'Force applied to the object'
+        },
+        {
+          id: 'mass',
+          type: 'slider',
+          label: 'Object Mass (kg)',
+          value: 10,
+          min: 1,
+          max: 50,
+          step: 1,
+          description: 'Mass of the object'
+        },
+        {
+          id: 'showCalculation',
+          type: 'toggle',
+          label: 'Show F = ma Calculation',
+          value: true,
+          description: 'Display the mathematical relationship'
+        }
+      ]
     },
     {
-      id: 'problem-solving',
-      title: 'Interactive Problem Solving',
-      description: 'Step-by-step problem solving with guided assistance',
-      duration: 180,
-      hasInteraction: true,
-      audioScript: `Now let's work through some problems together. I'll guide you through each step of solving Newton's Second Law problems.`
+      id: 'friction',
+      title: 'Friction Forces',
+      description: 'Understand static and kinetic friction effects',
+      completed: false,
+      voiceScript: `Friction is a force that opposes motion between surfaces. There are two types: static friction, which prevents objects from starting to move, and kinetic friction, which acts on moving objects. Static friction is usually stronger than kinetic friction. Try adjusting the surface roughness and applied force to see when the object starts moving.`,
+      elements: [
+        {
+          id: 'surfaceRoughness',
+          type: 'slider',
+          label: 'Surface Roughness',
+          value: 0.3,
+          min: 0.1,
+          max: 1.0,
+          step: 0.1,
+          description: 'Coefficient of friction between surfaces'
+        },
+        {
+          id: 'normalForce',
+          type: 'slider',
+          label: 'Normal Force (N)',
+          value: 98,
+          min: 10,
+          max: 200,
+          step: 10,
+          description: 'Force pressing surfaces together'
+        },
+        {
+          id: 'showFrictionTypes',
+          type: 'toggle',
+          label: 'Show Friction Types',
+          value: true,
+          description: 'Distinguish between static and kinetic friction'
+        }
+      ]
     },
     {
-      id: 'misconceptions',
-      title: 'Common Misconceptions',
-      description: 'Address and clarify common misunderstandings',
-      duration: 100,
-      hasInteraction: false,
-      audioScript: `Many students have misconceptions about force and motion. Let's address the most common ones and clarify the correct understanding.`
+      id: 'projectile',
+      title: 'Projectile Motion',
+      description: 'Analyze motion under gravitational force',
+      completed: false,
+      voiceScript: `Projectile motion combines horizontal motion at constant velocity with vertical motion under gravitational acceleration. The horizontal and vertical motions are independent of each other. Try changing the launch angle and initial velocity to see how they affect the trajectory. Notice that 45 degrees gives the maximum range for a given initial speed.`,
+      elements: [
+        {
+          id: 'initialVelocity',
+          type: 'slider',
+          label: 'Initial Velocity (m/s)',
+          value: 20,
+          min: 5,
+          max: 50,
+          step: 5,
+          description: 'Starting speed of the projectile'
+        },
+        {
+          id: 'launchAngle',
+          type: 'slider',
+          label: 'Launch Angle (°)',
+          value: 45,
+          min: 0,
+          max: 90,
+          step: 5,
+          description: 'Angle of launch above horizontal'
+        },
+        {
+          id: 'showTrajectory',
+          type: 'toggle',
+          label: 'Show Full Trajectory',
+          value: true,
+          description: 'Display the complete flight path'
+        }
+      ]
     }
   ];
 
-  const currentViz = visualizations[currentVisualization];
+  // Initialize element values
+  useEffect(() => {
+    const initialValues: Record<string, any> = {};
+    visualizationTabs.forEach(tab => {
+      tab.elements.forEach(element => {
+        initialValues[element.id] = element.value;
+      });
+    });
+    setElementValues(initialValues);
+  }, []);
 
-  // Audio management
-  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
-
-  const playAudio = (text: string) => {
-    if ('speechSynthesis' in window) {
+  // Voice explanation functionality
+  const playVoiceExplanation = (tabIndex: number) => {
+    if (speechRef.current) {
       window.speechSynthesis.cancel();
+    }
+
+    if (!isMuted) {
+      const utterance = new SpeechSynthesisUtterance(visualizationTabs[tabIndex].voiceScript);
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 1;
       
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = playbackSpeed[0];
-      utterance.volume = isMuted ? 0 : 0.8;
-      
-      utterance.onstart = () => setIsPlaying(true);
-      utterance.onend = () => {
-        setIsPlaying(false);
-        setAudioProgress(100);
-      };
-      
-      // Track progress
-      let progressInterval: NodeJS.Timeout;
       utterance.onstart = () => {
         setIsPlaying(true);
-        setAudioProgress(0);
-        const duration = currentViz.duration * 1000;
-        const interval = duration / 100;
-        
-        progressInterval = setInterval(() => {
-          setAudioProgress(prev => {
-            if (prev >= 100) {
-              clearInterval(progressInterval);
-              return 100;
-            }
-            return prev + 1;
-          });
-        }, interval);
+        audioProgressRef.current = 0;
       };
       
-      setCurrentUtterance(utterance);
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setProgress(100);
+        markTabAsCompleted(tabIndex);
+      };
+      
+      utterance.onerror = () => {
+        setIsPlaying(false);
+      };
+
+      // Simulate progress tracking
+      const progressInterval = setInterval(() => {
+        audioProgressRef.current += 2;
+        setProgress(audioProgressRef.current);
+        if (audioProgressRef.current >= 100) {
+          clearInterval(progressInterval);
+        }
+      }, 100);
+
+      speechRef.current = utterance;
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const pauseAudio = () => {
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.pause();
+  const pauseVoiceExplanation = () => {
+    if (speechRef.current && isPlaying) {
+      window.speechSynthesis.cancel();
       setIsPlaying(false);
     }
   };
 
-  const resumeAudio = () => {
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-      setIsPlaying(true);
-    }
+  const resetProgress = () => {
+    pauseVoiceExplanation();
+    setProgress(0);
+    audioProgressRef.current = 0;
   };
 
-  const stopAudio = () => {
-    window.speechSynthesis.cancel();
-    setIsPlaying(false);
-    setAudioProgress(0);
+  const markTabAsCompleted = (tabIndex: number) => {
+    setCompletedTabs(prev => new Set([...prev, tabIndex]));
   };
 
-  const togglePlayPause = () => {
-    if (isPlaying) {
-      pauseAudio();
-    } else if (window.speechSynthesis.paused) {
-      resumeAudio();
-    } else {
-      playAudio(currentViz.audioScript);
-    }
-  };
-
-  // Interactive element handlers
-  const handleForceChange = (axis: 'x' | 'y', value: number) => {
-    setInteractiveElements(prev => ({
+  const handleElementChange = (elementId: string, value: any) => {
+    setElementValues(prev => ({
       ...prev,
-      forces: { ...prev.forces, [axis]: value },
-      acceleration: Math.sqrt(Math.pow(prev.forces.x, 2) + Math.pow(value, 2)) / prev.mass
+      [elementId]: value
     }));
   };
 
-  const handleMassChange = (mass: number) => {
-    setInteractiveElements(prev => ({
-      ...prev,
-      mass,
-      acceleration: Math.sqrt(Math.pow(prev.forces.x, 2) + Math.pow(prev.forces.y, 2)) / mass
-    }));
+  const renderVisualization = (tab: VisualizationTab) => {
+    // Render different visualizations based on tab type
+    switch (tab.id) {
+      case 'force-vector':
+        return (
+          <div className="relative w-full h-64 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
+            <svg width="200" height="150" className="absolute">
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                        refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                </marker>
+              </defs>
+              {/* Force vector */}
+              <line 
+                x1="100" 
+                y1="75" 
+                x2={100 + (elementValues.magnitude || 50) * Math.cos((elementValues.angle || 45) * Math.PI / 180)}
+                y2={75 - (elementValues.magnitude || 50) * Math.sin((elementValues.angle || 45) * Math.PI / 180)}
+                stroke="#3b82f6" 
+                strokeWidth="3" 
+                markerEnd="url(#arrowhead)" 
+              />
+              <circle cx="100" cy="75" r="4" fill="#1e40af" />
+              <text x="105" y="80" className="text-xs fill-gray-600">Origin</text>
+              
+              {/* Components if enabled */}
+              {elementValues.showComponents && (
+                <>
+                  <line x1="100" y1="75" 
+                        x2={100 + (elementValues.magnitude || 50) * Math.cos((elementValues.angle || 45) * Math.PI / 180)} 
+                        y2="75" 
+                        stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" />
+                  <line x1={100 + (elementValues.magnitude || 50) * Math.cos((elementValues.angle || 45) * Math.PI / 180)} 
+                        y1="75" 
+                        x2={100 + (elementValues.magnitude || 50) * Math.cos((elementValues.angle || 45) * Math.PI / 180)} 
+                        y2={75 - (elementValues.magnitude || 50) * Math.sin((elementValues.angle || 45) * Math.PI / 180)} 
+                        stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" />
+                </>
+              )}
+            </svg>
+            <div className="absolute top-2 right-2 bg-white p-2 rounded shadow">
+              <p className="text-xs">F = {elementValues.magnitude || 50}N</p>
+              <p className="text-xs">θ = {elementValues.angle || 45}°</p>
+            </div>
+          </div>
+        );
+      
+      default:
+        return (
+          <div className="w-full h-64 bg-gradient-to-br from-purple-50 to-pink-100 rounded-lg flex items-center justify-center">
+            <div className="text-center">
+              <Brain className="h-12 w-12 mx-auto mb-2 text-purple-500" />
+              <p className="text-gray-600">Interactive visualization for {tab.title}</p>
+              <p className="text-sm text-gray-500 mt-1">Adjust controls to see changes</p>
+            </div>
+          </div>
+        );
+    }
   };
 
-  // Reset interaction
-  const resetInteraction = () => {
-    setInteractiveElements({
-      forces: { x: 0, y: 0 },
-      mass: 5,
-      acceleration: 0
-    });
-    stopAudio();
-  };
+  const currentTab = visualizationTabs[activeTab];
+  const overallProgress = (completedTabs.size / visualizationTabs.length) * 100;
 
   return (
     <div className="space-y-6">
-      {/* Header Controls */}
+      {/* Progress Overview */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-purple-600" />
-                Interactive Visualizations - {conceptName}
-              </CardTitle>
-              <p className="text-sm text-gray-600 mt-1">
-                {currentViz.description}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                {currentVisualization + 1} of {visualizations.length}
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAIChat(true)}
-                className="flex items-center gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                AI Tutor
-              </Button>
-            </div>
-          </div>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-blue-500" />
+              Interactive Visualizations Progress
+            </span>
+            <Badge variant="outline">
+              {completedTabs.size}/{visualizationTabs.length} Complete
+            </Badge>
+          </CardTitle>
         </CardHeader>
-        
         <CardContent>
-          {/* Audio Controls */}
-          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 p-4 rounded-lg mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Overall Progress</span>
+              <span>{Math.round(overallProgress)}%</span>
+            </div>
+            <Progress value={overallProgress} className="h-2" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tab Navigation */}
+      <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg">
+        {visualizationTabs.map((tab, index) => (
+          <Button
+            key={tab.id}
+            variant={activeTab === index ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab(index)}
+            className={`relative ${completedTabs.has(index) ? 'bg-green-100 border-green-300' : ''}`}
+          >
+            <span className="mr-2">{tab.title}</span>
+            {completedTabs.has(index) && (
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            )}
+          </Button>
+        ))}
+      </div>
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Visualization Area */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lightbulb className="h-5 w-5 text-amber-500" />
+                    {currentTab.title}
+                  </CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">{currentTab.description}</p>
+                </div>
+                {completedTabs.has(activeTab) && (
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Audio Controls */}
+              <div className="flex items-center gap-2 mb-4 p-3 bg-blue-50 rounded-lg">
                 <Button
-                  variant="outline"
                   size="sm"
-                  onClick={togglePlayPause}
+                  onClick={() => isPlaying ? pauseVoiceExplanation() : playVoiceExplanation(activeTab)}
                   className="flex items-center gap-2"
                 >
                   {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  {isPlaying ? 'Pause' : 'Play'} Audio Guide
+                  {isPlaying ? 'Pause' : 'Play'} Explanation
                 </Button>
                 
                 <Button
-                  variant="outline"
                   size="sm"
+                  variant="outline"
                   onClick={() => setIsMuted(!isMuted)}
                 >
                   {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 </Button>
                 
                 <Button
-                  variant="outline"
                   size="sm"
-                  onClick={resetInteraction}
+                  variant="outline"
+                  onClick={resetProgress}
                 >
                   <RotateCcw className="h-4 w-4" />
                 </Button>
+                
+                <div className="flex-1 ml-2">
+                  <Progress value={progress} className="h-2" />
+                </div>
+                
+                <span className="text-xs text-gray-500">{Math.round(progress)}%</span>
               </div>
-              
-              <div className="flex items-center gap-2 text-sm">
-                <span>Speed:</span>
-                <Slider
-                  value={playbackSpeed}
-                  onValueChange={setPlaybackSpeed}
-                  min={0.5}
-                  max={2}
-                  step={0.25}
-                  className="w-20"
-                />
-                <span>{playbackSpeed[0]}x</span>
-              </div>
-            </div>
-            
-            <Progress value={audioProgress} className="h-2" />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Audio Progress</span>
-              <span>{Math.round(audioProgress)}%</span>
-            </div>
-          </div>
 
-          {/* Visualization Navigation */}
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
-            {visualizations.map((viz, index) => (
-              <Button
-                key={viz.id}
-                variant={currentVisualization === index ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  setCurrentVisualization(index);
-                  stopAudio();
-                }}
-                className="whitespace-nowrap"
-              >
-                {viz.hasInteraction && <Zap className="h-3 w-3 mr-1" />}
-                {viz.title}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Main Visualization Area */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentVisualization}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {currentVisualization === 0 && (
-            <ForceVectorVisualization 
-              forces={interactiveElements.forces}
-              onForceChange={handleForceChange}
-              isPlaying={isPlaying}
-            />
-          )}
-          
-          {currentVisualization === 1 && (
-            <MassAccelerationVisualization
-              mass={interactiveElements.mass}
-              acceleration={interactiveElements.acceleration}
-              onMassChange={handleMassChange}
-              isPlaying={isPlaying}
-            />
-          )}
-          
-          {currentVisualization === 2 && (
-            <RealWorldExamples isPlaying={isPlaying} />
-          )}
-          
-          {currentVisualization === 3 && (
-            <InteractiveProblemSolving isPlaying={isPlaying} />
-          )}
-          
-          {currentVisualization === 4 && (
-            <CommonMisconceptions isPlaying={isPlaying} />
-          )}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* AI Assistant Chat */}
-      <AIAssistantChat
-        conceptName={conceptName}
-        context={`Interactive visualization: ${currentViz.title}`}
-        isVisible={showAIChat}
-        onClose={() => setShowAIChat(false)}
-      />
-    </div>
-  );
-};
-
-// Individual Visualization Components
-const ForceVectorVisualization: React.FC<{
-  forces: { x: number; y: number };
-  onForceChange: (axis: 'x' | 'y', value: number) => void;
-  isPlaying: boolean;
-}> = ({ forces, onForceChange, isPlaying }) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5 text-blue-600" />
-          Force Vector Analysis
-          {isPlaying && <Badge variant="outline" className="animate-pulse">Audio Playing</Badge>}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Interactive Canvas */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/30 dark:to-indigo-950/30 p-6 rounded-lg min-h-[400px] relative">
-            <div className="absolute inset-0 flex items-center justify-center">
+              {/* Visualization */}
               <motion.div
-                className="w-16 h-16 bg-gradient-to-r from-orange-400 to-red-500 rounded-lg shadow-lg"
-                animate={{
-                  x: forces.x * 2,
-                  y: -forces.y * 2
-                }}
-                transition={{ type: "spring", stiffness: 100 }}
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
               >
-                <div className="w-full h-full flex items-center justify-center text-white font-bold">
-                  Box
-                </div>
+                {renderVisualization(currentTab)}
               </motion.div>
-              
-              {/* Force Arrows */}
-              {forces.x !== 0 && (
-                <motion.div
-                  className="absolute w-12 h-1 bg-red-500"
-                  style={{
-                    transformOrigin: 'left center',
-                    transform: `rotate(${forces.x > 0 ? 0 : 180}deg) scaleX(${Math.abs(forces.x) / 10})`
-                  }}
-                />
-              )}
-              
-              {forces.y !== 0 && (
-                <motion.div
-                  className="absolute w-1 h-12 bg-green-500"
-                  style={{
-                    transformOrigin: 'center bottom',
-                    transform: `rotate(${forces.y > 0 ? 0 : 180}deg) scaleY(${Math.abs(forces.y) / 10})`
-                  }}
-                />
-              )}
-            </div>
-            
-            <div className="absolute top-4 left-4 text-sm text-gray-600">
-              <div>Click and drag to apply forces</div>
-              <div className="mt-2">
-                <MousePointer className="h-4 w-4 inline mr-1" />
-                Interactive mode enabled
-              </div>
-            </div>
-          </div>
-          
-          {/* Controls */}
-          <div className="space-y-6">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Horizontal Force (F<sub>x</sub>): {forces.x.toFixed(1)} N
-              </label>
-              <Slider
-                value={[forces.x]}
-                onValueChange={(value) => onForceChange('x', value[0])}
-                min={-20}
-                max={20}
-                step={0.5}
-                className="w-full"
-              />
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Vertical Force (F<sub>y</sub>): {forces.y.toFixed(1)} N
-              </label>
-              <Slider
-                value={[forces.y]}
-                onValueChange={(value) => onForceChange('y', value[0])}
-                min={-20}
-                max={20}
-                step={0.5}
-                className="w-full"
-              />
-            </div>
-            
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Resultant Force:</h4>
-              <div className="space-y-1 text-sm">
-                <div>Magnitude: {Math.sqrt(forces.x ** 2 + forces.y ** 2).toFixed(2)} N</div>
-                <div>Direction: {Math.atan2(forces.y, forces.x) * (180 / Math.PI).toFixed(1)}°</div>
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
-              <Lightbulb className="h-4 w-4 text-blue-600 mb-2" />
-              <p className="text-sm text-blue-800 dark:text-blue-300">
-                Try adjusting the forces to see how they combine vectorially. 
-                Notice how the object moves in the direction of the net force!
-              </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
-      </CardContent>
-    </Card>
-  );
-};
 
-const MassAccelerationVisualization: React.FC<{
-  mass: number;
-  acceleration: number;
-  onMassChange: (mass: number) => void;
-  isPlaying: boolean;
-}> = ({ mass, acceleration, onMassChange, isPlaying }) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Move className="h-5 w-5 text-green-600" />
-          Mass vs Acceleration Relationship
-          {isPlaying && <Badge variant="outline" className="animate-pulse">Audio Playing</Badge>}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30 p-6 rounded-lg min-h-[400px] relative">
-            <motion.div
-              className="absolute left-8 top-1/2 transform -translate-y-1/2"
-              animate={{
-                x: acceleration * 20,
-              }}
-              transition={{ type: "spring", stiffness: 50 }}
-            >
-              <div 
-                className="bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg flex items-center justify-center text-white font-bold"
-                style={{
-                  width: `${20 + mass * 4}px`,
-                  height: `${20 + mass * 4}px`
-                }}
-              >
-                {mass}kg
-              </div>
-            </motion.div>
-            
-            <div className="absolute bottom-4 left-4 text-sm text-gray-600">
-              Constant Force = 50N
-            </div>
-          </div>
-          
-          <div className="space-y-6">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Mass: {mass} kg
-              </label>
-              <Slider
-                value={[mass]}
-                onValueChange={(value) => onMassChange(value[0])}
-                min={1}
-                max={20}
-                step={1}
-                className="w-full"
-              />
-            </div>
-            
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Results:</h4>
-              <div className="space-y-1 text-sm">
-                <div>Force: 50 N (constant)</div>
-                <div>Mass: {mass} kg</div>
-                <div>Acceleration: {(50 / mass).toFixed(2)} m/s²</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const RealWorldExamples: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
-  const examples = [
-    {
-      title: "Car Braking",
-      description: "When a car brakes, friction provides the force that decelerates it",
-      visual: "🚗"
-    },
-    {
-      title: "Rocket Launch",
-      description: "Exhaust gases push down, rocket pushes up with equal force",
-      visual: "🚀"
-    },
-    {
-      title: "Walking",
-      description: "Your foot pushes back on ground, ground pushes forward on you",
-      visual: "🚶"
-    }
-  ];
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Hand className="h-5 w-5 text-orange-600" />
-          Real-World Applications
-          {isPlaying && <Badge variant="outline" className="animate-pulse">Audio Playing</Badge>}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {examples.map((example, index) => (
-            <motion.div
-              key={index}
-              className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 p-6 rounded-lg text-center"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="text-4xl mb-4">{example.visual}</div>
-              <h3 className="font-semibold mb-2">{example.title}</h3>
-              <p className="text-sm text-gray-600">{example.description}</p>
-            </motion.div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const InteractiveProblemSolving: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Settings className="h-5 w-5 text-indigo-600" />
-          Interactive Problem Solving
-          {isPlaying && <Badge variant="outline" className="animate-pulse">Audio Playing</Badge>}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-950/30 dark:to-purple-950/30 p-6 rounded-lg">
-          <h3 className="font-semibold mb-4">Problem: Find the acceleration</h3>
-          <p className="mb-4">A 10 kg box is pushed with a force of 30 N. What is its acceleration?</p>
-          
-          <div className="space-y-4">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Step 1: Identify given values</h4>
-              <div className="text-sm space-y-1">
-                <div>Mass (m) = 10 kg</div>
-                <div>Force (F) = 30 N</div>
-                <div>Acceleration (a) = ?</div>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Step 2: Apply Newton's Second Law</h4>
-              <div className="text-sm">F = ma</div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Step 3: Solve for acceleration</h4>
-              <div className="text-sm space-y-1">
-                <div>a = F/m</div>
-                <div>a = 30 N / 10 kg</div>
-                <div className="font-semibold text-green-600">a = 3 m/s²</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const CommonMisconceptions: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
-  const misconceptions = [
-    {
-      wrong: "Heavier objects fall faster",
-      correct: "All objects fall at the same rate in vacuum (ignoring air resistance)",
-      explanation: "Mass doesn't affect acceleration due to gravity"
-    },
-    {
-      wrong: "Force is needed to maintain motion",
-      correct: "Force is needed to change motion, not maintain it",
-      explanation: "Objects in motion stay in motion unless acted upon by a force"
-    }
-  ];
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-yellow-600" />
-          Common Misconceptions
-          {isPlaying && <Badge variant="outline" className="animate-pulse">Audio Playing</Badge>}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        {/* Controls Panel */}
         <div className="space-y-4">
-          {misconceptions.map((item, index) => (
-            <div key={index} className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 p-6 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg">
-                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">❌ Common Misconception:</h4>
-                  <p className="text-sm">{item.wrong}</p>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Interactive Controls
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {currentTab.elements.map((element) => (
+                <div key={element.id} className="space-y-2">
+                  <label className="text-sm font-medium">{element.label}</label>
+                  
+                  {element.type === 'slider' && (
+                    <div className="space-y-1">
+                      <input
+                        type="range"
+                        min={element.min}
+                        max={element.max}
+                        step={element.step}
+                        value={elementValues[element.id] || element.value}
+                        onChange={(e) => handleElementChange(element.id, Number(e.target.value))}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>{element.min}</span>
+                        <span className="font-medium">{elementValues[element.id] || element.value}</span>
+                        <span>{element.max}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {element.type === 'toggle' && (
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={elementValues[element.id] || element.value}
+                        onChange={(e) => handleElementChange(element.id, e.target.checked)}
+                        className="rounded"
+                      />
+                      <span className="text-sm">Enable</span>
+                    </label>
+                  )}
+                  
+                  <p className="text-xs text-gray-500">{element.description}</p>
                 </div>
-                <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg">
-                  <h4 className="font-semibold text-green-700 dark:text-green-400 mb-2">✅ Correct Understanding:</h4>
-                  <p className="text-sm">{item.correct}</p>
-                </div>
-              </div>
-              <div className="mt-4 bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
-                <p className="text-sm text-blue-800 dark:text-blue-300">💡 {item.explanation}</p>
-              </div>
-            </div>
-          ))}
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* AI Assistant */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5 text-purple-500" />
+                Need Help?
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => setShowAIAssistant(true)}
+                className="w-full"
+                variant="outline"
+              >
+                <Brain className="h-4 w-4 mr-2" />
+                Ask AI Tutor
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* AI Assistant Modal */}
+      <AnimatePresence>
+        {showAIAssistant && (
+          <AIAssistantChat
+            conceptName={`${conceptName} - ${currentTab.title}`}
+            context={`Current visualization: ${currentTab.title}. ${currentTab.description}`}
+            isVisible={showAIAssistant}
+            onClose={() => setShowAIAssistant(false)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
