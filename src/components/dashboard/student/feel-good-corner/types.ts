@@ -1,27 +1,22 @@
 
-export interface Video {
-  id: string;
-  title: string;
-  url: string;
-  thumbnail: string;
-  duration: string;
-  category: string;
-}
-
-export interface Affirmation {
+export interface ChatMessage {
   id: string;
   text: string;
-  category: string;
+  sender: 'user' | 'bot';
+  timestamp: Date;
 }
 
 export interface Joke {
-  id: string;
+  id: number;
   text: string;
   type: string;
+  likes?: number;
+  author?: string;
+  content?: string;
 }
 
-export interface DoodleSettings {
-  brushSize: number;
-  color: string;
-  tool: 'brush' | 'eraser';
+export interface MoodContent {
+  activities: string[];
+  music: string[];
+  quotes: string[];
 }
