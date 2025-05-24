@@ -7,7 +7,26 @@ export enum MoodType {
   ANXIOUS = 'anxious',
   EXCITED = 'excited',
   TIRED = 'tired',
-  FOCUSED = 'focused'
+  FOCUSED = 'focused',
+  CALM = 'calm',
+  CONFUSED = 'confused',
+  OVERWHELMED = 'overwhelmed',
+  NEUTRAL = 'neutral',
+  SAD = 'sad',
+  CURIOUS = 'curious',
+  OKAY = 'okay'
+}
+
+export type SubscriptionTypeValue = 'free' | 'basic' | 'premium' | 'pro' | 'enterprise';
+
+export interface UserSubscription {
+  id: string;
+  planType: SubscriptionTypeValue;
+  status: 'active' | 'inactive' | 'cancelled' | 'expired';
+  startDate: Date;
+  endDate?: Date;
+  amount: number;
+  currency: string;
 }
 
 export interface UserGoal {
@@ -28,12 +47,20 @@ export interface UserProfileBase {
   avatar?: string;
   photoURL?: string;
   examPreparation?: string;
+  examGoal?: string;
   goals?: UserGoal[];
   loginCount?: number;
   lastLogin?: Date;
   createdAt?: Date;
   updatedAt?: Date;
   currentMood?: MoodType;
+  mood?: MoodType;
+  role?: 'student' | 'admin' | 'teacher';
+  subscription?: UserSubscription | SubscriptionTypeValue;
+  studyStreak?: number;
+  studyHoursToday?: number;
+  completionRate?: number;
+  lastActive?: string;
   preferences?: {
     theme?: 'light' | 'dark';
     language?: string;
