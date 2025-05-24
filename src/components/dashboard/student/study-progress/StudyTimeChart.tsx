@@ -1,15 +1,14 @@
 
 import React from 'react';
-import { Clock } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SubjectProgress, StudyStreak } from "@/types/user/base";
 
 interface StudyTimeChartProps {
   selectedSubject: SubjectProgress | null;
   subjects: SubjectProgress[];
-  selectSubject: (id: string) => void;
-  studyStreak: StudyStreak | null;
+  selectSubject: (subjectId: string) => void;
+  studyStreak: StudyStreak;
 }
 
 export const StudyTimeChart: React.FC<StudyTimeChartProps> = ({
@@ -18,51 +17,41 @@ export const StudyTimeChart: React.FC<StudyTimeChartProps> = ({
   selectSubject,
   studyStreak
 }) => {
-  const totalWeeklyHours = studyStreak?.thisWeek.reduce((a, b) => a + b, 0) || 0;
-
-  if (!selectedSubject) {
-    return (
-      <div className="text-center py-8">
-        <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="font-medium text-lg">Select a subject to view study time</h3>
-        <div className="flex flex-wrap gap-2 justify-center mt-4">
-          {subjects.map(subject => (
-            <Button 
-              key={subject.id}
-              variant="outline"
-              onClick={() => selectSubject(subject.id)}
-            >
-              {subject.name}
-            </Button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <h3 className="font-medium">Study Hours Distribution</h3>
-      
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={selectedSubject.studyHours}>
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="hours" fill="#0ea5e9" name="Hours Studied" />
-        </BarChart>
-      </ResponsiveContainer>
-      
-      <div className="border-t pt-4 mt-4">
-        <h3 className="font-medium mb-4">Total Study Hours This Week</h3>
-        <div className="text-3xl font-bold">
-          {totalWeeklyHours} hours
-        </div>
-        <p className="text-sm text-muted-foreground">
-          <span className="text-green-500 font-medium">↑ 3 hours</span> from last week
-        </p>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">Study Time Analytics</h3>
+        <Select value={selectedSubject?.id || ''} onValueChange={selectSubject}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Select subject" />
+          </SelectTrigger>
+          <SelectContent>
+            {subjects.map((subject) => (
+              <SelectItem key={subject.id} value={subject.id}>
+                {subject.subject}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Study Streak: {studyStreak.current} days</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {selectedSubject && (
+              <div>
+                <h4 className="font-medium">{selectedSubject.subject}</h4>
+                <p className="text-sm text-muted-foreground">
+                  {selectedSubject.timeSpent} hours studied • {selectedSubject.progress}% complete
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
