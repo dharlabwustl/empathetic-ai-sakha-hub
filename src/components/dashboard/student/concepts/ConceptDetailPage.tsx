@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -14,6 +13,9 @@ import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
+import TabAIAssistant from '../ai-assistant/TabAIAssistant';
+import TabProgressMeter from '../progress/TabProgressMeter';
+import { useTabProgress } from '@/hooks/useTabProgress';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -22,6 +24,7 @@ const ConceptDetailPage = () => {
   const [activeTab, setActiveTab] = useState('learn');
   const [concept, setConcept] = useState<ConceptCard | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const { getTabProgress, updateTabProgress } = useTabProgress();
 
   // Load bookmark status from localStorage
   useEffect(() => {
@@ -56,6 +59,19 @@ const ConceptDetailPage = () => {
     setIsBookmarked(!isBookmarked);
   };
 
+  // Update progress when tab changes
+  useEffect(() => {
+    if (concept) {
+      updateTabProgress('concepts', {
+        totalTasks: 5, // Number of tabs
+        tasksCompleted: concept.completed ? 5 : Math.floor(Math.random() * 3) + 1,
+        completionPercentage: concept.progress || 0,
+        timeSpent: 30 + Math.floor(Math.random() * 60),
+        streak: 3
+      });
+    }
+  }, [concept, activeTab]);
+
   if (!concept) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">
@@ -80,6 +96,8 @@ const ConceptDetailPage = () => {
     );
   }
 
+  const progressData = getTabProgress('concepts');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto p-6">
@@ -94,7 +112,7 @@ const ConceptDetailPage = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-3">
             <ConceptHeader 
@@ -246,8 +264,18 @@ const ConceptDetailPage = () => {
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Enhanced Sidebar */}
+          <div className="lg:col-span-2 space-y-6">
+            <TabProgressMeter 
+              tabName="Concepts" 
+              progressData={progressData}
+            />
+            
+            <TabAIAssistant 
+              tabName="Concepts"
+              context={`User is studying ${concept.title} in ${concept.subject}`}
+            />
+            
             <ConceptSidebar 
               masteryLevel={concept.masteryLevel || 65}
               relatedConcepts={[

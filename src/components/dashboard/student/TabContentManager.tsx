@@ -10,17 +10,34 @@ import PracticeExamLandingPage from '@/components/dashboard/student/practice-exa
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
 import WelcomeTourReminderBanner from './WelcomeTourReminderBanner';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+import TabAIAssistant from './ai-assistant/TabAIAssistant';
+import TabProgressMeter from './progress/TabProgressMeter';
+import { useTabProgress } from '@/hooks/useTabProgress';
 
 interface RedesignedTodaysPlanProps {
   userProfile: UserProfileBase;
 }
 
 const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile }) => {
-  // Simplified component that renders the redesigned Today's Plan
+  const { getTabProgress } = useTabProgress();
+  const progressData = getTabProgress('today');
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Today's Plan for {userProfile.name}</h2>
-      <p>Your personalized study schedule is ready!</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <h2 className="text-2xl font-bold mb-4">Today's Plan for {userProfile.name}</h2>
+          <p className="text-muted-foreground mb-6">Your personalized study schedule is ready!</p>
+        </div>
+        <div className="space-y-4">
+          <TabProgressMeter 
+            tabName="Today's Plan" 
+            progressData={progressData}
+            showDetailed={false}
+          />
+          <TabAIAssistant tabName="Today's Plan" isMinimized />
+        </div>
+      </div>
     </div>
   );
 };
@@ -51,26 +68,35 @@ export const generateTabContents = ({
   suggestedNextAction
 }: TabContentGeneratorProps) => {
   const navigate = useNavigate();
+  const { getTabProgress } = useTabProgress();
 
-  // Handler for navigating to concept cards section
-  const handleViewConcepts = () => {
-    navigate('/dashboard/student/concepts');
+  // Enhanced tab content wrapper with progress and AI
+  const createTabContent = (tabName: string, content: React.ReactNode) => {
+    const progressData = getTabProgress(tabName.toLowerCase());
+    
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            {content}
+          </div>
+          <div className="space-y-4">
+            <TabProgressMeter 
+              tabName={tabName} 
+              progressData={progressData}
+            />
+            <TabAIAssistant 
+              tabName={tabName}
+              context={`User is currently in the ${tabName} section`}
+            />
+          </div>
+        </div>
+      </div>
+    );
   };
 
-  // Handler for navigating to flashcards section
-  const handleViewFlashcards = () => {
-    navigate('/dashboard/student/flashcards');
-  };
-
-  // Handler for navigating to practice exam section
-  const handleViewPracticeExams = () => {
-    navigate('/dashboard/student/practice-exam');
-  };
-
-  // Pre-generated tab contents that will be used in different parts of the app
   return {
-    // Home/Overview tab
-    "overview": (
+    "overview": createTabContent("Overview", (
       <>
         {showWelcomeTour && (
           <WelcomeTourReminderBanner 
@@ -93,24 +119,18 @@ export const generateTabContents = ({
           </div>
         </div>
       </>
-    ),
+    )),
     
-    // Today's Plan tab
     "today": <RedesignedTodaysPlan userProfile={userProfile} />,
     
-    // Academic Advisor tab
-    "academic": <AcademicAdvisorView />,
+    "academic": createTabContent("Academic", <AcademicAdvisorView />),
     
-    // Concept Cards tab
-    "concepts": <ConceptsLandingPage />,
+    "concepts": createTabContent("Concepts", <ConceptsLandingPage />),
     
-    // Flashcards tab
-    "flashcards": <FlashcardsLandingPage />,
+    "flashcards": createTabContent("Flashcards", <FlashcardsLandingPage />),
     
-    // Practice Exams tab
-    "practice-exam": <PracticeExamLandingPage />,
+    "practice-exam": createTabContent("Practice Exams", <PracticeExamLandingPage />),
     
-    // Notifications tab
-    "notifications": <NotificationsPage />
+    "notifications": createTabContent("Notifications", <NotificationsPage />)
   };
 };
