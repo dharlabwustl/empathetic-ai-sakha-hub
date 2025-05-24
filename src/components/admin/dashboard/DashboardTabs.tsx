@@ -27,19 +27,10 @@ import PersonalizationControlTab from './tabs/PersonalizationControlTab';
 import CommunicationManagementTab from './tabs/CommunicationManagementTab';
 import GamificationManagementTab from './tabs/GamificationManagementTab';
 
-// Import the comprehensive tabs
+// Import the new comprehensive tabs
 import BatchManagementTab from './BatchManagementTab';
 import AIFeaturesManagementTab from './AIFeaturesManagementTab';
 import EnhancedContentManagementTab from './EnhancedContentManagementTab';
-
-// Import new alignment tabs
-import StudentDataSyncTab from './StudentDataSyncTab';
-import FeatureAuditTab from './FeatureAuditTab';
-
-// Import new implementation tabs
-import AIModelManagementTab from './AIModelManagementTab';
-import InteractiveContentTab from './InteractiveContentTab';
-import AnalyticsReportingTab from './AnalyticsReportingTab';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -91,14 +82,6 @@ const DashboardTabs: React.FC = () => {
         <StudentProfilesTab />
       </TabsContent>
 
-      <TabsContent value="student-data-sync" className="space-y-4 mt-4">
-        <StudentDataSyncTab />
-      </TabsContent>
-
-      <TabsContent value="feature-audit" className="space-y-4 mt-4">
-        <FeatureAuditTab />
-      </TabsContent>
-
       <TabsContent value="mood-analytics" className="space-y-4 mt-4">
         <MoodAnalyticsTab />
       </TabsContent>
@@ -117,10 +100,6 @@ const DashboardTabs: React.FC = () => {
 
       <TabsContent value="ai-models" className="space-y-4 mt-4">
         <AIModelsTab />
-      </TabsContent>
-
-      <TabsContent value="ai-model-management" className="space-y-4 mt-4">
-        <AIModelManagementTab />
       </TabsContent>
 
       <TabsContent value="ai-features" className="space-y-4 mt-4">
@@ -157,14 +136,6 @@ const DashboardTabs: React.FC = () => {
 
       <TabsContent value="revenue" className="space-y-4 mt-4">
         <RevenueAnalyticsTab />
-      </TabsContent>
-
-      <TabsContent value="interactive-content" className="space-y-4 mt-4">
-        <InteractiveContentTab />
-      </TabsContent>
-
-      <TabsContent value="analytics-reporting" className="space-y-4 mt-4">
-        <AnalyticsReportingTab />
       </TabsContent>
       
       <TabsContent value="database" className="space-y-4 mt-4">
