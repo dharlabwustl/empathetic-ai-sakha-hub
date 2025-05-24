@@ -41,7 +41,7 @@ const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
             className="flex flex-col items-center"
           >
             <div 
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${getMoodTheme(entry.mood).backgroundColor}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${getMoodTheme(entry.mood).background}`}
               title={`${entry.mood} on ${entry.timestamp.toLocaleDateString()}`}
             >
               <span className="text-xs">{entry.timestamp.getDate()}</span>
