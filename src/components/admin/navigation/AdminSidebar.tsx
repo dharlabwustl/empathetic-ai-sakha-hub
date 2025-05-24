@@ -7,7 +7,8 @@ import {
   LayoutDashboard, Users, BookOpen, CreditCard, BarChart3, Database, 
   Shield, Activity, Settings, FileText, Brain, MessageSquare, 
   Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
-  TrendingUp, UserCheck, Zap, Cpu, Globe, Lock
+  TrendingUp, UserCheck, Zap, Cpu, Globe, Lock, Heart,
+  Target, Award, HelpCircle, Smartphone, Puzzle
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -30,7 +31,8 @@ const AdminSidebar: React.FC = () => {
       items: [
         { icon: <Users size={20} />, title: "All Users", path: "/admin/dashboard", tab: "users" },
         { icon: <UserCheck size={20} />, title: "Student Profiles", path: "/admin/dashboard", tab: "student-profiles" },
-        { icon: <Calendar size={20} />, title: "User Activity", path: "/admin/dashboard", tab: "user-activity" }
+        { icon: <Calendar size={20} />, title: "User Activity", path: "/admin/dashboard", tab: "user-activity" },
+        { icon: <Heart size={20} />, title: "Mood Analytics", path: "/admin/dashboard", tab: "mood-analytics" }
       ]
     },
     { 
@@ -39,15 +41,39 @@ const AdminSidebar: React.FC = () => {
         { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
         { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
         { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
-        { icon: <Video size={20} />, title: "Video Content", path: "/admin/dashboard", tab: "videos" }
+        { icon: <Video size={20} />, title: "Video Content", path: "/admin/dashboard", tab: "videos" },
+        { icon: <Target size={20} />, title: "Study Plans", path: "/admin/dashboard", tab: "study-plan-management" }
       ]
     },
     { 
-      section: "Subscriptions & Plans",
+      section: "AI & Personalization",
+      items: [
+        { icon: <Brain size={20} />, title: "Personalization Engine", path: "/admin/dashboard", tab: "personalization-control" },
+        { icon: <Puzzle size={20} />, title: "AI Personalization", path: "/admin/dashboard", tab: "ai-personalization" },
+        { icon: <Zap size={20} />, title: "Feature Management", path: "/admin/dashboard", tab: "features" }
+      ]
+    },
+    { 
+      section: "Communication & Engagement",
+      items: [
+        { icon: <MessageSquare size={20} />, title: "Communications", path: "/admin/dashboard", tab: "communication-management" },
+        { icon: <Bell size={20} />, title: "Notifications", path: "/admin/dashboard", tab: "notifications" },
+        { icon: <Award size={20} />, title: "Gamification", path: "/admin/dashboard", tab: "gamification-management" }
+      ]
+    },
+    { 
+      section: "Subscriptions & Revenue",
       items: [
         { icon: <CreditCard size={20} />, title: "Subscription Plans", path: "/admin/dashboard", tab: "subscriptions" },
-        { icon: <Zap size={20} />, title: "Feature Management", path: "/admin/dashboard", tab: "features" },
         { icon: <LineChart size={20} />, title: "Revenue Analytics", path: "/admin/dashboard", tab: "revenue" }
+      ]
+    },
+    { 
+      section: "Support & Analytics",
+      items: [
+        { icon: <HelpCircle size={20} />, title: "Support System", path: "/admin/dashboard", tab: "support-management" },
+        { icon: <BarChart3 size={20} />, title: "Advanced Analytics", path: "/admin/dashboard", tab: "advanced-analytics" },
+        { icon: <TrendingUp size={20} />, title: "User Journey", path: "/admin/dashboard", tab: "user-journey" }
       ]
     },
     { 
@@ -56,14 +82,15 @@ const AdminSidebar: React.FC = () => {
         { icon: <Database size={20} />, title: "Database Management", path: "/admin/dashboard", tab: "database" },
         { icon: <Cpu size={20} />, title: "API Management", path: "/admin/dashboard", tab: "api" },
         { icon: <Shield size={20} />, title: "Security", path: "/admin/dashboard", tab: "security" },
-        { icon: <Activity size={20} />, title: "System Logs", path: "/admin/dashboard", tab: "logs" }
+        { icon: <Activity size={20} />, title: "System Logs", path: "/admin/dashboard", tab: "logs" },
+        { icon: <Smartphone size={20} />, title: "Mobile Management", path: "/admin/dashboard", tab: "mobile-management" }
       ]
     },
     { 
       section: "Configuration",
       items: [
         { icon: <Settings size={20} />, title: "System Settings", path: "/admin/dashboard", tab: "settings" },
-        { icon: <Globe size={20} />, title: "Documentation", path: "/admin/documentation" },
+        { icon: <Globe size={20} />, title: "Integrations", path: "/admin/dashboard", tab: "integration-management" },
         { icon: <Lock size={20} />, title: "Access Control", path: "/admin/dashboard", tab: "access-control" }
       ]
     }
@@ -94,7 +121,7 @@ const AdminSidebar: React.FC = () => {
     <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400">PREPZR Admin</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">Administrative Dashboard</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Comprehensive Dashboard</p>
       </div>
 
       <div className="p-4 space-y-6">

@@ -20,6 +20,13 @@ import RevenueAnalyticsTab from './RevenueAnalyticsTab';
 import APIManagementTab from './APIManagementTab';
 import SystemSettingsTab from './SystemSettingsTab';
 
+// Import new tabs
+import MoodAnalyticsTab from './tabs/MoodAnalyticsTab';
+import StudyPlanManagementTab from './tabs/StudyPlanManagementTab';
+import PersonalizationControlTab from './tabs/PersonalizationControlTab';
+import CommunicationManagementTab from './tabs/CommunicationManagementTab';
+import GamificationManagementTab from './tabs/GamificationManagementTab';
+
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
@@ -69,6 +76,10 @@ const DashboardTabs: React.FC = () => {
       <TabsContent value="student-profiles" className="space-y-4 mt-4">
         <StudentProfilesTab />
       </TabsContent>
+
+      <TabsContent value="mood-analytics" className="space-y-4 mt-4">
+        <MoodAnalyticsTab />
+      </TabsContent>
       
       <TabsContent value="content" className="space-y-4 mt-4">
         <ContentManagement />
@@ -80,6 +91,22 @@ const DashboardTabs: React.FC = () => {
 
       <TabsContent value="exams" className="space-y-4 mt-4">
         <ExamManagementTab />
+      </TabsContent>
+
+      <TabsContent value="study-plan-management" className="space-y-4 mt-4">
+        <StudyPlanManagementTab />
+      </TabsContent>
+
+      <TabsContent value="personalization-control" className="space-y-4 mt-4">
+        <PersonalizationControlTab />
+      </TabsContent>
+
+      <TabsContent value="communication-management" className="space-y-4 mt-4">
+        <CommunicationManagementTab />
+      </TabsContent>
+
+      <TabsContent value="gamification-management" className="space-y-4 mt-4">
+        <GamificationManagementTab />
       </TabsContent>
       
       <TabsContent value="subscriptions" className="space-y-4 mt-4">
@@ -112,6 +139,35 @@ const DashboardTabs: React.FC = () => {
       
       <TabsContent value="logs" className="space-y-4 mt-4">
         <SystemLogs logs={mockLogs} />
+      </TabsContent>
+
+      {/* Placeholder tabs for remaining features */}
+      <TabsContent value="support-management" className="space-y-4 mt-4">
+        <div className="p-6 text-center">
+          <h3 className="text-lg font-semibold mb-2">Support & Help System</h3>
+          <p className="text-muted-foreground">Support ticket system, FAQ management, and user feedback collection coming soon.</p>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="advanced-analytics" className="space-y-4 mt-4">
+        <div className="p-6 text-center">
+          <h3 className="text-lg font-semibold mb-2">Advanced Analytics</h3>
+          <p className="text-muted-foreground">A/B testing, cohort analysis, and retention analytics coming soon.</p>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="mobile-management" className="space-y-4 mt-4">
+        <div className="p-6 text-center">
+          <h3 className="text-lg font-semibold mb-2">Mobile App Management</h3>
+          <p className="text-muted-foreground">Mobile version control and app store analytics coming soon.</p>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="integration-management" className="space-y-4 mt-4">
+        <div className="p-6 text-center">
+          <h3 className="text-lg font-semibold mb-2">Integration Management</h3>
+          <p className="text-muted-foreground">Third-party service integrations and webhook management coming soon.</p>
+        </div>
       </TabsContent>
     </Tabs>
   );
