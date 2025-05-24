@@ -1,165 +1,85 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
-import MoodSelectionDialog from './MoodSelectionDialog';
-import { useToast } from '@/hooks/use-toast';
+import { getMoodTheme, storeMoodInLocalStorage } from './moodUtils';
+import { Smile, Heart, Brain, Coffee, AlertCircle, Lightbulb } from 'lucide-react';
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
-  className?: string;
-  size?: "sm" | "default" | "lg" | "icon";
-  showLabel?: boolean;
+  onMoodChange: (mood: MoodType) => void;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({
-  currentMood,
-  onMoodChange,
-  className = '',
-  size = "sm",
-  showLabel = true,
-}) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [lastMoodChange, setLastMoodChange] = useState<Date | null>(null);
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    // Listen for mood change events from other components
-    const handleMoodChangeEvent = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      if (onMoodChange && customEvent.detail && customEvent.detail.mood) {
-        onMoodChange(customEvent.detail.mood);
-        setLastMoodChange(new Date());
-      }
-    };
+const moodOptions = [
+  { mood: MoodType.HAPPY, emoji: '😊', icon: Smile, label: 'Happy' },
+  { mood: MoodType.MOTIVATED, emoji: '💪', icon: Heart, label: 'Motivated' },
+  { mood: MoodType.FOCUSED, emoji: '🎯', icon: Brain, label: 'Focused' },
+  { mood: MoodType.CALM, emoji: '😌', icon: Heart, label: 'Calm' },
+  { mood: MoodType.TIRED, emoji: '😴', icon: Coffee, label: 'Tired' },
+  { mood: MoodType.CONFUSED, emoji: '🤔', icon: AlertCircle, label: 'Confused' },
+  { mood: MoodType.ANXIOUS, emoji: '😰', icon: AlertCircle, label: 'Anxious' },
+  { mood: MoodType.STRESSED, emoji: '😰', icon: AlertCircle, label: 'Stressed' },
+  { mood: MoodType.OVERWHELMED, emoji: '😵', icon: AlertCircle, label: 'Overwhelmed' },
+  { mood: MoodType.NEUTRAL, emoji: '😐', icon: Brain, label: 'Neutral' },
+  { mood: MoodType.OKAY, emoji: '👌', icon: Smile, label: 'Okay' },
+  { mood: MoodType.SAD, emoji: '😢', icon: Heart, label: 'Sad' },
+  { mood: MoodType.CURIOUS, emoji: '🤔', icon: Lightbulb, label: 'Curious' },
+  { mood: MoodType.CONFIDENT, emoji: '😎', icon: Heart, label: 'Confident' },
+  { mood: MoodType.EXCITED, emoji: '🤩', icon: Heart, label: 'Excited' }
+];
 
-    document.addEventListener('mood-changed', handleMoodChangeEvent);
-    
-    return () => {
-      document.removeEventListener('mood-changed', handleMoodChangeEvent);
-    };
-  }, [onMoodChange]);
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleOpenDialog = () => {
-    setIsDialogOpen(true);
+  const handleMoodSelect = (mood: MoodType) => {
+    onMoodChange(mood);
+    storeMoodInLocalStorage(mood);
+    setIsOpen(false);
   };
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-  };
-
-  const handleMoodChange = (mood: MoodType) => {
-    if (onMoodChange) {
-      onMoodChange(mood);
-      setLastMoodChange(new Date());
-      
-      // Update study time allocations based on mood
-      updateStudyTimeAllocationsByMood(mood);
-      
-      // Show toast confirmation with recommendation
-      const recommendation = getStudyRecommendationForMood(mood);
-      
-      toast({
-        title: `Mood Updated: ${getMoodLabel(mood)}`,
-        description: recommendation,
-        duration: 5000,
-      });
-      
-      // Analyze mood trends for additional notifications
-      const trends = analyzeMoodTrends();
-      
-      if (trends.stressSignals) {
-        setTimeout(() => {
-          toast({
-            title: "Stress Pattern Detected",
-            description: "You've been feeling stressed lately. Consider taking a break or trying our Feel Good Corner.",
-            variant: "destructive",
-            duration: 7000,
-          });
-        }, 1000);
-      } else if (trends.improved) {
-        setTimeout(() => {
-          toast({
-            title: "Your mood is improving!",
-            description: "Great progress! Keep up the good work.",
-            variant: "default",
-            duration: 5000,
-          });
-        }, 1000);
-      }
-      
-      // Trigger custom event for other components to react to
-      const moodChangeEvent = new CustomEvent('mood-changed', { 
-        detail: { 
-          mood, 
-          timestamp: new Date().toISOString(),
-          recommendation
-        } 
-      });
-      document.dispatchEvent(moodChangeEvent);
-    }
-    handleCloseDialog();
-  };
-  
-  // Get emoji and mood color with fallback
-  const moodEmoji = getMoodEmoji(currentMood);
-  
-  // Get mood label text
-  const moodLabelText = currentMood 
-    ? `Feeling ${getMoodLabel(currentMood)}` 
-    : "Log Mood";
-  
-  // Generate background color based on mood for enhanced visual appeal
-  const getBgColorClass = () => {
-    if (!currentMood) return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800 dark:to-gray-700";
-    
-    switch (currentMood) {
-      case MoodType.HAPPY:
-        return "bg-gradient-to-r from-yellow-100 to-yellow-200 hover:from-yellow-200 hover:to-yellow-300 dark:from-yellow-900/30 dark:to-yellow-800/30";
-      case MoodType.MOTIVATED:
-        return "bg-gradient-to-r from-green-100 to-green-200 hover:from-green-200 hover:to-green-300 dark:from-green-900/30 dark:to-green-800/30";
-      case MoodType.FOCUSED:
-        return "bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 dark:from-blue-900/30 dark:to-blue-800/30";
-      case MoodType.NEUTRAL:
-        return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800/50 dark:to-gray-700/50";
-      case MoodType.TIRED:
-        return "bg-gradient-to-r from-orange-100 to-orange-200 hover:from-orange-200 hover:to-orange-300 dark:from-orange-900/30 dark:to-orange-800/30";
-      case MoodType.ANXIOUS:
-        return "bg-gradient-to-r from-purple-100 to-purple-200 hover:from-purple-200 hover:to-purple-300 dark:from-purple-900/30 dark:to-purple-800/30";
-      case MoodType.STRESSED:
-        return "bg-gradient-to-r from-red-100 to-red-200 hover:from-red-200 hover:to-red-300 dark:from-red-900/30 dark:to-red-800/30";
-      case MoodType.SAD:
-        return "bg-gradient-to-r from-indigo-100 to-indigo-200 hover:from-indigo-200 hover:to-indigo-300 dark:from-indigo-900/30 dark:to-indigo-800/30";
-      default:
-        return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800/50 dark:to-gray-700/50";
-    }
-  };
+  const currentMoodOption = moodOptions.find(option => option.mood === currentMood);
+  const theme = currentMood ? getMoodTheme(currentMood) : null;
 
   return (
-    <>
-      <Button
-        variant="outline"
-        size={size}
-        onClick={handleOpenDialog}
-        className={`flex items-center gap-1.5 shadow-sm border ${getBgColorClass()} transition-all duration-300 ${className}`}
-      >
-        <span className="text-lg">{moodEmoji}</span>
-        {showLabel && (
-          <span className="inline">
-            {moodLabelText}
-          </span>
-        )}
-      </Button>
-
-      <MoodSelectionDialog
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        selectedMood={currentMood}
-        onSelectMood={handleMoodChange}
-      />
-    </>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="flex items-center gap-2">
+          {currentMoodOption ? (
+            <>
+              <span>{currentMoodOption.emoji}</span>
+              <Badge className={theme ? `${theme.background} ${theme.textColor}` : ''}>
+                {currentMoodOption.label}
+              </Badge>
+            </>
+          ) : (
+            <>
+              <Smile className="h-4 w-4" />
+              Log Mood
+            </>
+          )}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>How are you feeling today?</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-3 gap-3">
+          {moodOptions.map((option) => (
+            <Button
+              key={option.mood}
+              variant={currentMood === option.mood ? "default" : "outline"}
+              onClick={() => handleMoodSelect(option.mood)}
+              className="flex flex-col items-center p-4 h-auto gap-2"
+            >
+              <span className="text-2xl">{option.emoji}</span>
+              <span className="text-xs">{option.label}</span>
+            </Button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

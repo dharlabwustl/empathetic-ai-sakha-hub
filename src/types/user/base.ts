@@ -17,7 +17,50 @@ export enum MoodType {
   OKAY = 'okay'
 }
 
+export enum UserRole {
+  Student = 'student',
+  Admin = 'admin', 
+  Teacher = 'teacher'
+}
+
 export type SubscriptionTypeValue = 'free' | 'basic' | 'premium' | 'pro' | 'enterprise' | 'pro_monthly' | 'pro_yearly' | 'group';
+
+export type SubscriptionType = SubscriptionTypeValue;
+
+export enum StudyPlanStatus {
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+  PAUSED = 'paused',
+  DRAFT = 'draft'
+}
+
+export interface StudyPlanTopic {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  estimatedTime?: number;
+  difficulty?: 'easy' | 'medium' | 'hard';
+}
+
+export interface StudyPlan {
+  id: string;
+  title: string;
+  description?: string;
+  status: StudyPlanStatus;
+  topics: StudyPlanTopic[];
+  startDate?: Date;
+  endDate?: Date;
+  progressPercent: number;
+  estimatedHours?: number;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  tags?: string[];
+}
+
+export interface MoodTheme {
+  background: string;
+  textColor: string;
+}
 
 export interface UserSubscription {
   id: string;
@@ -58,7 +101,7 @@ export interface UserProfileBase {
   updatedAt?: Date;
   currentMood?: MoodType;
   mood?: MoodType;
-  role?: 'student' | 'admin' | 'teacher';
+  role?: UserRole;
   subscription?: UserSubscription | SubscriptionTypeValue;
   studyStreak?: number;
   studyHoursToday?: number;
@@ -70,3 +113,5 @@ export interface UserProfileBase {
     notifications?: boolean;
   };
 }
+
+export type UserProfileType = UserProfileBase;
