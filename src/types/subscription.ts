@@ -1,15 +1,14 @@
 
 export enum SubscriptionType {
-  FREE = 'free',
-  BASIC = 'basic',
-  PRO = 'pro',
-  PREMIUM = 'premium'
+  FREE = 'FREE',
+  PRO = 'PRO',
+  PREMIUM = 'PREMIUM'
 }
 
-export interface SubscriptionPlan {
+export interface CreditPack {
   id: string;
   name: string;
-  type: SubscriptionType;
+  credits: number;
   price: number;
-  features: string[];
+  description: string;
 }

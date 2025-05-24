@@ -1,9 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Bot, CheckCircle2, Circle, BookOpen, Brain, Lightbulb, FileText } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { 
+  Play, Pause, RotateCcw, Volume2, VolumeX, BookOpen, 
+  CheckCircle, Circle, Brain, MessageSquare, Lightbulb,
+  FileText, Users, Video, Calculator, Target, Clock
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AITutorDialog from './AITutorDialog';
 
@@ -16,556 +22,566 @@ interface EnhancedLearnTabProps {
   };
 }
 
-interface ContentSection {
+interface LearningSection {
   id: string;
   title: string;
   content: string;
-  detailedExplanation: string;
+  audioText: string;
+  duration: number;
+  difficulty: 'Basic' | 'Intermediate' | 'Advanced';
   keyPoints: string[];
   examples: string[];
-  commonMistakes: string[];
-  duration: number;
-  completed: boolean;
-  category: 'foundation' | 'theory' | 'application' | 'analysis' | 'synthesis';
+  isCompleted: boolean;
+  hasQuiz: boolean;
 }
 
 const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ 
   conceptName,
   globalAudioState 
 }) => {
-  const [isReading, setIsReading] = useState(false);
+  // Audio and progress states
+  const [isLocalAudioPlaying, setIsLocalAudioPlaying] = useState(false);
+  const [currentAudioProgress, setCurrentAudioProgress] = useState(0);
   const [currentSection, setCurrentSection] = useState(0);
-  const [sectionProgress, setSectionProgress] = useState(0);
-  const [overallProgress, setOverallProgress] = useState(0);
-  const [showAITutor, setShowAITutor] = useState(false);
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [showAITutor, setShowAITutor] = useState(false);
+  const [selectedContext, setSelectedContext] = useState('');
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Comprehensive content sections with detailed analysis
-  const contentSections: ContentSection[] = [
+  // Mock learning sections data
+  const learningSections: LearningSection[] = [
     {
-      id: 'foundation',
-      title: 'Foundational Understanding',
-      category: 'foundation',
-      content: `${conceptName} is a fundamental concept that forms the backbone of physics understanding. This principle governs how objects interact with forces and how motion results from these interactions.`,
-      detailedExplanation: `At its core, ${conceptName} represents one of the most elegant and powerful principles in physics. Developed through centuries of observation and mathematical refinement, this concept allows us to predict and understand the behavior of everything from falling apples to orbiting planets. The beauty lies in its universality - the same principles that govern a ball rolling down a hill also explain the motion of galaxies through space.`,
+      id: 'introduction',
+      title: 'Introduction to the Concept',
+      content: `${conceptName} is a fundamental principle in ${globalAudioState ? 'physics' : 'science'} that describes the relationship between various forces and their effects. Understanding this concept is crucial for mastering more advanced topics.`,
+      audioText: `Welcome to your comprehensive study of ${conceptName}. In this introduction, we'll explore what makes this concept so important and how it connects to broader scientific principles. This foundational understanding will prepare you for the more detailed analysis that follows.`,
+      duration: 12000,
+      difficulty: 'Basic',
       keyPoints: [
-        'Universal applicability across all scales of motion',
-        'Mathematical framework for predicting outcomes',
-        'Connection between forces and resulting motion',
-        'Foundation for more advanced physics concepts'
+        'Definition and core principles',
+        'Historical context and discovery',
+        'Real-world applications',
+        'Connection to other concepts'
       ],
       examples: [
-        'A car accelerating from a traffic light',
-        'A satellite maintaining orbital velocity',
-        'A pendulum swinging back and forth'
+        'Everyday examples you can observe',
+        'Simple demonstrations',
+        'Conceptual analogies'
       ],
-      commonMistakes: [
-        'Confusing force with motion',
-        'Thinking heavier objects always fall faster',
-        'Believing constant motion requires constant force'
-      ],
-      duration: 45,
-      completed: false
+      isCompleted: false,
+      hasQuiz: true
     },
     {
-      id: 'theoretical_framework',
-      title: 'Theoretical Framework',
-      category: 'theory',
-      content: `The theoretical framework of ${conceptName} is built upon precise mathematical relationships that describe the fundamental interactions between matter and motion.`,
-      detailedExplanation: `The mathematical elegance of ${conceptName} emerges from vector algebra and calculus. Forces as vectors have both magnitude and direction, requiring vector addition to find net effects. The relationship F = ma isn't just an equation—it's a profound statement about the nature of reality. Mass represents inertia, the resistance to changes in motion, while acceleration describes how velocity changes over time. This framework allows us to solve complex problems by breaking them into simpler components.`,
+      id: 'fundamental-principles',
+      title: 'Fundamental Principles',
+      content: `The core principles underlying ${conceptName} involve several key relationships. These principles form the theoretical foundation that explains observed phenomena and allows us to make predictions.`,
+      audioText: `Now let's dive deep into the fundamental principles that govern ${conceptName}. These principles are like the building blocks - once you understand them, everything else becomes much clearer. Pay attention to how these principles interconnect and support each other.`,
+      duration: 18000,
+      difficulty: 'Intermediate',
       keyPoints: [
-        'Vector nature of forces and acceleration',
-        'Mass as a measure of inertia',
-        'Acceleration as the rate of velocity change',
-        'Net force determines motion changes'
+        'Primary governing equations',
+        'Key variables and their relationships',
+        'Underlying assumptions',
+        'Boundary conditions'
       ],
       examples: [
-        'Vector addition of multiple forces',
-        'Calculating acceleration on inclined planes',
-        'Analyzing circular motion forces'
+        'Mathematical derivations',
+        'Theoretical applications',
+        'Problem-solving strategies'
       ],
-      commonMistakes: [
-        'Treating vectors as simple numbers',
-        'Ignoring direction in force calculations',
-        'Confusing mass with weight'
-      ],
-      duration: 50,
-      completed: false
+      isCompleted: false,
+      hasQuiz: true
     },
     {
-      id: 'real_world_applications',
-      title: 'Real-World Applications',
-      category: 'application',
-      content: `Understanding ${conceptName} opens doors to analyzing countless real-world phenomena, from engineering marvels to natural processes.`,
-      detailedExplanation: `Engineers use these principles to design everything from bridges to spacecraft. When designing a bridge, engineers must consider all forces: the weight of the bridge itself, traffic loads, wind forces, and even seismic activity. Each component must be designed to handle specific force requirements. In aerospace, rocket design relies heavily on understanding how forces create acceleration, leading to the rocket equation that determines fuel requirements for reaching orbit.`,
+      id: 'mathematical-framework',
+      title: 'Mathematical Framework',
+      content: `The mathematical representation of ${conceptName} provides precise tools for analysis and calculation. This framework includes equations, formulas, and computational methods.`,
+      audioText: `Mathematics is the language that allows us to precisely describe ${conceptName}. In this section, we'll explore the mathematical framework step by step. Don't worry if it seems complex at first - we'll break down each equation and show you how to apply them practically.`,
+      duration: 22000,
+      difficulty: 'Advanced',
       keyPoints: [
-        'Structural engineering and safety design',
-        'Transportation systems optimization',
-        'Sports performance analysis',
-        'Industrial machinery design'
+        'Key equations and formulas',
+        'Variable definitions',
+        'Mathematical relationships',
+        'Calculation methods'
       ],
       examples: [
-        'Suspension bridge cable calculations',
-        'Rocket thrust-to-weight ratios',
-        'Automobile braking systems',
-        'Wind turbine blade design'
+        'Worked examples',
+        'Step-by-step solutions',
+        'Common calculation errors to avoid'
       ],
-      commonMistakes: [
-        'Oversimplifying real-world complexity',
-        'Ignoring friction and air resistance',
-        'Not accounting for material limits'
-      ],
-      duration: 55,
-      completed: false
+      isCompleted: false,
+      hasQuiz: true
     },
     {
-      id: 'analytical_methods',
-      title: 'Analytical Methods',
-      category: 'analysis',
-      content: `Mastering ${conceptName} requires developing analytical skills to break complex problems into manageable components and apply systematic problem-solving approaches.`,
-      detailedExplanation: `Effective analysis starts with drawing free-body diagrams, isolating the object of interest and identifying all forces acting upon it. This visual representation prevents oversight and clarifies the problem structure. Next, we establish coordinate systems, choosing orientations that simplify calculations. Breaking forces into components along these axes allows us to apply Newton's laws in each direction independently. This systematic approach transforms complex three-dimensional problems into manageable one-dimensional calculations.`,
+      id: 'practical-applications',
+      title: 'Practical Applications',
+      content: `Real-world applications of ${conceptName} span multiple industries and disciplines. Understanding these applications helps connect theory to practice.`,
+      audioText: `This is where theory meets reality! Let's explore how ${conceptName} is applied in real-world scenarios. From engineering applications to everyday phenomena, you'll see how this concept shapes our world in ways you might never have realized.`,
+      duration: 16000,
+      difficulty: 'Intermediate',
       keyPoints: [
-        'Free-body diagram construction',
-        'Coordinate system selection',
-        'Force component analysis',
-        'Systematic equation setup'
+        'Industrial applications',
+        'Engineering uses',
+        'Scientific research applications',
+        'Emerging technologies'
       ],
       examples: [
-        'Analyzing forces on objects on inclined planes',
-        'Solving pulley system problems',
-        'Calculating forces in static equilibrium'
+        'Case studies',
+        'Industry examples',
+        'Current research'
       ],
-      commonMistakes: [
-        'Incomplete force identification',
-        'Poor coordinate system choices',
-        'Sign convention errors'
-      ],
-      duration: 48,
-      completed: false
+      isCompleted: false,
+      hasQuiz: false
     },
     {
-      id: 'advanced_synthesis',
-      title: 'Advanced Synthesis',
-      category: 'synthesis',
-      content: `Advanced understanding of ${conceptName} involves synthesizing knowledge to solve complex, multi-step problems and connecting to other physics principles.`,
-      detailedExplanation: `At the synthesis level, we combine multiple physics concepts to solve real-world problems. This might involve integrating forces with energy conservation, momentum principles, or rotational dynamics. For example, analyzing a car crash involves forces, momentum conservation, energy dissipation, and material deformation. Advanced problems often require numerical methods and computer simulations, as analytical solutions become impractical. This level of understanding prepares students for research and engineering careers where complex, interconnected systems are the norm.`,
+      id: 'advanced-topics',
+      title: 'Advanced Topics and Extensions',
+      content: `Advanced aspects of ${conceptName} include cutting-edge research, complex scenarios, and connections to other advanced concepts.`,
+      audioText: `For those ready to push further, let's explore the advanced frontiers of ${conceptName}. These topics represent current research areas and complex applications that showcase the full power and elegance of this concept.`,
+      duration: 20000,
+      difficulty: 'Advanced',
       keyPoints: [
-        'Multi-concept integration',
-        'Complex system analysis',
-        'Numerical solution methods',
-        'Research applications'
+        'Current research directions',
+        'Complex scenarios',
+        'Interdisciplinary connections',
+        'Future developments'
       ],
       examples: [
-        'Spacecraft trajectory optimization',
-        'Earthquake-resistant building design',
-        'Fluid dynamics in weather systems'
+        'Research papers',
+        'Advanced problem sets',
+        'Cutting-edge applications'
       ],
-      commonMistakes: [
-        'Over-complicating simple problems',
-        'Losing sight of fundamental principles',
-        'Relying too heavily on technology'
-      ],
-      duration: 52,
-      completed: false
+      isCompleted: false,
+      hasQuiz: true
     }
   ];
 
-  const currentSectionData = contentSections[currentSection];
+  // Audio control functions
+  const handleLocalAudioToggle = () => {
+    const newPlayingState = !isLocalAudioPlaying;
+    setIsLocalAudioPlaying(newPlayingState);
+    
+    if (newPlayingState) {
+      startAudioNarration();
+    } else {
+      stopAudioNarration();
+    }
+  };
 
-  // Handle global audio state changes
+  const startAudioNarration = () => {
+    const section = learningSections[currentSection];
+    if (section) {
+      const totalDuration = section.duration;
+      let elapsed = 0;
+      
+      intervalRef.current = setInterval(() => {
+        elapsed += 100;
+        const progress = Math.min((elapsed / totalDuration) * 100, 100);
+        setCurrentAudioProgress(progress);
+        
+        if (progress >= 100) {
+          setIsLocalAudioPlaying(false);
+          markSectionCompleted(section.id);
+          clearInterval(intervalRef.current!);
+        }
+      }, 100);
+    }
+  };
+
+  const stopAudioNarration = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const resetAudio = () => {
+    stopAudioNarration();
+    setCurrentAudioProgress(0);
+    setIsLocalAudioPlaying(false);
+  };
+
+  const markSectionCompleted = (sectionId: string) => {
+    setCompletedSections(prev => new Set([...prev, sectionId]));
+  };
+
+  const navigateToSection = (sectionIndex: number) => {
+    setCurrentSection(sectionIndex);
+    resetAudio();
+  };
+
+  const openAITutor = (context: string) => {
+    setSelectedContext(context);
+    setShowAITutor(true);
+  };
+
+  // Global audio synchronization
   useEffect(() => {
-    if (globalAudioState) {
-      setIsReading(globalAudioState.isPlaying && globalAudioState.isEnabled && isAudioEnabled);
+    if (globalAudioState?.isPlaying && !globalAudioState.isEnabled) {
+      stopAudioNarration();
+      setIsLocalAudioPlaying(false);
     }
-  }, [globalAudioState, isAudioEnabled]);
+  }, [globalAudioState]);
 
-  // Audio reading simulation with detailed progression
+  // Cleanup
   useEffect(() => {
-    if (isReading && currentSectionData) {
-      const interval = setInterval(() => {
-        setSectionProgress(prev => {
-          const increment = 100 / currentSectionData.duration;
-          const newProgress = prev + increment;
-          
-          if (newProgress >= 100) {
-            setCompletedSections(prevCompleted => new Set([...prevCompleted, currentSectionData.id]));
-            
-            if (currentSection < contentSections.length - 1) {
-              setCurrentSection(prev => prev + 1);
-              setSectionProgress(0);
-            } else {
-              setIsReading(false);
-              setSectionProgress(100);
-            }
-            
-            return newProgress >= 100 ? 100 : newProgress;
-          }
-          
-          return newProgress;
-        });
-      }, 1000);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
-      return () => clearInterval(interval);
-    }
-  }, [isReading, currentSection, currentSectionData, contentSections.length]);
-
-  // Calculate overall progress
-  useEffect(() => {
-    const totalSections = contentSections.length;
-    const completedCount = completedSections.size;
-    const currentSectionProgress = currentSection < totalSections ? sectionProgress / 100 : 0;
-    const overall = ((completedCount + currentSectionProgress) / totalSections) * 100;
-    setOverallProgress(overall);
-  }, [completedSections, currentSection, sectionProgress, contentSections.length]);
-
-  const handlePlayPause = () => {
-    setIsReading(!isReading);
-    window.dispatchEvent(new CustomEvent('learnAudioToggle', { 
-      detail: { isPlaying: !isReading } 
-    }));
-  };
-
-  const handleReset = () => {
-    setCurrentSection(0);
-    setSectionProgress(0);
-    setOverallProgress(0);
-    setIsReading(false);
-    setCompletedSections(new Set());
-    setExpandedSection(null);
-  };
-
-  const handleSectionClick = (index: number) => {
-    if (!isReading) {
-      setCurrentSection(index);
-      setSectionProgress(0);
-    }
-  };
-
-  const handleSectionComplete = () => {
-    setCompletedSections(prev => new Set([...prev, currentSectionData.id]));
-    if (currentSection < contentSections.length - 1) {
-      setCurrentSection(prev => prev + 1);
-      setSectionProgress(0);
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'foundation': return <BookOpen className="h-4 w-4" />;
-      case 'theory': return <Brain className="h-4 w-4" />;
-      case 'application': return <Lightbulb className="h-4 w-4" />;
-      case 'analysis': return <FileText className="h-4 w-4" />;
-      case 'synthesis': return <Bot className="h-4 w-4" />;
-      default: return <Circle className="h-4 w-4" />;
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'foundation': return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'theory': return 'text-purple-600 bg-purple-50 border-purple-200';
-      case 'application': return 'text-green-600 bg-green-50 border-green-200';
-      case 'analysis': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'synthesis': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
+  const currentSectionData = learningSections[currentSection];
+  const overallProgress = (completedSections.size / learningSections.length) * 100;
 
   return (
     <div className="space-y-6">
-      {/* Comprehensive Learning Header */}
-      <Card>
+      {/* Header with Progress */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-blue-600" />
-              Comprehensive Learning: {conceptName}
-            </CardTitle>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+                Comprehensive Learning Guide
+              </CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Master {conceptName} with structured, audio-guided learning
+              </p>
+            </div>
+            
+            {/* Audio Controls */}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handlePlayPause}
-                disabled={!isAudioEnabled}
+                onClick={handleLocalAudioToggle}
                 className="flex items-center gap-2"
               >
-                {isReading ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                {isReading ? 'Pause' : 'Start'} Learning
+                {isLocalAudioPlaying ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {isLocalAudioPlaying ? 'Pause' : 'Play'} Audio
               </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleReset}
+                onClick={resetAudio}
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                onClick={() => openAITutor('learning-assistance')}
                 className="flex items-center gap-2"
               >
-                {isAudioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                <Brain className="h-4 w-4" />
+                AI Tutor
               </Button>
             </div>
           </div>
-
-          {/* Learning Progress */}
+          
+          {/* Progress Indicators */}
           <div className="mt-4 space-y-3">
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Learning Progress</span>
-              <span>{Math.round(overallProgress)}%</span>
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span>Current Section Progress</span>
+                <span>{Math.round(currentAudioProgress)}%</span>
+              </div>
+              <Progress value={currentAudioProgress} className="h-2" />
             </div>
-            <Progress value={overallProgress} className="h-3" />
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-lg font-bold text-blue-600">{completedSections.size}</div>
-                <div className="text-xs text-gray-500">Sections Complete</div>
+            
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span>Overall Learning Progress</span>
+                <span>{Math.round(overallProgress)}% ({completedSections.size}/{learningSections.length} sections)</span>
               </div>
-              <div>
-                <div className="text-lg font-bold text-green-600">{contentSections.length}</div>
-                <div className="text-xs text-gray-500">Total Sections</div>
-              </div>
-              <div>
-                <div className="text-lg font-bold text-purple-600">
-                  {Math.round((completedSections.size / contentSections.length) * 100)}%
-                </div>
-                <div className="text-xs text-gray-500">Mastery Level</div>
-              </div>
+              <Progress value={overallProgress} className="h-2" />
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Learning Sections Navigator */}
-        <div className="lg:col-span-1">
-          <Card>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Content Area */}
+        <div className="lg:col-span-3">
+          <Card className="min-h-[600px]">
             <CardHeader>
-              <CardTitle className="text-lg">Learning Path</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {contentSections.map((section, index) => (
-                  <motion.div
-                    key={section.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                      index === currentSection 
-                        ? `border-blue-500 bg-blue-50` 
-                        : completedSections.has(section.id)
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
-                    }`}
-                    onClick={() => handleSectionClick(index)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      {completedSections.has(section.id) ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      ) : index === currentSection ? (
-                        <Circle className="h-4 w-4 text-blue-600" />
-                      ) : (
-                        <Circle className="h-4 w-4 text-gray-400" />
-                      )}
-                      <span className="font-medium text-sm">{section.title}</span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">{currentSectionData.title}</CardTitle>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge className={`${
+                      currentSectionData.difficulty === 'Basic' ? 'bg-green-100 text-green-800' :
+                      currentSectionData.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {currentSectionData.difficulty}
+                    </Badge>
+                    
+                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <Clock className="h-4 w-4" />
+                      <span>{Math.round(currentSectionData.duration / 1000)} min read</span>
                     </div>
                     
-                    {/* Category Badge */}
-                    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs border ${getCategoryColor(section.category)}`}>
-                      {getCategoryIcon(section.category)}
-                      <span className="capitalize">{section.category}</span>
-                    </div>
-                    
-                    <div className="text-xs text-gray-500 mt-1">
-                      {section.duration}s • {section.keyPoints.length} key points
-                    </div>
-                    
-                    {/* Section Progress Bar */}
-                    {index === currentSection && (
-                      <div className="mt-2">
-                        <Progress value={sectionProgress} className="h-1" />
-                      </div>
+                    {completedSections.has(currentSectionData.id) && (
+                      <Badge className="bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Completed
+                      </Badge>
                     )}
-                  </motion.div>
-                ))}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {currentSection > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateToSection(currentSection - 1)}
+                    >
+                      Previous
+                    </Button>
+                  )}
+                  
+                  {currentSection < learningSections.length - 1 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateToSection(currentSection + 1)}
+                    >
+                      Next
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              {/* Main Content */}
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {currentSectionData.content}
+                </p>
+                
+                {isLocalAudioPlaying && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Volume2 className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                        Now Playing Audio Narration
+                      </span>
+                    </div>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 italic">
+                      "{currentSectionData.audioText.substring(0, 100)}..."
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <Separator />
+              
+              {/* Key Points */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Target className="h-5 w-5 text-blue-600" />
+                  Key Learning Points
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {currentSectionData.keyPoints.map((point, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
+                      <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
+                        {index + 1}
+                      </div>
+                      <span className="text-sm">{point}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              
+              <Separator />
+              
+              {/* Examples & Applications */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-yellow-600" />
+                  Examples & Applications
+                </h3>
+                <div className="space-y-3">
+                  {currentSectionData.examples.map((example, index) => (
+                    <div key={index} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <span className="font-medium text-sm">{example}</span>
+                      </div>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="p-0 h-auto"
+                        onClick={() => openAITutor(`example: ${example}`)}
+                      >
+                        <MessageSquare className="h-3 w-3 mr-1" />
+                        Explore this example
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Section Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => markSectionCompleted(currentSectionData.id)}
+                    disabled={completedSections.has(currentSectionData.id)}
+                    className="flex items-center gap-2"
+                  >
+                    {completedSections.has(currentSectionData.id) ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : (
+                      <Circle className="h-4 w-4" />
+                    )}
+                    Mark as Complete
+                  </Button>
+                  
+                  {currentSectionData.hasQuiz && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Calculator className="h-4 w-4" />
+                      Take Quiz
+                    </Button>
+                  )}
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openAITutor(currentSectionData.content)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask AI about this section
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Learning Content */}
-        <div className="lg:col-span-2">
+        {/* Navigation & Progress Sidebar */}
+        <div className="space-y-4">
+          {/* Section Navigation */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${getCategoryColor(currentSectionData?.category || 'foundation')}`}>
-                    {getCategoryIcon(currentSectionData?.category || 'foundation')}
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl">{currentSectionData?.title}</CardTitle>
-                    <p className="text-sm text-gray-500 capitalize">{currentSectionData?.category} Level</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {!completedSections.has(currentSectionData?.id) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSectionComplete}
-                    >
-                      Mark Complete
-                    </Button>
-                  )}
-                </div>
-              </div>
-              
-              {/* Current Section Progress */}
-              <div className="mt-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>Section Progress</span>
-                  <span>{Math.round(sectionProgress)}%</span>
-                </div>
-                <Progress value={sectionProgress} className="h-2" />
-              </div>
+              <CardTitle className="text-sm">Learning Sections</CardTitle>
             </CardHeader>
-
-            <CardContent>
-              <div className="space-y-6">
-                {/* Main Content */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentSectionData?.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                    className="prose prose-sm max-w-none"
-                  >
-                    <div className="space-y-4">
-                      <p className="text-gray-700 leading-relaxed text-base">
-                        {currentSectionData?.content}
-                      </p>
-                      
-                      {/* Detailed Explanation */}
-                      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                        <h4 className="font-semibold text-blue-900 mb-2">Detailed Analysis</h4>
-                        <p className="text-blue-800 text-sm leading-relaxed">
-                          {currentSectionData?.detailedExplanation}
-                        </p>
-                      </div>
-
-                      {/* Key Points */}
-                      <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                        <h4 className="font-semibold text-green-900 mb-2">Key Points</h4>
-                        <ul className="space-y-1">
-                          {currentSectionData?.keyPoints.map((point, index) => (
-                            <li key={index} className="text-green-800 text-sm flex items-start gap-2">
-                              <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                              {point}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Examples */}
-                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                        <h4 className="font-semibold text-purple-900 mb-2">Practical Examples</h4>
-                        <ul className="space-y-1">
-                          {currentSectionData?.examples.map((example, index) => (
-                            <li key={index} className="text-purple-800 text-sm flex items-start gap-2">
-                              <Lightbulb className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                              {example}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Common Mistakes */}
-                      <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                        <h4 className="font-semibold text-orange-900 mb-2">Common Mistakes to Avoid</h4>
-                        <ul className="space-y-1">
-                          {currentSectionData?.commonMistakes.map((mistake, index) => (
-                            <li key={index} className="text-orange-800 text-sm flex items-start gap-2">
-                              <Circle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                              {mistake}
-                            </li>
-                          ))}
-                        </ul>
+            <CardContent className="space-y-2">
+              {learningSections.map((section, index) => (
+                <div
+                  key={section.id}
+                  className={`p-3 rounded-lg cursor-pointer transition-all ${
+                    index === currentSection 
+                      ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700' 
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                  onClick={() => navigateToSection(index)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                      completedSections.has(section.id) 
+                        ? 'bg-green-500 text-white' 
+                        : index === currentSection 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-600'
+                    }`}>
+                      {completedSections.has(section.id) ? '✓' : index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{section.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge 
+                          className={`text-xs ${
+                            section.difficulty === 'Basic' ? 'bg-green-100 text-green-700' :
+                            section.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-700'
+                          }`}
+                          variant="outline"
+                        >
+                          {section.difficulty}
+                        </Badge>
+                        {section.hasQuiz && (
+                          <div className="w-2 h-2 bg-orange-400 rounded-full" title="Has Quiz"></div>
+                        )}
                       </div>
                     </div>
-                    
-                    {/* Reading Indicator */}
-                    {isReading && (
-                      <motion.div
-                        className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <motion.div
-                            className="w-2 h-2 bg-blue-600 rounded-full"
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ repeat: Infinity, duration: 1 }}
-                          />
-                          <span className="text-sm text-blue-700">Audio learning in progress...</span>
-                          <span className="text-xs text-blue-600 ml-auto">
-                            {Math.round(sectionProgress)}% complete
-                          </span>
-                        </div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Enhanced AI Learning Assistant */}
-                <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
-                  <h5 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
-                    <Bot className="h-4 w-4" />
-                    AI Learning Assistant
-                  </h5>
-                  <p className="text-sm text-purple-700 mb-3">
-                    Ready to dive deeper? I can provide additional explanations, generate practice problems, or clarify any concepts!
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => setShowAITutor(true)}
-                    >
-                      Ask Questions
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => setShowAITutor(true)}
-                    >
-                      Get Examples
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => setShowAITutor(true)}
-                    >
-                      Practice Problems
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => setShowAITutor(true)}
-                    >
-                      Test Knowledge
-                    </Button>
                   </div>
                 </div>
-              </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => openAITutor('concept-overview')}
+              >
+                <Brain className="h-4 w-4 mr-2" />
+                Explain Concept
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => openAITutor('check-understanding')}
+              >
+                <Target className="h-4 w-4 mr-2" />
+                Check Understanding
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Video className="h-4 w-4 mr-2" />
+                Watch Videos
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Study Group
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -576,8 +592,8 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({
         isOpen={showAITutor}
         onClose={() => setShowAITutor(false)}
         conceptName={conceptName}
-        context={`Comprehensive learning - ${currentSectionData?.category} level: ${currentSectionData?.title}. Content: ${currentSectionData?.content}. Key points: ${currentSectionData?.keyPoints.join(', ')}`}
-        subject="Physics"
+        context={selectedContext}
+        subject="Physics" // You can make this dynamic
       />
     </div>
   );
