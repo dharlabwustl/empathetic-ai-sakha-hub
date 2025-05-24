@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // Import components
 import Overview from './Overview';
 import UsersManagement from './UsersManagement';
-import ContentManagementTab from './ContentManagementTab';
+import ContentManagement from './ContentManagement';
 import SystemLogs from './SystemLogs';
 import SubscriptionPlans from './SubscriptionPlans';
 import Analytics from './Analytics';
@@ -19,12 +19,6 @@ import FeatureManagementTab from './FeatureManagementTab';
 import RevenueAnalyticsTab from './RevenueAnalyticsTab';
 import APIManagementTab from './APIManagementTab';
 import SystemSettingsTab from './SystemSettingsTab';
-import MoodAnalyticsTab from './MoodAnalyticsTab';
-import StudyPlanManagementTab from './StudyPlanManagementTab';
-import NotificationManagementTab from './NotificationManagementTab';
-import PaymentManagementTab from './PaymentManagementTab';
-import AdminTestingHub from './AdminTestingHub';
-import ContentRepositoryTab from './ContentRepositoryTab';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -77,19 +71,11 @@ const DashboardTabs: React.FC = () => {
       </TabsContent>
       
       <TabsContent value="content" className="space-y-4 mt-4">
-        <ContentManagementTab />
-      </TabsContent>
-
-      <TabsContent value="content-repository" className="space-y-4 mt-4">
-        <ContentRepositoryTab />
+        <ContentManagement />
       </TabsContent>
 
       <TabsContent value="ai-models" className="space-y-4 mt-4">
         <AIModelsTab />
-      </TabsContent>
-
-      <TabsContent value="ai-testing" className="space-y-4 mt-4">
-        <AdminTestingHub />
       </TabsContent>
 
       <TabsContent value="exams" className="space-y-4 mt-4">
@@ -100,28 +86,12 @@ const DashboardTabs: React.FC = () => {
         <SubscriptionPlans />
       </TabsContent>
 
-      <TabsContent value="payments" className="space-y-4 mt-4">
-        <PaymentManagementTab />
-      </TabsContent>
-
       <TabsContent value="features" className="space-y-4 mt-4">
         <FeatureManagementTab />
       </TabsContent>
 
       <TabsContent value="revenue" className="space-y-4 mt-4">
         <RevenueAnalyticsTab />
-      </TabsContent>
-
-      <TabsContent value="mood-analytics" className="space-y-4 mt-4">
-        <MoodAnalyticsTab />
-      </TabsContent>
-
-      <TabsContent value="study-plans" className="space-y-4 mt-4">
-        <StudyPlanManagementTab />
-      </TabsContent>
-
-      <TabsContent value="notifications" className="space-y-4 mt-4">
-        <NotificationManagementTab />
       </TabsContent>
       
       <TabsContent value="database" className="space-y-4 mt-4">

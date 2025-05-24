@@ -1,62 +1,54 @@
 
-export type StudyPlanStatus = 'pending' | 'in-progress' | 'completed' | 'paused';
-export type StudyPlanDifficulty = 'easy' | 'medium' | 'hard';
-export type StudyPlanPriority = 'low' | 'medium' | 'high';
-export type StudyPlanProficiency = 'weak' | 'medium' | 'strong';
-
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  description?: string;
-  completed?: boolean;
-}
-
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  difficulty: StudyPlanDifficulty;
-  completed: boolean;
-  status: StudyPlanStatus;
-  priority: StudyPlanPriority;
-  proficiency: StudyPlanProficiency;
-  hoursPerWeek: number;
+  priority: 'high' | 'medium' | 'low';
+  targetScore?: number;
+  currentScore?: number;
   chaptersTotal: number;
   chaptersCompleted: number;
   estimatedHours: number;
   actualHours: number;
-  topics: (string | StudyPlanTopic)[];
-  color?: string;
+  topics: StudyPlanTopic[];
+}
+
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  subjectId: string;
+  completed: boolean;
+  difficulty: 'easy' | 'medium' | 'hard';
+  estimatedMinutes: number;
+  actualMinutes?: number;
+  resources: StudyResource[];
+}
+
+export interface StudyResource {
+  id: string;
+  type: 'video' | 'reading' | 'practice' | 'flashcard';
+  title: string;
+  url?: string;
+  duration?: number;
+  completed: boolean;
 }
 
 export interface StudyPlan {
   id: string;
-  title: string;
-  description?: string;
+  userId: string;
   examType: string;
-  examGoal?: string;
   targetDate: Date;
-  examDate?: Date;
-  subjects: StudyPlanSubject[];
-  totalHours: number;
-  completedHours: number;
-  progress: number;
-  progressPercent?: number;
-  status?: StudyPlanStatus;
   createdAt: Date;
   updatedAt: Date;
-  isActive: boolean;
-  daysLeft?: number;
-  studyHoursPerDay?: number;
-  weeklyHours?: number;
+  subjects: StudyPlanSubject[];
+  weeklyGoal: number;
+  dailyGoal: number;
+  preferences: {
+    studyHours: number;
+    preferredTime: string;
+    breakDuration: number;
+    studyStyle: 'visual' | 'auditory' | 'kinesthetic' | 'mixed';
+  };
 }
 
-export interface StudyPlanWizardData {
-  examGoal: string;
-  targetDate: Date;
-  studyHours: number;
-  subjects: string[];
-  strongSubjects: string[];
-  mediumSubjects: string[];
-  weakSubjects: string[];
-  studyPace: 'slow' | 'medium' | 'fast';
-}
+// Export alias for backward compatibility
+export type NewStudyPlanSubject = StudyPlanSubject;

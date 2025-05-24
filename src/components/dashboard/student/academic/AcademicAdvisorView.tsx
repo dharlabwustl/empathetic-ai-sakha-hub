@@ -2,334 +2,234 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlusCircle } from "lucide-react";
+import { StudyPlan, StudyPlanSubject, NewStudyPlan } from "@/types/user/studyPlan";
+import { UserProfileType } from "@/types/user/base";
 import { useAcademicPlans } from './hooks/useAcademicPlans';
-import { StudyPlanSubject, StudyPlanTopic } from '@/types/user/studyPlan';
-import { 
-  Brain, 
-  BookOpen, 
-  Target, 
-  TrendingUp, 
-  Calendar,
-  Clock,
-  Award,
-  AlertCircle
-} from 'lucide-react';
+import CreateStudyPlanWizard from "./CreateStudyPlanWizard";
+import StudyPlanSections from "./components/StudyPlanSections";
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-const AcademicAdvisorView: React.FC = () => {
-  const { jeeSubjects, neetSubjects, loading, updateSubjectProgress } = useAcademicPlans();
-  const [activeExam, setActiveExam] = useState<'JEE' | 'NEET'>('JEE');
+interface AcademicAdvisorViewProps {
+  userProfile: UserProfileType;
+}
 
-  // Mock JEE subjects with proper topic structure
-  const mockJeeSubjects: StudyPlanSubject[] = [
+const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }) => {
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  
+  // Mock study plans for demo
+  const demoStudyPlans: StudyPlan[] = [
     {
-      id: 'jee-physics',
-      name: 'Physics',
-      difficulty: 'medium',
-      completed: false,
-      status: 'in-progress',
-      priority: 'high',
-      proficiency: 'medium',
-      hoursPerWeek: 8,
-      chaptersTotal: 15,
-      chaptersCompleted: 8,
-      estimatedHours: 120,
-      actualHours: 64,
-      topics: [
-        { id: 'mechanics', name: 'Mechanics', completed: true },
-        { id: 'thermodynamics', name: 'Thermodynamics', completed: false },
-        { id: 'electromagnetism', name: 'Electromagnetism', completed: false },
-        { id: 'optics', name: 'Optics', completed: true }
-      ]
+      id: "plan-1",
+      title: "NEET Preparation",
+      examGoal: "NEET",
+      examDate: new Date(2025, 4, 15).toISOString(),
+      status: "active",
+      progress: 35,
+      subjects: [
+        {
+          id: "subj-1",
+          name: "Physics",
+          difficulty: "medium",
+          completed: false,
+          status: "in-progress",
+          priority: "high",
+          proficiency: "medium",
+          hoursPerWeek: 6
+        },
+        {
+          id: "subj-2",
+          name: "Chemistry",
+          difficulty: "easy",
+          completed: false,
+          status: "pending",
+          priority: "medium",
+          proficiency: "strong",
+          hoursPerWeek: 4
+        },
+        {
+          id: "subj-3",
+          name: "Biology",
+          difficulty: "hard",
+          completed: false,
+          status: "completed",
+          priority: "high",
+          proficiency: "weak",
+          hoursPerWeek: 8
+        }
+      ],
+      studyHoursPerDay: 4,
+      preferredStudyTime: "evening",
+      learningPace: "moderate",
+      createdAt: new Date(2023, 9, 10).toISOString(),
     },
     {
-      id: 'jee-chemistry',
-      name: 'Chemistry',
-      difficulty: 'medium',
-      completed: false,
-      status: 'in-progress',
-      priority: 'medium',
-      proficiency: 'weak',
-      hoursPerWeek: 6,
-      chaptersTotal: 12,
-      chaptersCompleted: 5,
-      estimatedHours: 96,
-      actualHours: 42,
-      topics: [
-        { id: 'physical-chemistry', name: 'Physical Chemistry', completed: false },
-        { id: 'organic-chemistry', name: 'Organic Chemistry', completed: true },
-        { id: 'inorganic-chemistry', name: 'Inorganic Chemistry', completed: false }
-      ]
+      id: "plan-2",
+      title: "JEE Advanced Preparation",
+      examGoal: "JEE Advanced",
+      examDate: new Date(2024, 11, 10).toISOString(),
+      status: "pending",
+      progress: 62,
+      subjects: [
+        {
+          id: "subj-4",
+          name: "Physics",
+          difficulty: "hard",
+          completed: false,
+          status: "pending",
+          priority: "high",
+          proficiency: "weak",
+          hoursPerWeek: 8
+        },
+        {
+          id: "subj-5",
+          name: "Chemistry",
+          difficulty: "medium",
+          completed: false,
+          status: "in-progress",
+          priority: "medium",
+          proficiency: "medium",
+          hoursPerWeek: 6
+        },
+        {
+          id: "subj-6",
+          name: "Mathematics",
+          difficulty: "hard",
+          completed: false,
+          status: "pending",
+          priority: "low",
+          proficiency: "weak",
+          hoursPerWeek: 10
+        }
+      ],
+      studyHoursPerDay: 6,
+      preferredStudyTime: "morning",
+      learningPace: "fast",
+      createdAt: new Date(2023, 8, 15).toISOString(),
     },
     {
-      id: 'jee-mathematics',
-      name: 'Mathematics',
-      difficulty: 'hard',
-      completed: false,
-      status: 'pending',
-      priority: 'high',
-      proficiency: 'strong',
-      hoursPerWeek: 10,
-      chaptersTotal: 18,
-      chaptersCompleted: 12,
-      estimatedHours: 144,
-      actualHours: 96,
-      topics: [
-        { id: 'algebra', name: 'Algebra', completed: true },
-        { id: 'calculus', name: 'Calculus', completed: false },
-        { id: 'coordinate-geometry', name: 'Coordinate Geometry', completed: true },
-        { id: 'trigonometry', name: 'Trigonometry', completed: false }
-      ]
-    }
+      id: "plan-3",
+      title: "UPSC Preparation",
+      examGoal: "UPSC",
+      examDate: new Date(2024, 5, 20).toISOString(),
+      status: "completed",
+      progress: 100,
+      subjects: [
+        {
+          id: "subj-7",
+          name: "History",
+          difficulty: "medium",
+          completed: true,
+          status: "completed",
+          priority: "high",
+          proficiency: "strong",
+          hoursPerWeek: 5
+        },
+        {
+          id: "subj-8",
+          name: "Geography",
+          difficulty: "easy",
+          completed: true,
+          status: "completed",
+          priority: "high",
+          proficiency: "strong",
+          hoursPerWeek: 4
+        },
+        {
+          id: "subj-9",
+          name: "Economics",
+          difficulty: "hard",
+          completed: true,
+          status: "in-progress",
+          priority: "medium",
+          proficiency: "medium",
+          hoursPerWeek: 6
+        }
+      ],
+      studyHoursPerDay: 5,
+      preferredStudyTime: "evening",
+      learningPace: "moderate",
+      createdAt: new Date(2023, 1, 10).toISOString(),
+    },
   ];
 
-  // Mock NEET subjects with proper topic structure
-  const mockNeetSubjects: StudyPlanSubject[] = [
-    {
-      id: 'neet-physics',
-      name: 'Physics',
-      difficulty: 'medium',
-      completed: true,
-      status: 'completed',
-      priority: 'medium',
-      proficiency: 'weak',
-      hoursPerWeek: 6,
-      chaptersTotal: 12,
-      chaptersCompleted: 12,
-      estimatedHours: 72,
-      actualHours: 78,
-      topics: [
-        { id: 'mechanics', name: 'Mechanics', completed: true },
-        { id: 'thermodynamics', name: 'Thermodynamics', completed: true },
-        { id: 'waves', name: 'Waves', completed: true }
-      ]
-    },
-    {
-      id: 'neet-chemistry',
-      name: 'Chemistry',
-      difficulty: 'easy',
-      completed: true,
-      status: 'completed',
-      priority: 'low',
-      proficiency: 'weak',
-      hoursPerWeek: 5,
-      chaptersTotal: 10,
-      chaptersCompleted: 10,
-      estimatedHours: 60,
-      actualHours: 65,
-      topics: [
-        { id: 'physical-chemistry', name: 'Physical Chemistry', completed: true },
-        { id: 'organic-chemistry', name: 'Organic Chemistry', completed: true }
-      ]
-    },
-    {
-      id: 'neet-biology',
-      name: 'Biology',
-      difficulty: 'medium',
-      completed: true,
-      status: 'completed',
-      priority: 'high',
-      proficiency: 'medium',
-      hoursPerWeek: 8,
-      chaptersTotal: 16,
-      chaptersCompleted: 16,
-      estimatedHours: 96,
-      actualHours: 88,
-      topics: [
-        { id: 'botany', name: 'Botany', completed: true },
-        { id: 'zoology', name: 'Zoology', completed: true },
-        { id: 'human-physiology', name: 'Human Physiology', completed: true }
-      ]
-    }
-  ];
-
-  const currentSubjects = activeExam === 'JEE' ? mockJeeSubjects : mockNeetSubjects;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'in-progress': return 'bg-blue-100 text-blue-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  // Split plans by status
+  const activePlans = demoStudyPlans.filter(plan => plan.status === "active");
+  const completedPlans = demoStudyPlans.filter(plan => plan.status === "completed" || plan.status === "pending");
+  
+  const handleCreatePlanClick = () => {
+    setShowCreateDialog(true);
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const handleViewPlanDetails = (planId: string) => {
+    setSelectedPlanId(planId);
+    // In a real app, this would navigate to a detailed view or open a modal
+    console.log(`Viewing plan details for ${planId}`);
   };
 
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3">Loading academic plans...</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const handleCreatePlan = (newPlan: NewStudyPlan) => {
+    console.log("New study plan created:", newPlan);
+    setShowCreateDialog(false);
+    // In a real app, this would save the plan to the database
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" />
-            Academic Advisor
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            AI-powered academic guidance and study plan management
-          </p>
-        </CardHeader>
-      </Card>
-
-      {/* Exam Type Selector */}
-      <div className="flex gap-2">
-        <Button 
-          variant={activeExam === 'JEE' ? 'default' : 'outline'}
-          onClick={() => setActiveExam('JEE')}
-        >
-          JEE Plan
-        </Button>
-        <Button 
-          variant={activeExam === 'NEET' ? 'default' : 'outline'}
-          onClick={() => setActiveExam('NEET')}
-        >
-          NEET Plan
-        </Button>
-      </div>
-
-      {/* Subjects Overview */}
-      <div className="grid gap-4">
-        {currentSubjects.map((subject) => (
-          <Card key={subject.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
-                  <div>
-                    <h3 className="font-medium">{subject.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {subject.chaptersCompleted}/{subject.chaptersTotal} chapters completed
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={getStatusColor(subject.status)}>
-                    {subject.status}
-                  </Badge>
-                  <Badge className={getPriorityColor(subject.priority)}>
-                    {subject.priority} priority
-                  </Badge>
-                </div>
+    <SharedPageLayout
+      title="Academic Advisor"
+      subtitle="Get personalized guidance for your academic journey"
+    >
+      <div className="space-y-8">
+        {/* Overview Card */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-medium">Academic Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-sm">Current Goal</span>
+                <span className="font-medium text-lg">{userProfile.goals?.[0]?.title || "NEET"}</span>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Progress */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Progress</span>
-                    <span className="text-sm text-muted-foreground">
-                      {Math.round((subject.chaptersCompleted / subject.chaptersTotal) * 100)}%
-                    </span>
-                  </div>
-                  <Progress 
-                    value={(subject.chaptersCompleted / subject.chaptersTotal) * 100} 
-                    className="h-2"
-                  />
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-blue-600">{subject.hoursPerWeek}h</div>
-                    <div className="text-xs text-muted-foreground">Per Week</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-green-600">{subject.actualHours}h</div>
-                    <div className="text-xs text-muted-foreground">Completed</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-purple-600">{subject.proficiency}</div>
-                    <div className="text-xs text-muted-foreground">Proficiency</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-orange-600">{subject.difficulty}</div>
-                    <div className="text-xs text-muted-foreground">Difficulty</div>
-                  </div>
-                </div>
-
-                {/* Topics */}
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Topics</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {subject.topics.map((topic, index) => {
-                      const topicObj = typeof topic === 'string' 
-                        ? { id: `topic-${index}`, name: topic, completed: false }
-                        : topic;
-                      
-                      return (
-                        <Badge 
-                          key={topicObj.id} 
-                          variant={topicObj.completed ? 'default' : 'secondary'}
-                          className="text-xs"
-                        >
-                          {topicObj.name}
-                          {topicObj.completed && ' ✓'}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                </div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-sm">Subjects</span>
+                <span className="font-medium text-lg">7 Subjects</span>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* AI Recommendations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            AI Recommendations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-              <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Focus Area</p>
-                <p className="text-sm text-muted-foreground">
-                  Spend more time on Chemistry - Organic reactions need attention
-                </p>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-sm">Progress</span>
+                <span className="font-medium text-lg">48% Complete</span>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-              <Award className="h-4 w-4 text-green-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Strength</p>
-                <p className="text-sm text-muted-foreground">
-                  Mathematics progress is excellent - maintain the momentum
-                </p>
-              </div>
-            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Study Plans Section */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Study Plans</h2>
+            <Button onClick={handleCreatePlanClick} className="flex gap-1 items-center">
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Create New Plan
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+
+          <StudyPlanSections 
+            activePlans={activePlans}
+            completedPlans={completedPlans}
+            onCreatePlan={handleCreatePlanClick}
+            onViewPlanDetails={handleViewPlanDetails}
+          />
+        </div>
+
+        {/* Create Study Plan Dialog */}
+        <CreateStudyPlanWizard 
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
+          onCreatePlan={handleCreatePlan}
+          examGoal={userProfile.goals?.[0]?.title}
+        />
+      </div>
+    </SharedPageLayout>
   );
 };
 

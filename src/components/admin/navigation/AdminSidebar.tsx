@@ -1,232 +1,142 @@
 
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
-  Settings, 
-  BarChart3, 
-  Database, 
-  Shield, 
-  FileText,
-  CreditCard,
-  Brain,
-  TestTube,
-  GraduationCap,
-  Zap,
-  DollarSign,
-  Heart,
-  MessageSquare,
-  Bell,
-  Eye,
-  ChevronDown,
-  ChevronRight,
-  Home,
-  Menu,
-  X
+  LayoutDashboard, Users, BookOpen, CreditCard, BarChart3, Database, 
+  Shield, Activity, Settings, FileText, Brain, MessageSquare, 
+  Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
+  TrendingUp, UserCheck, Zap, Cpu, Globe, Lock
 } from 'lucide-react';
-import PrepzrLogo from '@/components/common/PrepzrLogo';
-
-interface SidebarItem {
-  id: string;
-  label: string;
-  icon: React.ComponentType<any>;
-  path?: string;
-  badge?: string;
-  children?: SidebarItem[];
-  isNew?: boolean;
-}
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const AdminSidebar: React.FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<string[]>(['dashboard', 'management']);
+  const location = useLocation();
+  const { adminLogout } = useAdminAuth();
 
-  const sidebarItems: SidebarItem[] = [
-    {
-      id: 'overview',
-      label: 'Overview',
-      icon: Home,
-      path: '/admin/dashboard?tab=overview'
-    },
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: LayoutDashboard,
-      children: [
-        { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/admin/dashboard?tab=analytics' },
-        { id: 'revenue', label: 'Revenue Analytics', icon: DollarSign, path: '/admin/dashboard?tab=revenue' },
-        { id: 'mood-analytics', label: 'Mood Analytics', icon: Heart, path: '/admin/dashboard?tab=mood-analytics' }
+  const navigationItems = [
+    { 
+      section: "Dashboard",
+      items: [
+        { icon: <LayoutDashboard size={20} />, title: "Overview", path: "/admin/dashboard", tab: "overview" },
+        { icon: <BarChart3 size={20} />, title: "Analytics", path: "/admin/dashboard", tab: "analytics" },
+        { icon: <TrendingUp size={20} />, title: "Reports", path: "/admin/dashboard", tab: "reports" }
       ]
     },
-    {
-      id: 'management',
-      label: 'Management',
-      icon: Settings,
-      children: [
-        { id: 'users', label: 'Users', icon: Users, path: '/admin/dashboard?tab=users' },
-        { id: 'student-profiles', label: 'Student Profiles', icon: GraduationCap, path: '/admin/dashboard?tab=student-profiles' },
-        { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard, path: '/admin/dashboard?tab=subscriptions' },
-        { id: 'payments', label: 'Payments', icon: DollarSign, path: '/admin/dashboard?tab=payments' }
+    { 
+      section: "User Management",
+      items: [
+        { icon: <Users size={20} />, title: "All Users", path: "/admin/dashboard", tab: "users" },
+        { icon: <UserCheck size={20} />, title: "Student Profiles", path: "/admin/dashboard", tab: "student-profiles" },
+        { icon: <Calendar size={20} />, title: "User Activity", path: "/admin/dashboard", tab: "user-activity" }
       ]
     },
-    {
-      id: 'content',
-      label: 'Content',
-      icon: BookOpen,
-      children: [
-        { id: 'content-management', label: 'Content Management', icon: FileText, path: '/admin/dashboard?tab=content' },
-        { id: 'content-repository', label: 'Content Repository', icon: Database, path: '/admin/dashboard?tab=content-repository' },
-        { id: 'exams', label: 'Exam Management', icon: GraduationCap, path: '/admin/dashboard?tab=exams' },
-        { id: 'study-plans', label: 'Study Plans', icon: BookOpen, path: '/admin/dashboard?tab=study-plans' }
+    { 
+      section: "Content & Curriculum",
+      items: [
+        { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
+        { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
+        { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
+        { icon: <Video size={20} />, title: "Video Content", path: "/admin/dashboard", tab: "videos" }
       ]
     },
-    {
-      id: 'ai-tools',
-      label: 'AI & Testing',
-      icon: Brain,
-      children: [
-        { id: 'ai-models', label: 'AI Models', icon: Brain, path: '/admin/dashboard?tab=ai-models' },
-        { id: 'ai-testing', label: 'AI Testing Hub', icon: TestTube, path: '/admin/dashboard?tab=ai-testing', isNew: true },
-        { id: 'features', label: 'Feature Management', icon: Zap, path: '/admin/dashboard?tab=features' }
+    { 
+      section: "Subscriptions & Plans",
+      items: [
+        { icon: <CreditCard size={20} />, title: "Subscription Plans", path: "/admin/dashboard", tab: "subscriptions" },
+        { icon: <Zap size={20} />, title: "Feature Management", path: "/admin/dashboard", tab: "features" },
+        { icon: <LineChart size={20} />, title: "Revenue Analytics", path: "/admin/dashboard", tab: "revenue" }
       ]
     },
-    {
-      id: 'system',
-      label: 'System',
-      icon: Database,
-      children: [
-        { id: 'database', label: 'Database', icon: Database, path: '/admin/dashboard?tab=database' },
-        { id: 'api', label: 'API Management', icon: Zap, path: '/admin/dashboard?tab=api' },
-        { id: 'security', label: 'Security', icon: Shield, path: '/admin/dashboard?tab=security' },
-        { id: 'settings', label: 'System Settings', icon: Settings, path: '/admin/dashboard?tab=settings' },
-        { id: 'logs', label: 'System Logs', icon: FileText, path: '/admin/dashboard?tab=logs' }
+    { 
+      section: "System & Technical",
+      items: [
+        { icon: <Database size={20} />, title: "Database Management", path: "/admin/dashboard", tab: "database" },
+        { icon: <Cpu size={20} />, title: "API Management", path: "/admin/dashboard", tab: "api" },
+        { icon: <Shield size={20} />, title: "Security", path: "/admin/dashboard", tab: "security" },
+        { icon: <Activity size={20} />, title: "System Logs", path: "/admin/dashboard", tab: "logs" }
       ]
     },
-    {
-      id: 'communication',
-      label: 'Communication',
-      icon: MessageSquare,
-      children: [
-        { id: 'notifications', label: 'Notifications', icon: Bell, path: '/admin/dashboard?tab=notifications' }
+    { 
+      section: "Configuration",
+      items: [
+        { icon: <Settings size={20} />, title: "System Settings", path: "/admin/dashboard", tab: "settings" },
+        { icon: <Globe size={20} />, title: "Documentation", path: "/admin/documentation" },
+        { icon: <Lock size={20} />, title: "Access Control", path: "/admin/dashboard", tab: "access-control" }
       ]
-    },
-    {
-      id: 'documentation',
-      label: 'Documentation',
-      icon: FileText,
-      path: '/admin/documentation'
     }
   ];
 
-  const toggleExpanded = (itemId: string) => {
-    setExpandedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
-    );
-  };
-
-  const isActive = (path?: string) => {
-    if (!path) return false;
-    return location.pathname + location.search === path;
-  };
-
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
-  const renderSidebarItem = (item: SidebarItem, depth = 0) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedItems.includes(item.id);
-    const Icon = item.icon;
-
-    if (hasChildren) {
-      return (
-        <div key={item.id} className="space-y-1">
-          <Button
-            variant="ghost"
-            className={`w-full justify-start gap-3 h-10 ${depth > 0 ? 'pl-8' : 'pl-4'}`}
-            onClick={() => toggleExpanded(item.id)}
-          >
-            <Icon className="h-4 w-4" />
-            {!isCollapsed && (
-              <>
-                <span className="flex-1 text-left">{item.label}</span>
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </>
-            )}
-          </Button>
-          {!isCollapsed && isExpanded && (
-            <div className="space-y-1">
-              {item.children.map(child => renderSidebarItem(child, depth + 1))}
-            </div>
-          )}
-        </div>
-      );
+  const handleNavigation = (path: string, tab?: string) => {
+    if (tab) {
+      navigate(`${path}?tab=${tab}`);
+    } else {
+      navigate(path);
     }
+  };
 
-    return (
-      <Button
-        key={item.id}
-        variant={isActive(item.path) ? "default" : "ghost"}
-        className={`w-full justify-start gap-3 h-10 ${depth > 0 ? 'pl-8' : 'pl-4'}`}
-        onClick={() => item.path && handleNavigation(item.path)}
-      >
-        <Icon className="h-4 w-4" />
-        {!isCollapsed && (
-          <>
-            <span className="flex-1 text-left">{item.label}</span>
-            {item.badge && (
-              <Badge variant="secondary" className="h-5 text-xs">
-                {item.badge}
-              </Badge>
-            )}
-            {item.isNew && (
-              <Badge variant="default" className="h-5 text-xs bg-green-600">
-                New
-              </Badge>
-            )}
-          </>
-        )}
-      </Button>
-    );
+  const handleLogout = async () => {
+    await adminLogout();
+    navigate('/admin/login');
+  };
+
+  const isActive = (path: string, tab?: string) => {
+    if (tab) {
+      const urlParams = new URLSearchParams(location.search);
+      return location.pathname === path && urlParams.get('tab') === tab;
+    }
+    return location.pathname === path;
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
-          {!isCollapsed && (
-            <Link to="/admin/dashboard" className="flex items-center">
-              <PrepzrLogo width={120} height={40} />
-            </Link>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-8 w-8"
-          >
-            {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
-          </Button>
-        </div>
+    <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400">PREPZR Admin</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Administrative Dashboard</p>
       </div>
-      
-      <ScrollArea className="flex-1 px-2 py-4">
-        <div className="space-y-2">
-          {sidebarItems.map(item => renderSidebarItem(item))}
-        </div>
-      </ScrollArea>
+
+      <div className="p-4 space-y-6">
+        {navigationItems.map((section, sectionIndex) => (
+          <div key={sectionIndex}>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              {section.section}
+            </h3>
+            <div className="space-y-1">
+              {section.items.map((item, itemIndex) => (
+                <Button
+                  key={itemIndex}
+                  variant={isActive(item.path, item.tab) ? "default" : "ghost"}
+                  className={`w-full justify-start gap-3 h-10 ${
+                    isActive(item.path, item.tab) 
+                      ? "bg-blue-600 text-white hover:bg-blue-700" 
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                  onClick={() => handleNavigation(item.path, item.tab)}
+                >
+                  {item.icon}
+                  <span className="text-sm">{item.title}</span>
+                </Button>
+              ))}
+            </div>
+            {sectionIndex < navigationItems.length - 1 && (
+              <Separator className="mt-4" />
+            )}
+          </div>
+        ))}
+
+        <Separator className="my-4" />
+        
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 h-10 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+          onClick={handleLogout}
+        >
+          <LogOut size={20} />
+          <span className="text-sm">Logout</span>
+        </Button>
+      </div>
     </div>
   );
 };

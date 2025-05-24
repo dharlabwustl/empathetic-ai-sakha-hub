@@ -1,237 +1,189 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { BookOpen, Calendar, Clock, CheckCircle } from 'lucide-react';
 import { StudyPlan } from '@/types/user/studyPlan';
-import { ArrowLeft, Calendar, Clock, Target, BookOpen, Edit, Play, Pause } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 
 interface StudyPlanDetailProps {
   plan: StudyPlan;
-  onBack: () => void;
-  onEdit?: (plan: StudyPlan) => void;
-  onToggleStatus?: (planId: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const StudyPlanDetail: React.FC<StudyPlanDetailProps> = ({
   plan,
-  onBack,
-  onEdit,
-  onToggleStatus
+  isOpen,
+  onClose
 }) => {
-  // Calculate derived values
-  const progressPercent = plan.progress || 0;
+  const examDate = new Date(plan.examDate);
+  const formattedExamDate = format(examDate, 'MMMM d, yyyy');
   const today = new Date();
-  const targetDate = new Date(plan.targetDate);
-  const daysLeft = Math.max(0, Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
-  const remainingHours = plan.totalHours - plan.completedHours;
-  const studyHoursPerDay = daysLeft > 0 ? Math.ceil(remainingHours / daysLeft) : 0;
-  const weeklyHours = studyHoursPerDay * 7;
-
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'in-progress': return 'bg-blue-100 text-blue-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const daysLeft = differenceInDays(examDate, today) > 0 ? differenceInDays(examDate, today) : 0;
+  
+  const totalTopics = plan.subjects.reduce((total, subject) => {
+    return total + (subject.topics?.length || 0);
+  }, 0);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{plan.title}</h1>
-            <p className="text-muted-foreground">
-              {plan.examGoal || plan.examType} preparation plan
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge className={getStatusColor(plan.isActive ? 'in-progress' : 'paused')}>
-            {plan.isActive ? 'Active' : 'Paused'}
-          </Badge>
-          <Button variant="outline" onClick={() => onEdit?.(plan)}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => onToggleStatus?.(plan.id)}
-          >
-            {plan.isActive ? (
-              <>
-                <Pause className="h-4 w-4 mr-2" />
-                Pause
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4 mr-2" />
-                Resume
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{Math.round(progressPercent)}%</div>
-              <div className="text-sm text-muted-foreground">Complete</div>
-              <Progress value={progressPercent} className="mt-2 h-2" />
-            </div>
-          </CardContent>
-        </Card>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="flex justify-between items-center">
+            <span>{plan.title || plan.examGoal}</span>
+            <Badge variant={plan.status === 'active' ? 'default' : 'outline'}>
+              {plan.status === 'active' ? 'Active' : 'Completed'}
+            </Badge>
+          </DialogTitle>
+        </DialogHeader>
         
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{studyHoursPerDay}h</div>
-              <div className="text-sm text-muted-foreground">Daily Target</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{weeklyHours}h</div>
-              <div className="text-sm text-muted-foreground">Weekly Target</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{daysLeft}</div>
-              <div className="text-sm text-muted-foreground">Days Left</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Subjects Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Subject Breakdown</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {plan.subjects.map((subject) => (
-              <div key={subject.id} className="p-4 border rounded-lg" style={{ borderColor: subject.color || '#e2e8f0' }}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-4 h-4 rounded-full" 
-                      style={{ backgroundColor: subject.color || '#3B82F6' }}
-                    />
-                    <div>
-                      <h3 className="font-medium">{subject.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {subject.chaptersCompleted}/{subject.chaptersTotal} chapters
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{subject.difficulty}</Badge>
-                    <Badge variant="outline">{subject.priority} priority</Badge>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Progress</span>
-                    <span>{Math.round((subject.chaptersCompleted / subject.chaptersTotal) * 100)}%</span>
-                  </div>
-                  <Progress 
-                    value={(subject.chaptersCompleted / subject.chaptersTotal) * 100} 
-                    className="h-2"
-                  />
-                </div>
-                
-                <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Weekly Hours:</span>
-                    <div className="font-medium">{subject.hoursPerWeek}h</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Completed:</span>
-                    <div className="font-medium">{subject.actualHours}h</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Proficiency:</span>
-                    <div className="font-medium capitalize">{subject.proficiency}</div>
-                  </div>
-                </div>
+        <div className="overflow-y-auto pr-2 max-h-[calc(80vh-120px)]">
+          {/* Study Plan Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground">Exam Goal</h3>
+                <p className="font-medium text-lg">{plan.examGoal}</p>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Plan Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Plan Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Target Date:</span>
-                <span className="text-sm">{plan.targetDate.toLocaleDateString()}</span>
-              </div>
+              
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Created:</span>
-                <span className="text-sm">{plan.createdAt.toLocaleDateString()}</span>
+                <span>Exam Date: {formattedExamDate}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Total Hours:</span>
-                <span className="text-sm">{plan.totalHours}h</span>
-              </div>
+              
+              {daysLeft > 0 && plan.status === 'active' && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className={daysLeft < 7 ? 'text-amber-600 font-medium' : ''}>
+                    {daysLeft} days remaining
+                  </span>
+                </div>
+              )}
             </div>
             
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Subjects:</span>
-                <span className="text-sm">{plan.subjects.length}</span>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm">
+                  <span>Overall Progress</span>
+                  <span>{plan.progressPercent}%</span>
+                </div>
+                <Progress value={plan.progressPercent} className="h-2 mt-2" />
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Completed Hours:</span>
-                <span className="text-sm">{plan.completedHours}h</span>
+              
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-muted-foreground" />
+                  <span>Study Hours Per Day:</span>
+                </div>
+                <span className="font-medium">{plan.studyHoursPerDay || 0} hours</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Remaining Hours:</span>
-                <span className="text-sm">{remainingHours}h</span>
+              
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>Weekly Hours:</span>
+                </div>
+                <span className="font-medium">{plan.weeklyHours || 0} hours</span>
               </div>
             </div>
           </div>
           
-          {plan.description && (
-            <div className="mt-4">
-              <h4 className="text-sm font-medium mb-2">Description</h4>
-              <p className="text-sm text-muted-foreground">{plan.description}</p>
-            </div>
+          {/* Tabs for subjects and schedule */}
+          <Tabs defaultValue="subjects" className="mt-4">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="subjects">Subjects</TabsTrigger>
+              <TabsTrigger value="preferences">Study Preferences</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="subjects" className="space-y-4">
+              <h3 className="font-semibold text-lg">Subject Breakdown</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your plan includes {plan.subjects.length} subjects with a total of {totalTopics} topics.
+              </p>
+              
+              {plan.subjects.map((subject) => (
+                <Card key={subject.id} className="mb-4" style={{ borderLeft: `4px solid ${subject.color}` }}>
+                  <CardContent className="py-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{subject.name}</span>
+                        <Badge variant="outline" className="ml-2">
+                          {subject.proficiency}
+                        </Badge>
+                      </div>
+                      <span className="text-sm">{subject.hoursPerWeek} hours/week</span>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span>Proficiency</span>
+                        <span className="font-medium">{subject.proficiency}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Priority</span>
+                        <span className="font-medium">{subject.priority}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
+            
+            <TabsContent value="preferences" className="space-y-4">
+              <h3 className="font-semibold text-lg">Study Preferences</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Card>
+                  <CardContent className="pt-4">
+                    <h4 className="font-medium mb-2">Learning Pace</h4>
+                    <div className="text-sm">
+                      {plan.learningPace === 'slow' && 'Relaxed pace with thorough understanding'}
+                      {plan.learningPace === 'moderate' && 'Balanced pace with good comprehension'}
+                      {plan.learningPace === 'fast' && 'Aggressive pace to cover maximum material'}
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-4">
+                    <h4 className="font-medium mb-2">Preferred Study Time</h4>
+                    <div className="text-sm">
+                      {plan.preferredStudyTime === 'morning' && 'Morning (5AM - 12PM)'}
+                      {plan.preferredStudyTime === 'afternoon' && 'Afternoon (12PM - 5PM)'}
+                      {plan.preferredStudyTime === 'evening' && 'Evening (5PM - 10PM)'}
+                      {plan.preferredStudyTime === 'night' && 'Night (10PM - 5AM)'}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card className="mt-4">
+                <CardContent className="pt-4">
+                  <h4 className="font-medium mb-2">Plan Created</h4>
+                  <div className="text-sm">
+                    {plan.createdAt && format(new Date(plan.createdAt), 'MMMM d, yyyy')}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        <DialogFooter className="mt-4 gap-2">
+          <Button variant="outline" onClick={onClose}>Close</Button>
+          {plan.status === 'active' && (
+            <Button className="gap-1">
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Mark as Complete
+            </Button>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

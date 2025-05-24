@@ -3,509 +3,372 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  Brain, 
-  Zap, 
-  Settings, 
-  BarChart3, 
-  RefreshCw, 
-  Play, 
-  Pause,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  TrendingUp
-} from 'lucide-react';
+import { Brain, Cpu, Zap, Settings, Activity, AlertCircle, CheckCircle, BarChart3, User, FileText, Calendar, Heart } from 'lucide-react';
 
 interface AIModel {
   id: string;
   name: string;
-  type: 'content-generation' | 'sentiment-analysis' | 'performance-prediction' | 'behavioral-analysis' | 'planning-algorithm' | 'spaced-repetition';
+  type: 'classification' | 'content-generation' | 'planning' | 'emotion-analysis' | 'adaptive-learning';
+  status: 'active' | 'inactive' | 'training' | 'error';
   version: string;
-  status: 'active' | 'training' | 'testing' | 'inactive';
   accuracy: number;
-  latency: number;
-  lastTrained: string;
-  usage: {
-    requests: number;
-    successRate: number;
-    avgResponseTime: number;
-  };
-  features: string[];
+  requestsToday: number;
+  avgResponseTime: number;
+  lastUpdated: string;
+  description: string;
+  flaskEndpoint: string;
 }
 
-const AIModelsTab = () => {
-  const { toast } = useToast();
+const AIModelsTab: React.FC = () => {
   const [models, setModels] = useState<AIModel[]>([
     {
-      id: 'content-gen-v3',
-      name: 'Content Generation Model',
-      type: 'content-generation',
-      version: 'v3.2.1',
+      id: '1',
+      name: 'User Classification Engine',
+      type: 'classification',
       status: 'active',
-      accuracy: 94.2,
-      latency: 1.8,
-      lastTrained: '2024-01-15',
-      usage: { requests: 15680, successRate: 96.8, avgResponseTime: 1.65 },
-      features: ['Concept Cards', 'Flashcards', 'Exam Questions', 'Interactive Content']
-    },
-    {
-      id: 'sentiment-v2',
-      name: 'Mood Analysis Model',
-      type: 'sentiment-analysis',
       version: 'v2.1.0',
-      status: 'active',
-      accuracy: 89.7,
-      latency: 0.8,
-      lastTrained: '2024-01-12',
-      usage: { requests: 8950, successRate: 94.2, avgResponseTime: 0.74 },
-      features: ['Mood Tracking', 'Study Recommendations', 'Emotional Analysis']
+      accuracy: 94.5,
+      requestsToday: 1247,
+      avgResponseTime: 1.2,
+      lastUpdated: '2024-01-15',
+      description: 'Classifies users based on learning style, preferences, and behavior patterns',
+      flaskEndpoint: '/api/ai/classify-user'
     },
     {
-      id: 'performance-pred-v2',
-      name: 'Performance Prediction',
-      type: 'performance-prediction',
-      version: 'v2.0.3',
+      id: '2',
+      name: 'Content Generation Engine',
+      type: 'content-generation',
       status: 'active',
-      accuracy: 91.5,
-      latency: 2.1,
-      lastTrained: '2024-01-10',
-      usage: { requests: 5670, successRate: 93.1, avgResponseTime: 1.95 },
-      features: ['Exam Readiness Score', 'Performance Analytics', 'Success Prediction']
+      version: 'v1.8.3',
+      accuracy: 89.2,
+      requestsToday: 543,
+      avgResponseTime: 2.1,
+      lastUpdated: '2024-01-14',
+      description: 'Generates concept cards, flashcards, exams, and formulas from uploaded resources',
+      flaskEndpoint: '/api/ai/generate-content'
     },
     {
-      id: 'behavioral-v1',
-      name: 'Surrounding Influences Model',
-      type: 'behavioral-analysis',
-      version: 'v1.3.2',
+      id: '3',
+      name: 'Dynamic Study Planner',
+      type: 'planning',
       status: 'active',
-      accuracy: 86.3,
-      latency: 1.4,
-      lastTrained: '2024-01-08',
-      usage: { requests: 4280, successRate: 91.7, avgResponseTime: 1.32 },
-      features: ['Environment Analysis', 'Peer Influence', 'Study Conditions']
+      version: 'v3.0.1',
+      accuracy: 92.1,
+      requestsToday: 2156,
+      avgResponseTime: 0.8,
+      lastUpdated: '2024-01-15',
+      description: 'Creates personalized study plans and daily distributions based on exam and subjects',
+      flaskEndpoint: '/api/ai/generate-plan'
     },
     {
-      id: 'planning-v3',
-      name: 'Study Plan Algorithm',
-      type: 'planning-algorithm',
-      version: 'v3.1.0',
+      id: '4',
+      name: 'Emotional Analysis Engine',
+      type: 'emotion-analysis',
       status: 'active',
-      accuracy: 92.8,
-      latency: 2.5,
-      lastTrained: '2024-01-14',
-      usage: { requests: 7890, successRate: 95.4, avgResponseTime: 2.31 },
-      features: ['Personalized Plans', 'Schedule Optimization', 'Goal Tracking']
+      version: 'v1.5.2',
+      accuracy: 87.8,
+      requestsToday: 890,
+      avgResponseTime: 0.5,
+      lastUpdated: '2024-01-13',
+      description: 'Analyzes tone, content, words, and mood for dynamic plan adjustments',
+      flaskEndpoint: '/api/ai/analyze-emotion'
     },
     {
-      id: 'spaced-rep-v2',
-      name: 'Spaced Repetition Engine',
-      type: 'spaced-repetition',
-      version: 'v2.0.1',
+      id: '5',
+      name: 'Adaptive Learning Engine',
+      type: 'adaptive-learning',
       status: 'training',
-      accuracy: 88.9,
-      latency: 0.6,
-      lastTrained: '2024-01-16',
-      usage: { requests: 12400, successRate: 97.2, avgResponseTime: 0.58 },
-      features: ['Flashcard Scheduling', 'Memory Optimization', 'Retention Analysis']
+      version: 'v2.0.0',
+      accuracy: 91.3,
+      requestsToday: 1456,
+      avgResponseTime: 1.5,
+      lastUpdated: '2024-01-12',
+      description: 'Adapts plans based on learning behavior and daily progress patterns',
+      flaskEndpoint: '/api/ai/adaptive-learning'
     }
   ]);
 
-  const [testingModel, setTestingModel] = useState<string | null>(null);
+  const contentFormats = [
+    { type: 'text', name: 'Text-based Content', count: 2543, active: true },
+    { type: 'visual', name: 'Visual Content', count: 1234, active: true },
+    { type: 'diagrams', name: 'Diagrams', count: 876, active: true },
+    { type: 'interactive', name: 'Interactive Visualizations', count: 456, active: false },
+    { type: '3d', name: '3D Models', count: 234, active: true },
+    { type: 'video', name: 'Video Content', count: 345, active: true }
+  ];
 
-  const handleTestModel = async (modelId: string) => {
-    setTestingModel(modelId);
-    const model = models.find(m => m.id === modelId);
-    
-    toast({
-      title: "Testing AI Model",
-      description: `Running comprehensive tests for ${model?.name}`,
-    });
+  const flaskIntegration = [
+    { endpoint: '/api/ai/classify-user', status: 'active', lastCall: '2 min ago', avgTime: '1.2s' },
+    { endpoint: '/api/ai/generate-content', status: 'active', lastCall: '5 min ago', avgTime: '2.1s' },
+    { endpoint: '/api/ai/generate-plan', status: 'active', lastCall: '1 min ago', avgTime: '0.8s' },
+    { endpoint: '/api/ai/analyze-emotion', status: 'active', lastCall: '3 min ago', avgTime: '0.5s' },
+    { endpoint: '/api/ai/adaptive-learning', status: 'degraded', lastCall: '10 min ago', avgTime: '1.5s' }
+  ];
 
-    // Simulate testing process
-    setTimeout(() => {
-      setTestingModel(null);
-      toast({
-        title: "Test Complete",
-        description: `${model?.name} passed all tests with ${Math.floor(Math.random() * 5) + 90}% accuracy`,
-        variant: "default"
-      });
-    }, 3000);
-  };
-
-  const handleRetrainModel = (modelId: string) => {
-    const model = models.find(m => m.id === modelId);
-    
-    setModels(prev => prev.map(m => 
-      m.id === modelId 
-        ? { ...m, status: 'training' as const }
-        : m
-    ));
-
-    toast({
-      title: "Retraining Started",
-      description: `${model?.name} retraining process has been initiated`,
-    });
-
-    // Simulate retraining
-    setTimeout(() => {
-      setModels(prev => prev.map(m => 
-        m.id === modelId 
-          ? { 
-              ...m, 
-              status: 'active' as const,
-              accuracy: Math.min(100, m.accuracy + Math.random() * 3),
-              lastTrained: new Date().toISOString().split('T')[0]
-            }
-          : m
-      ));
-      
-      toast({
-        title: "Retraining Complete",
-        description: `${model?.name} has been successfully retrained`,
-      });
-    }, 5000);
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'training': return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />;
-      case 'testing': return <Clock className="h-4 w-4 text-amber-500" />;
-      case 'inactive': return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      default: return <Clock className="h-4 w-4 text-gray-500" />;
-    }
+  const toggleModel = (modelId: string) => {
+    setModels(prevModels =>
+      prevModels.map(model =>
+        model.id === modelId
+          ? { ...model, status: model.status === 'active' ? 'inactive' : 'active' }
+          : model
+      )
+    );
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'training': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'testing': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
-      case 'inactive': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
-    }
+    const colors: Record<string, string> = {
+      'active': 'bg-green-100 text-green-800',
+      'inactive': 'bg-gray-100 text-gray-800',
+      'training': 'bg-yellow-100 text-yellow-800',
+      'error': 'bg-red-100 text-red-800',
+      'degraded': 'bg-orange-100 text-orange-800'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getTypeIcon = (type: string) => {
+    const icons: Record<string, React.ReactNode> = {
+      'classification': <User className="h-4 w-4" />,
+      'content-generation': <FileText className="h-4 w-4" />,
+      'planning': <Calendar className="h-4 w-4" />,
+      'emotion-analysis': <Heart className="h-4 w-4" />,
+      'adaptive-learning': <Brain className="h-4 w-4" />
+    };
+    return icons[type] || <Cpu className="h-4 w-4" />;
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">AI Models Management</h2>
-          <p className="text-muted-foreground">Monitor and manage all AI models powering student features</p>
-        </div>
-        <Button className="gap-2">
-          <Brain className="h-4 w-4" />
-          Deploy New Model
-        </Button>
+      {/* Overview Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Models</CardTitle>
+            <Brain className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{models.filter(m => m.status === 'active').length}</div>
+            <p className="text-xs text-muted-foreground">Out of {models.length} total</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{models.reduce((sum, m) => sum + m.requestsToday, 0).toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Today across all models</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Accuracy</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{(models.reduce((sum, m) => sum + m.accuracy, 0) / models.length).toFixed(1)}%</div>
+            <p className="text-xs text-muted-foreground">Weighted average</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Content Generated</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">15.2k</div>
+            <p className="text-xs text-muted-foreground">Items this month</p>
+          </CardContent>
+        </Card>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="testing">Testing Hub</TabsTrigger>
-          <TabsTrigger value="configuration">Configuration</TabsTrigger>
+      <Tabs defaultValue="models" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="models">AI Models</TabsTrigger>
+          <TabsTrigger value="content">Content Generation</TabsTrigger>
+          <TabsTrigger value="planning">Study Planning</TabsTrigger>
+          <TabsTrigger value="flask">Flask Integration</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
-          <div className="grid gap-4">
-            {models.map((model) => (
-              <Card key={model.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                        <Brain className="h-5 w-5 text-blue-600" />
+        <TabsContent value="models" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>AI Models Management</CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline">Train New Model</Button>
+                  <Button>Deploy Model</Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {models.map((model) => (
+                  <div key={model.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                          {getTypeIcon(model.type)}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold">{model.name}</h3>
+                            <Badge className={getStatusColor(model.status)}>
+                              {model.status}
+                            </Badge>
+                            <Badge variant="outline">{model.version}</Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            {model.description}
+                          </p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-500">Accuracy:</span>
+                              <span className="font-medium ml-1">{model.accuracy}%</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Requests:</span>
+                              <span className="font-medium ml-1">{model.requestsToday.toLocaleString()}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Response:</span>
+                              <span className="font-medium ml-1">{model.avgResponseTime}s</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Endpoint:</span>
+                              <span className="font-mono text-xs ml-1">{model.flaskEndpoint}</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <CardTitle className="text-lg">{model.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground">Version {model.version}</p>
+                      
+                      <div className="flex items-center gap-3">
+                        <Switch
+                          checked={model.status === 'active'}
+                          onCheckedChange={() => toggleModel(model.id)}
+                          disabled={model.status === 'training'}
+                        />
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-3 w-3 mr-1" />
+                          Configure
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getStatusColor(model.status)}>
-                        <div className="flex items-center gap-1">
-                          {getStatusIcon(model.status)}
-                          {model.status}
-                        </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="content" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Content Generation Formats</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {contentFormats.map((format, index) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium">{format.name}</h3>
+                      <Badge className={format.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                        {format.active ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
+                    <p className="text-2xl font-bold">{format.count.toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">Generated this month</p>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Accuracy</div>
-                      <div className="text-xl font-bold text-green-600">{model.accuracy}%</div>
-                      <Progress value={model.accuracy} className="mt-1 h-1" />
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Latency</div>
-                      <div className="text-xl font-bold text-blue-600">{model.latency}s</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Requests</div>
-                      <div className="text-xl font-bold text-purple-600">{model.usage.requests.toLocaleString()}</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Success Rate</div>
-                      <div className="text-xl font-bold text-amber-600">{model.usage.successRate}%</div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <div className="text-sm font-medium mb-2">Connected Features:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {model.features.map((feature, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleTestModel(model.id)}
-                      disabled={testingModel === model.id}
-                      className="gap-1"
-                    >
-                      {testingModel === model.id ? (
-                        <>
-                          <RefreshCw className="h-3 w-3 animate-spin" />
-                          Testing...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-3 w-3" />
-                          Test Model
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRetrainModel(model.id)}
-                      disabled={model.status === 'training'}
-                      className="gap-1"
-                    >
-                      <RefreshCw className="h-3 w-3" />
-                      Retrain
-                    </Button>
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <Settings className="h-3 w-3" />
-                      Configure
-                    </Button>
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <BarChart3 className="h-3 w-3" />
-                      Analytics
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="performance">
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Performance Overview
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-3">Average Accuracy</h4>
-                    <div className="text-3xl font-bold text-green-600 mb-2">90.6%</div>
-                    <Progress value={90.6} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-2">Across all models</p>
-                  </div>
-                  
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-3">Average Latency</h4>
-                    <div className="text-3xl font-bold text-blue-600 mb-2">1.5s</div>
-                    <Progress value={75} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-2">Target: &lt;2s</p>
-                  </div>
-                  
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-3">Total Requests</h4>
-                    <div className="text-3xl font-bold text-purple-600 mb-2">54.8K</div>
-                    <Progress value={85} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-2">This month</p>
+        <TabsContent value="planning" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Study Planning & Adaptation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Dynamic Plan Generation</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span>Exam-based Plans</span>
+                      <Badge className="bg-blue-100 text-blue-800">2,543 active</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span>Subject-linked Plans</span>
+                      <Badge className="bg-blue-100 text-blue-800">1,847 active</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span>Daily Distributions</span>
+                      <Badge className="bg-green-100 text-green-800">98.2% accuracy</Badge>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-4">
-              {models.map((model) => (
-                <Card key={model.id}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">{model.name} Performance</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <div className="text-sm text-muted-foreground">Accuracy Trend</div>
-                        <div className="text-lg font-semibold text-green-600">+2.3%</div>
-                        <div className="text-xs text-muted-foreground">vs last month</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">Response Time</div>
-                        <div className="text-lg font-semibold text-blue-600">{model.usage.avgResponseTime}s</div>
-                        <div className="text-xs text-muted-foreground">avg response</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">Error Rate</div>
-                        <div className="text-lg font-semibold text-red-600">{(100 - model.usage.successRate).toFixed(1)}%</div>
-                        <div className="text-xs text-muted-foreground">failure rate</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">Usage Growth</div>
-                        <div className="text-lg font-semibold text-purple-600">+15.2%</div>
-                        <div className="text-xs text-muted-foreground">this week</div>
-                      </div>
+                
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Adaptive Learning</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span>Behavior Analysis</span>
+                      <Badge className="bg-purple-100 text-purple-800">Real-time</Badge>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span>Progress Tracking</span>
+                      <Badge className="bg-green-100 text-green-800">Daily updates</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span>Mood-based Adaptation</span>
+                      <Badge className="bg-orange-100 text-orange-800">Hourly</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="testing">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>AI Model Testing Hub</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Run comprehensive tests on AI models to validate accuracy and performance
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {models.map((model) => (
-                    <div key={model.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h4 className="font-medium">{model.name}</h4>
-                          <p className="text-sm text-muted-foreground">Version {model.version}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleTestModel(model.id)}
-                            disabled={testingModel === model.id}
-                            className="gap-1"
-                          >
-                            {testingModel === model.id ? (
-                              <>
-                                <RefreshCw className="h-3 w-3 animate-spin" />
-                                Testing...
-                              </>
-                            ) : (
-                              <>
-                                <Play className="h-3 w-3" />
-                                Run Test Suite
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Last Test:</span>
-                          <div className="font-medium">{model.lastTrained}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Current Accuracy:</span>
-                          <div className="font-medium">{model.accuracy}%</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Status:</span>
-                          <Badge className={`ml-2 ${getStatusColor(model.status)}`}>
-                            {model.status}
+        <TabsContent value="flask" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Flask API Integration Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {flaskIntegration.map((endpoint, index) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-mono text-sm">{endpoint.endpoint}</span>
+                          <Badge className={getStatusColor(endpoint.status)}>
+                            {endpoint.status}
                           </Badge>
                         </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span>Last Call: {endpoint.lastCall}</span>
+                          <span>Avg Time: {endpoint.avgTime}</span>
+                        </div>
                       </div>
+                      <Button size="sm" variant="outline">
+                        Test Endpoint
+                      </Button>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="configuration">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Model Configuration</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Configure AI model parameters and settings
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {models.map((model) => (
-                    <div key={model.id} className="border rounded-lg p-4">
-                      <h4 className="font-medium mb-4">{model.name} Configuration</h4>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Model Version</label>
-                          <Input value={model.version} readOnly />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Target Accuracy (%)</label>
-                          <Input type="number" defaultValue={model.accuracy} />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Max Latency (seconds)</label>
-                          <Input type="number" step="0.1" defaultValue={model.latency} />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Training Data Source</label>
-                          <Input defaultValue="Production Dataset" />
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <label className="text-sm font-medium mb-2 block">Model Description</label>
-                        <Textarea 
-                          placeholder="Enter model description and notes..."
-                          className="min-h-[80px]"
-                        />
-                      </div>
-                      
-                      <div className="flex gap-2 mt-4">
-                        <Button size="sm" variant="outline">
-                          Save Configuration
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          Reset to Default
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
