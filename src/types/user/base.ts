@@ -51,7 +51,8 @@ export enum MoodType {
   Overwhelmed = 'Overwhelmed',
   Neutral = 'Neutral',
   Okay = 'Okay',
-  Curious = 'Curious'
+  Curious = 'Curious',
+  Calm = 'Calm'
 }
 
 export const SubscriptionType = {
@@ -175,4 +176,19 @@ export interface LanguageOption {
   value: string;
   label: string;
   flag: string;
+}
+
+// Add missing study progress types
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  lastStudyDate: string;
+}
+
+export interface SubjectProgress {
+  name: string;
+  progress: number;
+  color: string;
+  masteredConcepts: number;
+  totalConcepts: number;
 }
