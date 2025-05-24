@@ -1,4 +1,3 @@
-
 export enum UserRole {
   Student = 'student',
   Teacher = 'teacher',
@@ -39,19 +38,19 @@ export enum StudyPreferenceType {
 }
 
 export enum MoodType {
-  Happy = 'happy',
-  Sad = 'sad',
-  Anxious = 'anxious',
-  Excited = 'excited',
-  Tired = 'tired',
-  Stressed = 'stressed',
-  Motivated = 'motivated',
-  Focused = 'focused',
-  Confused = 'confused',
-  Overwhelmed = 'overwhelmed',
-  Neutral = 'neutral',
-  Okay = 'okay',
-  Curious = 'curious'
+  Happy = 'Happy',
+  Sad = 'Sad',
+  Anxious = 'Anxious',
+  Excited = 'Excited',
+  Tired = 'Tired',
+  Stressed = 'Stressed',
+  Motivated = 'Motivated',
+  Focused = 'Focused',
+  Confused = 'Confused',
+  Overwhelmed = 'Overwhelmed',
+  Neutral = 'Neutral',
+  Okay = 'Okay',
+  Curious = 'Curious'
 }
 
 export const SubscriptionType = {
@@ -86,7 +85,6 @@ export interface UserProfileBase {
   subscription?: Subscription;
   studyStreak?: number;
   goals?: Goal[];
-  subjects?: string[];
 }
 
 export interface Goal {

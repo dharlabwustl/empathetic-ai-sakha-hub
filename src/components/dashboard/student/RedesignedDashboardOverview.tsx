@@ -1,21 +1,28 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
 import { UserProfileBase } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, FileText, Brain, Check, Clock, Target, TrendingUp
+  LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
+  Brain, FileText, Bell, TrendingUp, Target, Check, Clock, Calendar
 } from 'lucide-react';
 
+import StudyStatsSection from './dashboard-sections/StudyStatsSection';
+import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import ProgressTrackerSection from './dashboard-sections/ProgressTrackerSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import { MoodType } from '@/types/user/base';
 import { Progress } from '@/components/ui/progress';
+import UpcomingTasks from './UpcomingTasks';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -52,104 +59,8 @@ const dummyTasks = [
   }
 ];
 
-// Mock dashboard data
-const mockDashboardData = {
-  examGoal: "JEE Advanced 2025",
-  studyPlan: {
-    todaysTasks: dummyTasks,
-    totalTasks: 5,
-    completedTasks: 2
-  },
-  subjects: [
-    {
-      id: "physics",
-      name: "Physics",
-      progress: 75,
-      color: "#3B82F6",
-      topics: [],
-      completedTopics: 15,
-      priority: "high" as const,
-      status: "in-progress" as const,
-      chapters: 12,
-      conceptsTotal: 45,
-      conceptsCompleted: 33,
-      flashcards: {
-        total: 120,
-        completed: 90,
-        accuracy: 85
-      },
-      practiceTests: {
-        total: 8,
-        completed: 6,
-        score: 78
-      },
-      quizAverage: 82,
-      recommendedStudyHours: 25,
-      proficiency: 75
-    },
-    {
-      id: "chemistry", 
-      name: "Chemistry",
-      progress: 68,
-      color: "#10B981",
-      topics: [],
-      completedTopics: 12,
-      priority: "medium" as const,
-      status: "in-progress" as const,
-      chapters: 10,
-      conceptsTotal: 38,
-      conceptsCompleted: 26,
-      flashcards: {
-        total: 95,
-        completed: 65,
-        accuracy: 78
-      },
-      practiceTests: {
-        total: 6,
-        completed: 4,
-        score: 72
-      },
-      quizAverage: 75,
-      recommendedStudyHours: 20,
-      proficiency: 68
-    },
-    {
-      id: "mathematics",
-      name: "Mathematics", 
-      progress: 82,
-      color: "#8B5CF6",
-      topics: [],
-      completedTopics: 18,
-      priority: "high" as const,
-      status: "in-progress" as const,
-      chapters: 15,
-      conceptsTotal: 52,
-      conceptsCompleted: 43,
-      flashcards: {
-        total: 140,
-        completed: 115,
-        accuracy: 92
-      },
-      practiceTests: {
-        total: 10,
-        completed: 8,
-        score: 85
-      },
-      quizAverage: 88,
-      recommendedStudyHours: 30,
-      proficiency: 82
-    }
-  ],
-  progressTracker: {
-    examReadiness: 72,
-    conceptsMastered: 45,
-    totalConcepts: 60,
-    weeklyGoal: 25,
-    weeklyProgress: 18
-  }
-};
-
 export default function RedesignedDashboardOverview({ userProfile, kpis }: RedesignedDashboardOverviewProps) {
+  const { loading, dashboardData, refreshData } = useStudentDashboardData();
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
 
@@ -188,6 +99,19 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
   };
+
+  if (loading || !dashboardData) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-12 w-3/4" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // Enhanced KPIs with icons
   const enhancedKpis = [
@@ -237,13 +161,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
     }
   ];
 
-  const mockPerformance = {
-    accuracy: 85,
-    quizScores: 82,
-    conceptProgress: 75,
-    streak: 12
-  };
-
   return (
     <motion.div
       className="space-y-6"
@@ -258,14 +175,14 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
             <div className="flex items-center mt-1">
               <span className="text-sm text-muted-foreground mr-2">Exam Goal:</span>
               <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-3 py-1 rounded-full text-lg font-semibold">
-                {mockDashboardData.examGoal}
+                {dashboardData.examGoal}
               </span>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* KPI section */}
+      {/* KPI section above surrounding influences */}
       <motion.div variants={itemVariants} className="mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {enhancedKpis.map((kpi) => (
@@ -296,7 +213,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </div>
       </motion.div>
 
-      {/* Exam Readiness Score */}
+      {/* Exam Readiness Score with enhanced layout */}
       <motion.div variants={itemVariants} className="mb-6">
         <Card className="overflow-hidden border-0 shadow-md">
           <CardContent className="p-6">
@@ -308,7 +225,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">Target Exam:</span>
                 <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-2 py-1 rounded-full text-sm font-medium">
-                  {mockDashboardData.examGoal}
+                  {dashboardData.examGoal}
                 </span>
               </div>
             </div>
@@ -378,16 +295,85 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </Card>
       </motion.div>
 
-      {/* Today's Plan and Mood Based Suggestions */}
+      {/* Today's Plan and Mood Based Suggestions side by side */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TodaysPlanSection studyPlan={mockDashboardData.studyPlan} currentMood={currentMood} />
+        <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
         <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
       </motion.div>
 
-      {/* Progress Tracker and Smart Suggestions */}
+      {/* Learning Profile and Upcoming Tasks side by side */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ProgressTrackerSection progressTracker={mockDashboardData.progressTracker} />
-        <SmartSuggestionsCenter performance={mockPerformance} />
+        {/* Learning Profile - Compact Design */}
+        <Card className="overflow-hidden border-0 shadow-md">
+          <CardContent className="p-6">
+            <div className="flex items-center mb-4">
+              <Brain className="h-5 w-5 text-violet-600 mr-2" />
+              <h3 className="text-lg font-medium">Your Learning Status</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                <div className="text-sm text-muted-foreground">Concepts Mastered</div>
+                <div className="text-2xl font-bold">45/60</div>
+                <div className="text-xs text-blue-600 dark:text-blue-400">75% completed</div>
+              </div>
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                <div className="text-sm text-muted-foreground">Total Study Time</div>
+                <div className="text-2xl font-bold">126 hrs</div>
+                <div className="text-xs text-green-600 dark:text-green-400">+12 this week</div>
+              </div>
+            </div>
+              
+            <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800/50">
+              <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Daily Streak</h4>
+              <div className="grid grid-cols-7 gap-1 mb-3">
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`h-6 rounded ${i < 5 ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'} flex items-center justify-center text-xs text-white`}
+                  >
+                    {i < 5 && <Check className="h-3 w-3" />}
+                  </div>
+                ))}
+              </div>
+              <div className="text-sm text-center">
+                <span className="font-medium">5 days</span> study streak! Keep it going!
+              </div>
+            </div>
+            
+            <div className="mt-4">
+              <Button 
+                onClick={() => navigate('/dashboard/student/academic')}
+                size="sm" 
+                variant="outline"
+                className="w-full"
+              >
+                View Complete Learning Profile
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Tasks */}
+        <UpcomingTasks tasks={dummyTasks} />
+      </motion.div>
+
+      {/* Smart Suggestions and Surrounding Influences */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SmartSuggestionsCenter 
+          performance={{
+            accuracy: 85,
+            quizScores: 90,
+            conceptProgress: 75,
+            streak: 7
+          }}
+        />
+        
+        <SubjectBreakdownSection subjects={dashboardData.subjects} />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
       </motion.div>
     </motion.div>
   );

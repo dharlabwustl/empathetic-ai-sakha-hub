@@ -1,206 +1,243 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { UserProfileBase, MoodType } from '@/types/user/base';
-import { 
-  User, 
-  Settings, 
-  Calendar, 
-  Target,
-  Smile,
-  Frown,
-  Meh,
-  Heart,
-  Zap,
-  Coffee,
-  Brain,
-  Star
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { File, Upload } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-interface EnhancedProfileCardProps {
-  userProfile: UserProfileBase;
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
-  onProfileImageUpdate?: (imageUrl: string) => void;
+interface SkillRating {
+  name: string;
+  level: number;
+  category?: string;
 }
 
-const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
-  userProfile,
+interface EnhancedProfileCardProps {
+  profile: UserProfileBase;
+  onUploadImage?: (file: File) => void;
+  showPeerRanking?: boolean;
+  skills?: SkillRating[];
+  currentMood?: MoodType | string;
+  onMoodChange?: (mood: MoodType) => void;
+}
+
+const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({ 
+  profile, 
+  onUploadImage,
+  showPeerRanking = false,
+  skills = [],
   currentMood,
-  onMoodChange,
-  onProfileImageUpdate
+  onMoodChange
 }) => {
-  const [isEditingMood, setIsEditingMood] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [uploadHover, setUploadHover] = useState(false);
 
-  const getMoodIcon = (mood?: MoodType) => {
-    switch (mood) {
-      case MoodType.Happy:
-        return <Smile className="h-4 w-4" />;
-      case MoodType.Sad:
-        return <Frown className="h-4 w-4" />;
-      case MoodType.Motivated:
-        return <Zap className="h-4 w-4" />;
-      case MoodType.Tired:
-        return <Coffee className="h-4 w-4" />;
-      case MoodType.Focused:
-        return <Brain className="h-4 w-4" />;
-      case MoodType.Excited:
-        return <Star className="h-4 w-4" />;
-      case MoodType.Stressed:
-        return <Target className="h-4 w-4" />;
-      case MoodType.Neutral:
-      case MoodType.Okay:
-        return <Meh className="h-4 w-4" />;
+  const handleUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onUploadImage) {
+      onUploadImage(file);
+    }
+  };
+  
+  // Function to generate user initials from name
+  const getInitials = (name: string): string => {
+    if (!name) return '';
+    
+    const names = name.trim().split(' ');
+    
+    if (names.length === 1) {
+      return names[0].charAt(0).toUpperCase();
+    }
+    
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'student':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'teacher':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'admin':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+      case 'parent':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
       default:
-        return <Heart className="h-4 w-4" />;
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
     }
   };
 
-  const getMoodColor = (mood?: MoodType) => {
-    switch (mood) {
-      case MoodType.Happy:
-        return 'text-yellow-500 bg-yellow-50';
-      case MoodType.Sad:
-        return 'text-blue-500 bg-blue-50';
-      case MoodType.Motivated:
-        return 'text-orange-500 bg-orange-50';
-      case MoodType.Tired:
-        return 'text-gray-500 bg-gray-50';
-      case MoodType.Focused:
-        return 'text-purple-500 bg-purple-50';
-      case MoodType.Excited:
-        return 'text-pink-500 bg-pink-50';
-      case MoodType.Stressed:
-        return 'text-red-500 bg-red-50';
+  const getSubscriptionBadge = () => {
+    const subscription = typeof profile.subscription === 'string' 
+      ? profile.subscription 
+      : profile.subscription?.planType || 'free';
+
+    switch (subscription) {
+      case 'premium':
+        return (
+          <Badge variant="outline" className="bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border-amber-400">
+            Premium
+          </Badge>
+        );
+      case 'basic':
+        return (
+          <Badge variant="outline" className="bg-gradient-to-r from-blue-200 to-blue-300 text-blue-800 border-blue-400">
+            Basic
+          </Badge>
+        );
       default:
-        return 'text-green-500 bg-green-50';
+        return (
+          <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300">
+            Free
+          </Badge>
+        );
     }
-  };
-
-  const handleMoodChange = (mood: MoodType) => {
-    if (onMoodChange) {
-      onMoodChange(mood);
-    }
-    setIsEditingMood(false);
-  };
-
-  const getInitials = (name?: string) => {
-    if (!name) return 'U';
-    return name.split(' ').map(part => part[0]).join('').toUpperCase();
-  };
-
-  const formatMoodText = (mood?: MoodType) => {
-    if (!mood) return 'Not set';
-    return mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase();
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Profile
-          </CardTitle>
-          <Button variant="ghost" size="sm">
-            <Settings className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage 
-              src={userProfile.avatar || userProfile.photoURL} 
-              alt={userProfile.name} 
-            />
-            <AvatarFallback className="text-lg font-semibold">
-              {getInitials(userProfile.name)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg">{userProfile.name || 'Student'}</h3>
-            <p className="text-sm text-muted-foreground">{userProfile.email}</p>
-            {userProfile.examPreparation && (
-              <Badge variant="secondary" className="mt-1">
-                {userProfile.examPreparation}
-              </Badge>
+    <Card>
+      <CardContent className="pt-6 px-6">
+        <div className="relative flex flex-col items-center">
+          {/* Avatar with optional upload functionality */}
+          <div 
+            className={cn(
+              "relative mb-4 rounded-full overflow-hidden", 
+              onUploadImage && "cursor-pointer hover:opacity-90 transition-opacity"
+            )}
+            onClick={onUploadImage ? handleUploadClick : undefined}
+            onMouseEnter={() => setUploadHover(true)}
+            onMouseLeave={() => setUploadHover(false)}
+          >
+            <Link to="/dashboard/student/profile">
+              <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-800 shadow-md">
+                {profile.avatar ? (
+                  <AvatarImage src={profile.avatar} alt={profile.name} />
+                ) : (
+                  <AvatarFallback className="text-2xl bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                    {getInitials(profile.name)}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </Link>
+            
+            {onUploadImage && uploadHover && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <Upload className="h-8 w-8 text-white" />
+              </div>
             )}
           </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Current Mood</span>
-            {!isEditingMood ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsEditingMood(true)}
-                className={`h-8 px-3 ${getMoodColor(currentMood)}`}
-              >
-                {getMoodIcon(currentMood)}
-                <span className="ml-2 text-xs">
-                  {formatMoodText(currentMood)}
-                </span>
-              </Button>
-            ) : (
-              <Select onValueChange={(value) => handleMoodChange(value as MoodType)}>
-                <SelectTrigger className="w-32 h-8">
-                  <SelectValue placeholder="Select mood" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(MoodType).map((mood) => (
-                    <SelectItem key={mood} value={mood}>
-                      <div className="flex items-center gap-2">
-                        {getMoodIcon(mood)}
-                        <span>{formatMoodText(mood)}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+          
+          <input 
+            type="file" 
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          
+          {/* Name and role */}
+          <h3 className="font-bold text-xl mb-1">{profile.name}</h3>
+          <div className="flex gap-2 mb-3">
+            <Badge className={getRoleColor(profile.role)}>
+              {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+            </Badge>
+            {getSubscriptionBadge()}
           </div>
-
-          {userProfile.studyStreak && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Study Streak</span>
-              <Badge className="bg-orange-100 text-orange-800">
-                🔥 {userProfile.studyStreak} days
-              </Badge>
+          
+          {/* Email */}
+          <div className="text-sm text-muted-foreground mb-4">{profile.email}</div>
+          
+          {/* Stats */}
+          <div className="w-full grid grid-cols-2 gap-2 text-center mb-6">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
+              <div className="text-2xl font-bold text-primary">
+                {profile.loginCount || 0}
+              </div>
+              <div className="text-xs text-muted-foreground">Logins</div>
             </div>
-          )}
-
-          {userProfile.goals && userProfile.goals.length > 0 && (
-            <div className="space-y-2">
-              <span className="text-sm font-medium">Goals</span>
-              {userProfile.goals.slice(0, 2).map((goal) => (
-                <div key={goal.id} className="flex items-center gap-2">
-                  <Target className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-xs">{goal.title}</span>
-                  <Badge variant="outline" className="text-xs">
-                    {goal.progress}%
-                  </Badge>
+            
+            {showPeerRanking ? (
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
+                <div className="text-2xl font-bold text-primary">
+                  Top 15%
                 </div>
-              ))}
+                <div className="text-xs text-muted-foreground">Peer Ranking</div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
+                <div className="text-2xl font-bold text-primary">
+                  {profile.studyStreak || 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Day Streak</div>
+              </div>
+            )}
+          </div>
+          
+          {/* Skills (if provided) */}
+          {skills && skills.length > 0 && (
+            <div className="w-full mb-4">
+              <h4 className="text-sm font-medium mb-2">Skills</h4>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill, idx) => (
+                  <Badge 
+                    key={idx}
+                    variant="outline" 
+                    className="bg-gray-50 dark:bg-gray-800"
+                  >
+                    {skill.name}
+                  </Badge>
+                ))}
+              </div>
             </div>
           )}
-
-          {userProfile.studyPreferences && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Study Pace</span>
-              <Badge variant="outline">
-                {userProfile.studyPreferences.pace}
-              </Badge>
+          
+          {/* Current mood indicator if present */}
+          {currentMood && (
+            <div className="w-full mt-2">
+              <h4 className="text-sm font-medium mb-2">Current Mood</h4>
+              <div className={cn(
+                "py-1 px-3 rounded-full text-sm text-center",
+                currentMood === MoodType.Happy && "bg-yellow-100 text-yellow-800",
+                currentMood === MoodType.Motivated && "bg-green-100 text-green-800",
+                currentMood === MoodType.Focused && "bg-blue-100 text-blue-800",
+                currentMood === MoodType.Calm && "bg-teal-100 text-teal-800",
+                currentMood === MoodType.Tired && "bg-orange-100 text-orange-800",
+                currentMood === MoodType.Confused && "bg-amber-100 text-amber-800",
+                currentMood === MoodType.Anxious && "bg-purple-100 text-purple-800",
+                currentMood === MoodType.Stressed && "bg-red-100 text-red-800",
+                currentMood === MoodType.Overwhelmed && "bg-pink-100 text-pink-800",
+                currentMood === MoodType.Neutral && "bg-gray-100 text-gray-800",
+                currentMood === MoodType.Okay && "bg-indigo-100 text-indigo-800",
+                currentMood === MoodType.Sad && "bg-blue-100 text-blue-800",
+              )}>
+                {typeof currentMood === 'string' ? 
+                  currentMood.charAt(0).toUpperCase() + currentMood.slice(1) : 
+                  currentMood}
+              </div>
             </div>
           )}
         </div>
       </CardContent>
+      
+      <CardFooter className="flex justify-center py-4">
+        {profile.role === 'student' && (
+          <Button variant="outline" size="sm" className="w-full" asChild>
+            <Link to="/dashboard/student/profile">
+              <File className="mr-2 h-4 w-4" />
+              View Full Profile
+            </Link>
+          </Button>
+        )}
+      </CardFooter>
     </Card>
   );
 };
