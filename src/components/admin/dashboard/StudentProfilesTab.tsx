@@ -5,155 +5,170 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Filter, Download, Eye, Edit, BarChart3, BookOpen, Calendar } from 'lucide-react';
-
-interface StudentProfile {
-  id: string;
-  name: string;
-  email: string;
-  examType: string;
-  grade: string;
-  joinDate: string;
-  studyStreak: number;
-  completedTopics: number;
-  totalTopics: number;
-  averageScore: number;
-  lastActive: string;
-  subscription: string;
-  avatar?: string;
-}
+import { Search, Filter, Eye, Edit, MoreHorizontal, UserCheck, TrendingUp, Clock, BookOpen } from 'lucide-react';
+import { UserProfileBase, MoodType } from '@/types/user/base';
 
 const StudentProfilesTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedExam, setSelectedExam] = useState('all');
+  const [filterMood, setFilterMood] = useState('all');
 
-  const mockStudents: StudentProfile[] = [
+  const mockStudentProfiles: (UserProfileBase & { 
+    studyHoursToday: number; 
+    mood: MoodType; 
+    completionRate: number;
+    lastActive: string;
+  })[] = [
     {
       id: '1',
       name: 'Aryan Sharma',
       email: 'aryan.s@example.com',
-      examType: 'IIT-JEE',
-      grade: '12th',
-      joinDate: '2024-01-15',
-      studyStreak: 25,
-      completedTopics: 142,
-      totalTopics: 200,
-      averageScore: 85.5,
-      lastActive: '2 hours ago',
-      subscription: 'Pro Monthly'
+      examPreparation: 'IIT-JEE',
+      studyStreak: 12,
+      studyHoursToday: 4.5,
+      mood: MoodType.Motivated,
+      completionRate: 85,
+      lastActive: '2 minutes ago',
+      subscription: {
+        type: 'pro_monthly',
+        isActive: true,
+        planType: 'Pro Monthly',
+        features: ['AI Tutor', 'Practice Tests'],
+        memberLimit: 1,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31'
+      }
     },
     {
       id: '2',
       name: 'Priya Patel',
       email: 'priya.p@example.com',
-      examType: 'NEET',
-      grade: '12th',
-      joinDate: '2024-02-10',
-      studyStreak: 18,
-      completedTopics: 98,
-      totalTopics: 180,
-      averageScore: 78.2,
-      lastActive: '1 day ago',
-      subscription: 'Free'
+      examPreparation: 'NEET',
+      studyStreak: 7,
+      studyHoursToday: 3.2,
+      mood: MoodType.Focused,
+      completionRate: 92,
+      lastActive: '15 minutes ago',
+      subscription: {
+        type: 'free',
+        isActive: true,
+        planType: 'Free',
+        features: ['Basic Content'],
+        memberLimit: 1,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31'
+      }
     },
     {
       id: '3',
       name: 'Vikram Singh',
       email: 'vikram.s@example.com',
-      examType: 'UPSC',
-      grade: 'Graduate',
-      joinDate: '2024-01-05',
-      studyStreak: 45,
-      completedTopics: 234,
-      totalTopics: 300,
-      averageScore: 92.1,
-      lastActive: '30 mins ago',
-      subscription: 'Pro Yearly'
+      examPreparation: 'UPSC',
+      studyStreak: 25,
+      studyHoursToday: 6.8,
+      mood: MoodType.Tired,
+      completionRate: 78,
+      lastActive: '1 hour ago',
+      subscription: {
+        type: 'pro_yearly',
+        isActive: true,
+        planType: 'Pro Yearly',
+        features: ['AI Tutor', 'Practice Tests', 'Analytics'],
+        memberLimit: 1,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31'
+      }
     }
   ];
 
-  const filteredStudents = mockStudents.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesExam = selectedExam === 'all' || student.examType === selectedExam;
-    return matchesSearch && matchesExam;
-  });
-
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-green-600';
-    if (percentage >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getSubscriptionBadge = (subscription: string) => {
-    const variants: Record<string, string> = {
-      'Free': 'bg-gray-100 text-gray-800',
-      'Pro Monthly': 'bg-blue-100 text-blue-800',
-      'Pro Yearly': 'bg-purple-100 text-purple-800'
+  const getMoodColor = (mood: MoodType) => {
+    const colors: Record<MoodType, string> = {
+      [MoodType.Happy]: 'bg-green-100 text-green-800',
+      [MoodType.Motivated]: 'bg-blue-100 text-blue-800',
+      [MoodType.Focused]: 'bg-purple-100 text-purple-800',
+      [MoodType.Tired]: 'bg-orange-100 text-orange-800',
+      [MoodType.Anxious]: 'bg-red-100 text-red-800',
+      [MoodType.Neutral]: 'bg-gray-100 text-gray-800',
+      [MoodType.Stressed]: 'bg-red-100 text-red-800',
+      [MoodType.Sad]: 'bg-gray-100 text-gray-800',
+      [MoodType.Calm]: 'bg-green-100 text-green-800',
+      [MoodType.Confused]: 'bg-yellow-100 text-yellow-800',
+      [MoodType.Overwhelmed]: 'bg-red-100 text-red-800',
+      [MoodType.Okay]: 'bg-gray-100 text-gray-800',
+      [MoodType.Curious]: 'bg-blue-100 text-blue-800'
     };
-    return variants[subscription] || 'bg-gray-100 text-gray-800';
+    return colors[mood] || 'bg-gray-100 text-gray-800';
   };
+
+  const filteredProfiles = mockStudentProfiles.filter(profile => {
+    const matchesSearch = profile.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         profile.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesMood = filterMood === 'all' || profile.mood === filterMood;
+    return matchesSearch && matchesMood;
+  });
 
   return (
     <div className="space-y-6">
-      {/* Header Stats */}
+      {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Students</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mockStudentProfiles.length}</div>
+            <p className="text-xs text-muted-foreground">Currently studying</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Study Hours</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {(mockStudentProfiles.reduce((sum, p) => sum + p.studyHoursToday, 0) / mockStudentProfiles.length).toFixed(1)}h
+            </div>
+            <p className="text-xs text-muted-foreground">Today's average</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Completion</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {(mockStudentProfiles.reduce((sum, p) => sum + p.completionRate, 0) / mockStudentProfiles.length).toFixed(0)}%
+            </div>
+            <p className="text-xs text-muted-foreground">Task completion rate</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Study Streak</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2,543</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Completion</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">68.5%</div>
-            <p className="text-xs text-muted-foreground">+3.2% from last week</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Today</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,847</div>
-            <p className="text-xs text-muted-foreground">72% of total users</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Score</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">85.3%</div>
-            <p className="text-xs text-muted-foreground">+1.8% from last month</p>
+            <div className="text-2xl font-bold">
+              {mockStudentProfiles.reduce((sum, p) => sum + (p.studyStreak || 0), 0)} days
+            </div>
+            <p className="text-xs text-muted-foreground">Combined streaks</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters and Search */}
+      {/* Student Profiles Management */}
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle>Student Profiles</CardTitle>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
+            <div className="flex gap-2">
+              <Button variant="outline">Export Data</Button>
+              <Button>View Analytics</Button>
             </div>
           </div>
         </CardHeader>
@@ -169,19 +184,18 @@ const StudentProfilesTab: React.FC = () => {
               />
             </div>
             
-            <div className="flex items-center gap-2">
-              <select 
-                value={selectedExam}
-                onChange={(e) => setSelectedExam(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-md text-sm"
-              >
-                <option value="all">All Exams</option>
-                <option value="IIT-JEE">IIT-JEE</option>
-                <option value="NEET">NEET</option>
-                <option value="UPSC">UPSC</option>
-                <option value="CAT">CAT</option>
-              </select>
-            </div>
+            <select 
+              value={filterMood}
+              onChange={(e) => setFilterMood(e.target.value)}
+              className="px-3 py-2 border border-gray-200 rounded-md text-sm"
+            >
+              <option value="all">All Moods</option>
+              <option value={MoodType.Motivated}>Motivated</option>
+              <option value={MoodType.Focused}>Focused</option>
+              <option value={MoodType.Tired}>Tired</option>
+              <option value={MoodType.Happy}>Happy</option>
+              <option value={MoodType.Anxious}>Anxious</option>
+            </select>
           </div>
 
           <div className="overflow-x-auto">
@@ -189,78 +203,67 @@ const StudentProfilesTab: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Student</TableHead>
-                  <TableHead>Exam</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Streak</TableHead>
-                  <TableHead>Avg Score</TableHead>
-                  <TableHead>Subscription</TableHead>
+                  <TableHead>Exam Prep</TableHead>
+                  <TableHead>Current Mood</TableHead>
+                  <TableHead>Study Hours Today</TableHead>
+                  <TableHead>Completion Rate</TableHead>
+                  <TableHead>Study Streak</TableHead>
                   <TableHead>Last Active</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredStudents.map((student) => {
-                  const progressPercentage = Math.round((student.completedTopics / student.totalTopics) * 100);
-                  return (
-                    <TableRow key={student.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={student.avatar} />
-                            <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{student.name}</div>
-                            <div className="text-sm text-gray-500">{student.email}</div>
-                          </div>
+                {filteredProfiles.map((profile) => (
+                  <TableRow key={profile.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{profile.name}</div>
+                        <div className="text-sm text-gray-500">{profile.email}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{profile.examPreparation}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getMoodColor(profile.mood)}>
+                        {profile.mood}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium">{profile.studyHoursToday}h</span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{profile.completionRate}%</span>
+                        <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${profile.completionRate}%` }}
+                          />
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{student.examType}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span>{student.completedTopics}/{student.totalTopics}</span>
-                            <span className={getProgressColor(progressPercentage)}>{progressPercentage}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${progressPercentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium text-orange-600">{student.studyStreak} days</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className={`font-medium ${getProgressColor(student.averageScore)}`}>
-                          {student.averageScore}%
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getSubscriptionBadge(student.subscription)}>
-                          {student.subscription}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-500">
-                        {student.lastActive}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium">{profile.studyStreak} days</span>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {profile.lastActive}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <MoreHorizontal className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>

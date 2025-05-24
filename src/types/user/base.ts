@@ -39,15 +39,32 @@ export enum StudyPreferenceType {
 }
 
 export enum MoodType {
+  Happy = 'happy',
   Motivated = 'motivated',
   Focused = 'focused',
   Tired = 'tired',
   Anxious = 'anxious',
-  Happy = 'happy',
   Neutral = 'neutral',
   Stressed = 'stressed',
   Sad = 'sad',
+  Calm = 'calm',
+  Confused = 'confused',
+  Overwhelmed = 'overwhelmed',
+  Okay = 'okay',
+  Curious = 'curious'
 }
+
+export const SubscriptionType = {
+  FREE: 'free',
+  BASIC: 'basic',
+  PRO: 'pro',
+  PREMIUM: 'premium',
+  PRO_MONTHLY: 'pro_monthly',
+  PRO_YEARLY: 'pro_yearly',
+  GROUP: 'group'
+} as const;
+
+export type SubscriptionTypeValue = typeof SubscriptionType[keyof typeof SubscriptionType];
 
 export interface UserProfileBase {
   id: string;
@@ -66,6 +83,8 @@ export interface UserProfileBase {
   loginCount?: number;
   paymentMethods?: PaymentMethod[];
   billingHistory?: BillingHistory[];
+  subscription?: Subscription;
+  studyStreak?: number;
 }
 
 export interface Goal {
@@ -115,10 +134,8 @@ export interface BillingHistory {
   planName: string;
 }
 
-export type SubscriptionType = 'free' | 'pro_monthly' | 'pro_yearly' | 'group';
-
 export interface Subscription {
-  type: SubscriptionType;
+  type: SubscriptionTypeValue;
   startDate: string;
   endDate: string;
   isActive: boolean;
