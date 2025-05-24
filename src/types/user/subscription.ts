@@ -2,7 +2,11 @@
 export enum SubscriptionType {
   FREE = 'free',
   PRO = 'pro',
-  GROUP = 'group'
+  GROUP = 'group',
+  BASIC = 'basic',
+  PREMIUM = 'premium',
+  ENTERPRISE = 'enterprise',
+  PRO_MONTHLY = 'pro_monthly'
 }
 
 export interface CreditPack {
@@ -50,5 +54,62 @@ export const creditPacks: CreditPack[] = [
     credits: 50,
     price: 279,
     isExamCredits: true
+  }
+];
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  billingCycle: 'monthly' | 'yearly';
+  features: string[];
+  maxUsers?: number;
+  isPopular?: boolean;
+  description?: string;
+}
+
+export const standardSubscriptionPlans: SubscriptionPlan[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    billingCycle: 'monthly',
+    features: [
+      'Basic concept cards',
+      'Limited flashcards',
+      'Basic study plan',
+      'Community support'
+    ],
+    description: 'Perfect for getting started'
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 999,
+    billingCycle: 'monthly',
+    features: [
+      'Unlimited concept cards',
+      'AI-powered study plans',
+      'Advanced analytics',
+      'Priority support',
+      'Exam practice tests'
+    ],
+    isPopular: true,
+    description: 'Most popular for serious learners'
+  },
+  {
+    id: 'group',
+    name: 'Group',
+    price: 2999,
+    billingCycle: 'monthly',
+    features: [
+      'Everything in Pro',
+      'Batch management',
+      'Group analytics',
+      'Collaborative tools',
+      'Admin dashboard'
+    ],
+    maxUsers: 50,
+    description: 'Perfect for institutions'
   }
 ];
