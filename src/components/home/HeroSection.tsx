@@ -1,248 +1,403 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import HeroContent from './HeroContent';
+import { Sparkles, Brain, Target, Award, Zap, ArrowRight, Play, Rocket, Star, GraduationCap, Clock, Shield, BookOpen, Lightbulb, Trophy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import DashboardPreview from './DashboardPreview';
-import { Sparkles, Zap, Brain, Target, Star, Rocket, Award, GraduationCap } from 'lucide-react';
 
-interface HeroSectionProps {
-  handleExamReadinessClick?: () => void;
-}
+const HeroSection = () => {
+  const navigate = useNavigate();
+  const [currentFeature, setCurrentFeature] = useState(0);
+  const [showDashboard, setShowDashboard] = useState(false);
 
-const HeroSection: React.FC<HeroSectionProps> = ({ 
-  handleExamReadinessClick = () => {} 
-}) => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
+  const features = [
+    { 
+      icon: <Brain className="w-6 h-6" />, 
+      text: "Confidence Builder", 
+      description: "Build unshakeable exam-day confidence with adaptive learning",
+      color: "from-blue-500 to-purple-600" 
+    },
+    { 
+      icon: <Trophy className="w-6 h-6" />, 
+      text: "Exam Success", 
+      description: "Achieve top scores with our proven methodology",
+      color: "from-purple-500 to-pink-600" 
+    },
+    { 
+      icon: <Clock className="w-6 h-6" />, 
+      text: "Time-saving Learning", 
+      description: "Learn 2x faster with our AI optimization",
+      color: "from-green-500 to-blue-600" 
+    },
+    { 
+      icon: <Shield className="w-6 h-6" />, 
+      text: "Stress-Free Preparation", 
+      description: "Reduce exam anxiety with mindset training",
+      color: "from-amber-500 to-red-600" 
+    },
+    { 
+      icon: <Lightbulb className="w-6 h-6" />, 
+      text: "Smart Analytics", 
+      description: "Track your progress with detailed insights",
+      color: "from-cyan-500 to-teal-600" 
+    }
+  ];
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    const interval = setInterval(() => {
+      setCurrentFeature((prev) => (prev + 1) % features.length);
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
+  const handleStartJourney = () => {
+    navigate('/signup');
+  };
+
+  const handleExamReadinessClick = () => {
+    // This will trigger the exam analyzer
+    window.dispatchEvent(new Event('open-exam-analyzer'));
+  };
+
+  const handleWatchDemo = () => {
+    setShowDashboard(true);
+  };
+
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950/30">
-      {/* Modern geometric background */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Enhanced 3D Background with Exam Preparation Theme */}
       <div className="absolute inset-0">
-        {/* Diagonal stripes pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              45deg,
-              transparent,
-              transparent 60px,
-              rgba(59, 130, 246, 0.1) 60px,
-              rgba(59, 130, 246, 0.1) 120px
-            )`,
-          }}
-        />
+        {/* Multi-layered gradient background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.4),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(236,72,153,0.3),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(34,197,94,0.2),rgba(255,255,255,0))]" />
         
-        {/* Subtle grid overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-          }}
-        />
-      </div>
-
-      {/* Floating geometric shapes */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Large accent circles */}
-        <motion.div
-          className="absolute top-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-br from-blue-400/10 to-purple-500/10 blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 -right-20 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400/10 to-pink-500/10 blur-3xl"
-          animate={{
-            scale: [1.1, 1, 1.1],
-            opacity: [0.4, 0.6, 0.4],
-          }}
-          transition={{ duration: 10, repeat: Infinity, delay: 2 }}
-        />
-
-        {/* Small floating elements */}
-        {Array.from({ length: 12 }, (_, i) => (
+        {/* Floating Academic Elements */}
+        {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-blue-400/20 rounded-full"
-            style={{
-              left: `${10 + (i * 8)}%`,
-              top: `${20 + (i % 3) * 25}%`,
+            className="absolute"
+            initial={{
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              opacity: 0.3,
             }}
             animate={{
-              y: [-10, 10, -10],
-              opacity: [0.2, 0.6, 0.2],
-              scale: [0.8, 1.2, 0.8],
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              rotate: [0, 360],
+              opacity: [0.3, 0.7, 0.3],
             }}
             transition={{
-              duration: 4 + i * 0.5,
+              duration: Math.random() * 20 + 15,
               repeat: Infinity,
-              delay: i * 0.2,
+              ease: "linear"
+            }}
+          >
+            {i % 4 === 0 && <BookOpen className="w-6 h-6 text-blue-400" />}
+            {i % 4 === 1 && <GraduationCap className="w-6 h-6 text-purple-400" />}
+            {i % 4 === 2 && <Trophy className="w-6 h-6 text-amber-400" />}
+            {i % 4 === 3 && <Target className="w-6 h-6 text-green-400" />}
+          </motion.div>
+        ))}
+
+        {/* Exam Success Particles */}
+        {[...Array(25)].map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
+            initial={{
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+            }}
+            animate={{
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+              scale: [1, 1.5, 1],
+              opacity: [0.4, 0.8, 0.4],
+            }}
+            transition={{
+              duration: Math.random() * 15 + 20,
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
           />
         ))}
+
+        {/* Intelligence Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        
+        {/* Pulsing Study Energy Waves */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"
+          animate={{
+            x: ['-100%', '100%'],
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
       </div>
 
-      {/* Modern content layout */}
-      <div className="relative z-10">
-        <div className="container mx-auto px-6 lg:px-8 pt-20 pb-16">
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-            {/* Left content area */}
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-center min-h-screen">
+          {/* Left Content */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center lg:text-left space-y-6 py-8"
+          >
+            {/* Live Badge */}
             <motion.div
-              className="order-2 lg:order-1"
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="inline-flex items-center gap-2"
             >
-              <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
+              <Badge className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 text-sm font-bold rounded-full border-0 shadow-lg shadow-emerald-500/25">
+                <motion.div
+                  className="w-2 h-2 bg-white rounded-full mr-2"
+                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <Rocket className="w-4 h-4 mr-1" />
+                NEET 2026 PREP LIVE NOW!
+              </Badge>
+              
+              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-3 py-1 text-xs font-bold rounded-full border-0">
+                <Star className="w-3 h-3 mr-1 fill-current" />
+                AI POWERED
+              </Badge>
             </motion.div>
 
-            {/* Right content - Dashboard preview with modern styling */}
+            {/* Main Headline */}
+            <div className="space-y-4">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
+              >
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                  We understand your
+                </span>
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+                  mindset, not just
+                </span>
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-400 to-purple-400">
+                  the exam
+                </span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+              >
+                From struggling to exam champion with the world's first 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-semibold"> emotionally intelligent</span> & 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 font-semibold"> hyper-personalized</span> exam prep platform for 
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-semibold"> JEE, NEET, UPSC, CAT & beyond</span>.
+              </motion.p>
+            </div>
+
+            {/* How PREPZR Supports You - Slider */}
             <motion.div
-              className="order-1 lg:order-2 relative"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              onHoverStart={() => setIsHovered(true)}
-              onHoverEnd={() => setIsHovered(false)}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 h-32"
             >
-              {/* Modern frame container */}
-              <div className="relative">
-                {/* Subtle glow effect */}
+              <h3 className="text-center font-semibold text-lg text-white mb-3 flex items-center justify-center gap-2">
+                <Target className="w-5 h-5" />
+                <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent font-bold">
+                  How PREPZR Supports You
+                </span>
+                <Sparkles className="w-5 h-5" />
+              </h3>
+
+              <AnimatePresence mode="wait">
                 <motion.div
-                  className="absolute -inset-8 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl blur-2xl"
-                  animate={{
-                    opacity: isHovered ? [0.5, 0.8, 0.5] : 0.3,
-                    scale: isHovered ? [1, 1.05, 1] : 1,
-                  }}
-                  transition={{ duration: 2, repeat: isHovered ? Infinity : 0 }}
-                />
-                
-                {/* Main content container with modern glassmorphism */}
-                <motion.div
-                  className="relative bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/30 rounded-2xl p-3 shadow-xl"
-                  whileHover={{ 
-                    scale: 1.02,
-                    y: -5,
-                  }}
-                  transition={{ duration: 0.3 }}
+                  key={currentFeature}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center gap-4"
                 >
-                  {/* Dashboard preview */}
-                  <div className="relative overflow-hidden rounded-xl bg-gray-50/50 dark:bg-gray-800/50">
-                    <DashboardPreview />
-                    
-                    {/* Subtle overlay on hover */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-t from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none rounded-xl"
-                      animate={{
-                        opacity: isHovered ? [0, 0.3, 0] : 0,
-                      }}
-                      transition={{ duration: 2, repeat: isHovered ? Infinity : 0 }}
-                    />
+                  <div className={`p-3 rounded-xl bg-gradient-to-r ${features[currentFeature].color} text-white shadow-lg`}>
+                    {features[currentFeature].icon}
                   </div>
-                  
-                  {/* Minimal corner accents */}
-                  <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-blue-400/40 rounded-tl-lg" />
-                  <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-purple-400/40 rounded-tr-lg" />
-                  <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-purple-400/40 rounded-bl-lg" />
-                  <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-blue-400/40 rounded-br-lg" />
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{features[currentFeature].text}</h3>
+                    <p className="text-gray-300 text-sm">{features[currentFeature].description}</p>
+                  </div>
                 </motion.div>
-
-                {/* Floating status badges */}
-                <motion.div
-                  className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg backdrop-blur-sm"
-                  animate={{
-                    y: [-2, 2, -2],
-                    rotate: [0, 2, 0, -2, 0],
-                  }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                >
-                  <Star className="w-3 h-3 fill-current" />
-                  <span>LIVE</span>
-                </motion.div>
-
-                <motion.div
-                  className="absolute -bottom-4 -left-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg backdrop-blur-sm"
-                  animate={{
-                    y: [2, -2, 2],
-                    rotate: [0, -2, 0, 2, 0],
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                >
-                  <Brain className="w-3 h-3" />
-                  <span>AI POWERED</span>
-                </motion.div>
+              </AnimatePresence>
+              
+              {/* Feature Indicators */}
+              <div className="flex gap-2 mt-4 justify-center">
+                {features.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentFeature(index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      index === currentFeature ? 'bg-purple-400 w-8' : 'bg-white/30'
+                    }`}
+                  />
+                ))}
               </div>
             </motion.div>
-          </div>
 
-          {/* Modern stats bar */}
-          <motion.div
-            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            {[
-              { number: "2M+", label: "Students", icon: GraduationCap, color: "from-blue-500 to-blue-600" },
-              { number: "95%", label: "Success Rate", icon: Target, color: "from-green-500 to-emerald-600" },
-              { number: "24/7", label: "AI Support", icon: Brain, color: "from-purple-500 to-indigo-600" },
-              { number: "50+", label: "Exams Covered", icon: Award, color: "from-orange-500 to-red-600" },
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                className="text-center p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-gray-200/30 dark:border-gray-700/20 shadow-sm"
-                whileHover={{ 
-                  scale: 1.05, 
-                  y: -3,
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
-                }}
-                transition={{ duration: 0.2 }}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ transitionDelay: `${index * 100}ms` }}
+            {/* CTA Buttons - Both Visible */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 0.8 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4"
+            >
+              <Button
+                onClick={handleStartJourney}
+                size="lg"
+                className="group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border-0 text-lg"
               >
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${stat.color} text-white mb-3 shadow-lg`}>
-                  <stat.icon size={20} />
+                <Rocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                Start Your Success Journey - 7 Days Free
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              
+              <Button
+                onClick={handleExamReadinessClick}
+                size="lg"
+                className="group bg-gray-800/80 hover:bg-gray-700/80 border-2 border-gray-600/50 hover:border-gray-500/50 text-gray-100 hover:text-white py-4 px-6 rounded-2xl font-bold text-base backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                AI Exam Readiness Analysis
+              </Button>
+            </motion.div>
+
+            {/* Stats Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.8 }}
+              className="grid grid-cols-3 gap-8 pt-8 border-t border-white/20"
+            >
+              {[
+                { number: "2M+", label: "Students" },
+                { number: "95%", label: "Success Rate" },
+                { number: "4.9/5", label: "Rating" }
+              ].map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                    {stat.number}
+                  </div>
+                  <div className="text-gray-300 text-sm font-medium">{stat.label}</div>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{stat.number}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{stat.label}</div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Right Side - Enhanced Dashboard Preview */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="relative h-screen flex items-center"
+          >
+            <div className="relative w-full">
+              {/* Enhanced Premium Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-3xl blur-3xl animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-cyan-500/20 rounded-3xl blur-2xl" />
+              
+              {/* Premium Dashboard Container */}
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-3 border border-white/30 shadow-2xl h-[calc(100vh-120px)] overflow-hidden">
+                {/* Premium Header Bar */}
+                <div className="bg-gradient-to-r from-slate-800/90 to-slate-700/90 rounded-2xl p-2 mb-2 flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <div className="text-xs text-gray-300 font-medium">PREPZR Dashboard - Premium Experience</div>
+                </div>
+                
+                <div className="h-[calc(100vh-200px)] overflow-hidden">
+                  <DashboardPreview />
+                </div>
+              </div>
+
+              {/* Enhanced Floating Elements */}
+              <motion.div
+                className="absolute -top-4 -left-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-3 rounded-xl shadow-2xl border border-emerald-400/30"
+                animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <GraduationCap className="w-6 h-6" />
               </motion.div>
-            ))}
+
+              <motion.div
+                className="absolute -bottom-4 -right-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-xl shadow-2xl border border-amber-400/30"
+                animate={{ y: [0, 10, 0], rotate: [0, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+              >
+                <Award className="w-6 h-6" />
+              </motion.div>
+
+              <motion.div
+                className="absolute top-1/2 -right-8 bg-gradient-to-r from-purple-500 to-pink-600 text-white p-3 rounded-xl shadow-2xl border border-purple-400/30"
+                animate={{ x: [0, 10, 0], scale: [1, 1.1, 1] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 0.7 }}
+              >
+                <Sparkles className="w-6 h-6" />
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Modern scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3"
-        animate={{ y: [0, 6, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wide">SCROLL TO EXPLORE</span>
-        <div className="w-6 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex justify-center relative">
+      {/* Dashboard Modal */}
+      <AnimatePresence>
+        {showDashboard && (
           <motion.div
-            className="w-1 h-3 bg-gray-400 dark:bg-gray-500 rounded-full mt-2"
-            animate={{ y: [0, 12, 0], opacity: [1, 0.3, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        </div>
-      </motion.div>
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowDashboard(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="relative bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowDashboard(false)}
+                className="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <div className="p-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Live Dashboard Preview</h3>
+                <DashboardPreview />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
