@@ -81,4 +81,25 @@ export interface Milestone {
   type: 'exam' | 'deadline' | 'goal';
   progress: number;
   description: string;
+  completed?: boolean;
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  difficulty: string;
+  points: number;
+  dueDate: Date;
+  status: string;
+  completedBy: {
+    userId: string;
+    name: string;
+    avatar: string;
+    completedAt: Date;
+    points: number;
+  }[];
+  totalParticipants: number;
+  successRate: number;
 }

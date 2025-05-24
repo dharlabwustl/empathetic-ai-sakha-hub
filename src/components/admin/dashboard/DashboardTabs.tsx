@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
   Users, 
@@ -11,17 +9,19 @@ import {
   BarChart3, 
   Database, 
   Shield, 
-  Bell,
   Activity,
   CreditCard
 } from 'lucide-react';
 
-// Import components (we'll create basic ones for now)
+// Import components
 import Overview from './Overview';
 import UsersManagement from './UsersManagement';
 import ContentManagement from './ContentManagement';
 import SystemLogs from './SystemLogs';
 import SubscriptionPlans from './SubscriptionPlans';
+import Analytics from './Analytics';
+import DatabaseManagement from './DatabaseManagement';
+import Security from './Security';
 
 const DashboardTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -104,36 +104,15 @@ const DashboardTabs: React.FC = () => {
       </TabsContent>
       
       <TabsContent value="analytics" className="space-y-4 mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Analytics Dashboard</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Analytics and reporting tools coming soon.</p>
-          </CardContent>
-        </Card>
+        <Analytics />
       </TabsContent>
       
       <TabsContent value="database" className="space-y-4 mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Database Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Database administration tools coming soon.</p>
-          </CardContent>
-        </Card>
+        <DatabaseManagement />
       </TabsContent>
       
       <TabsContent value="security" className="space-y-4 mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Security Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Security configuration and monitoring tools coming soon.</p>
-          </CardContent>
-        </Card>
+        <Security />
       </TabsContent>
       
       <TabsContent value="logs" className="space-y-4 mt-4">

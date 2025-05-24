@@ -1,174 +1,107 @@
 
-export enum MoodType {
-  HAPPY = 'happy',
-  FOCUSED = 'focused',
-  TIRED = 'tired',
-  STRESSED = 'stressed',
-  CURIOUS = 'curious',
-  OKAY = 'okay',
-  OVERWHELMED = 'overwhelmed',
-  ANXIOUS = 'anxious',
-  MOTIVATED = 'motivated',
-  CONFUSED = 'confused',
-  NEUTRAL = 'neutral',
-  SAD = 'sad',
-  CALM = 'calm',
-}
-
-export enum SubscriptionType {
-  FREE = 'free',
-  BASIC = 'basic',
-  PRO = 'pro',
-  PREMIUM = 'premium',
-  PRO_MONTHLY = 'pro_monthly',
-  PRO_ANNUAL = 'pro_annual',
-  GROUP_SMALL = 'group_small',
-  GROUP_LARGE = 'group_large',
-  GROUP_ANNUAL = 'group_annual'
-}
-
 export enum UserRole {
   Student = 'student',
   Teacher = 'teacher',
-  Admin = 'admin'
+  Admin = 'admin',
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'super_admin';
+  permissions: string[];
+  lastLogin?: string;
 }
 
 export enum Gender {
   Male = 'male',
   Female = 'female',
   Other = 'other',
-  PreferNotToSay = 'prefer-not-to-say'
 }
 
 export enum SignupType {
-  EMAIL = 'email',
-  GOOGLE = 'google',
-  FACEBOOK = 'facebook',
-  APPLE = 'apple',
-  MOBILE = 'mobile' // Added mobile signup type
+  Email = 'email',
+  Google = 'google',
+  Facebook = 'facebook',
 }
 
 export enum StudyPace {
   Slow = 'slow',
   Moderate = 'moderate',
-  Fast = 'fast'
+  Fast = 'fast',
 }
 
 export enum StudyPreferenceType {
   Solo = 'solo',
   Group = 'group',
-  Mixed = 'mixed'
+  Both = 'both',
 }
 
-export enum PersonalityType {
-  Analytical = 'analytical',
-  Creative = 'creative',
-  Practical = 'practical',
-  Visual = 'visual',
-  Auditory = 'auditory',
-  Kinesthetic = 'kinesthetic'
-}
-
-// Added interfaces for tracking study streaks and exam readiness
-export interface StudyStreak {
-  current: number;
-  longest: number;
-  lastStudyDate: Date | string;
-}
-
-export interface ExamReadiness {
-  percentage: number;
-  lastUpdated: Date | string;
+export enum MoodType {
+  Motivated = 'motivated',
+  Focused = 'focused',
+  Tired = 'tired',
+  Anxious = 'anxious',
+  Happy = 'happy',
+  Neutral = 'neutral',
+  Stressed = 'stressed',
+  Sad = 'sad',
 }
 
 export interface UserProfileBase {
   id: string;
-  name: string;
+  name?: string;
   email: string;
-  bio?: string;
+  role?: UserRole;
+  signupType?: SignupType;
   avatar?: string;
-  photoURL?: string;
+  bio?: string;
   phoneNumber?: string;
-  mobileNumber?: string; // Added mobile number field
-  role: 'student' | 'teacher' | 'admin';
-  subscription?: SubscriptionType | {
-    planType: string;
-    startDate?: Date | string;
-    expiryDate?: Date | string;
-    status?: 'active' | 'expired' | 'cancelled';
-    autoRenew?: boolean;
-  };
-  goals?: {
-    id: string;
-    title: string;
-    description?: string;
-    targetDate?: Date | string;
-    progress?: number;
-    targetYear?: string;
-  }[];
-  streak?: StudyStreak; // Added study streak field
-  studyStreak?: number; // For backwards compatibility
-  examReadiness?: ExamReadiness; // Added exam readiness field
-  preferences?: {
-    theme?: 'light' | 'dark' | 'system';
-    notifications?: boolean;
-    emailAlerts?: boolean;
-    language?: string;
-    studyPace?: StudyPace; // Added study pace preference
-    dailyStudyHours?: number; // Added daily study hours
-    preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night'; // Added preferred study time
-    breakFrequency?: string; // Added break frequency
-    stressManagement?: string; // Added stress management technique
-    studyEnvironment?: string; // Added study environment preference
-    learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical'; // Added learning style
-  };
-  demographics?: { // Added demographics section
-    age?: number;
-    city?: string;
-    educationLevel?: string;
-    examAppearingDate?: Date | string;
-  };
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
-  lastLogin?: Date | string;
-  loginCount?: number;
-  
-  // Additional fields that were used in various components
+  location?: string;
+  gender?: Gender;
+  grade?: string;
   examPreparation?: string;
-  personalityType?: string;
-  studyPreferences?: {
-    pace?: StudyPace;
-    hoursPerDay?: number;
-    preferredTimeStart?: string;
-    preferredTimeEnd?: string;
-    preferenceType?: StudyPreferenceType;
-  };
-  mood?: MoodType;
-  firstName?: string;
-  subjects?: string[];
+  photoURL?: string;
+  loginCount?: number;
+  paymentMethods?: PaymentMethod[];
+  billingHistory?: BillingHistory[];
 }
 
-export type UserProfileType = UserProfileBase;
-
-// Additional types that might be useful
-export interface SubjectProgress {
-  id?: string;
-  subject: string;
+export interface Goal {
+  id: string;
+  title: string;
+  targetDate: string;
   progress: number;
-  topicsTotal: number;
-  topicsCompleted: number;
-  quizzesCompleted: number;
-  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
-  isWeakSubject?: boolean; // Added to track weak subjects
-  proficiency?: number; // Added for academic advisor view
+  targetYear: string;
+}
+
+export interface StudyPreferences {
+  pace: StudyPace;
+  hoursPerDay: number;
+  preferredTimeStart: string;
+  preferredTimeEnd: string;
+  preferenceType: StudyPreferenceType;
+}
+
+export interface Preferences {
+  studyReminders: boolean;
+  emailNotifications: boolean;
+  darkMode: boolean;
+}
+
+export interface RecentActivity {
+  lastLogin: Date;
+  lastStudySession?: Date;
+  completedTasks: number;
 }
 
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'upi' | 'bank';
-  isDefault: boolean;
+  type: 'card' | 'upi';
   lastFour?: string;
   expiryDate?: string;
+  isDefault: boolean;
   cardType?: string;
   upiId?: string;
 }
@@ -177,26 +110,41 @@ export interface BillingHistory {
   id: string;
   date: string;
   amount: number;
-  status: 'paid' | 'pending' | 'failed';
+  status: 'paid' | 'failed' | 'pending';
   invoiceUrl: string;
   planName: string;
 }
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
+export type SubscriptionType = 'free' | 'pro_monthly' | 'pro_yearly' | 'group';
+
+export interface Subscription {
   type: SubscriptionType;
-  maxMembers?: number;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  planType: string;
+  features: string[];
+  memberLimit: number;
+  expiryDate?: string | Date;
+  status?: 'active' | 'expired' | 'cancelled';
+  autoRenew?: boolean;
 }
 
-// Added for study plan topics
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  difficulty: string;
-  completed: boolean;
-  status: string;
-  priority: string;
+export interface UserProfileType extends UserProfileBase {
+  personalityType?: string;
+  goals?: Goal[];
+  subjects?: string[];
+  studyPreferences?: StudyPreferences;
+  preferences?: Preferences;
+  recentActivity?: RecentActivity;
+  subscription?: Subscription;
+  studyStreak?: number;
+  mood?: MoodType;
+  paymentMethods?: PaymentMethod[];
+  billingHistory?: BillingHistory[];
+}
+
+// Add User interface for compatibility
+export interface User extends UserProfileBase {
+  subscription?: Subscription;
 }
