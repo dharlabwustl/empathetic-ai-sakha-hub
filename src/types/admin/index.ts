@@ -1,71 +1,48 @@
 
-// Re-export StudentData from studentData.ts to ensure consistency
-export * from './studentData';
-export * from './systemLog';
-
-// Admin User Interface
-export interface AdminUser {
-  id: string;
-  username: string;
-  email: string;
-  role: 'admin' | 'super_admin' | 'support';
-  permissions: string[];
-}
-
-// Admin Settings Interface
-export interface AdminSettings {
-  id: string;
-  userId: string;
-  theme: 'light' | 'dark' | 'system';
-  notifications: boolean;
-  emailAlerts: boolean;
-  defaultView: string;
-  preferences: Record<string, any>;
-}
-
-// Admin Dashboard Stats Interface
 export interface AdminDashboardStats {
-  totalStudents: number;
-  activeStudents: number;
-  studentsWithConsistentHabits: number;
+  totalUsers: number;
+  activeUsers: number;
+  totalRevenue: number;
+  newUsersToday: number;
+  dailyActiveUsers: Array<{date: string; count: number}>;
+  subscriptionsByPlan: {
+    free: number;
+    basic: number;
+    premium: number;
+  };
+  verifiedMoodImprovement: number;
   averageMoodScore: number;
+  averageTimeSavedPerWeek: number;
   studyPlanEfficiencyImprovement: number;
+  studentsWithVerifiedConsistentHabits: number;
+  studentsWithConsistentHabits: number;
+  totalStudents: number;
+  verifiedRetentionRate: number;
+  studyTimeConsistencyImprovement: number;
+  completedStudyPlans: number;
+  verifiedExamConfidenceImprovement: number;
   averageConfidenceScore: number;
-  totalSessions: number;
+  activeStudents: number;
+  verifiedMoodFeatureUsage: number;
   moodBasedSessionsCount: number;
-  studentsWithMoodTracking: number;
-  
-  // KPI Stats for homepage
-  totalQuestions?: number;
-  averageConcepts?: number;
-  successRate?: number;
-  totalFlashcards?: number;
-  totalStudyPlans?: number;
-  targetExams?: number;
-  newUsersToday?: number;
-  
-  // New KPIs for admin dashboard
-  dailyActiveUsers?: number;
-  weeklyActiveUsers?: number;
-  monthlyActiveUsers?: number;
-  freeUsers?: number;
-  paidUsers?: number;
-  groupUsers?: number;
-  subscriptionConversionRate?: number;
-  churnRate?: number;
-  averageStudyTimePerUser?: number;
-  practiceAttemptsPerUser?: number;
-  weakAreaIdentificationRate?: number;
-  userSatisfactionScore?: number;
-  referralRate?: number;
-  totalRevenue?: number;
+  totalSessions: number;
+  completedSurveys: number;
+}
 
-  // Verified metrics
-  verifiedMoodImprovement?: number;
-  averageTimeSavedPerWeek?: number;
-  studentsWithVerifiedConsistentHabits?: number;
-  verifiedExamConfidenceImprovement?: number;
-  verifiedRetentionRate?: number;
-  verifiedMoodFeatureUsage?: number;
-  completedSurveys?: number;
+export interface SystemLog {
+  id: string;
+  event: string;
+  timestamp: string;
+  level: 'info' | 'warning' | 'error';
+  message: string;
+  details?: Record<string, any>;
+}
+
+export interface StudentData {
+  id: string;
+  name: string;
+  email: string;
+  enrollmentDate: string;
+  lastActive: string;
+  progress: number;
 }

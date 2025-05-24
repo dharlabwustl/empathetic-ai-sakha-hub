@@ -113,7 +113,9 @@ const adminAuthService = {
       const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
       const userJson = localStorage.getItem("adminUser");
       
-      return !!(token && isAdminLoggedIn && userJson);
+      const isAuth = !!(token && isAdminLoggedIn && userJson);
+      console.log("adminAuthService: Authentication check:", { token: !!token, isAdminLoggedIn, userJson: !!userJson, result: isAuth });
+      return isAuth;
     } catch (error) {
       console.error("adminAuthService: Error checking authentication:", error);
       return false;

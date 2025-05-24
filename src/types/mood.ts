@@ -20,3 +20,6 @@ export interface MoodEntry {
   timestamp: Date;
   note?: string;
 }
+
+// Helper type for string literal mood values
+export type MoodTypeValue = 'happy' | 'focused' | 'tired' | 'stressed' | 'curious' | 'okay' | 'overwhelmed' | 'anxious' | 'motivated' | 'confused' | 'neutral' | 'sad';

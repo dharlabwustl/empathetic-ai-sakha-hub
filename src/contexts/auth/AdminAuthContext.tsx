@@ -30,19 +30,20 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [error, setError] = useState<string | null>(null);
 
   const checkAdminAuth = async () => {
+    console.log("AdminAuthContext: Checking authentication");
     setIsLoading(true);
     try {
       const isAuthenticated = adminAuthService.isAuthenticated();
       console.log("AdminAuthContext: Auth check result:", isAuthenticated);
       
-      setIsAdminAuthenticated(isAuthenticated);
-      
       if (isAuthenticated) {
         const user = await adminAuthService.getAdminUser();
-        setAdminUser(user);
         console.log("AdminAuthContext: User loaded:", user?.email);
+        setAdminUser(user);
+        setIsAdminAuthenticated(true);
       } else {
         setAdminUser(null);
+        setIsAdminAuthenticated(false);
       }
     } catch (err) {
       console.error('AdminAuthContext: Auth check error:', err);
@@ -70,21 +71,22 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   const loginAdmin = async (email: string, password: string): Promise<boolean> => {
+    console.log("AdminAuthContext: Login attempt for", email);
     setIsLoading(true);
     setError(null);
     
     try {
-      console.log("AdminAuthContext: Login attempt");
       const response = await adminAuthService.adminLogin({ email, password });
+      console.log("AdminAuthContext: Login response:", response);
       
       if (response.success && response.data) {
         setIsAdminAuthenticated(true);
         setAdminUser(response.data);
-        console.log("AdminAuthContext: Login successful");
+        console.log("AdminAuthContext: Login successful, user set");
         return true;
       } else {
         setError(response.message || 'Invalid credentials');
-        console.log("AdminAuthContext: Login failed");
+        console.log("AdminAuthContext: Login failed:", response.message);
         return false;
       }
     } catch (err) {
@@ -97,6 +99,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const adminLogout = async (): Promise<void> => {
+    console.log("AdminAuthContext: Logout started");
     setIsLoading(true);
     try {
       await adminAuthService.adminLogout();
@@ -119,6 +122,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     loginAdmin,
     adminLogout,
   };
+
+  console.log("AdminAuthContext: Current state:", { isAdminAuthenticated, adminUser: adminUser?.email, isLoading, error });
 
   return (
     <AdminAuthContext.Provider value={value}>

@@ -25,7 +25,7 @@ const AdminLogin: React.FC = () => {
   useEffect(() => {
     console.log("AdminLogin: Auth state check", { isAdminAuthenticated });
     if (isAdminAuthenticated) {
-      console.log("Admin already authenticated, redirecting");
+      console.log("Admin already authenticated, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });
     }
   }, [isAdminAuthenticated, navigate]);
@@ -43,7 +43,7 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
     
     try {
-      console.log("AdminLogin: Attempting login");
+      console.log("AdminLogin: Attempting login with credentials:", { email });
       const success = await loginAdmin(email, password);
       
       console.log("AdminLogin: Login result:", success);
@@ -54,9 +54,10 @@ const AdminLogin: React.FC = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        const from = location.state?.from?.pathname || "/admin/dashboard";
-        navigate(from, { replace: true });
+        console.log("AdminLogin: Redirecting to admin dashboard");
+        navigate("/admin/dashboard", { replace: true });
       } else {
+        console.log("AdminLogin: Login failed");
         setLoginError("Invalid admin credentials");
       }
     } catch (err) {
