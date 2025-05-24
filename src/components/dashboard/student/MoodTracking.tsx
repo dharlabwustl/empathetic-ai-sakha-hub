@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,14 +26,14 @@ const MoodTracking: React.FC = () => {
   };
   
   const moods: { label: string; emoji: string; value: MoodType; color: string }[] = [
-    { label: 'Happy', emoji: '😊', value: MoodType.HAPPY, color: 'bg-yellow-100 dark:bg-yellow-900/30' },
-    { label: 'Motivated', emoji: '💪', value: MoodType.MOTIVATED, color: 'bg-green-100 dark:bg-green-900/30' },
-    { label: 'Focused', emoji: '🧠', value: MoodType.FOCUSED, color: 'bg-blue-100 dark:bg-blue-900/30' },
-    { label: 'Neutral', emoji: '😐', value: MoodType.NEUTRAL, color: 'bg-gray-100 dark:bg-gray-800/50' },
-    { label: 'Tired', emoji: '😴', value: MoodType.TIRED, color: 'bg-indigo-100 dark:bg-indigo-900/30' },
-    { label: 'Anxious', emoji: '😰', value: MoodType.ANXIOUS, color: 'bg-amber-100 dark:bg-amber-900/30' },
-    { label: 'Stressed', emoji: '😓', value: MoodType.STRESSED, color: 'bg-red-100 dark:bg-red-900/30' },
-    { label: 'Sad', emoji: '😢', value: MoodType.SAD, color: 'bg-purple-100 dark:bg-purple-900/30' },
+    { label: 'Happy', emoji: '😊', value: MoodType.Happy, color: 'bg-yellow-100 dark:bg-yellow-900/30' },
+    { label: 'Motivated', emoji: '💪', value: MoodType.Motivated, color: 'bg-green-100 dark:bg-green-900/30' },
+    { label: 'Focused', emoji: '🧠', value: MoodType.Focused, color: 'bg-blue-100 dark:bg-blue-900/30' },
+    { label: 'Neutral', emoji: '😐', value: MoodType.Neutral, color: 'bg-gray-100 dark:bg-gray-800/50' },
+    { label: 'Tired', emoji: '😴', value: MoodType.Tired, color: 'bg-indigo-100 dark:bg-indigo-900/30' },
+    { label: 'Anxious', emoji: '😰', value: MoodType.Anxious, color: 'bg-amber-100 dark:bg-amber-900/30' },
+    { label: 'Stressed', emoji: '😓', value: MoodType.Stressed, color: 'bg-red-100 dark:bg-red-900/30' },
+    { label: 'Sad', emoji: '😢', value: MoodType.Sad, color: 'bg-purple-100 dark:bg-purple-900/30' },
   ];
   
   // Load mood from localStorage on first render
@@ -71,14 +70,14 @@ const MoodTracking: React.FC = () => {
                 </div>
               </div>
               <p className="text-sm">
-                {currentMood === MoodType.HAPPY && "Great mood! This is a perfect time to tackle challenging concepts."}
-                {currentMood === MoodType.MOTIVATED && "You're in peak condition for productive study sessions!"}
-                {currentMood === MoodType.FOCUSED && "Excellent! Your concentration is high, ideal for deep learning."}
-                {currentMood === MoodType.NEUTRAL && "A balanced state of mind, good for steady progress."}
-                {currentMood === MoodType.TIRED && "Consider shorter study sessions with more frequent breaks today."}
-                {currentMood === MoodType.ANXIOUS && "Try some breathing exercises before starting your studies."}
-                {currentMood === MoodType.STRESSED && "Focus on review rather than new concepts today."}
-                {currentMood === MoodType.SAD && "Start with small, achievable goals to build momentum."}
+                {currentMood === MoodType.Happy && "Great mood! This is a perfect time to tackle challenging concepts."}
+                {currentMood === MoodType.Motivated && "You're in peak condition for productive study sessions!"}
+                {currentMood === MoodType.Focused && "Excellent! Your concentration is high, ideal for deep learning."}
+                {currentMood === MoodType.Neutral && "A balanced state of mind, good for steady progress."}
+                {currentMood === MoodType.Tired && "Consider shorter study sessions with more frequent breaks today."}
+                {currentMood === MoodType.Anxious && "Try some breathing exercises before starting your studies."}
+                {currentMood === MoodType.Stressed && "Focus on review rather than new concepts today."}
+                {currentMood === MoodType.Sad && "Start with small, achievable goals to build momentum."}
               </p>
             </div>
             <Button 

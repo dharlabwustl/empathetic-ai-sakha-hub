@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -7,22 +6,22 @@ import { useLocation } from 'react-router-dom';
 
 // Map of text terms to mood types
 const moodMap: Record<string, MoodType> = {
-  "happy": MoodType.HAPPY,
-  "motivated": MoodType.MOTIVATED,
-  "focused": MoodType.FOCUSED,
-  "tired": MoodType.TIRED,
-  "exhausted": MoodType.TIRED,
-  "stressed": MoodType.STRESSED,
-  "anxious": MoodType.ANXIOUS,
-  "okay": MoodType.OKAY,
-  "alright": MoodType.OKAY,
-  "so so": MoodType.OKAY,
-  "overwhelmed": MoodType.OVERWHELMED,
-  "swamped": MoodType.OVERWHELMED,
-  "curious": MoodType.CURIOUS,
-  "interested": MoodType.CURIOUS,
-  "confused": MoodType.CONFUSED,
-  "unsure": MoodType.CONFUSED
+  "happy": MoodType.Happy,
+  "motivated": MoodType.Motivated,
+  "focused": MoodType.Focused,
+  "tired": MoodType.Tired,
+  "exhausted": MoodType.Tired,
+  "stressed": MoodType.Stressed,
+  "anxious": MoodType.Anxious,
+  "okay": MoodType.Okay,
+  "alright": MoodType.Okay,
+  "so so": MoodType.Okay,
+  "overwhelmed": MoodType.Overwhelmed,
+  "swamped": MoodType.Overwhelmed,
+  "curious": MoodType.Curious,
+  "interested": MoodType.Curious,
+  "confused": MoodType.Confused,
+  "unsure": MoodType.Confused
 };
 
 // Helper function to get context-specific responses

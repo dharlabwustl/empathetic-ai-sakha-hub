@@ -1,582 +1,281 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { 
-  BarChart3, TrendingUp, Users, BookOpen, Brain, 
-  Target, Clock, Award, Download, Filter, Calendar,
-  Activity, PieChart, LineChart, Eye
+  BarChart3, 
+  TrendingUp, 
+  Users, 
+  BookOpen, 
+  Clock, 
+  Target,
+  Download,
+  Calendar,
+  Filter,
+  RefreshCw
 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
 
-interface StudentEngagement {
-  id: string;
-  name: string;
-  email: string;
-  loginCount: number;
-  studyHours: number;
-  conceptsCompleted: number;
-  testsCompleted: number;
-  averageScore: number;
-  lastActivity: string;
-  engagementLevel: 'high' | 'medium' | 'low';
-}
+const AnalyticsReporting = () => {
+  const [selectedTimeRange, setSelectedTimeRange] = useState('7d');
+  const [isLoading, setIsLoading] = useState(false);
 
-interface SubjectPerformance {
-  subject: string;
-  totalStudents: number;
-  averageScore: number;
-  completionRate: number;
-  timeSpent: number;
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
-interface PerformanceMetric {
-  metric: string;
-  value: number;
-  change: number;
-  trend: 'up' | 'down' | 'stable';
-  period: string;
-}
-
-const AnalyticsReporting: React.FC = () => {
-  const { toast } = useToast();
-  const [dateRange, setDateRange] = useState('7d');
-  const [selectedSubject, setSelectedSubject] = useState('all');
-
-  const [studentEngagement] = useState<StudentEngagement[]>([
-    {
-      id: '1',
-      name: 'Arjun Kumar',
-      email: 'arjun@example.com',
-      loginCount: 45,
-      studyHours: 128,
-      conceptsCompleted: 89,
-      testsCompleted: 23,
-      averageScore: 87,
-      lastActivity: '2024-01-16T10:30:00Z',
-      engagementLevel: 'high'
+  // Mock analytics data
+  const analyticsData = {
+    overview: {
+      totalUsers: 2450,
+      activeUsers: 1850,
+      studyHours: 12500,
+      completionRate: 78.5,
+      engagement: 85.2
     },
-    {
-      id: '2',
-      name: 'Priya Sharma',
-      email: 'priya@example.com',
-      loginCount: 32,
-      studyHours: 96,
-      conceptsCompleted: 67,
-      testsCompleted: 18,
-      averageScore: 82,
-      lastActivity: '2024-01-16T08:15:00Z',
-      engagementLevel: 'high'
+    trends: {
+      userGrowth: '+12.5%',
+      engagement: '+8.3%',
+      retention: '+15.2%',
+      performance: '+6.7%'
     },
-    {
-      id: '3',
-      name: 'Rohit Singh',
-      email: 'rohit@example.com',
-      loginCount: 18,
-      studyHours: 45,
-      conceptsCompleted: 34,
-      testsCompleted: 9,
-      averageScore: 74,
-      lastActivity: '2024-01-15T16:20:00Z',
-      engagementLevel: 'medium'
-    },
-    {
-      id: '4',
-      name: 'Ananya Patel',
-      email: 'ananya@example.com',
-      loginCount: 8,
-      studyHours: 22,
-      conceptsCompleted: 15,
-      testsCompleted: 4,
-      averageScore: 68,
-      lastActivity: '2024-01-14T14:10:00Z',
-      engagementLevel: 'low'
-    }
-  ]);
-
-  const [subjectPerformance] = useState<SubjectPerformance[]>([
-    {
-      subject: 'Physics',
-      totalStudents: 1247,
-      averageScore: 78,
-      completionRate: 85,
-      timeSpent: 45.2,
-      difficulty: 'hard'
-    },
-    {
-      subject: 'Chemistry',
-      totalStudents: 1156,
-      averageScore: 82,
-      completionRate: 89,
-      timeSpent: 42.8,
-      difficulty: 'medium'
-    },
-    {
-      subject: 'Mathematics',
-      totalStudents: 1398,
-      averageScore: 75,
-      completionRate: 82,
-      timeSpent: 48.5,
-      difficulty: 'hard'
-    },
-    {
-      subject: 'Biology',
-      totalStudents: 987,
-      averageScore: 85,
-      completionRate: 92,
-      timeSpent: 38.7,
-      difficulty: 'medium'
-    }
-  ]);
-
-  const [performanceMetrics] = useState<PerformanceMetric[]>([
-    {
-      metric: 'Active Users',
-      value: 2456,
-      change: 12.5,
-      trend: 'up',
-      period: 'Last 7 days'
-    },
-    {
-      metric: 'Study Sessions',
-      value: 8934,
-      change: 8.3,
-      trend: 'up',
-      period: 'Last 7 days'
-    },
-    {
-      metric: 'Average Session Time',
-      value: 34.5,
-      change: -2.1,
-      trend: 'down',
-      period: 'Minutes'
-    },
-    {
-      metric: 'Completion Rate',
-      value: 87.2,
-      change: 5.4,
-      trend: 'up',
-      period: 'Percentage'
-    },
-    {
-      metric: 'Test Scores',
-      value: 79.8,
-      change: 3.2,
-      trend: 'up',
-      period: 'Average'
-    },
-    {
-      metric: 'Retention Rate',
-      value: 92.1,
-      change: 1.8,
-      trend: 'up',
-      period: '30-day'
-    }
-  ]);
-
-  const generateReport = (reportType: string) => {
-    toast({
-      title: "Generating Report",
-      description: `Creating ${reportType} report with current filters...`
-    });
-
-    // Simulate report generation
-    setTimeout(() => {
-      toast({
-        title: "Report Ready",
-        description: `${reportType} report has been generated and is ready for download.`
-      });
-    }, 2000);
+    reports: [
+      {
+        id: '1',
+        name: 'Student Engagement Report',
+        type: 'Engagement',
+        lastGenerated: '2024-01-15',
+        status: 'ready',
+        size: '2.3 MB'
+      },
+      {
+        id: '2',
+        name: 'Learning Progress Analytics',
+        type: 'Progress',
+        lastGenerated: '2024-01-14',
+        status: 'generating',
+        size: '1.8 MB'
+      },
+      {
+        id: '3',
+        name: 'Performance Correlation Study',
+        type: 'Performance',
+        lastGenerated: '2024-01-13',
+        status: 'ready',
+        size: '3.1 MB'
+      }
+    ]
   };
 
-  const getEngagementColor = (level: string) => {
-    const colors: Record<string, string> = {
-      'high': 'bg-green-100 text-green-800',
-      'medium': 'bg-yellow-100 text-yellow-800',
-      'low': 'bg-red-100 text-red-800'
-    };
-    return colors[level] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    const colors: Record<string, string> = {
-      'easy': 'bg-green-100 text-green-800',
-      'medium': 'bg-yellow-100 text-yellow-800',
-      'hard': 'bg-red-100 text-red-800'
-    };
-    return colors[difficulty] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp className="h-4 w-4 text-green-500" />;
-      case 'down':
-        return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />;
-      default:
-        return <Activity className="h-4 w-4 text-gray-500" />;
-    }
+  const handleRefreshData = () => {
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 2000);
   };
 
   return (
     <div className="space-y-6">
-      {/* Analytics Overview */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold">Analytics & Reporting</h2>
-        <div className="flex flex-wrap gap-2">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 3 months</option>
-            <option value="1y">Last year</option>
-          </select>
-          <select
-            value={selectedSubject}
-            onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="all">All Subjects</option>
-            <option value="physics">Physics</option>
-            <option value="chemistry">Chemistry</option>
-            <option value="mathematics">Mathematics</option>
-            <option value="biology">Biology</option>
-          </select>
-          <Button variant="outline" onClick={() => generateReport('Comprehensive')}>
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Analytics & Reporting</h2>
+          <p className="text-muted-foreground">Comprehensive insights and detailed reports</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleRefreshData} disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button>
+            <Download className="h-4 w-4 mr-2" />
+            Export All
           </Button>
         </div>
       </div>
 
-      {/* Key Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {performanceMetrics.map((metric, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{metric.metric}</CardTitle>
-              {getTrendIcon(metric.trend)}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metric.value}</div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className={metric.trend === 'up' ? 'text-green-600' : metric.trend === 'down' ? 'text-red-600' : 'text-gray-600'}>
-                  {metric.change > 0 ? '+' : ''}{metric.change}%
-                </span>
-                <span>{metric.period}</span>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-blue-600" />
+              <div>
+                <div className="text-2xl font-bold">{analyticsData.overview.totalUsers.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Total Users</div>
+                <Badge variant="secondary" className="text-xs mt-1">
+                  {analyticsData.trends.userGrowth}
+                </Badge>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              <div>
+                <div className="text-2xl font-bold">{analyticsData.overview.activeUsers.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Active Users</div>
+                <Badge variant="secondary" className="text-xs mt-1">
+                  {analyticsData.trends.engagement}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-purple-600" />
+              <div>
+                <div className="text-2xl font-bold">{analyticsData.overview.studyHours.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Study Hours</div>
+                <Badge variant="secondary" className="text-xs mt-1">
+                  This month
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-orange-600" />
+              <div>
+                <div className="text-2xl font-bold">{analyticsData.overview.completionRate}%</div>
+                <div className="text-sm text-muted-foreground">Completion Rate</div>
+                <Badge variant="secondary" className="text-xs mt-1">
+                  {analyticsData.trends.performance}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-indigo-600" />
+              <div>
+                <div className="text-2xl font-bold">{analyticsData.overview.engagement}%</div>
+                <div className="text-sm text-muted-foreground">Engagement</div>
+                <Badge variant="secondary" className="text-xs mt-1">
+                  {analyticsData.trends.retention}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <Tabs defaultValue="engagement" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="engagement">Student Engagement</TabsTrigger>
-          <TabsTrigger value="performance">Subject Performance</TabsTrigger>
-          <TabsTrigger value="progress">Progress Tracking</TabsTrigger>
-          <TabsTrigger value="reports">Custom Reports</TabsTrigger>
-        </TabsList>
+      {/* Analytics Dashboard */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Detailed Analytics</span>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">
+                <Calendar className="h-4 w-4 mr-2" />
+                {selectedTimeRange}
+              </Button>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </div>
+          </CardTitle>
+          <CardDescription>Deep insights into platform usage and performance</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="engagement" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="engagement">User Engagement</TabsTrigger>
+              <TabsTrigger value="learning">Learning Analytics</TabsTrigger>
+              <TabsTrigger value="performance">Performance Metrics</TabsTrigger>
+              <TabsTrigger value="retention">Retention Analysis</TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="engagement" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Student Engagement Analytics</CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Filter
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => generateReport('Engagement')}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Export
-                  </Button>
+            <TabsContent value="engagement" className="space-y-4">
+              <div className="h-64 bg-muted/50 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-muted-foreground">User Engagement Charts</p>
+                  <p className="text-sm text-muted-foreground">Session duration, page views, feature usage</p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {studentEngagement.map((student) => (
-                  <div key={student.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                          <Users className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{student.name}</h3>
-                            <Badge className={getEngagementColor(student.engagementLevel)}>
-                              {student.engagementLevel} engagement
-                            </Badge>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
-                            <div>
-                              <span className="text-gray-500">Study Hours:</span>
-                              <span className="font-medium ml-1">{student.studyHours}h</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Concepts:</span>
-                              <span className="font-medium ml-1">{student.conceptsCompleted}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Tests:</span>
-                              <span className="font-medium ml-1">{student.testsCompleted}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Avg Score:</span>
-                              <span className="font-medium ml-1">{student.averageScore}%</span>
-                            </div>
-                          </div>
+            </TabsContent>
 
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>Email: {student.email}</span>
-                            <span>Logins: {student.loginCount}</span>
-                            <span>Last Active: {new Date(student.lastActivity).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2 ml-4">
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-3 w-3 mr-1" />
-                          View Details
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <BarChart3 className="h-3 w-3 mr-1" />
-                          Analytics
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Subject Performance Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {subjectPerformance.map((subject) => (
-                  <div key={subject.subject} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">{subject.subject}</h3>
-                      <Badge className={getDifficultyColor(subject.difficulty)}>
-                        {subject.difficulty}
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Average Score</span>
-                          <span className="font-medium">{subject.averageScore}%</span>
-                        </div>
-                        <Progress value={subject.averageScore} className="h-2" />
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Completion Rate</span>
-                          <span className="font-medium">{subject.completionRate}%</span>
-                        </div>
-                        <Progress value={subject.completionRate} className="h-2" />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-500">Students:</span>
-                          <span className="font-medium ml-1">{subject.totalStudents.toLocaleString()}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Avg Time:</span>
-                          <span className="font-medium ml-1">{subject.timeSpent}h</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="progress" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Progress Tracking & Performance Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Learning Progress Trends</h3>
-                  <div className="space-y-3">
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Concept Mastery</span>
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                      </div>
-                      <div className="text-2xl font-bold">78.5%</div>
-                      <div className="text-xs text-green-600">+5.2% from last week</div>
-                    </div>
-                    
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Test Performance</span>
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                      </div>
-                      <div className="text-2xl font-bold">82.1%</div>
-                      <div className="text-xs text-green-600">+3.8% from last week</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Study Habits Analysis</h3>
-                  <div className="space-y-3">
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Daily Active Time</span>
-                        <Clock className="h-4 w-4 text-blue-500" />
-                      </div>
-                      <div className="text-2xl font-bold">2.4h</div>
-                      <div className="text-xs text-blue-600">Optimal range</div>
-                    </div>
-                    
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Consistency Score</span>
-                        <Award className="h-4 w-4 text-purple-500" />
-                      </div>
-                      <div className="text-2xl font-bold">89%</div>
-                      <div className="text-xs text-purple-600">Excellent</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="font-semibold">AI Personalization Impact</h3>
-                  <div className="space-y-3">
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Adaptation Success</span>
-                        <Brain className="h-4 w-4 text-orange-500" />
-                      </div>
-                      <div className="text-2xl font-bold">91.2%</div>
-                      <div className="text-xs text-orange-600">Highly effective</div>
-                    </div>
-                    
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Learning Efficiency</span>
-                        <Target className="h-4 w-4 text-green-500" />
-                      </div>
-                      <div className="text-2xl font-bold">+34%</div>
-                      <div className="text-xs text-green-600">vs traditional methods</div>
-                    </div>
-                  </div>
+            <TabsContent value="learning" className="space-y-4">
+              <div className="h-64 bg-muted/50 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-muted-foreground">Learning Progress Analytics</p>
+                  <p className="text-sm text-muted-foreground">Concept mastery, study patterns, completion rates</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </TabsContent>
 
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Custom Reports & Data Visualization</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Quick Reports</h3>
-                  <div className="space-y-2">
-                    <Button className="w-full justify-start" variant="outline" onClick={() => generateReport('Student Performance')}>
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      Student Performance Report
-                    </Button>
-                    <Button className="w-full justify-start" variant="outline" onClick={() => generateReport('Engagement')}>
-                      <Activity className="mr-2 h-4 w-4" />
-                      Engagement Analytics
-                    </Button>
-                    <Button className="w-full justify-start" variant="outline" onClick={() => generateReport('Subject Breakdown')}>
-                      <PieChart className="mr-2 h-4 w-4" />
-                      Subject Performance
-                    </Button>
-                    <Button className="w-full justify-start" variant="outline" onClick={() => generateReport('Learning Trends')}>
-                      <LineChart className="mr-2 h-4 w-4" />
-                      Learning Trends
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Custom Analytics</h3>
-                  <div className="space-y-3">
-                    <div className="p-3 border rounded">
-                      <h4 className="font-medium mb-2">Time Period Analysis</h4>
-                      <select className="w-full p-2 border rounded text-sm">
-                        <option>Last 30 days</option>
-                        <option>Last 3 months</option>
-                        <option>Last 6 months</option>
-                        <option>Last year</option>
-                      </select>
-                    </div>
-                    
-                    <div className="p-3 border rounded">
-                      <h4 className="font-medium mb-2">Student Segments</h4>
-                      <select className="w-full p-2 border rounded text-sm">
-                        <option>All Students</option>
-                        <option>High Performers</option>
-                        <option>At Risk Students</option>
-                        <option>New Students</option>
-                      </select>
-                    </div>
-                    
-                    <Button className="w-full">Generate Custom Report</Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Data Export Options</h3>
-                  <div className="space-y-2">
-                    <Button className="w-full justify-start" variant="outline">
-                      <Download className="mr-2 h-4 w-4" />
-                      Export to CSV
-                    </Button>
-                    <Button className="w-full justify-start" variant="outline">
-                      <Download className="mr-2 h-4 w-4" />
-                      Export to PDF
-                    </Button>
-                    <Button className="w-full justify-start" variant="outline">
-                      <Download className="mr-2 h-4 w-4" />
-                      Export to Excel
-                    </Button>
-                    <Button className="w-full justify-start" variant="outline">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Schedule Report
-                    </Button>
-                  </div>
+            <TabsContent value="performance" className="space-y-4">
+              <div className="h-64 bg-muted/50 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-muted-foreground">Performance Metrics</p>
+                  <p className="text-sm text-muted-foreground">Test scores, improvement trends, weak areas</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </TabsContent>
+
+            <TabsContent value="retention" className="space-y-4">
+              <div className="h-64 bg-muted/50 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-muted-foreground">Retention Analysis</p>
+                  <p className="text-sm text-muted-foreground">User retention, churn analysis, loyalty metrics</p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Reports Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Generated Reports</CardTitle>
+          <CardDescription>Download and manage automated reports</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {analyticsData.reports.map((report) => (
+              <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <BarChart3 className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium">{report.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {report.type} • Generated on {report.lastGenerated} • {report.size}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge 
+                    variant={report.status === 'ready' ? 'default' : 'secondary'}
+                  >
+                    {report.status}
+                  </Badge>
+                  {report.status === 'ready' && (
+                    <Button size="sm" variant="outline">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

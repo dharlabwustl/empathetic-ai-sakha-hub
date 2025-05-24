@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,6 +34,11 @@ import EnhancedContentManagementTab from './EnhancedContentManagementTab';
 // Import alignment tabs
 import StudentDataSyncTab from './StudentDataSyncTab';
 import FeatureAuditTab from './FeatureAuditTab';
+
+// Import the fixed components
+import InteractiveContentManagement from './InteractiveContentManagement';
+import EnhancedSubscriptionPlans from './EnhancedSubscriptionPlans';
+import AnalyticsReporting from './AnalyticsReporting';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

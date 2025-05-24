@@ -9,7 +9,7 @@ import {
   Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
   TrendingUp, UserCheck, Zap, Cpu, Globe, Lock, Heart,
   Target, Award, HelpCircle, Smartphone, Puzzle, Upload,
-  RefreshCw, CheckSquare
+  RefreshCw, CheckSquare, Box, Gem
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -44,7 +44,7 @@ const AdminSidebar: React.FC = () => {
         { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
         { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
         { icon: <Upload size={20} />, title: "Enhanced CMS", path: "/admin/dashboard", tab: "enhanced-content" },
-        { icon: <Cube size={20} />, title: "Interactive Content", path: "/admin/dashboard", tab: "interactive-content" },
+        { icon: <Box size={20} />, title: "Interactive Content", path: "/admin/dashboard", tab: "interactive-content" },
         { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
         { icon: <Target size={20} />, title: "Study Plans", path: "/admin/dashboard", tab: "study-plan-management" }
       ]
@@ -69,7 +69,7 @@ const AdminSidebar: React.FC = () => {
       section: "Subscriptions & Revenue",
       items: [
         { icon: <CreditCard size={20} />, title: "Subscription Plans", path: "/admin/dashboard", tab: "subscriptions" },
-        { icon: <Crown size={20} />, title: "Enhanced Plans", path: "/admin/dashboard", tab: "enhanced-subscriptions" },
+        { icon: <Gem size={20} />, title: "Enhanced Plans", path: "/admin/dashboard", tab: "enhanced-subscriptions" },
         { icon: <LineChart size={20} />, title: "Revenue Analytics", path: "/admin/dashboard", tab: "revenue" }
       ]
     },
