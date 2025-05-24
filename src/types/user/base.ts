@@ -1,52 +1,51 @@
-
-export enum UserRole {
-  STUDENT = 'student',
-  TEACHER = 'teacher',
-  ADMIN = 'admin'
-}
-
 export enum MoodType {
-  HAPPY = 5,
-  NEUTRAL = 3,
-  SAD = 1,
-  MOTIVATED = 'motivated',
+  HAPPY = 'happy',
   FOCUSED = 'focused',
-  CALM = 'calm',
   TIRED = 'tired',
-  CONFUSED = 'confused',
-  ANXIOUS = 'anxious',
   STRESSED = 'stressed',
-  OVERWHELMED = 'overwhelmed',
+  CURIOUS = 'curious',
   OKAY = 'okay',
-  CURIOUS = 'curious'
-}
-
-export enum PersonalityType {
-  INTROVERT = 'introvert',
-  EXTROVERT = 'extrovert',
-  AMBIVERT = 'ambivert'
+  OVERWHELMED = 'overwhelmed',
+  ANXIOUS = 'anxious',
+  MOTIVATED = 'motivated',
+  CONFUSED = 'confused',
+  NEUTRAL = 'neutral',
+  SAD = 'sad',
+  CALM = 'calm',
 }
 
 export enum SubscriptionType {
   FREE = 'free',
-  PRO = 'pro',
-  GROUP = 'group',
   BASIC = 'basic',
+  PRO = 'pro',
   PREMIUM = 'premium',
-  ENTERPRISE = 'enterprise',
-  PRO_MONTHLY = 'pro_monthly'
+  PRO_MONTHLY = 'pro_monthly',
+  PRO_ANNUAL = 'pro_annual',
+  GROUP_SMALL = 'group_small',
+  GROUP_LARGE = 'group_large',
+  GROUP_ANNUAL = 'group_annual',
+  ENTERPRISE = 'enterprise'
+}
+
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Admin = 'admin'
 }
 
 export enum Gender {
-  MALE = 'male',
-  FEMALE = 'female',
-  OTHER = 'other'
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+  PreferNotToSay = 'prefer-not-to-say'
 }
 
 export enum SignupType {
-  Email = 'email',
-  Google = 'google',
-  Facebook = 'facebook'
+  EMAIL = 'email',
+  GOOGLE = 'google',
+  FACEBOOK = 'facebook',
+  APPLE = 'apple',
+  MOBILE = 'mobile'
 }
 
 export enum StudyPace {
@@ -61,12 +60,32 @@ export enum StudyPreferenceType {
   Mixed = 'mixed'
 }
 
+export enum PersonalityType {
+  Analytical = 'analytical',
+  Creative = 'creative',
+  Practical = 'practical',
+  Visual = 'visual',
+  Auditory = 'auditory',
+  Kinesthetic = 'kinesthetic'
+}
+
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  lastStudyDate: Date | string;
+}
+
+export interface ExamReadiness {
+  percentage: number;
+  lastUpdated: Date | string;
+}
+
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'upi';
+  type: 'card' | 'upi' | 'bank';
+  isDefault: boolean;
   lastFour?: string;
   expiryDate?: string;
-  isDefault: boolean;
   cardType?: string;
   upiId?: string;
 }
@@ -80,87 +99,114 @@ export interface BillingHistory {
   planName: string;
 }
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  profilePicture?: string;
-  subscription?: {
-    type: SubscriptionType;
-    planType?: string;
-    startDate?: string | Date;
-    expiryDate?: string | Date;
-    isActive?: boolean;
-  };
-  credits?: {
-    standard: number;
-    exam: number;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin';
-  permissions: string[];
-}
-
 export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
-  subscription?: SubscriptionType | {
-    type: SubscriptionType;
-    planType?: string;
-    startDate?: string | Date;
-    expiryDate?: string | Date;
-    isActive?: boolean;
-  };
-}
-
-export interface UserProfileType extends UserProfileBase {
-  signupType?: SignupType;
-  examPreparation?: string;
-  avatar?: string;
   bio?: string;
+  avatar?: string;
+  photoURL?: string;
   phoneNumber?: string;
-  personalityType?: string;
-  location?: string;
-  gender?: Gender;
-  grade?: string;
-  goals?: Array<{
+  mobileNumber?: string;
+  phone?: string;
+  role: 'student' | 'teacher' | 'admin';
+  subscription?: SubscriptionType | {
+    planType: string;
+    type?: string;
+    startDate?: Date | string;
+    expiryDate?: Date | string;
+    status?: 'active' | 'expired' | 'cancelled';
+    autoRenew?: boolean;
+    features?: string[];
+    isActive?: boolean;
+    endDate?: string;
+    memberLimit?: number;
+  };
+  goals?: {
     id: string;
     title: string;
-    targetDate: string;
-    progress: number;
-    targetYear: string;
-  }>;
-  subjects?: string[];
+    description?: string;
+    targetDate?: Date | string;
+    progress?: number;
+    targetYear?: string;
+  }[];
+  streak?: StudyStreak;
+  studyStreak?: number;
+  examReadiness?: ExamReadiness;
+  preferences?: {
+    theme?: 'light' | 'dark' | 'system';
+    notifications?: boolean;
+    emailAlerts?: boolean;
+    language?: string;
+    studyPace?: StudyPace;
+    dailyStudyHours?: number;
+    preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+    breakFrequency?: string;
+    stressManagement?: string;
+    studyEnvironment?: string;
+    learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical';
+  };
+  demographics?: {
+    age?: number;
+    city?: string;
+    location?: string;
+    grade?: string;
+    educationLevel?: string;
+    examAppearingDate?: Date | string;
+  };
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  lastLogin?: Date | string;
+  loginCount?: number;
+  examPreparation?: string;
+  personalityType?: string;
   studyPreferences?: {
-    pace: StudyPace | string;
-    hoursPerDay: number;
-    preferredTimeStart: string;
-    preferredTimeEnd: string;
+    pace?: StudyPace;
+    hoursPerDay?: number;
+    preferredTimeStart?: string;
+    preferredTimeEnd?: string;
     preferenceType?: StudyPreferenceType;
   };
-  preferences?: {
-    studyReminders: boolean;
-    emailNotifications: boolean;
-    darkMode: boolean;
-  };
-  recentActivity?: {
-    lastLogin?: Date;
-    lastStudySession?: Date;
-    completedTasks: number;
-  };
-  studyStreak?: number;
   mood?: MoodType;
+  firstName?: string;
+  subjects?: string[];
   paymentMethods?: PaymentMethod[];
   billingHistory?: BillingHistory[];
-  loginCount?: number;
+  location?: string;
+  grade?: string;
+  gender?: string;
+  batch?: any;
+  isBatchLeader?: boolean;
+}
+
+export type UserProfileType = UserProfileBase;
+
+export interface SubjectProgress {
+  id?: string;
+  subject: string;
+  progress: number;
+  topicsTotal: number;
+  topicsCompleted: number;
+  quizzesCompleted: number;
+  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
+  isWeakSubject?: boolean;
+  proficiency?: number;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  type: SubscriptionType;
+  maxMembers?: number;
+}
+
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  difficulty: string;
+  completed: boolean;
+  status: string;
+  priority: string;
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { 
   Dialog, 
@@ -50,7 +51,7 @@ const subjectTopicMap: Record<string, string[]> = {
 };
 
 const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
-  userSubscription = SubscriptionType.FREE,
+  userSubscription = SubscriptionType.Free,
   userCredits = { standard: 0, exam: 0 },
   onCreateCards,
   onPurchaseCredits
@@ -67,7 +68,7 @@ const CreateExamCardDialog: React.FC<CreateExamCardDialogProps> = ({
   });
   
   // Check if user has access to create cards
-  const hasAccess = userSubscription !== SubscriptionType.FREE;
+  const hasAccess = userSubscription !== SubscriptionType.Free;
   
   // Check if user has enough credits
   const hasEnoughCredits = userCredits.exam >= formData.cardCount;
