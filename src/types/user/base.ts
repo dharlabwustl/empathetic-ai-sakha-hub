@@ -121,9 +121,6 @@ export interface UserProfileBase {
     expiryDate?: string | Date;
     isActive?: boolean;
   };
-  avatar?: string;
-  loginCount?: number;
-  studyStreak?: number;
 }
 
 export interface UserProfileType extends UserProfileBase {
@@ -136,7 +133,6 @@ export interface UserProfileType extends UserProfileBase {
   location?: string;
   gender?: Gender;
   grade?: string;
-  photoURL?: string;
   goals?: Array<{
     id: string;
     title: string;
@@ -167,17 +163,4 @@ export interface UserProfileType extends UserProfileBase {
   paymentMethods?: PaymentMethod[];
   billingHistory?: BillingHistory[];
   loginCount?: number;
-}
-
-export interface SubjectProgress {
-  subject: string;
-  progress: number;
-  totalTopics: number;
-  completedTopics: number;
-}
-
-export interface StudyStreak {
-  current: number;
-  longest: number;
-  lastActive: Date;
 }

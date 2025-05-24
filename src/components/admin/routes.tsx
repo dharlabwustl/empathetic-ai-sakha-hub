@@ -4,18 +4,15 @@ import { RouteObject } from 'react-router-dom';
 import { Navigate } from "react-router-dom";
 import AdminRouteGuard from './AdminRouteGuard';
 import AdminDashboard from "@/pages/admin/AdminDashboard";
-import ComprehensiveAdminDashboard from "@/pages/admin/ComprehensiveAdminDashboard";
+// Import DocumentationPage using named import if it doesn't have a default export
 import { DocumentationPage } from "@/pages/admin/DocumentationPage";
 import FlaskGuidePage from "@/pages/admin/FlaskGuidePage";
 
+// All protected admin routes
 const adminRoutes: RouteObject[] = [
   {
     path: "/admin/dashboard",
     element: <AdminRouteGuard><AdminDashboard /></AdminRouteGuard>,
-  },
-  {
-    path: "/admin/comprehensive",
-    element: <AdminRouteGuard><ComprehensiveAdminDashboard /></AdminRouteGuard>,
   },
   {
     path: "/admin/documentation",
@@ -27,11 +24,11 @@ const adminRoutes: RouteObject[] = [
   },
   {
     path: "/admin",
-    element: <Navigate to="/admin/comprehensive" replace />,
+    element: <Navigate to="/admin/dashboard" replace />,
   },
   {
     path: "/admin/*",
-    element: <Navigate to="/admin/comprehensive" replace />,
+    element: <Navigate to="/admin/dashboard" replace />,
   }
 ];
 
