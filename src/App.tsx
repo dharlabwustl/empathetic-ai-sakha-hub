@@ -89,8 +89,6 @@ const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<a
   );
 };
 
-import AdminRoutes from '@/routes/adminRoutes';
-
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
@@ -211,9 +209,6 @@ function App() {
               <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
               <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
               <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
-              
-              {/* Admin Routes - Comprehensive Dashboard */}
-              <Route path="/admin/*" element={<AdminRoutes />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
