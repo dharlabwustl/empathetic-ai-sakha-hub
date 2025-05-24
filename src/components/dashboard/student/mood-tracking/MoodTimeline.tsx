@@ -1,57 +1,48 @@
-
 import React from "react";
-import { MoodType } from "@/types/user/base";
-import { Card } from "@/components/ui/card";
-import { getMoodTheme } from "./moodThemes";
-import { motion } from "framer-motion";
+import { MoodTheme } from "@/types/dashboard";
 
 interface MoodTimelineProps {
-  moodHistory: Array<{
-    mood: MoodType | string;
-    timestamp: Date;
-  }>;
+  moodEntries: { date: string; moodScore: number }[];
 }
 
-const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
-  // Ensure we have valid data
-  const normalizedMoodHistory = moodHistory.map(entry => {
-    // If mood is a string, convert to uppercase to match MoodType enum
-    const normalizedMood = typeof entry.mood === 'string' 
-      ? entry.mood.toUpperCase() as MoodType
-      : entry.mood;
-    
-    return {
-      mood: normalizedMood,
-      timestamp: entry.timestamp
+const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodEntries }) => {
+  const getMoodTheme = (mood: number): MoodTheme => {
+    if (mood <= 2) return { 
+      background: 'bg-red-100', 
+      textColor: 'text-red-800',
+      borderColor: 'border-red-200',
+      accent: 'bg-red-500'
     };
-  });
-  
-  const lastSevenDays = normalizedMoodHistory.slice(0, 7).reverse();
-  
+    if (mood <= 4) return { 
+      background: 'bg-yellow-100', 
+      textColor: 'text-yellow-800',
+      borderColor: 'border-yellow-200',
+      accent: 'bg-yellow-500'
+    };
+    return { 
+      background: 'bg-green-100', 
+      textColor: 'text-green-800',
+      borderColor: 'border-green-200',
+      accent: 'bg-green-500'
+    };
+  };
+
   return (
-    <Card className="p-4">
-      <h4 className="text-sm font-medium mb-4">Your Mood Timeline</h4>
-      <div className="flex items-center justify-between space-x-2">
-        {lastSevenDays.map((entry, index) => (
-          <motion.div
-            key={index}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: index * 0.1 }}
-            className="flex flex-col items-center"
-          >
-            <div 
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${getMoodTheme(entry.mood).backgroundColor}`}
-              title={`${entry.mood} on ${entry.timestamp.toLocaleDateString()}`}
-            >
-              <span className="text-xs">{entry.timestamp.getDate()}</span>
+    <div className="space-y-4">
+      {moodEntries.map((entry, index) => {
+        const theme = getMoodTheme(entry.moodScore);
+        return (
+          <div key={index} className={`p-4 rounded-lg border ${theme.background} ${theme.borderColor}`}>
+            <div className="flex items-center justify-between">
+              <span className={`font-medium ${theme.textColor}`}>
+                {entry.date}
+              </span>
+              <div className={`w-3 h-3 rounded-full ${theme.accent}`}></div>
             </div>
-            <div className="w-1 h-1 rounded-full mt-1 bg-current" 
-                 style={{ color: getMoodTheme(entry.mood).textColor }} />
-          </motion.div>
-        ))}
-      </div>
-    </Card>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -182,7 +181,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
   );
 };
 
-const PracticeExamsSection = () => {
+const PracticeExamsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(false);
@@ -201,7 +200,7 @@ const PracticeExamsSection = () => {
   
   // Mock user data - in a real app this would come from a context or API
   const [userCredits, setUserCredits] = useState({ standard: 15, exam: 5 });
-  const [userSubscription, setUserSubscription] = useState<SubscriptionType>(SubscriptionType.Pro);
+  const userSubscription = SubscriptionType.PRO;
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;

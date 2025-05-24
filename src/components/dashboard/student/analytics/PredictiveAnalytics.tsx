@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,80 +60,117 @@ const PredictiveAnalytics: React.FC = () => {
     }
   ];
 
+  // Mock performance data
+  const performanceData = [
+    { subject: 'Physics', predicted: 85, current: 80 },
+    { subject: 'Chemistry', predicted: 88, current: 85 },
+    { subject: 'Biology', predicted: 90, current: 92 },
+    { subject: 'Mathematics', predicted: 82, current: 80 },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Exam Readiness Forecast Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium">Exam Readiness Forecast</CardTitle>
-            <CardDescription>
-              Projected exam readiness based on your current learning trajectory
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={examReadinessData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                  <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
-                  <Tooltip formatter={(value) => [`${value}%`, 'Readiness']} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="readiness" 
-                    stroke="#8884d8" 
-                    strokeWidth={2} 
-                    dot={{ r: 4 }}
-                    strokeDasharray={(d: any) => d.predicted ? "5 5" : "0"}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 text-sm text-muted-foreground">
-              <p>You're projected to reach 96% exam readiness in 4 weeks, assuming current study rate continues.</p>
-            </div>
-            <div className="mt-4 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-              <div className="flex items-start">
-                <Target className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 mr-2 flex-shrink-0" />
-                <div>
-                  <h4 className="text-sm font-medium">Target Exam Date Analysis</h4>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Based on your progress, you're on track to be fully prepared 6 days before your target exam date.
-                  </p>
-                </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Exam Readiness Forecast Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">Exam Readiness Forecast</CardTitle>
+          <CardDescription>
+            Projected exam readiness based on your current learning trajectory
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={examReadinessData}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
+                <Tooltip formatter={(value) => [`${value}%`, 'Readiness']} />
+                <Line 
+                  type="monotone" 
+                  dataKey="readiness" 
+                  stroke="#8884d8" 
+                  strokeWidth={2} 
+                  dot={{ r: 4 }}
+                  strokeDasharray={(d: any) => d.predicted ? "5 5" : "0"}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 text-sm text-muted-foreground">
+            <p>You're projected to reach 96% exam readiness in 4 weeks, assuming current study rate continues.</p>
+          </div>
+          <div className="mt-4 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+            <div className="flex items-start">
+              <Target className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 mr-2 flex-shrink-0" />
+              <div>
+                <h4 className="text-sm font-medium">Target Exam Date Analysis</h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Based on your progress, you're on track to be fully prepared 6 days before your target exam date.
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        {/* Subject-wise Predictions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium">Subject-wise Predictions</CardTitle>
-            <CardDescription>
-              Projected scores and improvement potential for each subject
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={radarChartData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="subject" />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                  <Radar name="Current Score" dataKey="current" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
-                  <Radar name="Potential Score" dataKey="potential" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.3} />
-                  <Legend />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 text-sm text-muted-foreground">
-              <p>Your Biology scores are excellent! Chemistry shows the highest potential for improvement.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Subject-wise Predictions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">Subject-wise Predictions</CardTitle>
+          <CardDescription>
+            Projected scores and improvement potential for each subject
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarChartData}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="subject" />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                <Radar name="Current Score" dataKey="current" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+                <Radar name="Potential Score" dataKey="potential" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.3} />
+                <Legend />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 text-sm text-muted-foreground">
+            <p>Your Biology scores are excellent! Chemistry shows the highest potential for improvement.</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Performance Prediction */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-blue-500" />
+            Performance Prediction
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={performanceData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="subject" />
+              <YAxis />
+              <Tooltip />
+              <Line 
+                type="monotone" 
+                dataKey="predicted" 
+                stroke="#3b82f6" 
+                strokeDasharray="5 5"
+              />
+              <Line 
+                type="monotone" 
+                dataKey="current" 
+                stroke="#10b981" 
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Optimization Recommendations */}
       <Card>

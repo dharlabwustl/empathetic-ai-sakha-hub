@@ -1,61 +1,40 @@
-
-// Study Plan Types
-export interface StudyPlanTopic {
+export interface StudyPlan {
   id: string;
+  userId: string;
   name: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  priority: 'high' | 'medium' | 'low';
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  totalHours: number;
+  hoursPerDay: number;
+  subjects: StudyPlanSubject[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  color?: string;
-  hoursPerWeek: number;
-  priority: 'high' | 'medium' | 'low';
-  proficiency: 'weak' | 'medium' | 'strong';
+  topics: string[];
+  difficulty: 'easy' | 'medium' | 'hard';
+  estimatedHours: number;
   completed: boolean;
-  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  difficulty?: 'easy' | 'medium' | 'hard';
-  topics?: StudyPlanTopic[];
+  progress: number;
 }
 
-export interface StudyPlan {
+// Remove NewStudyPlanSubject if it exists and use StudyPlanSubject instead
+export type { StudyPlanSubject as NewStudyPlanSubject };
+
+export interface StudySession {
   id: string;
-  title?: string;
-  goal?: string;
-  examGoal: string;
-  examDate: string | Date;
-  status: 'active' | 'completed' | 'archived' | 'pending';
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
-  createdAt: string;
-  updatedAt?: string;
-  progressPercent?: number;
-  progressPercentage?: number;
-  progress?: number;
-  daysLeft?: number;
-  weeklyHours?: number;
-  userId?: string;
+  studyPlanId: string;
+  subjectId: string;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  notes: string;
+  completed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
-
-export interface NewStudyPlan {
-  id?: string;
-  title?: string;
-  goal?: string;
-  examGoal: string;
-  examDate: string | Date;
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
-  weeklyHours?: number;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
-}
-
-// Export types to be used in other files
-export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };
