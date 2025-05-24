@@ -1,139 +1,104 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './mood-tracking/moodUtils';
-import MoodSelectionDialog from './mood-tracking/MoodSelectionDialog';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { MoodType } from '@/types/user/base';
+import { getMoodEmoji, getMoodLabel } from './mood-tracking/moodUtils';
+import { Heart, Save } from 'lucide-react';
 
 interface MoodLogButtonProps {
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
-  className?: string;
-  size?: "sm" | "default" | "lg" | "icon";
-  showLabel?: boolean;
+  onMoodSelect: (mood: MoodType, note?: string) => void;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({
-  currentMood,
-  onMoodChange,
-  className = '',
-  size = "sm",
-  showLabel = true,
-}) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [lastMoodChange, setLastMoodChange] = useState<Date | null>(null);
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect }) => {
+  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
+  const [note, setNote] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
-  
-  useEffect(() => {
-    // Listen for mood change events from other components
-    const handleMoodChangeEvent = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      if (onMoodChange && customEvent.detail && customEvent.detail.mood) {
-        onMoodChange(customEvent.detail.mood);
-        setLastMoodChange(new Date());
-      }
-    };
 
-    document.addEventListener('mood-changed', handleMoodChangeEvent);
-    
-    return () => {
-      document.removeEventListener('mood-changed', handleMoodChangeEvent);
-    };
-  }, [onMoodChange]);
+  const moods = Object.values(MoodType);
 
-  const handleOpenDialog = () => {
-    setIsDialogOpen(true);
+  const handleMoodSelection = (mood: MoodType) => {
+    setSelectedMood(mood);
   };
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-  };
-
-  const handleMoodChange = (mood: MoodType) => {
-    if (onMoodChange) {
-      onMoodChange(mood);
-      setLastMoodChange(new Date());
-      
-      // Update study time allocations based on mood
-      updateStudyTimeAllocationsByMood(mood);
-      
-      // Show toast confirmation with recommendation
-      const recommendation = getStudyRecommendationForMood(mood);
-      
+  const handleSaveMood = () => {
+    if (!selectedMood) {
       toast({
-        title: `Mood Updated: ${getMoodLabel(mood)}`,
-        description: recommendation,
-        duration: 5000,
+        title: "Please select a mood",
+        description: "Choose how you're feeling right now",
+        variant: "destructive"
       });
-      
-      // Analyze mood trends for additional notifications
-      const trends = analyzeMoodTrends();
-      
-      if (trends.stressSignals) {
-        setTimeout(() => {
-          toast({
-            title: "Stress Pattern Detected",
-            description: "You've been feeling stressed lately. Consider taking a break or trying our Feel Good Corner.",
-            variant: "destructive",
-            duration: 7000,
-          });
-        }, 1000);
-      } else if (trends.improved) {
-        setTimeout(() => {
-          toast({
-            title: "Your mood is improving!",
-            description: "Great progress! Keep up the good work.",
-            variant: "default",
-            duration: 5000,
-          });
-        }, 1000);
-      }
-      
-      // Trigger custom event for other components to react to
-      const moodChangeEvent = new CustomEvent('mood-changed', { 
-        detail: { 
-          mood, 
-          timestamp: new Date().toISOString(),
-          recommendation
-        } 
-      });
-      document.dispatchEvent(moodChangeEvent);
+      return;
     }
-    handleCloseDialog();
-  };
-  
-  // Get emoji with fallback
-  const moodEmoji = getMoodEmoji(currentMood);
-  
-  // Get mood label text
-  const moodLabelText = currentMood 
-    ? `Feeling ${getMoodLabel(currentMood)}` 
-    : "Log Mood";
-  
-  return (
-    <>
-      <Button
-        variant="outline"
-        size={size}
-        onClick={handleOpenDialog}
-        className={`flex items-center gap-1.5 ${className} hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors`}
-      >
-        <span className="text-lg">{moodEmoji}</span>
-        {showLabel && (
-          <span className="hidden sm:inline">
-            {moodLabelText}
-          </span>
-        )}
-      </Button>
 
-      <MoodSelectionDialog
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        selectedMood={currentMood}
-        onSelectMood={handleMoodChange}
-      />
-    </>
+    onMoodSelect(selectedMood, note);
+    setIsOpen(false);
+    setSelectedMood(null);
+    setNote('');
+    
+    toast({
+      title: "Mood logged successfully",
+      description: `You're feeling ${getMoodLabel(selectedMood)} today`,
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <Heart className="h-4 w-4" />
+          Log Mood
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>How are you feeling today?</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-4 gap-2">
+            {moods.map((mood) => (
+              <Button
+                key={mood}
+                variant={selectedMood === mood ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleMoodSelection(mood)}
+                className="flex flex-col h-auto p-3"
+              >
+                <span className="text-lg mb-1">{getMoodEmoji(mood)}</span>
+                <span className="text-xs">{getMoodLabel(mood)}</span>
+              </Button>
+            ))}
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">
+              Add a note (optional)
+            </label>
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="What's on your mind?"
+              className="min-h-[80px]"
+            />
+          </div>
+          
+          <Button onClick={handleSaveMood} className="w-full gap-2">
+            <Save className="h-4 w-4" />
+            Save Mood
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
