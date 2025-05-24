@@ -3,7 +3,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Import components
+// Import existing components
 import Overview from './Overview';
 import UsersManagement from './UsersManagement';
 import ContentManagement from './ContentManagement';
@@ -19,6 +19,12 @@ import FeatureManagementTab from './FeatureManagementTab';
 import RevenueAnalyticsTab from './RevenueAnalyticsTab';
 import APIManagementTab from './APIManagementTab';
 import SystemSettingsTab from './SystemSettingsTab';
+
+// Import new comprehensive admin components
+import MoodAnalyticsManagement from './MoodAnalyticsManagement';
+import StudyPlanManagement from './StudyPlanManagement';
+import PersonalizationEngineControl from './PersonalizationEngineControl';
+import CommunicationEngagement from './CommunicationEngagement';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -112,6 +118,23 @@ const DashboardTabs: React.FC = () => {
       
       <TabsContent value="logs" className="space-y-4 mt-4">
         <SystemLogs logs={mockLogs} />
+      </TabsContent>
+
+      {/* New comprehensive admin management tabs */}
+      <TabsContent value="mood-analytics" className="space-y-4 mt-4">
+        <MoodAnalyticsManagement />
+      </TabsContent>
+
+      <TabsContent value="study-plans" className="space-y-4 mt-4">
+        <StudyPlanManagement />
+      </TabsContent>
+
+      <TabsContent value="personalization" className="space-y-4 mt-4">
+        <PersonalizationEngineControl />
+      </TabsContent>
+
+      <TabsContent value="communication" className="space-y-4 mt-4">
+        <CommunicationEngagement />
       </TabsContent>
     </Tabs>
   );

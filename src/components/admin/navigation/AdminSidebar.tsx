@@ -1,142 +1,168 @@
 
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { 
-  LayoutDashboard, Users, BookOpen, CreditCard, BarChart3, Database, 
-  Shield, Activity, Settings, FileText, Brain, MessageSquare, 
-  Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
-  TrendingUp, UserCheck, Zap, Cpu, Globe, Lock
+  LayoutDashboard, 
+  Users, 
+  BookOpen, 
+  Settings, 
+  BarChart3,
+  Shield,
+  Database,
+  UserCheck,
+  Brain,
+  GraduationCap,
+  Zap,
+  DollarSign,
+  Globe,
+  FileText,
+  Heart,
+  Target,
+  MessageSquare,
+  Trophy,
+  HelpCircle,
+  TrendingUp,
+  Smartphone,
+  Link2,
+  Gamepad2,
+  Bell
 } from 'lucide-react';
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
-const AdminSidebar: React.FC = () => {
-  const navigate = useNavigate();
+const AdminSidebar = () => {
   const location = useLocation();
-  const { adminLogout } = useAdminAuth();
+  const currentTab = new URLSearchParams(location.search).get('tab') || 'overview';
 
-  const navigationItems = [
+  const menuItems = [
+    // Core Dashboard
     { 
-      section: "Dashboard",
+      section: 'Dashboard',
       items: [
-        { icon: <LayoutDashboard size={20} />, title: "Overview", path: "/admin/dashboard", tab: "overview" },
-        { icon: <BarChart3 size={20} />, title: "Analytics", path: "/admin/dashboard", tab: "analytics" },
-        { icon: <TrendingUp size={20} />, title: "Reports", path: "/admin/dashboard", tab: "reports" }
+        { icon: LayoutDashboard, label: 'Overview', tab: 'overview' },
+        { icon: BarChart3, label: 'Analytics', tab: 'analytics' },
+        { icon: DollarSign, label: 'Revenue', tab: 'revenue' }
       ]
     },
+    
+    // User Management
     { 
-      section: "User Management",
+      section: 'User Management',
       items: [
-        { icon: <Users size={20} />, title: "All Users", path: "/admin/dashboard", tab: "users" },
-        { icon: <UserCheck size={20} />, title: "Student Profiles", path: "/admin/dashboard", tab: "student-profiles" },
-        { icon: <Calendar size={20} />, title: "User Activity", path: "/admin/dashboard", tab: "user-activity" }
+        { icon: Users, label: 'Users', tab: 'users' },
+        { icon: UserCheck, label: 'Student Profiles', tab: 'student-profiles' },
+        { icon: Trophy, label: 'Gamification', tab: 'gamification' }
       ]
     },
+
+    // Content & Learning
     { 
-      section: "Content & Curriculum",
+      section: 'Content & Learning',
       items: [
-        { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
-        { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
-        { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
-        { icon: <Video size={20} />, title: "Video Content", path: "/admin/dashboard", tab: "videos" }
+        { icon: BookOpen, label: 'Content', tab: 'content' },
+        { icon: GraduationCap, label: 'Exams', tab: 'exams' },
+        { icon: Target, label: 'Study Plans', tab: 'study-plans' }
       ]
     },
+
+    // AI & Personalization
     { 
-      section: "Subscriptions & Plans",
+      section: 'AI & Personalization',
       items: [
-        { icon: <CreditCard size={20} />, title: "Subscription Plans", path: "/admin/dashboard", tab: "subscriptions" },
-        { icon: <Zap size={20} />, title: "Feature Management", path: "/admin/dashboard", tab: "features" },
-        { icon: <LineChart size={20} />, title: "Revenue Analytics", path: "/admin/dashboard", tab: "revenue" }
+        { icon: Brain, label: 'AI Models', tab: 'ai-models' },
+        { icon: Zap, label: 'Personalization', tab: 'personalization' },
+        { icon: Heart, label: 'Mood Analytics', tab: 'mood-analytics' }
       ]
     },
+
+    // Communication & Engagement
     { 
-      section: "System & Technical",
+      section: 'Communication',
       items: [
-        { icon: <Database size={20} />, title: "Database Management", path: "/admin/dashboard", tab: "database" },
-        { icon: <Cpu size={20} />, title: "API Management", path: "/admin/dashboard", tab: "api" },
-        { icon: <Shield size={20} />, title: "Security", path: "/admin/dashboard", tab: "security" },
-        { icon: <Activity size={20} />, title: "System Logs", path: "/admin/dashboard", tab: "logs" }
+        { icon: MessageSquare, label: 'Communication', tab: 'communication' },
+        { icon: Bell, label: 'Notifications', tab: 'notifications' },
+        { icon: HelpCircle, label: 'Support System', tab: 'support' }
       ]
     },
+
+    // Advanced Analytics
     { 
-      section: "Configuration",
+      section: 'Advanced Analytics',
       items: [
-        { icon: <Settings size={20} />, title: "System Settings", path: "/admin/dashboard", tab: "settings" },
-        { icon: <Globe size={20} />, title: "Documentation", path: "/admin/documentation" },
-        { icon: <Lock size={20} />, title: "Access Control", path: "/admin/dashboard", tab: "access-control" }
+        { icon: TrendingUp, label: 'User Journey', tab: 'user-journey' },
+        { icon: BarChart3, label: 'A/B Testing', tab: 'ab-testing' },
+        { icon: Users, label: 'Cohort Analysis', tab: 'cohort-analysis' }
+      ]
+    },
+
+    // System Management
+    { 
+      section: 'System Management',
+      items: [
+        { icon: Zap, label: 'Features', tab: 'features' },
+        { icon: DollarSign, label: 'Subscriptions', tab: 'subscriptions' },
+        { icon: Database, label: 'Database', tab: 'database' },
+        { icon: Globe, label: 'API Management', tab: 'api' },
+        { icon: Link2, label: 'Integrations', tab: 'integrations' }
+      ]
+    },
+
+    // Mobile & Apps
+    { 
+      section: 'Mobile Management',
+      items: [
+        { icon: Smartphone, label: 'Mobile Apps', tab: 'mobile-apps' },
+        { icon: Bell, label: 'Push Notifications', tab: 'push-notifications' }
+      ]
+    },
+
+    // Security & Settings
+    { 
+      section: 'Security & Settings',
+      items: [
+        { icon: Shield, label: 'Security', tab: 'security' },
+        { icon: Settings, label: 'Settings', tab: 'settings' },
+        { icon: FileText, label: 'Logs', tab: 'logs' }
       ]
     }
   ];
 
-  const handleNavigation = (path: string, tab?: string) => {
-    if (tab) {
-      navigate(`${path}?tab=${tab}`);
-    } else {
-      navigate(path);
-    }
-  };
-
-  const handleLogout = async () => {
-    await adminLogout();
-    navigate('/admin/login');
-  };
-
-  const isActive = (path: string, tab?: string) => {
-    if (tab) {
-      const urlParams = new URLSearchParams(location.search);
-      return location.pathname === path && urlParams.get('tab') === tab;
-    }
-    return location.pathname === path;
-  };
-
   return (
-    <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400">PREPZR Admin</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">Administrative Dashboard</p>
+    <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto">
+      <div className="p-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Admin Panel</h2>
       </div>
-
-      <div className="p-4 space-y-6">
-        {navigationItems.map((section, sectionIndex) => (
-          <div key={sectionIndex}>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+      
+      <nav className="mt-4 px-2">
+        {menuItems.map((section, sectionIndex) => (
+          <div key={sectionIndex} className="mb-6">
+            <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
               {section.section}
             </h3>
             <div className="space-y-1">
-              {section.items.map((item, itemIndex) => (
-                <Button
-                  key={itemIndex}
-                  variant={isActive(item.path, item.tab) ? "default" : "ghost"}
-                  className={`w-full justify-start gap-3 h-10 ${
-                    isActive(item.path, item.tab) 
-                      ? "bg-blue-600 text-white hover:bg-blue-700" 
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                  onClick={() => handleNavigation(item.path, item.tab)}
-                >
-                  {item.icon}
-                  <span className="text-sm">{item.title}</span>
-                </Button>
-              ))}
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentTab === item.tab;
+                
+                return (
+                  <Link
+                    key={item.tab}
+                    to={`/admin/dashboard?tab=${item.tab}`}
+                    className={cn(
+                      'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                      isActive
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100'
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700'
+                    )}
+                  >
+                    <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
-            {sectionIndex < navigationItems.length - 1 && (
-              <Separator className="mt-4" />
-            )}
           </div>
         ))}
-
-        <Separator className="my-4" />
-        
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-3 h-10 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-          onClick={handleLogout}
-        >
-          <LogOut size={20} />
-          <span className="text-sm">Logout</span>
-        </Button>
-      </div>
+      </nav>
     </div>
   );
 };
