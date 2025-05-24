@@ -1,4 +1,3 @@
-
 export enum UserRole {
   Student = 'student',
   Teacher = 'teacher',
@@ -85,6 +84,7 @@ export interface UserProfileBase {
   billingHistory?: BillingHistory[];
   subscription?: Subscription;
   studyStreak?: number;
+  goals?: Goal[];
 }
 
 export interface Goal {
@@ -159,6 +159,7 @@ export interface UserProfileType extends UserProfileBase {
   mood?: MoodType;
   paymentMethods?: PaymentMethod[];
   billingHistory?: BillingHistory[];
+  photoURL?: string;
 }
 
 // Add User interface for compatibility

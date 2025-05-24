@@ -8,7 +8,8 @@ import {
   Shield, Activity, Settings, FileText, Brain, MessageSquare, 
   Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
   TrendingUp, UserCheck, Zap, Cpu, Globe, Lock, Heart,
-  Target, Award, HelpCircle, Smartphone, Puzzle, Upload
+  Target, Award, HelpCircle, Smartphone, Puzzle, Upload,
+  RefreshCw, CheckSquare
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -31,6 +32,8 @@ const AdminSidebar: React.FC = () => {
       items: [
         { icon: <Users size={20} />, title: "All Users", path: "/admin/dashboard", tab: "users" },
         { icon: <UserCheck size={20} />, title: "Student Profiles", path: "/admin/dashboard", tab: "student-profiles" },
+        { icon: <RefreshCw size={20} />, title: "Data Sync", path: "/admin/dashboard", tab: "student-data-sync" },
+        { icon: <CheckSquare size={20} />, title: "Feature Audit", path: "/admin/dashboard", tab: "feature-audit" },
         { icon: <Users size={20} />, title: "Batch Management", path: "/admin/dashboard", tab: "batch-management" },
         { icon: <Heart size={20} />, title: "Mood Analytics", path: "/admin/dashboard", tab: "mood-analytics" }
       ]

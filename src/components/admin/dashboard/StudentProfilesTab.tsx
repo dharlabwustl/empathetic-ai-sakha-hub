@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Filter, Eye, Edit, MoreHorizontal, UserCheck, TrendingUp, Clock, BookOpen } from 'lucide-react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
+import { StudyStreak, ExamGoal } from '@/types/user/studyPlan';
 
 const StudentProfilesTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,13 +18,13 @@ const StudentProfilesTab: React.FC = () => {
     mood: MoodType; 
     completionRate: number;
     lastActive: string;
+    studyStreak: StudyStreak;
+    examGoal: ExamGoal;
   })[] = [
     {
       id: '1',
       name: 'Aryan Sharma',
       email: 'aryan.s@example.com',
-      examPreparation: 'IIT-JEE',
-      studyStreak: 12,
       studyHoursToday: 4.5,
       mood: MoodType.Motivated,
       completionRate: 85,
@@ -36,14 +37,22 @@ const StudentProfilesTab: React.FC = () => {
         memberLimit: 1,
         startDate: '2024-01-01',
         endDate: '2024-12-31'
+      },
+      studyStreak: {
+        currentStreak: 12,
+        longestStreak: 25,
+        lastActiveDate: '2024-01-15'
+      },
+      examGoal: {
+        examName: 'IIT-JEE Advanced',
+        targetDate: '2024-05-26',
+        subjects: ['Physics', 'Chemistry', 'Mathematics']
       }
     },
     {
       id: '2',
       name: 'Priya Patel',
       email: 'priya.p@example.com',
-      examPreparation: 'NEET',
-      studyStreak: 7,
       studyHoursToday: 3.2,
       mood: MoodType.Focused,
       completionRate: 92,
@@ -56,14 +65,22 @@ const StudentProfilesTab: React.FC = () => {
         memberLimit: 1,
         startDate: '2024-01-01',
         endDate: '2024-12-31'
+      },
+      studyStreak: {
+        currentStreak: 7,
+        longestStreak: 15,
+        lastActiveDate: '2024-01-15'
+      },
+      examGoal: {
+        examName: 'NEET UG',
+        targetDate: '2024-05-05',
+        subjects: ['Biology', 'Chemistry', 'Physics']
       }
     },
     {
       id: '3',
       name: 'Vikram Singh',
       email: 'vikram.s@example.com',
-      examPreparation: 'UPSC',
-      studyStreak: 25,
       studyHoursToday: 6.8,
       mood: MoodType.Tired,
       completionRate: 78,
@@ -76,6 +93,16 @@ const StudentProfilesTab: React.FC = () => {
         memberLimit: 1,
         startDate: '2024-01-01',
         endDate: '2024-12-31'
+      },
+      studyStreak: {
+        currentStreak: 25,
+        longestStreak: 45,
+        lastActiveDate: '2024-01-15'
+      },
+      examGoal: {
+        examName: 'UPSC Civil Services',
+        targetDate: '2024-06-02',
+        subjects: ['History', 'Geography', 'Polity']
       }
     }
   ];
@@ -154,7 +181,7 @@ const StudentProfilesTab: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockStudentProfiles.reduce((sum, p) => sum + (p.studyStreak || 0), 0)} days
+              {mockStudentProfiles.reduce((sum, p) => sum + p.studyStreak.currentStreak, 0)} days
             </div>
             <p className="text-xs text-muted-foreground">Combined streaks</p>
           </CardContent>
@@ -203,7 +230,7 @@ const StudentProfilesTab: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Student</TableHead>
-                  <TableHead>Exam Prep</TableHead>
+                  <TableHead>Exam Goal</TableHead>
                   <TableHead>Current Mood</TableHead>
                   <TableHead>Study Hours Today</TableHead>
                   <TableHead>Completion Rate</TableHead>
@@ -222,7 +249,10 @@ const StudentProfilesTab: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{profile.examPreparation}</Badge>
+                      <div>
+                        <div className="font-medium">{profile.examGoal.examName}</div>
+                        <div className="text-sm text-gray-500">{profile.examGoal.targetDate}</div>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={getMoodColor(profile.mood)}>
@@ -244,7 +274,7 @@ const StudentProfilesTab: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium">{profile.studyStreak} days</span>
+                      <span className="font-medium">{profile.studyStreak.currentStreak} days</span>
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {profile.lastActive}
