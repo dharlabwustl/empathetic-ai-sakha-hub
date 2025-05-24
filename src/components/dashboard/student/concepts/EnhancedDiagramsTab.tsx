@@ -1,487 +1,476 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Play, Pause, Volume2, MessageSquare, Eye, Network, Lightbulb, 
-  FlaskConical, GitCompare, RotateCw, Settings 
-} from 'lucide-react';
-import AITutorDialog from './AITutorDialog';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Play, Pause, RotateCcw, ZoomIn, ZoomOut, Volume2, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 
 interface EnhancedDiagramsTabProps {
   conceptName: string;
   subject: string;
+  isPlaying?: boolean;
+  isAudioEnabled?: boolean;
 }
 
-const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ conceptName, subject }) => {
-  const [activeSubTab, setActiveSubTab] = useState('interactive');
-  const [isAudioPlaying, setIsAudioPlaying] = useState<string | null>(null);
-  const [isTutorOpen, setIsTutorOpen] = useState(false);
-  const [tutorContext, setTutorContext] = useState('');
+const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ 
+  conceptName, 
+  subject,
+  isPlaying = false,
+  isAudioEnabled = true
+}) => {
+  const [currentDiagram, setCurrentDiagram] = useState(0);
+  const [zoomLevel, setZoomLevel] = useState(100);
+  const [selectedHotspot, setSelectedHotspot] = useState<number | null>(null);
+  const [diagramProgress, setDiagramProgress] = useState(0);
+  const [localPlaying, setLocalPlaying] = useState(false);
 
-  const playAudioExplanation = (diagramType: string, content: string) => {
-    if (isAudioPlaying === diagramType) {
-      // Pause current audio
-      window.speechSynthesis.cancel();
-      setIsAudioPlaying(null);
+  // Sample diagrams based on subject
+  const getDiagrams = () => {
+    switch (subject.toLowerCase()) {
+      case 'physics':
+        return [
+          {
+            id: 1,
+            title: "Force Vectors Diagram",
+            description: "Visual representation of force vectors and their components",
+            svg: `
+              <svg viewBox="0 0 400 300" className="w-full h-full">
+                <defs>
+                  <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                   refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                  </marker>
+                </defs>
+                <rect width="400" height="300" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2"/>
+                <circle cx="200" cy="150" r="20" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
+                <text x="200" y="155" textAnchor="middle" className="text-sm font-bold">m</text>
+                
+                <line x1="200" y1="150" x2="300" y2="100" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowhead)"/>
+                <text x="270" y="120" className="text-sm font-bold fill-blue-600">F₁</text>
+                
+                <line x1="200" y1="150" x2="320" y2="150" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowhead)"/>
+                <text x="340" y="155" className="text-sm font-bold fill-emerald-600">F₂</text>
+                
+                <line x1="200" y1="150" x2="250" y2="200" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowhead)"/>
+                <text x="230" y="190" className="text-sm font-bold fill-amber-600">F₃</text>
+                
+                <line x1="200" y1="150" x2="340" y2="120" stroke="#8b5cf6" strokeWidth="4" markerEnd="url(#arrowhead)" strokeDasharray="5,5"/>
+                <text x="350" y="130" className="text-sm font-bold fill-violet-600">F_net</text>
+              </svg>
+            `,
+            hotspots: [
+              { x: 50, y: 50, label: "Mass Object", description: "The object experiencing forces" },
+              { x: 75, y: 30, label: "Force F₁", description: "Applied force at an angle" },
+              { x: 85, y: 50, label: "Force F₂", description: "Horizontal force" },
+              { x: 62, y: 70, label: "Force F₃", description: "Downward force" },
+              { x: 90, y: 35, label: "Net Force", description: "Resultant of all forces" }
+            ],
+            audioContent: "This force diagram shows multiple forces acting on an object. Force F1 acts at an angle, F2 acts horizontally, and F3 acts downward. The net force is the vector sum of all individual forces."
+          },
+          {
+            id: 2,
+            title: "Free Body Diagram",
+            description: "Isolated view of forces acting on the object",
+            svg: `
+              <svg viewBox="0 0 400 300" className="w-full h-full">
+                <rect width="400" height="300" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2"/>
+                <rect x="170" y="120" width="60" height="60" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
+                <text x="200" y="155" textAnchor="middle" className="text-sm font-bold">m</text>
+                
+                <line x1="200" y1="120" x2="200" y2="50" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowhead)"/>
+                <text x="210" y="85" className="text-sm font-bold fill-blue-600">N</text>
+                
+                <line x1="200" y1="180" x2="200" y2="250" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowhead)"/>
+                <text x="210" y="215" className="text-sm font-bold fill-emerald-600">W</text>
+                
+                <line x1="170" y1="150" x2="100" y2="150" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowhead)"/>
+                <text x="130" y="140" className="text-sm font-bold fill-amber-600">f</text>
+                
+                <line x1="230" y1="150" x2="300" y2="150" stroke="#8b5cf6" strokeWidth="3" markerEnd="url(#arrowhead)"/>
+                <text x="270" y="140" className="text-sm font-bold fill-violet-600">F</text>
+              </svg>
+            `,
+            hotspots: [
+              { x: 50, y: 50, label: "Normal Force", description: "Force perpendicular to surface" },
+              { x: 50, y: 70, label: "Weight", description: "Gravitational force downward" },
+              { x: 25, y: 50, label: "Friction", description: "Opposing force" },
+              { x: 75, y: 50, label: "Applied Force", description: "External force applied" }
+            ],
+            audioContent: "A free body diagram isolates the object and shows all forces acting on it. The normal force N acts upward, weight W acts downward, friction f opposes motion, and an applied force F acts horizontally."
+          }
+        ];
+      case 'chemistry':
+        return [
+          {
+            id: 1,
+            title: "Molecular Structure",
+            description: "3D representation of molecular bonds and electron distribution",
+            svg: `
+              <svg viewBox="0 0 400 300" className="w-full h-full">
+                <rect width="400" height="300" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2"/>
+                <circle cx="200" cy="150" r="25" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
+                <text x="200" y="155" textAnchor="middle" className="text-sm font-bold">C</text>
+                
+                <circle cx="150" cy="100" r="20" fill="#3b82f6" stroke="#1e40af" strokeWidth="2"/>
+                <text x="150" y="105" textAnchor="middle" className="text-sm font-bold">H</text>
+                
+                <circle cx="250" cy="100" r="20" fill="#3b82f6" stroke="#1e40af" strokeWidth="2"/>
+                <text x="250" y="105" textAnchor="middle" className="text-sm font-bold">H</text>
+                
+                <circle cx="150" cy="200" r="20" fill="#3b82f6" stroke="#1e40af" strokeWidth="2"/>
+                <text x="150" y="205" textAnchor="middle" className="text-sm font-bold">H</text>
+                
+                <circle cx="250" cy="200" r="20" fill="#3b82f6" stroke="#1e40af" strokeWidth="2"/>
+                <text x="250" y="205" textAnchor="middle" className="text-sm font-bold">H</text>
+                
+                <line x1="175" y1="125" x2="175" y2="125" stroke="#000" strokeWidth="2"/>
+                <line x1="225" y1="125" x2="225" y2="125" stroke="#000" strokeWidth="2"/>
+                <line x1="175" y1="175" x2="175" y2="175" stroke="#000" strokeWidth="2"/>
+                <line x1="225" y1="175" x2="225" y2="175" stroke="#000" strokeWidth="2"/>
+              </svg>
+            `,
+            hotspots: [
+              { x: 50, y: 50, label: "Carbon Atom", description: "Central carbon atom" },
+              { x: 30, y: 30, label: "Hydrogen Bonds", description: "C-H covalent bonds" }
+            ],
+            audioContent: "This molecular diagram shows a methane molecule with one carbon atom bonded to four hydrogen atoms through covalent bonds."
+          }
+        ];
+      case 'mathematics':
+        return [
+          {
+            id: 1,
+            title: "Coordinate System",
+            description: "Cartesian coordinate plane with function plotting",
+            svg: `
+              <svg viewBox="0 0 400 300" className="w-full h-full">
+                <rect width="400" height="300" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2"/>
+                <line x1="50" y1="250" x2="350" y2="250" stroke="#000" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+                <line x1="50" y1="250" x2="50" y2="50" stroke="#000" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+                
+                <text x="360" y="255" className="text-sm font-bold">x</text>
+                <text x="45" y="40" className="text-sm font-bold">y</text>
+                <text x="40" y="265" className="text-sm font-bold">O</text>
+                
+                <path d="M 70 230 Q 150 150 250 80" stroke="#ef4444" strokeWidth="3" fill="none"/>
+                <text x="200" y="100" className="text-sm font-bold fill-red-600">y = f(x)</text>
+                
+                <circle cx="150" cy="150" r="4" fill="#3b82f6"/>
+                <line x1="150" y1="150" x2="150" y2="250" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3,3"/>
+                <line x1="150" y1="150" x2="50" y2="150" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3,3"/>
+                <text x="155" y="200" className="text-xs fill-blue-600">(a, f(a))</text>
+              </svg>
+            `,
+            hotspots: [
+              { x: 25, y: 85, label: "Y-axis", description: "Vertical axis" },
+              { x: 75, y: 85, label: "X-axis", description: "Horizontal axis" },
+              { x: 50, y: 50, label: "Function", description: "Mathematical function plot" },
+              { x: 38, y: 50, label: "Point", description: "Coordinate point (a, f(a))" }
+            ],
+            audioContent: "This coordinate system shows a mathematical function plotted on the Cartesian plane with x and y axes. The curve represents y equals f of x, and the blue point shows coordinates a, f of a."
+          }
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const diagrams = getDiagrams();
+
+  const handlePlayPause = () => {
+    setLocalPlaying(!localPlaying);
+    if (!localPlaying && isAudioEnabled) {
+      startAudioExplanation();
     } else {
-      // Stop any current audio and play new one
+      stopAudioExplanation();
+    }
+  };
+
+  const startAudioExplanation = () => {
+    if (!isAudioEnabled || diagrams.length === 0) return;
+    
+    const currentDiagramData = diagrams[currentDiagram];
+    if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      setIsAudioPlaying(diagramType);
-      
-      const utterance = new SpeechSynthesisUtterance(content);
+      const utterance = new SpeechSynthesisUtterance(currentDiagramData.audioContent);
       utterance.rate = 0.9;
       utterance.volume = 0.8;
-      utterance.onend = () => setIsAudioPlaying(null);
+      
+      // Simulate progress
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += 5;
+        setDiagramProgress(Math.min(progress, 100));
+        if (progress >= 100) {
+          clearInterval(progressInterval);
+        }
+      }, 200);
+      
+      utterance.onend = () => {
+        setLocalPlaying(false);
+        setDiagramProgress(100);
+        clearInterval(progressInterval);
+      };
+      
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const openAITutor = (context: string) => {
-    setTutorContext(context);
-    setIsTutorOpen(true);
+  const stopAudioExplanation = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setLocalPlaying(false);
   };
+
+  const handleReset = () => {
+    setDiagramProgress(0);
+    setSelectedHotspot(null);
+    setZoomLevel(100);
+    stopAudioExplanation();
+  };
+
+  const nextDiagram = () => {
+    if (currentDiagram < diagrams.length - 1) {
+      setCurrentDiagram(currentDiagram + 1);
+      setDiagramProgress(0);
+      setSelectedHotspot(null);
+      if (localPlaying) {
+        stopAudioExplanation();
+        setTimeout(startAudioExplanation, 500);
+      }
+    }
+  };
+
+  const prevDiagram = () => {
+    if (currentDiagram > 0) {
+      setCurrentDiagram(currentDiagram - 1);
+      setDiagramProgress(0);
+      setSelectedHotspot(null);
+      if (localPlaying) {
+        stopAudioExplanation();
+        setTimeout(startAudioExplanation, 500);
+      }
+    }
+  };
+
+  if (diagrams.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="text-muted-foreground">No diagrams available for {subject}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const currentDiagramData = diagrams[currentDiagram];
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5 text-blue-600" />
-            Interactive Diagrams - {subject}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="interactive">Interactive</TabsTrigger>
-              <TabsTrigger value="relationships">Relationships</TabsTrigger>
-              <TabsTrigger value="applications">Applications</TabsTrigger>
-              <TabsTrigger value="comparison">Comparison</TabsTrigger>
-              <TabsTrigger value="lab">Virtual Laboratory</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="interactive" className="mt-6">
-              <InteractiveDiagramsSection 
-                conceptName={conceptName}
-                subject={subject}
-                isAudioPlaying={isAudioPlaying}
-                onPlayAudio={playAudioExplanation}
-                onOpenTutor={openAITutor}
-              />
-            </TabsContent>
-
-            <TabsContent value="relationships" className="mt-6">
-              <RelationshipGraphsSection 
-                conceptName={conceptName}
-                subject={subject}
-                isAudioPlaying={isAudioPlaying}
-                onPlayAudio={playAudioExplanation}
-                onOpenTutor={openAITutor}
-              />
-            </TabsContent>
-
-            <TabsContent value="applications" className="mt-6">
-              <RealWorldApplicationsSection 
-                conceptName={conceptName}
-                subject={subject}
-                isAudioPlaying={isAudioPlaying}
-                onPlayAudio={playAudioExplanation}
-                onOpenTutor={openAITutor}
-              />
-            </TabsContent>
-
-            <TabsContent value="comparison" className="mt-6">
-              <ComparisonToolsSection 
-                conceptName={conceptName}
-                subject={subject}
-                isAudioPlaying={isAudioPlaying}
-                onPlayAudio={playAudioExplanation}
-                onOpenTutor={openAITutor}
-              />
-            </TabsContent>
-
-            <TabsContent value="lab" className="mt-6">
-              <InteractiveLabSection 
-                conceptName={conceptName}
-                subject={subject}
-                isAudioPlaying={isAudioPlaying}
-                onPlayAudio={playAudioExplanation}
-                onOpenTutor={openAITutor}
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      <AITutorDialog
-        isOpen={isTutorOpen}
-        onClose={() => setIsTutorOpen(false)}
-        conceptName={conceptName}
-        context={tutorContext}
-        subject={subject}
-      />
-    </div>
-  );
-};
-
-// Individual Section Components
-const InteractiveDiagramsSection: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const audioContent = `This interactive diagram shows the key components and relationships within ${conceptName}. You can click on different elements to explore how they interact with each other in ${subject}.`;
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-blue-50 to-purple-100 dark:from-blue-950 dark:to-purple-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Interactive {conceptName} Diagram</h3>
-          <Badge variant="outline">{subject}</Badge>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Interactive Diagrams for {conceptName}</h2>
+          <p className="text-sm text-muted-foreground">Explore visual representations with synchronized audio explanations</p>
         </div>
         
-        <div className="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-lg mb-4">
-          <div className="text-center space-y-4">
-            <div className="w-32 h-32 mx-auto rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-              <Eye className="h-16 w-16 text-white" />
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">
-              Interactive diagram for {conceptName} loads here
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPlayAudio('interactive', audioContent)}
-              className="flex items-center gap-2"
-            >
-              {isAudioPlaying === 'interactive' ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              {isAudioPlaying === 'interactive' ? 'Pause' : 'Play'} Audio
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenTutor(`Interactive diagram of ${conceptName} in ${subject}`)}
-              className="flex items-center gap-2"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Ask AI Tutor
-            </Button>
-          </div>
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-2" />
-            Customize View
+        {/* Diagram Controls */}
+        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm border">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePlayPause}
+            disabled={!isAudioEnabled}
+          >
+            {localPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setZoomLevel(Math.min(zoomLevel + 25, 200))}
+          >
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setZoomLevel(Math.max(zoomLevel - 25, 50))}
+          >
+            <ZoomOut className="h-4 w-4" />
           </Button>
         </div>
       </div>
-    </div>
-  );
-};
 
-const RelationshipGraphsSection: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const audioContent = `This relationship graph visualizes how ${conceptName} connects to other concepts in ${subject}. The network shows dependencies, influences, and correlations between different elements.`;
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-green-50 to-teal-100 dark:from-green-950 dark:to-teal-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Relationship Network - {conceptName}</h3>
-          <Badge variant="outline">{subject}</Badge>
+      {/* Navigation */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={prevDiagram}
+          disabled={currentDiagram === 0}
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </Button>
+        
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
+            Diagram {currentDiagram + 1} of {diagrams.length}
+          </p>
+          <p className="font-medium">{currentDiagramData.title}</p>
         </div>
         
-        <div className="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-lg mb-4">
-          <div className="text-center space-y-4">
-            <div className="w-32 h-32 mx-auto rounded-lg bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center">
-              <Network className="h-16 w-16 text-white" />
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">
-              Network graph showing relationships for {conceptName}
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPlayAudio('relationships', audioContent)}
-              className="flex items-center gap-2"
-            >
-              {isAudioPlaying === 'relationships' ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              {isAudioPlaying === 'relationships' ? 'Pause' : 'Play'} Audio
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenTutor(`Relationship network of ${conceptName} in ${subject}`)}
-              className="flex items-center gap-2"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Ask AI Tutor
-            </Button>
-          </div>
-          <Button variant="outline" size="sm">
-            <RotateCw className="h-4 w-4 mr-2" />
-            Rearrange Network
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={nextDiagram}
+          disabled={currentDiagram === diagrams.length - 1}
+          className="flex items-center gap-2"
+        >
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
-    </div>
-  );
-};
 
-const RealWorldApplicationsSection: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const audioContent = `Here are practical applications of ${conceptName} in real-world scenarios. These examples show how the concept is used in industry, daily life, and modern technology within ${subject}.`;
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Real-World Applications</h3>
-          <Badge variant="outline">{subject}</Badge>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {[
-            { title: 'Industry Application', description: `How ${conceptName} is used in manufacturing and industry` },
-            { title: 'Daily Life Example', description: `Common examples of ${conceptName} in everyday situations` },
-            { title: 'Technology Integration', description: `Modern tech applications leveraging ${conceptName}` },
-            { title: 'Future Innovations', description: `Emerging uses of ${conceptName} in cutting-edge research` }
-          ].map((app, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">{app.title}</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{app.description}</p>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPlayAudio('applications', audioContent)}
-              className="flex items-center gap-2"
-            >
-              {isAudioPlaying === 'applications' ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              {isAudioPlaying === 'applications' ? 'Pause' : 'Play'} Audio
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenTutor(`Real-world applications of ${conceptName} in ${subject}`)}
-              className="flex items-center gap-2"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Ask AI Tutor
-            </Button>
+      {/* Progress Bar */}
+      {localPlaying && (
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span>Audio Progress</span>
+            <span>{Math.round(diagramProgress)}%</span>
           </div>
-          <Button variant="outline" size="sm">
-            <Lightbulb className="h-4 w-4 mr-2" />
-            More Examples
-          </Button>
+          <Progress value={diagramProgress} className="h-2" />
         </div>
-      </div>
-    </div>
-  );
-};
+      )}
 
-const ComparisonToolsSection: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const audioContent = `This comparison tool analyzes ${conceptName} against related concepts in ${subject}. It highlights similarities, differences, and helps you understand when to apply each concept.`;
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950 dark:to-pink-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Concept Comparison Analysis</h3>
-          <Badge variant="outline">{subject}</Badge>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Diagram */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                {currentDiagramData.title}
+                <Badge variant="outline">{subject}</Badge>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">{currentDiagramData.description}</p>
+            </CardHeader>
+            <CardContent>
+              <div 
+                className="relative border rounded-lg overflow-hidden bg-white"
+                style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'center' }}
+              >
+                <div dangerouslySetInnerHTML={{ __html: currentDiagramData.svg }} />
+                
+                {/* Interactive Hotspots */}
+                {currentDiagramData.hotspots.map((hotspot, index) => (
+                  <button
+                    key={index}
+                    className={`absolute w-4 h-4 rounded-full border-2 transition-all ${
+                      selectedHotspot === index
+                        ? 'bg-blue-500 border-blue-600 scale-125'
+                        : 'bg-white border-blue-400 hover:bg-blue-50'
+                    }`}
+                    style={{
+                      left: `${hotspot.x}%`,
+                      top: `${hotspot.y}%`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                    onClick={() => setSelectedHotspot(selectedHotspot === index ? null : index)}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        
-        <div className="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-lg mb-4">
-          <div className="text-center space-y-4">
-            <div className="w-32 h-32 mx-auto rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-              <GitCompare className="h-16 w-16 text-white" />
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">
-              Interactive comparison tool for {conceptName}
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPlayAudio('comparison', audioContent)}
-              className="flex items-center gap-2"
-            >
-              {isAudioPlaying === 'comparison' ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              {isAudioPlaying === 'comparison' ? 'Pause' : 'Play'} Audio
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenTutor(`Comparison analysis of ${conceptName} with related concepts in ${subject}`)}
-              className="flex items-center gap-2"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Ask AI Tutor
-            </Button>
-          </div>
-          <Button variant="outline" size="sm">
-            <GitCompare className="h-4 w-4 mr-2" />
-            Add Concepts
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
-const InteractiveLabSection: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const [experimentRunning, setExperimentRunning] = useState(false);
-  const [labResults, setLabResults] = useState<string[]>([]);
+        {/* Sidebar with Hotspot Info */}
+        <div className="space-y-4">
+          {/* AI Tutor Integration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-purple-600" />
+                AI Diagram Tutor
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
+                <p className="text-sm text-purple-800 dark:text-purple-300 mb-2">
+                  Ask specific questions about this diagram
+                </p>
+                <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white w-full">
+                  Explain This Diagram
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-  const audioContent = `Welcome to the virtual laboratory for ${conceptName}. Here you can conduct interactive experiments, adjust parameters, and observe real-time results to better understand the concept in ${subject}.`;
-
-  const startExperiment = () => {
-    setExperimentRunning(true);
-    const newResult = `${conceptName} experiment completed at ${new Date().toLocaleTimeString()}`;
-    
-    setTimeout(() => {
-      setLabResults(prev => [...prev, newResult]);
-      setExperimentRunning(false);
-    }, 3000);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-indigo-950 dark:to-blue-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Virtual Laboratory</h3>
-          <Badge variant="outline">{subject}</Badge>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h4 className="font-semibold">Lab Equipment & Controls</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {['Measuring Tools', 'Sensors', 'Controls', 'Data Logger'].map((tool, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
-                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-indigo-600" />
-                  <p className="text-xs">{tool}</p>
+          {/* Hotspot Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Interactive Elements</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {currentDiagramData.hotspots.map((hotspot, index) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                    selectedHotspot === index
+                      ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
+                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700'
+                  }`}
+                  onClick={() => setSelectedHotspot(selectedHotspot === index ? null : index)}
+                >
+                  <h4 className="font-medium text-sm">{hotspot.label}</h4>
+                  {selectedHotspot === index && (
+                    <p className="text-xs text-muted-foreground mt-1">{hotspot.description}</p>
+                  )}
                 </div>
               ))}
-            </div>
-            
-            <Button
-              onClick={startExperiment}
-              disabled={experimentRunning}
-              className="w-full"
-              variant={experimentRunning ? "secondary" : "default"}
-            >
-              {experimentRunning ? 'Running...' : 'Start Experiment'}
-            </Button>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="space-y-4">
-            <h4 className="font-semibold">Results & Analysis</h4>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg min-h-[150px]">
-              {labResults.length === 0 ? (
-                <p className="text-gray-500 text-center">No experiments run yet</p>
-              ) : (
-                <div className="space-y-2">
-                  {labResults.map((result, index) => (
-                    <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                      {result}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPlayAudio('lab', audioContent)}
-              className="flex items-center gap-2"
-            >
-              {isAudioPlaying === 'lab' ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              {isAudioPlaying === 'lab' ? 'Pause' : 'Play'} Audio
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenTutor(`Virtual laboratory experiments for ${conceptName} in ${subject}`)}
-              className="flex items-center gap-2"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Ask AI Tutor
-            </Button>
-          </div>
-          <Button variant="outline" size="sm">
-            <FlaskConical className="h-4 w-4 mr-2" />
-            Lab Settings
-          </Button>
+          {/* Audio Controls */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Volume2 className="h-4 w-4" />
+                Audio Explanation
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={handlePlayPause}
+                disabled={!isAudioEnabled}
+                className="w-full mb-2"
+                variant={localPlaying ? "destructive" : "default"}
+              >
+                {localPlaying ? (
+                  <>
+                    <Pause className="h-4 w-4 mr-2" />
+                    Pause Explanation
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Explanation
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Listen to detailed explanations of diagram elements
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

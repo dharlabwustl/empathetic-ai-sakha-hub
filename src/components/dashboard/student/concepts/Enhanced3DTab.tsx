@@ -1,448 +1,518 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Box, Play, Pause, RotateCcw, ZoomIn, ZoomOut, 
-  Move3D, Settings, Download, Share2, Volume2,
-  Atom, FlaskConical, Target, Activity, MessageSquare
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import AITutorDialog from './AITutorDialog';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Play, Pause, RotateCcw, Volume2, MessageSquare, Settings, Eye } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 interface Enhanced3DTabProps {
   conceptName: string;
   subject: string;
+  isPlaying?: boolean;
+  isAudioEnabled?: boolean;
 }
 
-const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) => {
-  const [activeTab, setActiveTab] = useState('simulation');
-  const [selectedModel, setSelectedModel] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [rotationSpeed, setRotationSpeed] = useState([50]);
-  const [forceValue, setForceValue] = useState([20]);
-  const [massValue, setMassValue] = useState([5]);
-  const [isAudioPlaying, setIsAudioPlaying] = useState<string | null>(null);
-  const [isTutorOpen, setIsTutorOpen] = useState(false);
-  const [tutorContext, setTutorContext] = useState('');
+const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ 
+  conceptName, 
+  subject,
+  isPlaying = false,
+  isAudioEnabled = true
+}) => {
+  const [simulationPlaying, setSimulationPlaying] = useState(false);
+  const [currentSimulation, setCurrentSimulation] = useState(0);
+  const [parameters, setParameters] = useState({
+    force: 50,
+    mass: 10,
+    friction: 0.1,
+    angle: 0,
+    time: 0
+  });
+  const [simulationProgress, setSimulationProgress] = useState(0);
 
-  const subjects = ['Physics', 'Chemistry', 'Biology'];
-  const [activeSubject, setActiveSubject] = useState(subject || 'Physics');
-
-  const models = {
-    Physics: [
-      {
-        id: 'force-vectors',
-        title: 'Force Vector Visualization',
-        description: 'Interactive 3D representation of force vectors and their effects',
-        type: 'Interactive',
-        difficulty: 'Beginner'
-      },
-      {
-        id: 'mass-acceleration',
-        title: 'Mass-Acceleration Relationship',
-        description: 'Visual demonstration of how mass affects acceleration',
-        type: 'Simulation',
-        difficulty: 'Intermediate'
-      }
-    ],
-    Chemistry: [
-      {
-        id: 'molecular-structure',
-        title: 'Molecular Structure',
-        description: '3D visualization of molecular bonds and structures',
-        type: 'Interactive',
-        difficulty: 'Intermediate'
-      },
-      {
-        id: 'reaction-dynamics',
-        title: 'Chemical Reaction Dynamics',
-        description: 'Real-time chemical reaction simulation',
-        type: 'Simulation',
-        difficulty: 'Advanced'
-      }
-    ],
-    Biology: [
-      {
-        id: 'cell-structure',
-        title: 'Cell Structure',
-        description: '3D exploration of cellular components',
-        type: 'Interactive',
-        difficulty: 'Beginner'
-      },
-      {
-        id: 'dna-replication',
-        title: 'DNA Replication',
-        description: 'Step-by-step DNA replication process',
-        type: 'Animation',
-        difficulty: 'Advanced'
-      }
-    ]
+  // Get simulations based on subject
+  const getSimulations = () => {
+    switch (subject.toLowerCase()) {
+      case 'physics':
+        return [
+          {
+            id: 1,
+            title: "Force Application Simulation",
+            description: "Interactive simulation showing how forces affect object motion",
+            parameters: ['force', 'mass', 'friction'],
+            audioContent: "This simulation demonstrates Newton's Second Law in action. Adjust the force, mass, and friction to see how they affect acceleration and motion.",
+            scene: `
+              <div className="relative w-full h-64 bg-gradient-to-b from-sky-200 to-green-200 rounded-lg overflow-hidden">
+                <div className="absolute bottom-4 left-4 w-8 h-8 bg-red-500 rounded-full shadow-lg transition-all duration-1000"
+                     style={{
+                       transform: simulationPlaying ? 
+                         'translateX(' + (parameters.force / parameters.mass * 10) + 'px)' : 
+                         'translateX(0px)'
+                     }}>
+                </div>
+                <div className="absolute top-4 left-4 text-xs bg-white px-2 py-1 rounded">
+                  F = ${parameters.force}N, m = ${parameters.mass}kg
+                </div>
+                <div className="absolute bottom-12 left-4 text-xs bg-white px-2 py-1 rounded">
+                  a = ${(parameters.force / parameters.mass).toFixed(1)} m/s²
+                </div>
+              </div>
+            `
+          },
+          {
+            id: 2,
+            title: "Inclined Plane Simulation",
+            description: "Visualize forces on an inclined plane with adjustable angle",
+            parameters: ['angle', 'mass', 'friction'],
+            audioContent: "On an inclined plane, gravity is resolved into components. The parallel component causes acceleration down the plane, while friction opposes motion.",
+            scene: `
+              <div className="relative w-full h-64 bg-gradient-to-b from-blue-100 to-blue-200 rounded-lg overflow-hidden">
+                <div className="absolute bottom-4 origin-bottom-left bg-amber-600 h-2"
+                     style={{
+                       width: '200px',
+                       transform: 'rotate(' + parameters.angle + 'deg)'
+                     }}>
+                </div>
+                <div className="absolute w-6 h-6 bg-red-500 rounded transition-all duration-1000"
+                     style={{
+                       bottom: (4 + parameters.angle * 0.5) + 'px',
+                       left: (20 + (simulationPlaying ? parameters.angle * 2 : 0)) + 'px'
+                     }}>
+                </div>
+                <div className="absolute top-4 left-4 text-xs bg-white px-2 py-1 rounded">
+                  θ = ${parameters.angle}°
+                </div>
+              </div>
+            `
+          },
+          {
+            id: 3,
+            title: "Circular Motion Simulation",
+            description: "Demonstrate centripetal force in circular motion",
+            parameters: ['force', 'mass'],
+            audioContent: "In circular motion, centripetal force acts toward the center, constantly changing the direction of velocity while maintaining constant speed.",
+            scene: `
+              <div className="relative w-full h-64 bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg overflow-hidden flex items-center justify-center">
+                <div className="relative w-32 h-32 border-2 border-dashed border-gray-400 rounded-full">
+                  <div className="absolute w-4 h-4 bg-red-500 rounded-full transition-all duration-500"
+                       style={{
+                         top: '50%',
+                         left: '50%',
+                         transform: simulationPlaying ? 
+                           'translate(-50%, -50%) rotate(' + (parameters.time * 10) + 'deg) translateX(60px)' :
+                           'translate(-50%, -50%) translateX(60px)'
+                       }}>
+                  </div>
+                </div>
+                <div className="absolute top-4 left-4 text-xs bg-white px-2 py-1 rounded">
+                  Fc = mv²/r
+                </div>
+              </div>
+            `
+          }
+        ];
+      case 'chemistry':
+        return [
+          {
+            id: 1,
+            title: "Molecular Vibration",
+            description: "Visualize molecular bonds and vibrations",
+            parameters: ['force'],
+            audioContent: "Molecular vibrations occur when atoms oscillate around their equilibrium positions. Higher energy increases vibration amplitude.",
+            scene: `
+              <div className="relative w-full h-64 bg-gradient-to-b from-green-100 to-green-200 rounded-lg overflow-hidden flex items-center justify-center">
+                <div className="flex items-center space-x-4">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-0.5 bg-gray-600"></div>
+                  <div className="w-8 h-8 bg-red-500 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+                </div>
+              </div>
+            `
+          }
+        ];
+      case 'mathematics':
+        return [
+          {
+            id: 1,
+            title: "Function Visualization",
+            description: "Interactive 3D function plotting",
+            parameters: ['force', 'angle'],
+            audioContent: "This 3D visualization shows how mathematical functions behave in three-dimensional space with adjustable parameters.",
+            scene: `
+              <div className="relative w-full h-64 bg-gradient-to-b from-indigo-100 to-indigo-200 rounded-lg overflow-hidden">
+                <div className="absolute inset-4 border border-gray-400">
+                  <div className="relative w-full h-full">
+                    <div className="absolute w-full h-0.5 bg-gray-400 top-1/2"></div>
+                    <div className="absolute w-0.5 h-full bg-gray-400 left-1/2"></div>
+                    <svg className="w-full h-full">
+                      <path d="M 0 ${120 - parameters.force} Q ${parameters.angle} ${60} 200 ${40 + parameters.force/2}" 
+                            stroke="red" strokeWidth="2" fill="none"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            `
+          }
+        ];
+      default:
+        return [];
+    }
   };
 
-  const playAudioExplanation = (tabName: string, content: string) => {
-    if (isAudioPlaying === tabName) {
-      window.speechSynthesis.cancel();
-      setIsAudioPlaying(null);
+  const simulations = getSimulations();
+
+  const handlePlayPause = () => {
+    setSimulationPlaying(!simulationPlaying);
+    if (!simulationPlaying && isAudioEnabled) {
+      startAudioExplanation();
     } else {
+      stopAudioExplanation();
+    }
+  };
+
+  const startAudioExplanation = () => {
+    if (!isAudioEnabled || simulations.length === 0) return;
+    
+    const currentSimulationData = simulations[currentSimulation];
+    if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      setIsAudioPlaying(tabName);
-      
-      const utterance = new SpeechSynthesisUtterance(content);
+      const utterance = new SpeechSynthesisUtterance(currentSimulationData.audioContent);
       utterance.rate = 0.9;
       utterance.volume = 0.8;
-      utterance.onend = () => setIsAudioPlaying(null);
+      
+      // Simulate progress
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += 3;
+        setSimulationProgress(Math.min(progress, 100));
+        if (progress >= 100) {
+          clearInterval(progressInterval);
+        }
+      }, 150);
+      
+      utterance.onend = () => {
+        setSimulationPlaying(false);
+        setSimulationProgress(100);
+        clearInterval(progressInterval);
+      };
+      
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const openAITutor = (context: string) => {
-    setTutorContext(context);
-    setIsTutorOpen(true);
+  const stopAudioExplanation = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setSimulationPlaying(false);
   };
 
-  const getTabContent = (tabName: string) => {
-    const currentModels = models[activeSubject as keyof typeof models] || models.Physics;
-    
-    switch (tabName) {
-      case 'simulation':
-        return {
-          title: 'Live Simulation',
-          content: `This is a live 3D simulation of ${conceptName} for ${activeSubject}. You can interact with the parameters to see real-time changes in the system behavior and explore the concept in three dimensions.`,
-          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      case 'analysis':
-        return {
-          title: 'Analysis',
-          content: `Detailed 3D analysis for ${conceptName}. This shows how different forces and parameters interact and affect the system in ${activeSubject} using interactive 3D models.`,
-          component: <AnalysisTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      case 'examples':
-        return {
-          title: '3D Examples',
-          content: `Interactive 3D examples demonstrating ${conceptName} concepts in ${activeSubject}. Click and rotate different elements to explore various scenarios and applications.`,
-          component: <Examples3DTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      case 'lab':
-        return {
-          title: 'Virtual Laboratory',
-          content: `Welcome to the 3D virtual laboratory for ${conceptName}. Conduct experiments, manipulate 3D objects, and observe results in a comprehensive three-dimensional environment.`,
-          component: <VirtualLab3DTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      default:
-        return {
-          title: 'Live Simulation',
-          content: `This is a live 3D simulation of ${conceptName}.`,
-          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-    }
+  const handleReset = () => {
+    setParameters({
+      force: 50,
+      mass: 10,
+      friction: 0.1,
+      angle: 0,
+      time: 0
+    });
+    setSimulationProgress(0);
+    stopAudioExplanation();
   };
+
+  // Animation loop for time-based simulations
+  useEffect(() => {
+    let animationFrame: number;
+    if (simulationPlaying) {
+      const animate = () => {
+        setParameters(prev => ({
+          ...prev,
+          time: prev.time + 1
+        }));
+        animationFrame = requestAnimationFrame(animate);
+      };
+      animationFrame = requestAnimationFrame(animate);
+    }
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [simulationPlaying]);
+
+  if (simulations.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="text-muted-foreground">No 3D simulations available for {subject}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const currentSimulationData = simulations[currentSimulation];
 
   return (
     <div className="space-y-6">
-      {/* Subject Selector */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Atom className="h-5 w-5 text-indigo-600" />
-            3D Subject Selection
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            {subjects.map((subj) => (
-              <Button
-                key={subj}
-                variant={activeSubject === subj ? "default" : "outline"}
-                onClick={() => setActiveSubject(subj)}
-                className="flex items-center gap-2"
-              >
-                {subj === 'Physics' && <Atom className="h-4 w-4" />}
-                {subj === 'Chemistry' && <FlaskConical className="h-4 w-4" />}
-                {subj === 'Biology' && <Target className="h-4 w-4" />}
-                {subj}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 3D Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="simulation">Live Simulation</TabsTrigger>
-          <TabsTrigger value="analysis">Analysis</TabsTrigger>
-          <TabsTrigger value="examples">3D Examples</TabsTrigger>
-          <TabsTrigger value="lab">Virtual Laboratory</TabsTrigger>
-        </TabsList>
-
-        {(['simulation', 'analysis', 'examples', 'lab'] as const).map((tabName) => {
-          const tabContent = getTabContent(tabName);
-          return (
-            <TabsContent key={tabName} value={tabName} className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Move3D className="h-5 w-5 text-indigo-600" />
-                      {tabContent.title}
-                    </CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => playAudioExplanation(tabName, tabContent.content)}
-                        className="flex items-center gap-2"
-                      >
-                        {isAudioPlaying === tabName ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Volume2 className="h-4 w-4" />
-                        )}
-                        {isAudioPlaying === tabName ? 'Pause' : 'Play'} Audio
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openAITutor(`3D ${tabContent.title} for ${conceptName} in ${activeSubject}`)}
-                        className="flex items-center gap-2"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        Ask AI Tutor
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {tabContent.component}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          );
-        })}
-      </Tabs>
-
-      <AITutorDialog
-        isOpen={isTutorOpen}
-        onClose={() => setIsTutorOpen(false)}
-        conceptName={conceptName}
-        context={tutorContext}
-        subject={activeSubject}
-      />
-    </div>
-  );
-};
-
-// Individual Tab Components
-const LiveSimulationTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const [isRunning, setIsRunning] = useState(false);
-  const [speed, setSpeed] = useState([50]);
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 p-6 rounded-lg min-h-[400px] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className={`w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center ${isRunning ? 'animate-spin' : ''}`}>
-            <Atom className="h-16 w-16 text-white" />
-          </div>
-          <h3 className="text-xl font-bold">Live {subject} 3D Simulation</h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Interactive 3D simulation of {conceptName} running in real-time
-          </p>
-        </div>
-      </div>
-      
       <div className="flex items-center justify-between">
-        <div className="space-y-2 flex-1 mr-4">
-          <label className="text-sm font-medium">Simulation Speed</label>
-          <Slider
-            value={speed}
-            onValueChange={setSpeed}
-            min={1}
-            max={100}
-            step={1}
-            className="w-full"
-          />
-        </div>
-        <Button
-          onClick={() => setIsRunning(!isRunning)}
-          variant={isRunning ? "destructive" : "default"}
-          className="flex items-center gap-2"
-        >
-          {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          {isRunning ? 'Stop' : 'Start'} 3D Simulation
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const AnalysisTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900 p-6 rounded-lg min-h-[400px]">
-        <h3 className="text-xl font-bold mb-4">3D Analysis - {subject}</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">3D Parameters</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>X-Axis Force:</span>
-                <span className="font-mono">25 N</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Y-Axis Force:</span>
-                <span className="font-mono">15 N</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Z-Axis Force:</span>
-                <span className="font-mono">10 N</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Resultant:</span>
-                <span className="font-mono font-bold">32.4 N</span>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">3D Analysis Results</h4>
-            <div className="space-y-2 text-sm">
-              <p>• Resultant direction: θ = 45°, φ = 30°</p>
-              <p>• System equilibrium: No</p>
-              <p>• 3D acceleration: 8 m/s²</p>
-              <p>• Spatial distribution: Uniform</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Examples3DTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const examples = [
-    { title: 'Basic 3D Example', description: `Simple ${conceptName} demonstration in 3D space` },
-    { title: 'Complex 3D Scenario', description: `Advanced ${conceptName} scenario with multiple dimensions` },
-    { title: 'Real-world 3D Application', description: `${conceptName} in practical 3D environments` }
-  ];
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950 dark:to-pink-900 p-6 rounded-lg min-h-[400px]">
-        <h3 className="text-xl font-bold mb-4">3D Examples - {subject}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {examples.map((example, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="w-full h-32 bg-gradient-to-br from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 rounded-lg mb-3 flex items-center justify-center">
-                <Box className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h4 className="font-semibold">{example.title}</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{example.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const VirtualLab3DTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const [experimentRunning, setExperimentRunning] = useState(false);
-  const [labResults, setLabResults] = useState<string[]>([]);
-
-  const startExperiment = () => {
-    setExperimentRunning(true);
-    const newResult = `3D Experiment ${labResults.length + 1}: ${conceptName} test completed at ${new Date().toLocaleTimeString()}`;
-    
-    setTimeout(() => {
-      setLabResults(prev => [...prev, newResult]);
-      setExperimentRunning(false);
-    }, 3000);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold">Virtual Laboratory - 3D</h3>
-          <Badge variant="outline">{conceptName}</Badge>
+        <div>
+          <h2 className="text-xl font-semibold">Advanced 3D Interactive Lab for {conceptName}</h2>
+          <p className="text-sm text-muted-foreground">Immersive simulations with real-time parameter controls</p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h4 className="font-semibold">3D Lab Equipment</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {['3D Measuring Tools', '3D Sensors', '3D Controls', '3D Data Logger'].map((tool, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
-                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-orange-600" />
-                  <p className="text-xs">{tool}</p>
-                </div>
-              ))}
-            </div>
-            
-            <Button
-              onClick={startExperiment}
-              disabled={experimentRunning}
-              className="w-full flex items-center gap-2"
-              variant={experimentRunning ? "secondary" : "default"}
-            >
-              {experimentRunning ? (
-                <>
-                  <Activity className="h-4 w-4 animate-spin" />
-                  Running 3D Experiment...
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4" />
-                  Start 3D Experiment
-                </>
-              )}
-            </Button>
-          </div>
+        {/* Global Controls */}
+        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm border">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePlayPause}
+            disabled={!isAudioEnabled}
+          >
+            {simulationPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          
+          <Badge variant="outline" className="ml-2">
+            {subject}
+          </Badge>
+        </div>
+      </div>
 
-          <div className="space-y-4">
-            <h4 className="font-semibold">3D Experiment Results</h4>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg min-h-[200px]">
-              {labResults.length === 0 ? (
-                <p className="text-gray-500 text-center">No 3D experiments run yet</p>
-              ) : (
-                <div className="space-y-2">
-                  {labResults.map((result, index) => (
-                    <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                      {result}
-                    </div>
-                  ))}
+      {/* Simulation Selection */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {simulations.map((sim, index) => (
+          <Button
+            key={sim.id}
+            variant={currentSimulation === index ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setCurrentSimulation(index);
+              setSimulationProgress(0);
+              if (simulationPlaying) {
+                stopAudioExplanation();
+                setTimeout(startAudioExplanation, 500);
+              }
+            }}
+            className="flex-shrink-0"
+          >
+            {sim.title}
+          </Button>
+        ))}
+      </div>
+
+      {/* Progress Bar */}
+      {simulationPlaying && (
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span>Simulation Progress</span>
+            <span>{Math.round(simulationProgress)}%</span>
+          </div>
+          <Progress value={simulationProgress} className="h-2" />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main 3D Simulation */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                {currentSimulationData.title}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">{currentSimulationData.description}</p>
+            </CardHeader>
+            <CardContent>
+              {/* Render the simulation scene */}
+              <div dangerouslySetInnerHTML={{ 
+                __html: currentSimulationData.scene.replace(/\$\{([^}]+)\}/g, (match, expr) => {
+                  try {
+                    return eval(expr);
+                  } catch {
+                    return match;
+                  }
+                })
+              }} />
+              
+              {/* Simulation Status */}
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <span className={`flex items-center gap-2 ${simulationPlaying ? 'text-green-600' : 'text-gray-500'}`}>
+                  <div className={`w-2 h-2 rounded-full ${simulationPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                  {simulationPlaying ? 'Simulation Running' : 'Simulation Paused'}
+                </span>
+                <span className="text-muted-foreground">
+                  Time: {(parameters.time / 10).toFixed(1)}s
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Controls Sidebar */}
+        <div className="space-y-4">
+          {/* Parameter Controls */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Real-time Parameters
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {currentSimulationData.parameters.includes('force') && (
+                <div>
+                  <label className="text-sm font-medium">Force (N)</label>
+                  <Slider
+                    value={[parameters.force]}
+                    onValueChange={(value) => setParameters(prev => ({ ...prev, force: value[0] }))}
+                    max={100}
+                    min={10}
+                    step={5}
+                    className="mt-2"
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">{parameters.force} N</div>
                 </div>
               )}
-            </div>
-          </div>
+              
+              {currentSimulationData.parameters.includes('mass') && (
+                <div>
+                  <label className="text-sm font-medium">Mass (kg)</label>
+                  <Slider
+                    value={[parameters.mass]}
+                    onValueChange={(value) => setParameters(prev => ({ ...prev, mass: value[0] }))}
+                    max={50}
+                    min={1}
+                    step={1}
+                    className="mt-2"
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">{parameters.mass} kg</div>
+                </div>
+              )}
+              
+              {currentSimulationData.parameters.includes('friction') && (
+                <div>
+                  <label className="text-sm font-medium">Friction Coefficient</label>
+                  <Slider
+                    value={[parameters.friction]}
+                    onValueChange={(value) => setParameters(prev => ({ ...prev, friction: value[0] }))}
+                    max={1}
+                    min={0}
+                    step={0.1}
+                    className="mt-2"
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">{parameters.friction}</div>
+                </div>
+              )}
+              
+              {currentSimulationData.parameters.includes('angle') && (
+                <div>
+                  <label className="text-sm font-medium">Angle (°)</label>
+                  <Slider
+                    value={[parameters.angle]}
+                    onValueChange={(value) => setParameters(prev => ({ ...prev, angle: value[0] }))}
+                    max={60}
+                    min={0}
+                    step={5}
+                    className="mt-2"
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">{parameters.angle}°</div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* AI Tutor Integration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-purple-600" />
+                AI 3D Simulation Tutor
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
+                <p className="text-sm text-purple-800 dark:text-purple-300 mb-2">
+                  Get help understanding the 3D simulation and parameter relationships
+                </p>
+                <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white w-full">
+                  Explain Simulation
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Audio Controls */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Volume2 className="h-4 w-4" />
+                Audio Explanation
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={handlePlayPause}
+                disabled={!isAudioEnabled}
+                className="w-full mb-2"
+                variant={simulationPlaying ? "destructive" : "default"}
+              >
+                {simulationPlaying ? (
+                  <>
+                    <Pause className="h-4 w-4 mr-2" />
+                    Pause Audio
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Audio
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Synchronized audio explanations with the 3D simulation
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Calculated Values */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Live Calculations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {subject.toLowerCase() === 'physics' && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span>Acceleration:</span>
+                    <span className="font-mono">{(parameters.force / parameters.mass).toFixed(2)} m/s²</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Net Force:</span>
+                    <span className="font-mono">{parameters.force} N</span>
+                  </div>
+                  {currentSimulationData.parameters.includes('angle') && (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <span>Parallel Force:</span>
+                        <span className="font-mono">{(parameters.mass * 9.8 * Math.sin(parameters.angle * Math.PI / 180)).toFixed(2)} N</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Normal Force:</span>
+                        <span className="font-mono">{(parameters.mass * 9.8 * Math.cos(parameters.angle * Math.PI / 180)).toFixed(2)} N</span>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

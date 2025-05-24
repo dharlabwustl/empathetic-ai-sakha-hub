@@ -1,26 +1,36 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Lightbulb, Brain, Volume2, VolumeX, Play, Pause } from 'lucide-react';
+import { BookOpen, Lightbulb, Brain, Volume2, VolumeX, Play, Pause, CheckCircle, MessageSquare } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 import ReadAloudSection from './concept-detail/ReadAloudSection';
 
 interface EnhancedLearnTabProps {
   conceptName: string;
+  isPlaying?: boolean;
+  isAudioEnabled?: boolean;
 }
 
-const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ 
+  conceptName,
+  isPlaying = false,
+  isAudioEnabled = true
+}) => {
   const [activeSubTab, setActiveSubTab] = useState('basic');
   const [readAloudActive, setReadAloudActive] = useState(false);
   const [currentReadingContent, setCurrentReadingContent] = useState('');
+  const [sectionProgress, setSectionProgress] = useState({
+    basic: 0,
+    detailed: 0,
+    advanced: 0
+  });
+  const [completedSections, setCompletedSections] = useState<string[]>([]);
 
-  const toggleAudio = () => {
-    setIsAudioPlaying(!isAudioPlaying);
-  };
-
-  const startReadAloud = (content: string) => {
+  const startReadAloud = (content: string, section: string) => {
+    if (!isAudioEnabled) return;
+    
     setCurrentReadingContent(content);
     setReadAloudActive(true);
     
@@ -29,7 +39,36 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
       const utterance = new SpeechSynthesisUtterance(content);
       utterance.rate = 0.95;
       utterance.volume = 0.8;
-      utterance.onend = () => setReadAloudActive(false);
+      
+      // Track progress
+      let currentProgress = 0;
+      const progressInterval = setInterval(() => {
+        currentProgress += 2;
+        setSectionProgress(prev => ({
+          ...prev,
+          [section]: Math.min(currentProgress, 100)
+        }));
+        
+        if (currentProgress >= 100) {
+          clearInterval(progressInterval);
+          if (!completedSections.includes(section)) {
+            setCompletedSections(prev => [...prev, section]);
+          }
+        }
+      }, 100);
+      
+      utterance.onend = () => {
+        setReadAloudActive(false);
+        clearInterval(progressInterval);
+        setSectionProgress(prev => ({
+          ...prev,
+          [section]: 100
+        }));
+        if (!completedSections.includes(section)) {
+          setCompletedSections(prev => [...prev, section]);
+        }
+      };
+      
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -47,28 +86,31 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
 
   const advancedContent = `The advanced mathematical framework of Newton's Second Law extends beyond simple scalar equations to vector analysis. In vector form, the sum of all forces equals mass times acceleration vector. This allows us to analyze complex systems where forces act in multiple directions simultaneously. Component analysis becomes crucial when dealing with inclined planes, circular motion, and other complex scenarios where forces must be resolved into perpendicular components.`;
 
+  // Calculate overall progress
+  const overallProgress = (sectionProgress.basic + sectionProgress.detailed + sectionProgress.advanced) / 3;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Learn {conceptName}</h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={toggleAudio}
-          className="flex items-center gap-2"
-        >
-          {isAudioPlaying ? (
-            <>
-              <VolumeX className="h-4 w-4" />
-              Mute Audio
-            </>
-          ) : (
-            <>
-              <Volume2 className="h-4 w-4" />
-              Enable Audio
-            </>
-          )}
-        </Button>
+        <div>
+          <h2 className="text-xl font-semibold">Learn {conceptName}</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Structured learning with progress tracking and audio support
+          </p>
+        </div>
+        
+        {/* Progress Overview */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-medium">Overall Progress</span>
+            <span className="text-xs text-muted-foreground">{Math.round(overallProgress)}%</span>
+          </div>
+          <Progress value={overallProgress} className="h-2 w-32" />
+          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+            <CheckCircle className="h-3 w-3" />
+            {completedSections.length}/3 sections completed
+          </div>
+        </div>
       </div>
 
       {readAloudActive && (
@@ -81,17 +123,32 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
 
       <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="basic">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Basic
+          <TabsTrigger value="basic" className="relative">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Basic
+              {completedSections.includes('basic') && (
+                <CheckCircle className="h-3 w-3 text-green-600" />
+              )}
+            </div>
           </TabsTrigger>
-          <TabsTrigger value="detailed">
-            <Lightbulb className="h-4 w-4 mr-2" />
-            Detailed with Examples
+          <TabsTrigger value="detailed" className="relative">
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-4 w-4" />
+              Detailed
+              {completedSections.includes('detailed') && (
+                <CheckCircle className="h-3 w-3 text-green-600" />
+              )}
+            </div>
           </TabsTrigger>
-          <TabsTrigger value="advanced">
-            <Brain className="h-4 w-4 mr-2" />
-            Advanced Analysis
+          <TabsTrigger value="advanced" className="relative">
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              Advanced
+              {completedSections.includes('advanced') && (
+                <CheckCircle className="h-3 w-3 text-green-600" />
+              )}
+            </div>
           </TabsTrigger>
         </TabsList>
 
@@ -99,23 +156,34 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
-                  Basic Understanding
-                </CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => startReadAloud(basicContent)}
-                  disabled={readAloudActive}
-                >
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Read Aloud
-                </Button>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    Basic Understanding
+                  </CardTitle>
+                  <CardDescription>
+                    Fundamental concepts and definitions
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">Progress</div>
+                    <div className="text-sm font-medium">{Math.round(sectionProgress.basic)}%</div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => startReadAloud(basicContent, 'basic')}
+                    disabled={readAloudActive || !isAudioEnabled}
+                  >
+                    <Volume2 className="h-4 w-4 mr-2" />
+                    Read Aloud
+                  </Button>
+                </div>
               </div>
-              <CardDescription>
-                Fundamental concepts and definitions
-              </CardDescription>
+              {sectionProgress.basic > 0 && (
+                <Progress value={sectionProgress.basic} className="h-2 mt-2" />
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
@@ -133,6 +201,20 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                   Where F is force (N), m is mass (kg), and a is acceleration (m/s²)
                 </p>
+              </div>
+
+              {/* AI Tutor Integration */}
+              <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-purple-800 dark:text-purple-300">Need more help?</h4>
+                    <p className="text-sm text-purple-600 dark:text-purple-400">Ask our AI tutor about basic concepts</p>
+                  </div>
+                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Ask AI Tutor
+                  </Button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -160,23 +242,34 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-yellow-600" />
-                  Detailed Explanation with Examples
-                </CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => startReadAloud(detailedContent)}
-                  disabled={readAloudActive}
-                >
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Read Aloud
-                </Button>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lightbulb className="h-5 w-5 text-yellow-600" />
+                    Detailed Explanation with Examples
+                  </CardTitle>
+                  <CardDescription>
+                    In-depth understanding with real-world applications
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">Progress</div>
+                    <div className="text-sm font-medium">{Math.round(sectionProgress.detailed)}%</div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => startReadAloud(detailedContent, 'detailed')}
+                    disabled={readAloudActive || !isAudioEnabled}
+                  >
+                    <Volume2 className="h-4 w-4 mr-2" />
+                    Read Aloud
+                  </Button>
+                </div>
               </div>
-              <CardDescription>
-                In-depth understanding with real-world applications
-              </CardDescription>
+              {sectionProgress.detailed > 0 && (
+                <Progress value={sectionProgress.detailed} className="h-2 mt-2" />
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg">
@@ -202,6 +295,20 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
                       Example: Same push on a full vs empty cart - empty cart accelerates more
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* AI Tutor for Detailed Section */}
+              <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-purple-800 dark:text-purple-300">Need examples explained?</h4>
+                    <p className="text-sm text-purple-600 dark:text-purple-400">Get detailed explanations from our AI tutor</p>
+                  </div>
+                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Explain Examples
+                  </Button>
                 </div>
               </div>
 
@@ -233,23 +340,34 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                  Advanced Analysis
-                </CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => startReadAloud(advancedContent)}
-                  disabled={readAloudActive}
-                >
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Read Aloud
-                </Button>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    Advanced Analysis
+                  </CardTitle>
+                  <CardDescription>
+                    Complex applications and mathematical analysis
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">Progress</div>
+                    <div className="text-sm font-medium">{Math.round(sectionProgress.advanced)}%</div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => startReadAloud(advancedContent, 'advanced')}
+                    disabled={readAloudActive || !isAudioEnabled}
+                  >
+                    <Volume2 className="h-4 w-4 mr-2" />
+                    Read Aloud
+                  </Button>
+                </div>
               </div>
-              <CardDescription>
-                Complex applications and mathematical analysis
-              </CardDescription>
+              {sectionProgress.advanced > 0 && (
+                <Progress value={sectionProgress.advanced} className="h-2 mt-2" />
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg">
@@ -271,6 +389,20 @@ const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
                     </div>
                     <p className="text-sm mt-2">Forces and accelerations can be analyzed in components</p>
                   </div>
+                </div>
+              </div>
+
+              {/* Advanced AI Tutor Integration */}
+              <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-purple-800 dark:text-purple-300">Complex problem solving?</h4>
+                    <p className="text-sm text-purple-600 dark:text-purple-400">Get step-by-step guidance for advanced concepts</p>
+                  </div>
+                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Advanced Help
+                  </Button>
                 </div>
               </div>
 
