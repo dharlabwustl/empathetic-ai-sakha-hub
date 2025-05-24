@@ -69,7 +69,14 @@ const moodColors: Record<MoodType, string> = {
   [MoodType.ANXIOUS]: 'bg-red-100 text-red-800',
   [MoodType.STRESSED]: 'bg-orange-100 text-orange-800',
   [MoodType.CONFIDENT]: 'bg-purple-100 text-purple-800',
-  [MoodType.EXCITED]: 'bg-pink-100 text-pink-800'
+  [MoodType.EXCITED]: 'bg-pink-100 text-pink-800',
+  [MoodType.CALM]: 'bg-teal-100 text-teal-800',
+  [MoodType.CONFUSED]: 'bg-amber-100 text-amber-800',
+  [MoodType.OVERWHELMED]: 'bg-red-200 text-red-900',
+  [MoodType.NEUTRAL]: 'bg-slate-100 text-slate-800',
+  [MoodType.SAD]: 'bg-indigo-100 text-indigo-800',
+  [MoodType.CURIOUS]: 'bg-emerald-100 text-emerald-800',
+  [MoodType.OKAY]: 'bg-cyan-100 text-cyan-800'
 };
 
 const StudentProfilesTab: React.FC = () => {

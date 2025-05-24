@@ -1,61 +1,85 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
+import { Volume2, VolumeX } from 'lucide-react';
 
 const moodMessages: Record<MoodType, string> = {
-  [MoodType.Happy]: "You're radiating positive energy today! Perfect time for challenging topics.",
-  [MoodType.Motivated]: "Your motivation is inspiring! Let's tackle some difficult concepts.",
-  [MoodType.Focused]: "You're in the zone! This is ideal for deep learning sessions.",
-  [MoodType.Tired]: "Take it easy today. Light revision might be more suitable.",
-  [MoodType.Stressed]: "Remember to breathe. Let's start with something manageable.",
-  [MoodType.Anxious]: "Take your time. We'll work through this step by step.",
-  [MoodType.Okay]: "Steady progress is good progress. Let's continue learning.",
-  [MoodType.Overwhelmed]: "Break things down into smaller pieces. You've got this!",
-  [MoodType.Curious]: "Your curiosity is a superpower! Let's explore new topics.",
-  [MoodType.Confused]: "It's okay to feel confused. Let's clarify the fundamentals.",
-  [MoodType.Sad]: "Learning can lift your spirits. Let's find something interesting.",
-  [MoodType.Neutral]: "A neutral state is perfect for steady learning.",
-  [MoodType.Calm]: "Your calmness will help with retention. Great learning conditions!"
+  [MoodType.HAPPY]: "Great to see you're feeling happy! Let's channel that positive energy into learning.",
+  [MoodType.MOTIVATED]: "You're feeling motivated - perfect! Let's make the most of this energy.",
+  [MoodType.FOCUSED]: "Your focus is your superpower! Ready to dive deep into learning?",
+  [MoodType.TIRED]: "Feeling tired? That's okay. Let's take it easy with some light review.",
+  [MoodType.STRESSED]: "I notice you're feeling stressed. Let's try some quick relaxation exercises first.",
+  [MoodType.ANXIOUS]: "It's normal to feel anxious sometimes. Take a deep breath, you've got this!",
+  [MoodType.OKAY]: "Feeling okay is a good starting point. Let's see what we can achieve today!",
+  [MoodType.OVERWHELMED]: "Feeling overwhelmed? Let's break things down into smaller, manageable steps.",
+  [MoodType.CURIOUS]: "Your curiosity is wonderful! Let's explore some interesting topics together.",
+  [MoodType.CONFUSED]: "Confusion is just the first step to understanding. Let's clear things up!",
+  [MoodType.SAD]: "I'm here for you. Sometimes learning can help lift our spirits.",
+  [MoodType.NEUTRAL]: "Ready to start your learning session? Let's see what interests you today.",
+  [MoodType.CALM]: "Your calm energy is perfect for focused learning. Let's make good use of it!",
+  [MoodType.CONFIDENT]: "Confidence looks great on you! Let's tackle some challenging topics.",
+  [MoodType.EXCITED]: "Your excitement is contagious! Let's channel it into productive learning."
 };
 
 interface FloatingVoiceAnnouncerProps {
-  currentMood?: MoodType;
-  announcement?: string;
+  userMood: MoodType;
+  userName: string;
 }
 
-const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ 
-  currentMood, 
-  announcement 
-}) => {
-  const [isEnabled, setIsEnabled] = useState(false);
-  
-  const message = announcement || (currentMood ? moodMessages[currentMood] : "Welcome to your learning dashboard!");
-  
-  const handleToggle = () => {
-    setIsEnabled(!isEnabled);
-    if (!isEnabled && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(message);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      speechSynthesis.speak(utterance);
-    } else if (isEnabled) {
-      speechSynthesis.cancel();
+const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ userMood, userName }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlayMessage = () => {
+    if ('speechSynthesis' in window) {
+      const message = new SpeechSynthesisUtterance(
+        `Hello ${userName}! ${moodMessages[userMood]}`
+      );
+      message.rate = 0.8;
+      message.pitch = 1;
+      
+      setIsPlaying(true);
+      
+      message.onend = () => {
+        setIsPlaying(false);
+      };
+      
+      window.speechSynthesis.speak(message);
     }
   };
-  
+
+  const handleStopMessage = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+    }
+  };
+
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <Button
-        variant={isEnabled ? "default" : "outline"}
-        size="sm"
-        onClick={handleToggle}
-        className="rounded-full shadow-lg"
-      >
-        {isEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-      </Button>
+    <div className="fixed bottom-6 right-6 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-sm">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+          {moodMessages[userMood]}
+        </p>
+        <Button
+          size="sm"
+          variant={isPlaying ? "destructive" : "default"}
+          onClick={isPlaying ? handleStopMessage : handlePlayMessage}
+          className="w-full"
+        >
+          {isPlaying ? (
+            <>
+              <VolumeX className="w-4 h-4 mr-2" />
+              Stop
+            </>
+          ) : (
+            <>
+              <Volume2 className="w-4 h-4 mr-2" />
+              Listen
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 };

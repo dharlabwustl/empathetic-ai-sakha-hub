@@ -17,7 +17,7 @@ export enum MoodType {
   OKAY = 'okay'
 }
 
-export type SubscriptionTypeValue = 'free' | 'basic' | 'premium' | 'pro' | 'enterprise';
+export type SubscriptionTypeValue = 'free' | 'basic' | 'premium' | 'pro' | 'enterprise' | 'pro_monthly' | 'pro_yearly' | 'group';
 
 export interface UserSubscription {
   id: string;
@@ -27,6 +27,9 @@ export interface UserSubscription {
   endDate?: Date;
   amount: number;
   currency: string;
+  batchName?: string;
+  batchId?: string;
+  maxMembers?: number;
 }
 
 export interface UserGoal {
