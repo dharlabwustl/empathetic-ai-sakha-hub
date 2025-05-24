@@ -1,16 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, BookOpen, Eye, Brain, Lightbulb, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { ConceptCard } from '@/types/user/conceptCard';
 import EnhancedLearnTab from './EnhancedLearnTab';
-import Visual3DContent from './Visual3DContent';
-import QuickRecallSection from './concept-detail/QuickRecallSection';
+import InteractiveVisualizationsTab from './InteractiveVisualizationsTab';
+import Enhanced3DLabsTab from './Enhanced3DLabsTab';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
@@ -70,11 +68,9 @@ const ConceptDetailPage = () => {
               Back to Dashboard
             </Button>
           </div>
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-500">Concept not found or loading...</p>
-            </CardContent>
-          </Card>
+          <div className="text-center py-8">
+            <p className="text-gray-500">Concept not found or loading...</p>
+          </div>
         </div>
       </div>
     );
@@ -123,7 +119,7 @@ const ConceptDetailPage = () => {
                   </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
-                    Learning Tools
+                    Tools
                   </TabsTrigger>
                   <TabsTrigger value="notes" className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
@@ -136,106 +132,18 @@ const ConceptDetailPage = () => {
                 </TabsContent>
 
                 <TabsContent value="interactive" className="mt-0">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Eye className="h-5 w-5 text-purple-600" />
-                        Interactive Visualizations with Audio
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-purple-50 dark:bg-purple-950/30 p-6 rounded-lg">
-                        <p className="text-center text-gray-600 dark:text-gray-400">
-                          Interactive visualizations with audio explanations for {concept.title} will be loaded here.
-                        </p>
-                        <div className="mt-4 text-center">
-                          <Button 
-                            onClick={() => {
-                              const audioExplanation = `This interactive visualization shows ${concept.title}. Click on different elements to explore the concept in detail.`;
-                              if ('speechSynthesis' in window) {
-                                const utterance = new SpeechSynthesisUtterance(audioExplanation);
-                                utterance.rate = 0.9;
-                                window.speechSynthesis.speak(utterance);
-                              }
-                            }}
-                            className="flex items-center gap-2"
-                          >
-                            <Video className="h-4 w-4" />
-                            Play Audio Explanation
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <InteractiveVisualizationsTab conceptName={concept.title} />
                 </TabsContent>
 
                 <TabsContent value="3d" className="mt-0">
-                  <Visual3DContent conceptName={concept.title} />
+                  <Enhanced3DLabsTab conceptName={concept.title} />
                 </TabsContent>
 
                 <TabsContent value="tools" className="mt-0">
-                  <div className="space-y-6">
-                    {/* Quick Recall Test Section */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Brain className="h-5 w-5 text-blue-600" />
-                          Quick Recall Test
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <QuickRecallSection 
-                          conceptId={concept.id}
-                          title={concept.title}
-                          content={concept.content}
-                          onQuizComplete={(score) => {
-                            console.log(`Quiz completed with score: ${score}`);
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
-
-                    {/* Other Learning Tools */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-sm flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
-                            Notes & Annotations
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Create personal notes and annotations for this concept.
-                          </p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-2"
-                            onClick={() => setActiveTab('notes')}
-                          >
-                            Open Notes
-                          </Button>
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-sm flex items-center gap-2">
-                            <Calculator className="h-4 w-4" />
-                            Practice Problems
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Solve practice problems related to this concept.
-                          </p>
-                          <Button variant="outline" size="sm" className="mt-2">
-                            Start Practice
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-8 rounded-lg">
+                    <p className="text-center text-gray-600 dark:text-gray-400">
+                      Additional learning tools for {concept.title} will be available here.
+                    </p>
                   </div>
                 </TabsContent>
 
