@@ -146,4 +146,3 @@ export const exportDatabaseSchemaAsJson = () => {
   const schema = generateDatabaseSchema();
   return JSON.stringify(schema, null, 2);
 };
-
