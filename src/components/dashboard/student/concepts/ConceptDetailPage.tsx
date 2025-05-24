@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -120,7 +119,7 @@ const ConceptDetailPage = () => {
                   </TabsTrigger>
                   <TabsTrigger value="3d" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    Advanced 3D Interactive Lab
+                    3D Lab
                   </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
