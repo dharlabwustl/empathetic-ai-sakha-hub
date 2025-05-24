@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import VoiceGreeting from '@/components/dashboard/student/voice/VoiceGreeting';
 
 const WelcomeToPrepr = () => {
   const navigate = useNavigate();
+  const [canProceed, setCanProceed] = useState(false);
   
   // Get user data for personalized welcome
   const userData = localStorage.getItem('userData');
@@ -16,28 +16,40 @@ const WelcomeToPrepr = () => {
   const userName = user?.name || user?.firstName || 'Student';
   
   const handleContinueToDashboard = () => {
-    navigate('/dashboard/student');
+    if (canProceed) {
+      navigate('/dashboard/student');
+    }
   };
 
   // Set first-time user flag
   useEffect(() => {
     localStorage.setItem('new_user_signup', 'true');
+    
+    // Enable proceed button after voice greeting completes (minimum 10 seconds)
+    const timer = setTimeout(() => {
+      setCanProceed(true);
+    }, 10000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex flex-col relative overflow-hidden">
-      {/* 3D Background Elements */}
+      {/* Enhanced 3D Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full opacity-10 animate-ping"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-30 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-30 animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full opacity-20 animate-ping"></div>
+        <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full opacity-25 animate-bounce"></div>
+        <div className="absolute bottom-20 right-20 w-48 h-48 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full opacity-25 animate-pulse delay-500"></div>
       </div>
       
-      {/* Voice Greeting for First Time User */}
+      {/* Mandatory Voice Greeting for First Time User */}
       <VoiceGreeting 
         isFirstTimeUser={true}
         userName={userName}
         language="en-US"
+        mandatory={true}
       />
       
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
@@ -57,6 +69,11 @@ const WelcomeToPrepr = () => {
             <p className="text-lg text-muted-foreground mt-2">
               Your personalized study journey begins now
             </p>
+            {!canProceed && (
+              <p className="text-sm text-blue-600 mt-2 animate-pulse">
+                Please listen to the welcome message...
+              </p>
+            )}
           </div>
           
           <div className="mb-8">
@@ -164,9 +181,14 @@ const WelcomeToPrepr = () => {
             <Button 
               size="lg" 
               onClick={handleContinueToDashboard}
-              className="px-8 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+              disabled={!canProceed}
+              className={`px-8 shadow-lg transition-all duration-300 ${
+                canProceed 
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
             >
-              Continue to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              {canProceed ? 'Continue to Dashboard' : 'Listening...'} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </motion.div>

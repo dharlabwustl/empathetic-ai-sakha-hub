@@ -22,16 +22,28 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
   pendingTasks = []
 }) => {
   const [open, setOpen] = useState(true);
+  const [canProceed, setCanProceed] = useState(false);
+  
+  useEffect(() => {
+    // Enable proceed button after voice greeting completes (minimum 8 seconds)
+    const timer = setTimeout(() => {
+      setCanProceed(true);
+    }, 8000);
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   const handleClose = () => {
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
-    setOpen(false);
-    onComplete();
+    if (canProceed) {
+      localStorage.setItem("hasSeenDashboardWelcome", "true");
+      setOpen(false);
+      onComplete();
+    }
   };
   
   return (
     <>
-      {/* Voice Greeting Component */}
+      {/* Mandatory Voice Greeting Component */}
       <VoiceGreeting 
         isFirstTimeUser={!isReturningUser}
         userName={userName}
@@ -39,14 +51,16 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
         lastActivity={lastActivity}
         pendingTasks={pendingTasks}
         language="en-US"
+        mandatory={true}
       />
       
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 backdrop-blur-sm">
-          {/* 3D Background Elements */}
+          {/* Enhanced 3D Background Elements */}
           <div className="absolute inset-0 overflow-hidden rounded-lg">
-            <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-10 animate-pulse"></div>
-            <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-10 animate-pulse delay-1000"></div>
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-20 animate-pulse"></div>
+            <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
+            <div className="absolute top-10 left-10 w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full opacity-15 animate-bounce"></div>
           </div>
           
           <DialogHeader className="relative z-10">
@@ -93,6 +107,12 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
               {isReturningUser && pendingTasks && pendingTasks.length > 0 && (
                 <p className="text-sm text-orange-600 dark:text-orange-400 mt-1">
                   You have {pendingTasks.length} pending activities waiting for you.
+                </p>
+              )}
+              
+              {!canProceed && (
+                <p className="text-sm text-blue-600 mt-2 animate-pulse">
+                  Please listen to the welcome message...
                 </p>
               )}
             </div>
@@ -143,9 +163,15 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
           <div className="flex justify-center relative z-10">
             <Button 
               onClick={handleClose}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+              disabled={!canProceed}
+              className={`transition-all duration-300 ${
+                canProceed 
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700'
+                  : 'bg-gray-400 cursor-not-allowed text-gray-200'
+              }`}
             >
-              {isReturningUser ? "Continue Learning" : "Get Started"} <ChevronRight className="ml-2 h-4 w-4" />
+              {canProceed ? (isReturningUser ? "Continue Learning" : "Get Started") : "Listening..."} 
+              <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </DialogContent>

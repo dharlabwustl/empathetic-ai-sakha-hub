@@ -8,6 +8,7 @@ interface VoiceGreetingProps {
   lastActivity?: string;
   pendingTasks?: string[];
   language?: string;
+  mandatory?: boolean;
 }
 
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
@@ -16,7 +17,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   isReturningUser = false,
   lastActivity,
   pendingTasks = [],
-  language = 'en-US'
+  language = 'en-US',
+  mandatory = true
 }) => {
   const hasSpokenRef = useRef(false);
 
@@ -51,23 +53,29 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       }
       
       const speech = new SpeechSynthesisUtterance();
-      speech.text = greeting.replace(/PREPZR/gi, 'PREP-zer');
+      speech.text = greeting.replace(/PREPZR/gi, 'PREPZR');
       speech.lang = language;
       speech.rate = 0.9;
-      speech.pitch = 1.1;
-      speech.volume = 0.8;
+      speech.pitch = 1.2;
+      speech.volume = 1.0;
       
-      // Get available voices and select a preferred female voice
+      // Get available voices and select a preferred confident female voice
       const voices = window.speechSynthesis.getVoices();
       const femaleVoices = voices.filter(voice => 
         voice.name.toLowerCase().includes('female') || 
         voice.name.toLowerCase().includes('zira') ||
         voice.name.toLowerCase().includes('samantha') ||
+        voice.name.toLowerCase().includes('aria') ||
         (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
       );
       
       if (femaleVoices.length > 0) {
-        speech.voice = femaleVoices[0];
+        // Prefer more confident sounding voices
+        const confidentVoice = femaleVoices.find(voice => 
+          voice.name.toLowerCase().includes('aria') ||
+          voice.name.toLowerCase().includes('samantha')
+        ) || femaleVoices[0];
+        speech.voice = confidentVoice;
       }
       
       // Add event listeners to track speech completion
@@ -85,10 +93,16 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         hasSpokenRef.current = true;
       };
       
-      // Small delay to ensure voices are loaded
-      setTimeout(() => {
-        window.speechSynthesis.speak(speech);
-      }, 1000);
+      // Mandatory listening - start immediately
+      if (mandatory) {
+        setTimeout(() => {
+          window.speechSynthesis.speak(speech);
+        }, 500);
+      } else {
+        setTimeout(() => {
+          window.speechSynthesis.speak(speech);
+        }, 1000);
+      }
     };
 
     // Load voices if not already loaded
@@ -104,7 +118,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks, language]);
+  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks, language, mandatory]);
 
   // Stop speech when page changes (component unmounts)
   useEffect(() => {
