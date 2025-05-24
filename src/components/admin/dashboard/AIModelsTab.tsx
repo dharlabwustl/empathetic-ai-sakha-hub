@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Cpu, Zap, Settings, Activity, AlertCircle, CheckCircle, BarChart3, User, FileText, Calendar, Heart } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
+import { Brain, Cpu, Zap, Settings, Activity, AlertCircle, CheckCircle, BarChart3, User, FileText, Calendar, Heart, Play, Pause, RotateCcw } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 interface AIModel {
   id: string;
@@ -19,9 +21,11 @@ interface AIModel {
   lastUpdated: string;
   description: string;
   flaskEndpoint: string;
+  deploymentStatus: 'deployed' | 'deploying' | 'failed';
 }
 
 const AIModelsTab: React.FC = () => {
+  const { toast } = useToast();
   const [models, setModels] = useState<AIModel[]>([
     {
       id: '1',
@@ -34,7 +38,8 @@ const AIModelsTab: React.FC = () => {
       avgResponseTime: 1.2,
       lastUpdated: '2024-01-15',
       description: 'Classifies users based on learning style, preferences, and behavior patterns',
-      flaskEndpoint: '/api/ai/classify-user'
+      flaskEndpoint: '/api/ai/classify-user',
+      deploymentStatus: 'deployed'
     },
     {
       id: '2',
@@ -47,7 +52,8 @@ const AIModelsTab: React.FC = () => {
       avgResponseTime: 2.1,
       lastUpdated: '2024-01-14',
       description: 'Generates concept cards, flashcards, exams, and formulas from uploaded resources',
-      flaskEndpoint: '/api/ai/generate-content'
+      flaskEndpoint: '/api/ai/generate-content',
+      deploymentStatus: 'deployed'
     },
     {
       id: '3',
@@ -60,7 +66,8 @@ const AIModelsTab: React.FC = () => {
       avgResponseTime: 0.8,
       lastUpdated: '2024-01-15',
       description: 'Creates personalized study plans and daily distributions based on exam and subjects',
-      flaskEndpoint: '/api/ai/generate-plan'
+      flaskEndpoint: '/api/ai/generate-plan',
+      deploymentStatus: 'deployed'
     },
     {
       id: '4',
@@ -73,7 +80,8 @@ const AIModelsTab: React.FC = () => {
       avgResponseTime: 0.5,
       lastUpdated: '2024-01-13',
       description: 'Analyzes tone, content, words, and mood for dynamic plan adjustments',
-      flaskEndpoint: '/api/ai/analyze-emotion'
+      flaskEndpoint: '/api/ai/analyze-emotion',
+      deploymentStatus: 'deployed'
     },
     {
       id: '5',
@@ -86,26 +94,10 @@ const AIModelsTab: React.FC = () => {
       avgResponseTime: 1.5,
       lastUpdated: '2024-01-12',
       description: 'Adapts plans based on learning behavior and daily progress patterns',
-      flaskEndpoint: '/api/ai/adaptive-learning'
+      flaskEndpoint: '/api/ai/adaptive-learning',
+      deploymentStatus: 'deploying'
     }
   ]);
-
-  const contentFormats = [
-    { type: 'text', name: 'Text-based Content', count: 2543, active: true },
-    { type: 'visual', name: 'Visual Content', count: 1234, active: true },
-    { type: 'diagrams', name: 'Diagrams', count: 876, active: true },
-    { type: 'interactive', name: 'Interactive Visualizations', count: 456, active: false },
-    { type: '3d', name: '3D Models', count: 234, active: true },
-    { type: 'video', name: 'Video Content', count: 345, active: true }
-  ];
-
-  const flaskIntegration = [
-    { endpoint: '/api/ai/classify-user', status: 'active', lastCall: '2 min ago', avgTime: '1.2s' },
-    { endpoint: '/api/ai/generate-content', status: 'active', lastCall: '5 min ago', avgTime: '2.1s' },
-    { endpoint: '/api/ai/generate-plan', status: 'active', lastCall: '1 min ago', avgTime: '0.8s' },
-    { endpoint: '/api/ai/analyze-emotion', status: 'active', lastCall: '3 min ago', avgTime: '0.5s' },
-    { endpoint: '/api/ai/adaptive-learning', status: 'degraded', lastCall: '10 min ago', avgTime: '1.5s' }
-  ];
 
   const toggleModel = (modelId: string) => {
     setModels(prevModels =>
@@ -115,6 +107,68 @@ const AIModelsTab: React.FC = () => {
           : model
       )
     );
+    
+    toast({
+      title: "Model Status Updated",
+      description: "AI model status has been changed successfully."
+    });
+  };
+
+  const testModel = async (modelId: string, modelName: string) => {
+    toast({
+      title: "Testing Model",
+      description: `Running accuracy and performance tests for ${modelName}...`
+    });
+
+    // Simulate API testing
+    setTimeout(() => {
+      const testResults = {
+        accuracy: Math.random() * 5 + 90, // 90-95%
+        responseTime: Math.random() * 1 + 0.5, // 0.5-1.5s
+        throughput: Math.floor(Math.random() * 100) + 50 // 50-150 req/min
+      };
+
+      toast({
+        title: "Test Complete",
+        description: `Accuracy: ${testResults.accuracy.toFixed(1)}%, Response: ${testResults.responseTime.toFixed(2)}s`
+      });
+    }, 3000);
+  };
+
+  const retrainModel = (modelId: string, modelName: string) => {
+    setModels(prevModels =>
+      prevModels.map(model =>
+        model.id === modelId
+          ? { ...model, status: 'training' }
+          : model
+      )
+    );
+
+    toast({
+      title: "Retraining Started",
+      description: `${modelName} is being retrained with latest data...`
+    });
+
+    // Simulate retraining process
+    setTimeout(() => {
+      setModels(prevModels =>
+        prevModels.map(model =>
+          model.id === modelId
+            ? { 
+                ...model, 
+                status: 'active',
+                accuracy: Math.random() * 3 + 92,
+                version: `v${Math.floor(Math.random() * 9) + 1}.${Math.floor(Math.random() * 9)}.${Math.floor(Math.random() * 9)}`
+              }
+            : model
+        )
+      );
+      
+      toast({
+        title: "Retraining Complete",
+        description: `${modelName} has been successfully retrained and deployed.`
+      });
+    }, 8000);
   };
 
   const getStatusColor = (status: string) => {
@@ -123,7 +177,9 @@ const AIModelsTab: React.FC = () => {
       'inactive': 'bg-gray-100 text-gray-800',
       'training': 'bg-yellow-100 text-yellow-800',
       'error': 'bg-red-100 text-red-800',
-      'degraded': 'bg-orange-100 text-orange-800'
+      'deployed': 'bg-blue-100 text-blue-800',
+      'deploying': 'bg-orange-100 text-orange-800',
+      'failed': 'bg-red-100 text-red-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
@@ -178,22 +234,21 @@ const AIModelsTab: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Content Generated</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Deployment Status</CardTitle>
+            <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15.2k</div>
-            <p className="text-xs text-muted-foreground">Items this month</p>
+            <div className="text-2xl font-bold">{models.filter(m => m.deploymentStatus === 'deployed').length}/{models.length}</div>
+            <p className="text-xs text-muted-foreground">Models deployed</p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="models" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="models">AI Models</TabsTrigger>
-          <TabsTrigger value="content">Content Generation</TabsTrigger>
-          <TabsTrigger value="planning">Study Planning</TabsTrigger>
-          <TabsTrigger value="flask">Flask Integration</TabsTrigger>
+          <TabsTrigger value="testing">Testing Protocols</TabsTrigger>
+          <TabsTrigger value="deployment">Deployment</TabsTrigger>
         </TabsList>
 
         <TabsContent value="models" className="space-y-4">
@@ -202,8 +257,14 @@ const AIModelsTab: React.FC = () => {
               <div className="flex items-center justify-between">
                 <CardTitle>AI Models Management</CardTitle>
                 <div className="flex gap-2">
-                  <Button variant="outline">Train New Model</Button>
-                  <Button>Deploy Model</Button>
+                  <Button variant="outline">
+                    <Brain className="mr-2 h-4 w-4" />
+                    Train New Model
+                  </Button>
+                  <Button>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Deploy Model
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -212,7 +273,7 @@ const AIModelsTab: React.FC = () => {
                 {models.map((model) => (
                   <div key={model.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-3 flex-1">
                         <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                           {getTypeIcon(model.type)}
                         </div>
@@ -222,23 +283,36 @@ const AIModelsTab: React.FC = () => {
                             <Badge className={getStatusColor(model.status)}>
                               {model.status}
                             </Badge>
+                            <Badge className={getStatusColor(model.deploymentStatus)}>
+                              {model.deploymentStatus}
+                            </Badge>
                             <Badge variant="outline">{model.version}</Badge>
                           </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                             {model.description}
                           </p>
+                          
+                          {/* Accuracy Progress Bar */}
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm text-gray-500">Accuracy</span>
+                              <span className="text-sm font-medium">{model.accuracy}%</span>
+                            </div>
+                            <Progress value={model.accuracy} className="h-2" />
+                          </div>
+                          
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                              <span className="text-gray-500">Accuracy:</span>
-                              <span className="font-medium ml-1">{model.accuracy}%</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Requests:</span>
+                              <span className="text-gray-500">Requests Today:</span>
                               <span className="font-medium ml-1">{model.requestsToday.toLocaleString()}</span>
                             </div>
                             <div>
-                              <span className="text-gray-500">Response:</span>
+                              <span className="text-gray-500">Avg Response:</span>
                               <span className="font-medium ml-1">{model.avgResponseTime}s</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Last Updated:</span>
+                              <span className="font-medium ml-1">{model.lastUpdated}</span>
                             </div>
                             <div>
                               <span className="text-gray-500">Endpoint:</span>
@@ -248,16 +322,33 @@ const AIModelsTab: React.FC = () => {
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-col gap-2 ml-4">
                         <Switch
                           checked={model.status === 'active'}
                           onCheckedChange={() => toggleModel(model.id)}
                           disabled={model.status === 'training'}
                         />
-                        <Button variant="outline" size="sm">
-                          <Settings className="h-3 w-3 mr-1" />
-                          Configure
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => testModel(model.id, model.name)}
+                            disabled={model.status !== 'active'}
+                          >
+                            <Play className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => retrainModel(model.id, model.name)}
+                            disabled={model.status === 'training'}
+                          >
+                            <RotateCcw className="h-3 w-3" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Settings className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -267,70 +358,57 @@ const AIModelsTab: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="content" className="space-y-4">
+        <TabsContent value="testing" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Content Generation Formats</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {contentFormats.map((format, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium">{format.name}</h3>
-                      <Badge className={format.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                        {format.active ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </div>
-                    <p className="text-2xl font-bold">{format.count.toLocaleString()}</p>
-                    <p className="text-sm text-gray-500">Generated this month</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="planning" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Study Planning & Adaptation</CardTitle>
+              <CardTitle>Testing Protocols & Performance Assessment</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="font-semibold">Dynamic Plan Generation</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center p-2 border rounded">
-                      <span>Exam-based Plans</span>
-                      <Badge className="bg-blue-100 text-blue-800">2,543 active</Badge>
+                  <h3 className="font-semibold">Automated Testing</h3>
+                  <div className="space-y-3">
+                    <div className="p-3 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">Daily Accuracy Tests</span>
+                        <Badge className="bg-green-100 text-green-800">Running</Badge>
+                      </div>
+                      <p className="text-sm text-gray-600">Automated tests run every 6 hours to assess model accuracy</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Progress value={85} className="flex-1 h-2" />
+                        <span className="text-sm">85%</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center p-2 border rounded">
-                      <span>Subject-linked Plans</span>
-                      <Badge className="bg-blue-100 text-blue-800">1,847 active</Badge>
-                    </div>
-                    <div className="flex justify-between items-center p-2 border rounded">
-                      <span>Daily Distributions</span>
-                      <Badge className="bg-green-100 text-green-800">98.2% accuracy</Badge>
+                    
+                    <div className="p-3 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">Performance Benchmarks</span>
+                        <Badge className="bg-blue-100 text-blue-800">Scheduled</Badge>
+                      </div>
+                      <p className="text-sm text-gray-600">Response time and throughput testing</p>
+                      <div className="mt-2 text-sm">
+                        <div>Next run: 2 hours</div>
+                        <div>Last avg: 1.2s response time</div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="font-semibold">Adaptive Learning</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center p-2 border rounded">
-                      <span>Behavior Analysis</span>
-                      <Badge className="bg-purple-100 text-purple-800">Real-time</Badge>
-                    </div>
-                    <div className="flex justify-between items-center p-2 border rounded">
-                      <span>Progress Tracking</span>
-                      <Badge className="bg-green-100 text-green-800">Daily updates</Badge>
-                    </div>
-                    <div className="flex justify-between items-center p-2 border rounded">
-                      <span>Mood-based Adaptation</span>
-                      <Badge className="bg-orange-100 text-orange-800">Hourly</Badge>
-                    </div>
+                  <h3 className="font-semibold">Manual Testing</h3>
+                  <div className="space-y-3">
+                    <Button className="w-full" onClick={() => toast({ title: "Running comprehensive test suite..." })}>
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Run Full Test Suite
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Validate All Models
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <AlertCircle className="mr-2 h-4 w-4" />
+                      Generate Test Report
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -338,34 +416,58 @@ const AIModelsTab: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="flask" className="space-y-4">
+        <TabsContent value="deployment" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Flask API Integration Status</CardTitle>
+              <CardTitle>Model Deployment & API Access</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {flaskIntegration.map((endpoint, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-mono text-sm">{endpoint.endpoint}</span>
-                          <Badge className={getStatusColor(endpoint.status)}>
-                            {endpoint.status}
-                          </Badge>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold mb-4">Deployment Status</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {models.map((model) => (
+                      <div key={model.id} className="border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          {getTypeIcon(model.type)}
+                          <span className="font-medium text-sm">{model.name}</span>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>Last Call: {endpoint.lastCall}</span>
-                          <span>Avg Time: {endpoint.avgTime}</span>
+                        <Badge className={getStatusColor(model.deploymentStatus)}>
+                          {model.deploymentStatus}
+                        </Badge>
+                        <div className="mt-2 text-xs text-gray-500">
+                          <div>Endpoint: {model.flaskEndpoint}</div>
+                          <div>Version: {model.version}</div>
+                        </div>
+                        {model.deploymentStatus === 'deploying' && (
+                          <Progress value={65} className="mt-2 h-1" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold mb-4">API Endpoints Status</h3>
+                  <div className="space-y-2">
+                    {models.map((model) => (
+                      <div key={model.id} className="flex items-center justify-between p-3 border rounded">
+                        <div>
+                          <span className="font-mono text-sm">{model.flaskEndpoint}</span>
+                          <span className="ml-2 text-xs text-gray-500">({model.name})</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={model.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                            {model.status === 'active' ? 'Online' : 'Offline'}
+                          </Badge>
+                          <Button size="sm" variant="outline">
+                            Test API
+                          </Button>
                         </div>
                       </div>
-                      <Button size="sm" variant="outline">
-                        Test Endpoint
-                      </Button>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </CardContent>
           </Card>

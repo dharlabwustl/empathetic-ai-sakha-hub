@@ -64,10 +64,8 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
   
   // Function to handle voice commands
   const processVoiceCommand = (command: string) => {
-    // Implement processing of voice commands
     console.log("Processing command:", command);
     
-    // Simple response system
     const lowerCommand = command.toLowerCase();
     
     if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
@@ -85,7 +83,6 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       return;
     }
     
-    // Default response
     speakMessage("I'm not sure how to help with that specific request. You can ask me about your study plan, exam readiness, or available learning resources.");
   };
   
@@ -97,7 +94,6 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     setIsMuted(!isMuted);
     
     if (!isMuted) {
-      // If currently not muted and about to be muted, stop any speech
       window.speechSynthesis?.cancel();
       setIsSpeaking(false);
     }
@@ -106,31 +102,24 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
   const speakMessage = (text: string) => {
     if (!('speechSynthesis' in window) || isMuted) return;
     
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-    
     setIsSpeaking(true);
     
-    // Use "Prepzer" as a single word
     const correctedText = text
       .replace(/PREPZR/gi, 'Prepzer')
       .replace(/prepzr/gi, 'Prepzer')
       .replace(/Prepzr/g, 'Prepzer');
     
-    // Create a new utterance
     const utterance = new SpeechSynthesisUtterance(correctedText);
     
-    // Load voices
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = null;
     
-    // Try to find an Indian English voice
     const preferredVoiceNames = [
       'Google English India', 'Microsoft Kajal', 'en-IN',
       'Indian', 'India'
     ];
     
-    // Try to find a preferred voice
     for (const name of preferredVoiceNames) {
       const voice = voices.find(v => 
         v.name?.toLowerCase().includes(name.toLowerCase()) || 
@@ -142,14 +131,12 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       }
     }
     
-    // If still no voice selected, try to find any female voice
     if (!selectedVoice) {
       selectedVoice = voices.find(v => 
         v.name?.toLowerCase().includes('female')
       );
     }
     
-    // If still nothing, use any available voice
     if (!selectedVoice && voices.length > 0) {
       selectedVoice = voices[0];
     }
@@ -158,13 +145,11 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       utterance.voice = selectedVoice;
     }
     
-    // Set properties
-    utterance.rate = 0.95; // Slightly slower for better clarity on syllables
+    utterance.rate = 0.95;
     utterance.pitch = 1.0;
     utterance.volume = 0.8;
     utterance.lang = 'en-IN';
     
-    // Event handlers
     utterance.onend = () => {
       setIsSpeaking(false);
     };
@@ -173,11 +158,9 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       setIsSpeaking(false);
     };
     
-    // Speak the message
     window.speechSynthesis.speak(utterance);
   };
   
-  // Simulate speech recognition
   const startListening = () => {
     setIsListeningMode(true);
     toast({
@@ -185,7 +168,6 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       description: "Say something like 'Tell me about my study plan'",
     });
     
-    // Simulate recognition result after 3 seconds
     setTimeout(() => {
       setCommand("Tell me about today's plan");
       processVoiceCommand("Tell me about today's plan");
@@ -197,7 +179,6 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     setIsListeningMode(false);
   };
 
-  // Speak context-specific information when the announcer is opened
   React.useEffect(() => {
     if (isOpen && !isSpeaking && !isMuted) {
       const contextResponse = getContextResponse(location.pathname);
@@ -207,12 +188,10 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
     }
   }, [isOpen, location.pathname, isMuted]);
   
-  // Mood detection logic
   React.useEffect(() => {
     if (command) {
       const lowerCommand = command.toLowerCase();
       
-      // Iterate through moodMap to find a matching mood
       for (const key in moodMap) {
         if (lowerCommand.includes(key)) {
           setMood(moodMap[key]);
@@ -233,9 +212,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Sakha AI Voice Assistant</h3>
         <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <X className="h-5 w-5" />
         </button>
       </div>
       
@@ -251,7 +228,7 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
       <div className="flex items-center justify-between mb-3">
         <button 
           onClick={handleMuteToggle}
-          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm transition-colors"
+          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm transition-colors flex items-center gap-2"
         >
           {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
           {isMuted ? 'Unmute' : 'Mute'}
@@ -259,9 +236,10 @@ const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen,
         
         <button 
           onClick={isListeningMode ? stopListening : startListening}
-          className={`px-4 py-2 rounded-md text-sm transition-colors ${isListeningMode ? 'bg-red-500 hover:bg-red-700 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'}`}
+          className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${isListeningMode ? 'bg-red-500 hover:bg-red-700 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'}`}
           disabled={!('speechSynthesis' in window)}
         >
+          {isListeningMode ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           {isListeningMode ? 'Stop Listening' : 'Start Listening'}
         </button>
       </div>

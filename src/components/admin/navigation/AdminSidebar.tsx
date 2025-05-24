@@ -24,7 +24,7 @@ const AdminSidebar: React.FC = () => {
       items: [
         { icon: <LayoutDashboard size={20} />, title: "Overview", path: "/admin/dashboard", tab: "overview" },
         { icon: <BarChart3 size={20} />, title: "Analytics", path: "/admin/dashboard", tab: "analytics" },
-        { icon: <TrendingUp size={20} />, title: "Reports", path: "/admin/dashboard", tab: "reports" }
+        { icon: <TrendingUp size={20} />, title: "Advanced Analytics", path: "/admin/dashboard", tab: "analytics-reporting" }
       ]
     },
     { 
@@ -39,11 +39,12 @@ const AdminSidebar: React.FC = () => {
       ]
     },
     { 
-      section: "Content & Curriculum",
+      section: "AI & Content",
       items: [
+        { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
         { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
         { icon: <Upload size={20} />, title: "Enhanced CMS", path: "/admin/dashboard", tab: "enhanced-content" },
-        { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
+        { icon: <Cube size={20} />, title: "Interactive Content", path: "/admin/dashboard", tab: "interactive-content" },
         { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
         { icon: <Target size={20} />, title: "Study Plans", path: "/admin/dashboard", tab: "study-plan-management" }
       ]
@@ -68,6 +69,7 @@ const AdminSidebar: React.FC = () => {
       section: "Subscriptions & Revenue",
       items: [
         { icon: <CreditCard size={20} />, title: "Subscription Plans", path: "/admin/dashboard", tab: "subscriptions" },
+        { icon: <Crown size={20} />, title: "Enhanced Plans", path: "/admin/dashboard", tab: "enhanced-subscriptions" },
         { icon: <LineChart size={20} />, title: "Revenue Analytics", path: "/admin/dashboard", tab: "revenue" }
       ]
     },

@@ -110,6 +110,10 @@ const DashboardTabs: React.FC = () => {
         <EnhancedContentManagementTab />
       </TabsContent>
 
+      <TabsContent value="interactive-content" className="space-y-4 mt-4">
+        <InteractiveContentManagement />
+      </TabsContent>
+
       <TabsContent value="ai-models" className="space-y-4 mt-4">
         <AIModelsTab />
       </TabsContent>
@@ -142,6 +146,10 @@ const DashboardTabs: React.FC = () => {
         <SubscriptionPlans />
       </TabsContent>
 
+      <TabsContent value="enhanced-subscriptions" className="space-y-4 mt-4">
+        <EnhancedSubscriptionPlans />
+      </TabsContent>
+
       <TabsContent value="features" className="space-y-4 mt-4">
         <FeatureManagementTab />
       </TabsContent>
@@ -168,6 +176,10 @@ const DashboardTabs: React.FC = () => {
       
       <TabsContent value="logs" className="space-y-4 mt-4">
         <SystemLogs logs={mockLogs} />
+      </TabsContent>
+
+      <TabsContent value="analytics-reporting" className="space-y-4 mt-4">
+        <AnalyticsReporting />
       </TabsContent>
 
       {/* Placeholder tabs for remaining features */}
