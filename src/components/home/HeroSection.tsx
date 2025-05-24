@@ -24,185 +24,131 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Floating particles data
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 4 + 2,
-    delay: Math.random() * 5,
-    duration: Math.random() * 10 + 10,
-  }));
-
-  const floatingIcons = [
-    { icon: Brain, color: 'text-blue-400', delay: 0 },
-    { icon: Target, color: 'text-purple-400', delay: 1 },
-    { icon: Zap, color: 'text-yellow-400', delay: 2 },
-    { icon: Award, color: 'text-green-400', delay: 3 },
-    { icon: GraduationCap, color: 'text-indigo-400', delay: 4 },
-    { icon: Rocket, color: 'text-pink-400', delay: 5 },
-  ];
-
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20">
-      {/* Animated Background Grid */}
-      <div className="absolute inset-0 opacity-30">
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950/30">
+      {/* Modern geometric background */}
+      <div className="absolute inset-0">
+        {/* Diagonal stripes pattern */}
         <div 
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `repeating-linear-gradient(
+              45deg,
+              transparent,
+              transparent 60px,
+              rgba(59, 130, 246, 0.1) 60px,
+              rgba(59, 130, 246, 0.1) 120px
+            )`,
+          }}
+        />
+        
+        {/* Subtle grid overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage: `
-              linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-              linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px)
+              linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
             `,
-            backgroundSize: '60px 60px',
-            transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`,
+            backgroundSize: '40px 40px',
           }}
         />
       </div>
 
-      {/* Floating Particles */}
+      {/* Floating geometric shapes */}
       <div className="absolute inset-0 pointer-events-none">
-        {particles.map((particle) => (
+        {/* Large accent circles */}
+        <motion.div
+          className="absolute top-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-br from-blue-400/10 to-purple-500/10 blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-20 -right-20 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400/10 to-pink-500/10 blur-3xl"
+          animate={{
+            scale: [1.1, 1, 1.1],
+            opacity: [0.4, 0.6, 0.4],
+          }}
+          transition={{ duration: 10, repeat: Infinity, delay: 2 }}
+        />
+
+        {/* Small floating elements */}
+        {Array.from({ length: 12 }, (_, i) => (
           <motion.div
-            key={particle.id}
-            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-60"
+            key={i}
+            className="absolute w-2 h-2 bg-blue-400/20 rounded-full"
             style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
+              left: `${10 + (i * 8)}%`,
+              top: `${20 + (i % 3) * 25}%`,
             }}
             animate={{
-              y: [-20, -100],
-              opacity: [0, 1, 0],
-              scale: [0.5, 1, 0.5],
+              y: [-10, 10, -10],
+              opacity: [0.2, 0.6, 0.2],
+              scale: [0.8, 1.2, 0.8],
             }}
             transition={{
-              duration: particle.duration,
-              delay: particle.delay,
+              duration: 4 + i * 0.5,
               repeat: Infinity,
-              ease: "easeInOut",
+              delay: i * 0.2,
             }}
           />
         ))}
       </div>
 
-      {/* Floating Icons */}
-      <div className="absolute inset-0 pointer-events-none">
-        {floatingIcons.map((item, index) => (
-          <motion.div
-            key={index}
-            className={`absolute ${item.color} opacity-20`}
-            style={{
-              left: `${10 + index * 15}%`,
-              top: `${20 + (index % 2) * 40}%`,
-            }}
-            animate={{
-              y: [-10, 10, -10],
-              rotate: [0, 360],
-              scale: [0.8, 1.2, 0.8],
-            }}
-            transition={{
-              duration: 8 + index,
-              delay: item.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <item.icon size={24 + index * 4} />
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Glowing Orbs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-48 h-48 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.4, 0.7, 0.4],
-          }}
-          transition={{ duration: 6, repeat: Infinity, delay: 2 }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-2xl transform -translate-x-1/2 -translate-y-1/2"
-          animate={{
-            scale: [0.8, 1.5, 0.8],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{ duration: 10, repeat: Infinity, delay: 4 }}
-        />
-      </div>
-
-      {/* Main Content Container */}
+      {/* Modern content layout */}
       <div className="relative z-10">
-        <div className="container mx-auto px-4 pt-16 pb-12">
-          {/* Hero Content Area */}
-          <motion.div
-            className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12"
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-          >
-            {/* Left Content */}
+        <div className="container mx-auto px-6 lg:px-8 pt-20 pb-16">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+            {/* Left content area */}
             <motion.div
-              className="lg:w-1/2 space-y-6"
-              initial={{ opacity: 0, x: -50 }}
+              className="order-2 lg:order-1"
+              initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <HeroContent handleExamReadinessClick={handleExamReadinessClick} />
             </motion.div>
 
-            {/* Right Content - Dashboard Preview */}
+            {/* Right content - Dashboard preview with modern styling */}
             <motion.div
-              className="lg:w-1/2 relative"
-              initial={{ opacity: 0, x: 50 }}
+              className="order-1 lg:order-2 relative"
+              initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
+              onHoverStart={() => setIsHovered(true)}
+              onHoverEnd={() => setIsHovered(false)}
             >
-              {/* Decorative Frame */}
+              {/* Modern frame container */}
               <div className="relative">
-                {/* Glowing Border Effect */}
+                {/* Subtle glow effect */}
                 <motion.div
-                  className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl"
+                  className="absolute -inset-8 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl blur-2xl"
                   animate={{
-                    rotate: [0, 360],
+                    opacity: isHovered ? [0.5, 0.8, 0.5] : 0.3,
+                    scale: isHovered ? [1, 1.05, 1] : 1,
                   }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                  transition={{ duration: 2, repeat: isHovered ? Infinity : 0 }}
                 />
                 
-                {/* Content Container */}
+                {/* Main content container with modern glassmorphism */}
                 <motion.div
-                  className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 rounded-2xl p-2 shadow-2xl"
+                  className="relative bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/30 rounded-2xl p-3 shadow-xl"
                   whileHover={{ 
                     scale: 1.02,
-                    rotateY: 5,
-                    rotateX: 5,
+                    y: -5,
                   }}
                   transition={{ duration: 0.3 }}
-                  style={{
-                    transformStyle: 'preserve-3d',
-                  }}
                 >
-                  {/* Dashboard Preview */}
-                  <div className="relative overflow-hidden rounded-xl">
+                  {/* Dashboard preview */}
+                  <div className="relative overflow-hidden rounded-xl bg-gray-50/50 dark:bg-gray-800/50">
                     <DashboardPreview />
                     
-                    {/* Overlay Effects */}
+                    {/* Subtle overlay on hover */}
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-blue-500/10 pointer-events-none"
+                      className="absolute inset-0 bg-gradient-to-t from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none rounded-xl"
                       animate={{
                         opacity: isHovered ? [0, 0.3, 0] : 0,
                       }}
@@ -210,84 +156,89 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                     />
                   </div>
                   
-                  {/* Corner Accents */}
-                  <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-blue-500/60 rounded-tl-lg" />
-                  <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-purple-500/60 rounded-tr-lg" />
-                  <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-purple-500/60 rounded-bl-lg" />
-                  <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-pink-500/60 rounded-br-lg" />
+                  {/* Minimal corner accents */}
+                  <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-blue-400/40 rounded-tl-lg" />
+                  <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-purple-400/40 rounded-tr-lg" />
+                  <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-purple-400/40 rounded-bl-lg" />
+                  <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-blue-400/40 rounded-br-lg" />
                 </motion.div>
 
-                {/* Floating Success Indicators */}
+                {/* Floating status badges */}
                 <motion.div
-                  className="absolute -top-6 -right-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg"
+                  className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg backdrop-blur-sm"
                   animate={{
-                    y: [-5, 5, -5],
-                    rotate: [0, 5, 0, -5, 0],
+                    y: [-2, 2, -2],
+                    rotate: [0, 2, 0, -2, 0],
                   }}
                   transition={{ duration: 4, repeat: Infinity }}
                 >
                   <Star className="w-3 h-3 fill-current" />
-                  <span>LIVE NOW</span>
+                  <span>LIVE</span>
                 </motion.div>
 
                 <motion.div
-                  className="absolute -bottom-4 -left-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg"
+                  className="absolute -bottom-4 -left-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg backdrop-blur-sm"
                   animate={{
-                    y: [5, -5, 5],
-                    rotate: [0, -5, 0, 5, 0],
+                    y: [2, -2, 2],
+                    rotate: [0, -2, 0, 2, 0],
                   }}
                   transition={{ duration: 3, repeat: Infinity, delay: 1 }}
                 >
-                  <Sparkles className="w-3 h-3" />
+                  <Brain className="w-3 h-3" />
                   <span>AI POWERED</span>
                 </motion.div>
               </div>
             </motion.div>
-          </motion.div>
+          </div>
 
-          {/* Bottom Stats Bar */}
+          {/* Modern stats bar */}
           <motion.div
-            className="mt-16 flex flex-wrap items-center justify-center gap-8 text-center"
-            initial={{ opacity: 0, y: 30 }}
+            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
             {[
-              { number: "2M+", label: "Students", icon: GraduationCap },
-              { number: "95%", label: "Success Rate", icon: Target },
-              { number: "24/7", label: "AI Support", icon: Brain },
-              { number: "50+", label: "Exams Covered", icon: Award },
+              { number: "2M+", label: "Students", icon: GraduationCap, color: "from-blue-500 to-blue-600" },
+              { number: "95%", label: "Success Rate", icon: Target, color: "from-green-500 to-emerald-600" },
+              { number: "24/7", label: "AI Support", icon: Brain, color: "from-purple-500 to-indigo-600" },
+              { number: "50+", label: "Exams Covered", icon: Award, color: "from-orange-500 to-red-600" },
             ].map((stat, index) => (
               <motion.div
                 key={index}
-                className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/30"
-                whileHover={{ scale: 1.05, y: -2 }}
+                className="text-center p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-gray-200/30 dark:border-gray-700/20 shadow-sm"
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -3,
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
+                }}
                 transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg">
-                  <stat.icon size={16} />
+                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${stat.color} text-white mb-3 shadow-lg`}>
+                  <stat.icon size={20} />
                 </div>
-                <div>
-                  <div className="font-bold text-lg text-gray-900 dark:text-white">{stat.number}</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">{stat.label}</div>
-                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{stat.number}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Modern scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 text-gray-600 dark:text-gray-400"
-        animate={{ y: [0, 10, 0] }}
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3"
+        animate={{ y: [0, 6, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <span className="text-xs font-medium">Explore More</span>
-        <div className="w-6 h-10 border-2 border-current rounded-full flex justify-center">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wide">SCROLL TO EXPLORE</span>
+        <div className="w-6 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex justify-center relative">
           <motion.div
-            className="w-1 h-3 bg-current rounded-full mt-2"
-            animate={{ y: [0, 12, 0] }}
+            className="w-1 h-3 bg-gray-400 dark:bg-gray-500 rounded-full mt-2"
+            animate={{ y: [0, 12, 0], opacity: [1, 0.3, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
         </div>
