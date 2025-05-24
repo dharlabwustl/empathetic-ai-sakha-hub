@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Search, MoreHorizontal, Filter, Download, UserPlus, UserX, Check, X, Eye, Edit, Settings } from "lucide-react";
+import { Search, MoreHorizontal, Filter, Download, UserPlus, UserX, Check, X, Eye, Edit, Settings, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import StudentProfileModal from "../students/StudentProfileModal";
 import { StudentData } from "@/types/admin/studentData";
@@ -137,7 +137,7 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
       id: student.id,
       name: student.name,
       email: student.email,
-      phoneNumber: student.phoneNumber,
+      phoneNumber: student.phoneNumber || 'Not provided',
       examPrep: student.examPrep,
       status: student.status,
       subjects: student.subjects,
@@ -152,10 +152,10 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
       id: student.id,
       name: student.name,
       email: student.email,
-      phoneNumber: student.phoneNumber,
+      phoneNumber: student.phoneNumber || '',
       examPrep: student.examPrep,
-      status: student.status === 'active',
-      subjects: student.subjects?.join(', ')
+      status: student.status,
+      subjects: student.subjects?.join(', ') || ''
     });
   };
 
@@ -170,14 +170,19 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
   };
 
   const handleDeleteStudent = (student: StudentData) => {
-    openDialog('delete', student.name, { id: student.id });
+    openDialog('delete', student.name, { 
+      id: student.id,
+      name: student.name 
+    });
   };
 
   const handleAddStudent = () => {
     openDialog('add', 'New Student', {
       name: '',
       email: '',
-      role: 'Student',
+      phoneNumber: '',
+      examPrep: '',
+      role: 'student',
       active: true
     });
   };
@@ -203,15 +208,14 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
       title: "Export Students",
       description: "Exporting student data to CSV",
     });
-    console.log("Exporting student data");
   };
 
   const handleFilter = () => {
-    toast({
-      title: "Filter Students",
-      description: "Opening filter options",
+    openDialog('settings', 'Filter Options', {
+      status: 'all',
+      examPrep: 'all',
+      dateRange: 'last_30_days'
     });
-    console.log("Opening filter dialog");
   };
 
   const formatDate = (date: string) => {
