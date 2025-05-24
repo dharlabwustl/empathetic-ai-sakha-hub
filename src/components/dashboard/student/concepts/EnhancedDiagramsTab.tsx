@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Bot, ZoomIn, ZoomOut, Info, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Bot, ZoomIn, ZoomOut, Info, CheckCircle2, Eye, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AITutorDialog from './AITutorDialog';
 
@@ -22,7 +22,18 @@ interface DiagramAnnotation {
   y: number;
   title: string;
   description: string;
+  audioExplanation: string;
+  duration: number;
   completed: boolean;
+}
+
+interface DiagramData {
+  id: string;
+  title: string;
+  description: string;
+  audioIntro: string;
+  totalDuration: number;
+  annotations: DiagramAnnotation[];
 }
 
 const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ 
@@ -37,45 +48,95 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
   const [selectedAnnotation, setSelectedAnnotation] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [completedAnnotations, setCompletedAnnotations] = useState<Set<string>>(new Set());
+  const [currentAnnotationIndex, setCurrentAnnotationIndex] = useState(0);
+  const [audioEnabled, setAudioEnabled] = useState(true);
 
-  // Sample diagrams with annotations
-  const diagrams = [
+  // Comprehensive diagrams with detailed audio explanations
+  const diagrams: DiagramData[] = [
     {
-      id: 'diagram1',
-      title: 'Force Vectors',
-      description: 'Understanding directional forces',
-      image: '/lovable-uploads/diagram1.png',
+      id: 'force_vectors',
+      title: 'Force Vector Analysis',
+      description: 'Understanding directional forces and their components',
+      audioIntro: `Welcome to force vector analysis! This diagram shows how forces act in different directions and how we can break them down into components. Let's explore each element systematically.`,
+      totalDuration: 60,
       annotations: [
         {
-          id: 'force1',
-          x: 30,
-          y: 20,
-          title: 'Applied Force',
-          description: 'The force applied to move the object forward',
+          id: 'applied_force',
+          x: 25,
+          y: 30,
+          title: 'Applied Force Vector',
+          description: 'The primary force applied to the object',
+          audioExplanation: `This red vector represents the applied force. Notice its magnitude shown by the arrow length and direction. In physics, we represent forces as vectors because they have both magnitude and direction. The longer the arrow, the stronger the force.`,
+          duration: 15,
           completed: false
         },
         {
-          id: 'force2',
+          id: 'friction_force',
           x: 70,
-          y: 60,
+          y: 65,
           title: 'Friction Force',
           description: 'The opposing force that resists motion',
+          audioExplanation: `Here we see the friction force, always opposing the direction of motion or intended motion. Friction depends on the surface materials and the normal force pressing the surfaces together. This is why it's harder to push a heavy box than a light one.`,
+          duration: 18,
+          completed: false
+        },
+        {
+          id: 'normal_force',
+          x: 50,
+          y: 20,
+          title: 'Normal Force',
+          description: 'The perpendicular force from the surface',
+          audioExplanation: `The normal force acts perpendicular to the surface, supporting the object against gravity. On a level surface, it equals the object's weight. On an inclined plane, it's less than the weight because some weight component acts parallel to the surface.`,
+          duration: 16,
+          completed: false
+        },
+        {
+          id: 'resultant',
+          x: 45,
+          y: 50,
+          title: 'Resultant Force',
+          description: 'The net effect of all forces combined',
+          audioExplanation: `The resultant force is the vector sum of all individual forces. When forces are balanced, the resultant is zero and the object maintains constant velocity. When unbalanced, the resultant causes acceleration according to Newton's second law.`,
+          duration: 20,
           completed: false
         }
       ]
     },
     {
-      id: 'diagram2',
-      title: 'Motion Analysis',
-      description: 'Analyzing object trajectory',
-      image: '/lovable-uploads/diagram2.png',
+      id: 'motion_analysis',
+      title: 'Motion Trajectory Analysis',
+      description: 'Analyzing projectile motion and velocity components',
+      audioIntro: `Now let's examine projectile motion, one of the most beautiful examples of physics in action. We'll see how an object moves under the influence of gravity alone.`,
+      totalDuration: 50,
       annotations: [
         {
-          id: 'trajectory',
-          x: 50,
-          y: 30,
-          title: 'Projectile Path',
-          description: 'The curved path of the projectile motion',
+          id: 'launch_angle',
+          x: 15,
+          y: 40,
+          title: 'Launch Angle',
+          description: 'The initial angle of projection',
+          audioExplanation: `The launch angle determines the trajectory shape. At 45 degrees, we get maximum range in a vacuum. Lower angles give flatter trajectories, while higher angles create steeper, shorter paths.`,
+          duration: 14,
+          completed: false
+        },
+        {
+          id: 'velocity_components',
+          x: 35,
+          y: 25,
+          title: 'Velocity Components',
+          description: 'Horizontal and vertical velocity components',
+          audioExplanation: `Velocity has horizontal and vertical components. The horizontal component remains constant in the absence of air resistance, while the vertical component changes due to gravity, starting positive and becoming negative.`,
+          duration: 18,
+          completed: false
+        },
+        {
+          id: 'trajectory_path',
+          x: 60,
+          y: 35,
+          title: 'Parabolic Path',
+          description: 'The curved path of projectile motion',
+          audioExplanation: `The trajectory forms a parabola because gravity acts only vertically while horizontal motion continues unchanged. This creates the characteristic curved path we see in thrown balls, water from fountains, and artillery shells.`,
+          duration: 18,
           completed: false
         }
       ]
@@ -83,39 +144,60 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
   ];
 
   const currentDiagramData = diagrams[currentDiagram];
+  const currentAnnotation = currentDiagramData.annotations[currentAnnotationIndex];
 
   // Handle global audio state changes
   useEffect(() => {
     if (globalAudioState) {
-      setIsPlaying(globalAudioState.isPlaying && globalAudioState.isEnabled);
+      setIsPlaying(globalAudioState.isPlaying && globalAudioState.isEnabled && audioEnabled);
     }
-  }, [globalAudioState]);
+  }, [globalAudioState, audioEnabled]);
 
-  // Auto-progress through diagrams during audio playback
+  // Audio-synchronized progression through annotations
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && currentAnnotation && audioEnabled) {
       const interval = setInterval(() => {
         setAudioProgress(prev => {
-          const newProgress = prev + 2;
+          const increment = 100 / currentAnnotation.duration;
+          const newProgress = prev + increment;
+          
           if (newProgress >= 100) {
-            if (currentDiagram < diagrams.length - 1) {
+            // Mark current annotation as completed
+            setCompletedAnnotations(prevCompleted => 
+              new Set([...prevCompleted, currentAnnotation.id])
+            );
+            
+            // Move to next annotation or next diagram
+            if (currentAnnotationIndex < currentDiagramData.annotations.length - 1) {
+              setCurrentAnnotationIndex(prev => prev + 1);
+              setSelectedAnnotation(currentDiagramData.annotations[currentAnnotationIndex + 1].id);
+              setAudioProgress(0);
+            } else if (currentDiagram < diagrams.length - 1) {
               setCurrentDiagram(prev => prev + 1);
-              return 0;
+              setCurrentAnnotationIndex(0);
+              setSelectedAnnotation(diagrams[currentDiagram + 1].annotations[0].id);
+              setAudioProgress(0);
             } else {
               setIsPlaying(false);
-              return 100;
+              setAudioProgress(100);
             }
+            
+            return newProgress >= 100 ? 100 : newProgress;
           }
           return newProgress;
         });
-      }, 100);
+      }, 1000);
 
       return () => clearInterval(interval);
     }
-  }, [isPlaying, currentDiagram, diagrams.length]);
+  }, [isPlaying, currentAnnotation, currentAnnotationIndex, currentDiagram, currentDiagramData, diagrams, audioEnabled]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
+    if (!isPlaying && !selectedAnnotation && currentDiagramData.annotations.length > 0) {
+      setSelectedAnnotation(currentDiagramData.annotations[0].id);
+      setCurrentAnnotationIndex(0);
+    }
     window.dispatchEvent(new CustomEvent('diagramAudioToggle', { 
       detail: { isPlaying: !isPlaying } 
     }));
@@ -123,6 +205,7 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
 
   const handleReset = () => {
     setCurrentDiagram(0);
+    setCurrentAnnotationIndex(0);
     setAudioProgress(0);
     setIsPlaying(false);
     setCompletedAnnotations(new Set());
@@ -130,8 +213,15 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
   };
 
   const handleAnnotationClick = (annotationId: string) => {
-    setSelectedAnnotation(annotationId);
-    setCompletedAnnotations(prev => new Set([...prev, annotationId]));
+    const index = currentDiagramData.annotations.findIndex(a => a.id === annotationId);
+    if (index !== -1) {
+      setSelectedAnnotation(annotationId);
+      setCurrentAnnotationIndex(index);
+      setCompletedAnnotations(prev => new Set([...prev, annotationId]));
+      if (!isPlaying) {
+        setAudioProgress(0);
+      }
+    }
   };
 
   const handleZoomIn = () => {
@@ -142,25 +232,30 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
     setZoomLevel(prev => Math.max(prev - 0.2, 0.5));
   };
 
+  const overallProgress = currentDiagram === 0 
+    ? (currentAnnotationIndex + audioProgress / 100) / currentDiagramData.annotations.length * 50
+    : 50 + (currentAnnotationIndex + audioProgress / 100) / currentDiagramData.annotations.length * 50;
+
   return (
     <div className="space-y-6">
-      {/* Diagram Controls */}
+      {/* Interactive Visualizations Controls */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-green-600" />
-              Interactive Diagrams - {conceptName}
+              <Eye className="h-5 w-5 text-green-600" />
+              Interactive Visualizations - {conceptName}
             </CardTitle>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePlayPause}
+                disabled={!audioEnabled}
                 className="flex items-center gap-2"
               >
                 {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                {isPlaying ? 'Pause' : 'Play'} Audio
+                {isPlaying ? 'Pause' : 'Play'} Audio Guide
               </Button>
               <Button
                 variant="outline"
@@ -169,21 +264,35 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAudioEnabled(!audioEnabled)}
+                className="flex items-center gap-2"
+              >
+                {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
 
-          {/* Audio Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
-            <motion.div 
-              className="bg-green-600 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${audioProgress}%` }}
-              transition={{ duration: 0.1 }}
-            />
+          {/* Progress Tracking */}
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Overall Progress</span>
+              <span>{Math.round(overallProgress)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <motion.div 
+                className="bg-green-600 h-3 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${overallProgress}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <p className="text-sm text-gray-600">
+              Diagram {currentDiagram + 1}: {currentDiagramData.title} - {currentAnnotation?.title || 'Starting'}
+            </p>
           </div>
-          <p className="text-sm text-gray-600 mt-1">
-            Diagram {currentDiagram + 1} of {diagrams.length} - {currentDiagramData.title}
-          </p>
         </CardHeader>
 
         <CardContent>
@@ -191,7 +300,7 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
             {/* Interactive Diagram Viewer */}
             <div className="lg:col-span-2">
               <div className="relative">
-                {/* Zoom Controls */}
+                {/* Zoom and View Controls */}
                 <div className="absolute top-4 right-4 z-10 flex gap-2">
                   <Button
                     variant="outline"
@@ -211,19 +320,24 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
                   </Button>
                 </div>
 
-                {/* Diagram Canvas */}
+                {/* Enhanced Diagram Canvas */}
                 <div 
                   className="bg-white rounded-lg border-2 border-gray-200 h-96 relative overflow-hidden"
                   style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center' }}
                 >
-                  {/* Sample Diagram Background */}
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  {/* Diagram Background */}
+                  <div className="w-full h-full bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="w-32 h-20 bg-blue-500 rounded-lg mx-auto mb-4 shadow-lg relative">
-                        <span className="absolute inset-0 flex items-center justify-center text-white font-bold">
-                          {currentDiagramData.title}
-                        </span>
-                      </div>
+                      <motion.div 
+                        className="w-40 h-28 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg mx-auto mb-4 shadow-lg relative flex items-center justify-center"
+                        animate={{
+                          rotateY: isPlaying ? [0, 5, -5, 0] : 0,
+                          scale: isPlaying ? [1, 1.02, 1] : 1
+                        }}
+                        transition={{ duration: 3, repeat: isPlaying ? Infinity : 0 }}
+                      >
+                        <span className="text-white font-bold">{currentDiagramData.title}</span>
+                      </motion.div>
                     </div>
                   </div>
 
@@ -235,12 +349,12 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0 }}
-                        className={`absolute w-6 h-6 rounded-full shadow-lg transition-all transform hover:scale-110 ${
+                        className={`absolute w-8 h-8 rounded-full shadow-lg transition-all transform hover:scale-125 flex items-center justify-center ${
                           completedAnnotations.has(annotation.id)
                             ? 'bg-green-500'
                             : selectedAnnotation === annotation.id
-                            ? 'bg-blue-600'
-                            : 'bg-red-500'
+                            ? 'bg-blue-600 ring-4 ring-blue-200'
+                            : 'bg-red-500 hover:bg-red-600'
                         }`}
                         style={{
                           left: `${annotation.x}%`,
@@ -250,26 +364,60 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
                         onClick={() => handleAnnotationClick(annotation.id)}
                         title={annotation.title}
                       >
-                        {completedAnnotations.has(annotation.id) && (
-                          <CheckCircle2 className="h-4 w-4 text-white m-1" />
+                        {completedAnnotations.has(annotation.id) ? (
+                          <CheckCircle2 className="h-5 w-5 text-white" />
+                        ) : selectedAnnotation === annotation.id ? (
+                          <Target className="h-5 w-5 text-white" />
+                        ) : (
+                          <Info className="h-4 w-4 text-white" />
                         )}
                       </motion.button>
                     ))}
                   </AnimatePresence>
+
+                  {/* Audio Progress Indicator */}
+                  {isPlaying && selectedAnnotation && audioEnabled && (
+                    <motion.div
+                      className="absolute bottom-4 left-4 right-4 bg-white/90 rounded-lg p-3"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <motion.div
+                          className="w-2 h-2 bg-green-600 rounded-full"
+                          animate={{ scale: [1, 1.5, 1] }}
+                          transition={{ repeat: Infinity, duration: 1 }}
+                        />
+                        <span className="text-sm font-medium">Audio Explanation</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-green-600 h-2 rounded-full transition-all duration-1000"
+                          style={{ width: `${audioProgress}%` }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               </div>
 
               {/* Diagram Navigation */}
               <div className="flex justify-center gap-2 mt-4">
-                {diagrams.map((_, index) => (
+                {diagrams.map((diagram, index) => (
                   <Button
                     key={index}
                     variant={index === currentDiagram ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setCurrentDiagram(index)}
+                    onClick={() => {
+                      setCurrentDiagram(index);
+                      setCurrentAnnotationIndex(0);
+                      setSelectedAnnotation(diagrams[index].annotations[0]?.id || null);
+                      setAudioProgress(0);
+                    }}
                     disabled={isPlaying}
+                    className="min-w-[100px]"
                   >
-                    {index + 1}
+                    {diagram.title.split(' ')[0]}
                   </Button>
                 ))}
               </div>
@@ -277,15 +425,21 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
 
             {/* Annotation Details & AI Assistant */}
             <div className="space-y-4">
+              {/* Current Diagram Info */}
               <div>
-                <h4 className="font-semibold text-gray-800 mb-3">Diagram Details</h4>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h5 className="font-medium text-gray-900">{currentDiagramData.title}</h5>
-                  <p className="text-sm text-gray-600 mt-1">{currentDiagramData.description}</p>
+                <h4 className="font-semibold text-gray-800 mb-3">Diagram Overview</h4>
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <h5 className="font-medium text-green-900">{currentDiagramData.title}</h5>
+                  <p className="text-sm text-green-700 mt-1">{currentDiagramData.description}</p>
+                  {isPlaying && currentAnnotationIndex === 0 && audioProgress < 20 && (
+                    <div className="mt-2 p-2 bg-green-100 rounded text-xs text-green-800">
+                      <strong>Audio:</strong> {currentDiagramData.audioIntro.substring(0, 80)}...
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Selected Annotation Info */}
+              {/* Selected Annotation Details */}
               {selectedAnnotation && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -298,6 +452,11 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
                       <>
                         <h5 className="font-medium text-blue-900">{annotation.title}</h5>
                         <p className="text-sm text-blue-700 mt-1">{annotation.description}</p>
+                        {isPlaying && selectedAnnotation === currentAnnotation?.id && (
+                          <div className="mt-2 p-2 bg-blue-100 rounded text-xs text-blue-800">
+                            <strong>Audio:</strong> {annotation.audioExplanation.substring(0, 100)}...
+                          </div>
+                        )}
                       </>
                     ) : null;
                   })()}
@@ -306,36 +465,42 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
 
               {/* Annotations Progress */}
               <div>
-                <h5 className="font-medium text-gray-800 mb-2">Annotations Progress</h5>
+                <h5 className="font-medium text-gray-800 mb-2">Element Progress</h5>
                 <div className="space-y-2">
-                  {currentDiagramData.annotations.map((annotation) => (
+                  {currentDiagramData.annotations.map((annotation, index) => (
                     <div
                       key={annotation.id}
-                      className={`flex items-center gap-2 text-sm p-2 rounded ${
-                        completedAnnotations.has(annotation.id)
-                          ? 'bg-green-50 text-green-800'
-                          : 'bg-gray-50 text-gray-600'
+                      className={`flex items-center gap-2 text-sm p-2 rounded cursor-pointer transition-all ${
+                        selectedAnnotation === annotation.id
+                          ? 'bg-blue-100 border border-blue-300'
+                          : completedAnnotations.has(annotation.id)
+                          ? 'bg-green-50 text-green-800 border border-green-200'
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                       }`}
+                      onClick={() => handleAnnotationClick(annotation.id)}
                     >
                       {completedAnnotations.has(annotation.id) ? (
                         <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      ) : selectedAnnotation === annotation.id ? (
+                        <Target className="h-4 w-4 text-blue-600" />
                       ) : (
                         <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
                       )}
-                      <span>{annotation.title}</span>
+                      <span className="flex-1">{annotation.title}</span>
+                      <span className="text-xs opacity-70">{annotation.duration}s</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* AI Visual Assistant */}
+              {/* Enhanced AI Visual Assistant */}
               <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
                 <h5 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
                   <Bot className="h-4 w-4" />
                   AI Visual Assistant
                 </h5>
                 <p className="text-sm text-green-700 mb-3">
-                  Ask me about any part of this diagram!
+                  I can explain any diagram element, provide deeper insights, and test your understanding!
                 </p>
                 <div className="space-y-2">
                   <Button
@@ -344,7 +509,15 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
                     className="w-full text-xs"
                     onClick={() => setShowAITutor(true)}
                   >
-                    Explain This Diagram
+                    Explain Selected Element
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => setShowAITutor(true)}
+                  >
+                    How Does This Apply?
                   </Button>
                   <Button
                     variant="outline"
@@ -353,6 +526,14 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
                     onClick={() => setShowAITutor(true)}
                   >
                     Quiz My Understanding
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => setShowAITutor(true)}
+                  >
+                    Show Similar Examples
                   </Button>
                 </div>
               </div>
@@ -366,7 +547,7 @@ const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({
         isOpen={showAITutor}
         onClose={() => setShowAITutor(false)}
         conceptName={conceptName}
-        context={`Interactive diagram: ${currentDiagramData.title} - ${currentDiagramData.description}`}
+        context={`Interactive visualization: ${currentDiagramData.title}, Current element: ${currentAnnotation?.title || 'Overview'}, Audio explanation: ${currentAnnotation?.audioExplanation || currentDiagramData.audioIntro}`}
         subject={subject}
       />
     </div>
