@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 
-export type DialogType = 'view' | 'edit' | 'settings' | 'delete' | 'approve' | 'reject' | 'add' | 'create' | 'upload' | 'batch-create' | 'ai-settings' | 'content-upload';
+export type DialogType = 'view' | 'edit' | 'settings' | 'delete' | 'approve' | 'reject' | 'add' | 'create' | 'upload' | 'batch-create' | 'ai-settings' | 'content-upload' | 'feature-settings' | 'complete-profile';
 
 interface DialogState {
   isOpen: boolean;

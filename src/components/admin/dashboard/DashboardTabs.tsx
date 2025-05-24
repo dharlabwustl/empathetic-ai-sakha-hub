@@ -18,6 +18,15 @@ import ExamManagementTab from './ExamManagementTab';
 import RevenueAnalyticsTab from './RevenueAnalyticsTab';
 import APIManagementTab from './APIManagementTab';
 import SystemSettingsTab from './SystemSettingsTab';
+import BatchManagementTab from './BatchManagementTab';
+import AIFeaturesManagementTab from './AIFeaturesManagementTab';
+import EnhancedContentManagementTab from './EnhancedContentManagementTab';
+import StudentDataSyncTab from './StudentDataSyncTab';
+import FeatureAuditTab from './FeatureAuditTab';
+import InteractiveContentManagement from './InteractiveContentManagement';
+import EnhancedSubscriptionPlans from './EnhancedSubscriptionPlans';
+import AnalyticsReporting from './AnalyticsReporting';
+import EnhancedAdminDashboard from './EnhancedAdminDashboard';
 
 // Import new unified features management
 import UnifiedFeaturesManagementTab from './UnifiedFeaturesManagementTab';
@@ -29,23 +38,9 @@ import PersonalizationControlTab from './tabs/PersonalizationControlTab';
 import CommunicationManagementTab from './tabs/CommunicationManagementTab';
 import GamificationManagementTab from './tabs/GamificationManagementTab';
 
-// Import the new comprehensive tabs
-import BatchManagementTab from './BatchManagementTab';
-import AIFeaturesManagementTab from './AIFeaturesManagementTab';
-import EnhancedContentManagementTab from './EnhancedContentManagementTab';
-
-// Import alignment tabs
-import StudentDataSyncTab from './StudentDataSyncTab';
-import FeatureAuditTab from './FeatureAuditTab';
-
-// Import the fixed components
-import InteractiveContentManagement from './InteractiveContentManagement';
-import EnhancedSubscriptionPlans from './EnhancedSubscriptionPlans';
-import AnalyticsReporting from './AnalyticsReporting';
-
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'overview';
+  const activeTab = searchParams.get('tab') || 'enhanced-overview';
 
   const handleTabChange = (newTab: string) => {
     setSearchParams({ tab: newTab });
@@ -77,6 +72,10 @@ const DashboardTabs: React.FC = () => {
       onValueChange={handleTabChange}
       className="w-full space-y-6"
     >
+      <TabsContent value="enhanced-overview" className="space-y-4 mt-4">
+        <EnhancedAdminDashboard />
+      </TabsContent>
+
       <TabsContent value="overview" className="space-y-4 mt-4">
         <Overview />
       </TabsContent>
@@ -153,7 +152,6 @@ const DashboardTabs: React.FC = () => {
         <EnhancedSubscriptionPlans />
       </TabsContent>
 
-      {/* Unified Features Management - replaces individual feature tabs */}
       <TabsContent value="features" className="space-y-4 mt-4">
         <UnifiedFeaturesManagementTab />
       </TabsContent>
@@ -188,35 +186,6 @@ const DashboardTabs: React.FC = () => {
 
       <TabsContent value="analytics-reporting" className="space-y-4 mt-4">
         <AnalyticsReporting />
-      </TabsContent>
-
-      {/* Placeholder tabs for remaining features */}
-      <TabsContent value="support-management" className="space-y-4 mt-4">
-        <div className="p-6 text-center">
-          <h3 className="text-lg font-semibold mb-2">Support & Help System</h3>
-          <p className="text-muted-foreground">Support ticket system, FAQ management, and user feedback collection coming soon.</p>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="advanced-analytics" className="space-y-4 mt-4">
-        <div className="p-6 text-center">
-          <h3 className="text-lg font-semibold mb-2">Advanced Analytics</h3>
-          <p className="text-muted-foreground">A/B testing, cohort analysis, and retention analytics coming soon.</p>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="mobile-management" className="space-y-4 mt-4">
-        <div className="p-6 text-center">
-          <h3 className="text-lg font-semibold mb-2">Mobile App Management</h3>
-          <p className="text-muted-foreground">Mobile version control and app store analytics coming soon.</p>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="integration-management" className="space-y-4 mt-4">
-        <div className="p-6 text-center">
-          <h3 className="text-lg font-semibold mb-2">Integration Management</h3>
-          <p className="text-muted-foreground">Third-party service integrations and webhook management coming soon.</p>
-        </div>
       </TabsContent>
     </Tabs>
   );
