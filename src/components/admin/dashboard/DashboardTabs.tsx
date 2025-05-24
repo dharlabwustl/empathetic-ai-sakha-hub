@@ -27,10 +27,14 @@ import PersonalizationControlTab from './tabs/PersonalizationControlTab';
 import CommunicationManagementTab from './tabs/CommunicationManagementTab';
 import GamificationManagementTab from './tabs/GamificationManagementTab';
 
-// Import the new comprehensive tabs
+// Import the comprehensive tabs
 import BatchManagementTab from './BatchManagementTab';
 import AIFeaturesManagementTab from './AIFeaturesManagementTab';
 import EnhancedContentManagementTab from './EnhancedContentManagementTab';
+
+// Import new alignment tabs
+import StudentDataSyncTab from './StudentDataSyncTab';
+import FeatureAuditTab from './FeatureAuditTab';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -80,6 +84,14 @@ const DashboardTabs: React.FC = () => {
 
       <TabsContent value="student-profiles" className="space-y-4 mt-4">
         <StudentProfilesTab />
+      </TabsContent>
+
+      <TabsContent value="student-data-sync" className="space-y-4 mt-4">
+        <StudentDataSyncTab />
+      </TabsContent>
+
+      <TabsContent value="feature-audit" className="space-y-4 mt-4">
+        <FeatureAuditTab />
       </TabsContent>
 
       <TabsContent value="mood-analytics" className="space-y-4 mt-4">
