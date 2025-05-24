@@ -38,7 +38,6 @@ const AdminAppRoutes: React.FC = () => {
     studentsWithConsistentHabits: 120,
     totalStudents: 250,
     verifiedRetentionRate: 72,
-    studyTimeConsistencyImprovement: 28,
     completedStudyPlans: 145,
     verifiedExamConfidenceImprovement: 70,
     averageConfidenceScore: 8.2,

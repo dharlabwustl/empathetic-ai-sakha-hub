@@ -23,33 +23,32 @@ const AdminLogin: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log("AdminLogin: Auth state check", { isAdminAuthenticated });
+    console.log("🔍 AdminLogin: Auth state check", { isAdminAuthenticated });
     if (isAdminAuthenticated) {
-      console.log("Admin already authenticated, redirecting to dashboard");
-      // Use timeout to ensure state is properly set
-      setTimeout(() => {
-        navigate('/admin/dashboard', { replace: true });
-      }, 100);
+      console.log("✅ Admin already authenticated, redirecting to dashboard");
+      // Use immediate redirect with replace to avoid loops
+      navigate('/admin/dashboard', { replace: true });
     }
   }, [isAdminAuthenticated, navigate]);
 
   useEffect(() => {
     if (error) {
       setLoginError(error);
+      console.log("❌ AdminLogin: Error from context:", error);
     }
   }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("AdminLogin: Form submitted");
+    console.log("🚀 AdminLogin: Form submitted");
     setLoginError(null);
     setIsLoading(true);
     
     try {
-      console.log("AdminLogin: Attempting login with credentials:", { email });
+      console.log("🔐 AdminLogin: Attempting login with credentials:", { email });
       const success = await loginAdmin(email, password);
       
-      console.log("AdminLogin: Login result:", success);
+      console.log("📊 AdminLogin: Login result:", success);
       
       if (success) {
         toast({
@@ -57,17 +56,15 @@ const AdminLogin: React.FC = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        console.log("AdminLogin: Redirecting to admin dashboard");
-        // Add delay to ensure auth state is updated
-        setTimeout(() => {
-          navigate("/admin/dashboard", { replace: true });
-        }, 200);
+        console.log("✅ AdminLogin: Successful login, navigating to dashboard");
+        // Immediate navigation after successful login
+        navigate("/admin/dashboard", { replace: true });
       } else {
-        console.log("AdminLogin: Login failed");
+        console.log("❌ AdminLogin: Login failed");
         setLoginError("Invalid admin credentials");
       }
     } catch (err) {
-      console.error("AdminLogin: Login error:", err);
+      console.error("💥 AdminLogin: Login error:", err);
       setLoginError("Login failed. Please try again.");
     } finally {
       setIsLoading(false);

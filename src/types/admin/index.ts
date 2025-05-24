@@ -18,7 +18,6 @@ export interface AdminDashboardStats {
   studentsWithConsistentHabits: number;
   totalStudents: number;
   verifiedRetentionRate: number;
-  studyTimeConsistencyImprovement: number;
   completedStudyPlans: number;
   verifiedExamConfidenceImprovement: number;
   averageConfidenceScore: number;
