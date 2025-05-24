@@ -29,6 +29,11 @@ export interface AdminDashboardStats {
   completedSurveys: number;
 }
 
+// Add missing interface for DashboardStats
+export interface DashboardStats extends AdminDashboardStats {
+  // This ensures compatibility with existing code
+}
+
 export interface SystemLog {
   id: string;
   event: string;
@@ -45,4 +50,20 @@ export interface StudentData {
   enrollmentDate: string;
   lastActive: string;
   progress: number;
+  joinedDate: Date;
+  role: string;
+  status: string;
+  examType?: string;
+  subjects?: string[];
+  subjectsSelected?: string[];
+  examPrep?: string;
+  phoneNumber?: string;
+  completedOnboarding?: boolean;
+  goals?: string[];
+  studyHours?: number;
+  moodScore?: number;
+  engagementScore?: number;
+  targetScore?: number;
+  avatarUrl?: string;
+  registrationDate?: Date;
 }

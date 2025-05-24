@@ -45,6 +45,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setAdminUser(null);
         setIsAdminAuthenticated(false);
       }
+      setError(null);
     } catch (err) {
       console.error('AdminAuthContext: Auth check error:', err);
       setError('Authentication check failed');
@@ -82,16 +83,21 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (response.success && response.data) {
         setIsAdminAuthenticated(true);
         setAdminUser(response.data);
+        setError(null);
         console.log("AdminAuthContext: Login successful, user set");
         return true;
       } else {
         setError(response.message || 'Invalid credentials');
+        setIsAdminAuthenticated(false);
+        setAdminUser(null);
         console.log("AdminAuthContext: Login failed:", response.message);
         return false;
       }
     } catch (err) {
       console.error('AdminAuthContext: Login error:', err);
       setError('Login failed. Please try again.');
+      setIsAdminAuthenticated(false);
+      setAdminUser(null);
       return false;
     } finally {
       setIsLoading(false);
@@ -105,6 +111,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       await adminAuthService.adminLogout();
       setIsAdminAuthenticated(false);
       setAdminUser(null);
+      setError(null);
       console.log("AdminAuthContext: Logout successful");
     } catch (err) {
       console.error('AdminAuthContext: Logout error:', err);
@@ -123,7 +130,12 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     adminLogout,
   };
 
-  console.log("AdminAuthContext: Current state:", { isAdminAuthenticated, adminUser: adminUser?.email, isLoading, error });
+  console.log("AdminAuthContext: Current state:", { 
+    isAdminAuthenticated, 
+    adminUser: adminUser?.email, 
+    isLoading, 
+    error 
+  });
 
   return (
     <AdminAuthContext.Provider value={value}>

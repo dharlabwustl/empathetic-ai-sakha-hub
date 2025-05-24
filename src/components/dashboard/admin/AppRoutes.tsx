@@ -5,7 +5,7 @@ import DashboardStats from '@/components/admin/dashboard/DashboardStats';
 import SubscriptionManager from '@/components/admin/dashboard/SubscriptionManager';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import LoadingState from "@/components/admin/dashboard/LoadingState";
-import { AdminDashboardStats } from '@/types/admin';
+import { DashboardStats as DashboardStatsType } from '@/types/admin';
 
 const AdminAppRoutes: React.FC = () => {
   const { isAdminAuthenticated, isLoading } = useAdminAuth();
@@ -19,7 +19,7 @@ const AdminAppRoutes: React.FC = () => {
   }
 
   // Fixed mock data for the dashboard stats - properly typed
-  const mockDashboardStats: AdminDashboardStats = {
+  const mockDashboardStats: DashboardStatsType = {
     totalUsers: 250,
     activeUsers: 180,
     totalRevenue: 15780,

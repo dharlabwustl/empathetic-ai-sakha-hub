@@ -26,7 +26,10 @@ const AdminLogin: React.FC = () => {
     console.log("AdminLogin: Auth state check", { isAdminAuthenticated });
     if (isAdminAuthenticated) {
       console.log("Admin already authenticated, redirecting to dashboard");
-      navigate('/admin/dashboard', { replace: true });
+      // Use timeout to ensure state is properly set
+      setTimeout(() => {
+        navigate('/admin/dashboard', { replace: true });
+      }, 100);
     }
   }, [isAdminAuthenticated, navigate]);
 
@@ -55,7 +58,10 @@ const AdminLogin: React.FC = () => {
         });
         
         console.log("AdminLogin: Redirecting to admin dashboard");
-        navigate("/admin/dashboard", { replace: true });
+        // Add delay to ensure auth state is updated
+        setTimeout(() => {
+          navigate("/admin/dashboard", { replace: true });
+        }, 200);
       } else {
         console.log("AdminLogin: Login failed");
         setLoginError("Invalid admin credentials");
