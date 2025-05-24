@@ -7,6 +7,9 @@ export interface PracticeExam {
   totalQuestions: number;
   difficulty: 'easy' | 'medium' | 'hard';
   description?: string;
+  topic?: string;
+  timeAllowed?: number;
+  questions?: ExamQuestion[];
 }
 
 export interface ExamQuestion {
@@ -26,4 +29,11 @@ export interface ExamResult {
   totalQuestions: number;
   timeTaken: number;
   completedAt: Date;
+}
+
+export interface UserAnswer {
+  questionId: string;
+  selectedAnswer: number;
+  isCorrect: boolean;
+  timeSpent: number;
 }
