@@ -54,6 +54,13 @@ export enum MoodType {
   Curious = 'curious'
 }
 
+export enum PersonalityType {
+  StrategicThinker = 'Strategic Thinker',
+  CreativeLearner = 'Creative Learner',
+  MethodicalPlanner = 'Methodical Planner',
+  AdaptiveExplorer = 'Adaptive Explorer'
+}
+
 export const SubscriptionType = {
   FREE: 'free',
   BASIC: 'basic',
@@ -65,55 +72,6 @@ export const SubscriptionType = {
 } as const;
 
 export type SubscriptionTypeValue = typeof SubscriptionType[keyof typeof SubscriptionType];
-
-export interface UserProfileBase {
-  id: string;
-  name?: string;
-  email: string;
-  role?: UserRole;
-  signupType?: SignupType;
-  avatar?: string;
-  bio?: string;
-  phoneNumber?: string;
-  location?: string;
-  gender?: Gender;
-  grade?: string;
-  examPreparation?: string;
-  photoURL?: string;
-  loginCount?: number;
-  paymentMethods?: PaymentMethod[];
-  billingHistory?: BillingHistory[];
-  subscription?: Subscription;
-  studyStreak?: number;
-}
-
-export interface Goal {
-  id: string;
-  title: string;
-  targetDate: string;
-  progress: number;
-  targetYear: string;
-}
-
-export interface StudyPreferences {
-  pace: StudyPace;
-  hoursPerDay: number;
-  preferredTimeStart: string;
-  preferredTimeEnd: string;
-  preferenceType: StudyPreferenceType;
-}
-
-export interface Preferences {
-  studyReminders: boolean;
-  emailNotifications: boolean;
-  darkMode: boolean;
-}
-
-export interface RecentActivity {
-  lastLogin: Date;
-  lastStudySession?: Date;
-  completedTasks: number;
-}
 
 export interface PaymentMethod {
   id: string;
@@ -147,21 +105,88 @@ export interface Subscription {
   autoRenew?: boolean;
 }
 
-export interface UserProfileType extends UserProfileBase {
-  personalityType?: string;
-  goals?: Goal[];
-  subjects?: string[];
-  studyPreferences?: StudyPreferences;
-  preferences?: Preferences;
-  recentActivity?: RecentActivity;
-  subscription?: Subscription;
-  studyStreak?: number;
-  mood?: MoodType;
+export interface UserProfileBase {
+  id: string;
+  name?: string;
+  email: string;
+  role?: UserRole;
+  signupType?: SignupType;
+  avatar?: string;
+  bio?: string;
+  phoneNumber?: string;
+  location?: string;
+  gender?: Gender;
+  grade?: string;
+  examPreparation?: string;
+  photoURL?: string;
+  loginCount?: number;
   paymentMethods?: PaymentMethod[];
   billingHistory?: BillingHistory[];
+  subscription?: Subscription;
+  studyStreak?: number;
+  personalityType?: PersonalityType;
+  mood?: MoodType;
+  
+  // Onboarding data fields
+  age?: number;
+  city?: string;
+  educationLevel?: string;
+  institute?: string;
+  examGoal?: string;
+  examAppearingDate?: Date;
+  jobTitle?: string;
+  experience?: string;
+  industry?: string;
+  skills?: string[];
+  specialization?: string;
+  institution?: string;
+  researchTopic?: string;
+  startupStage?: string;
+  teamSize?: number;
+  startupGoal?: string;
+  learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical';
+  sleepSchedule?: string;
+  focusHours?: number;
+  stressManagement?: string;
+  breakRoutine?: string;
+  breakFrequency?: string;
+  studyEnvironment?: string;
+  studyPace?: 'slow' | 'moderate' | 'fast';
+  dailyStudyHours?: number;
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  interests?: string[];
+  weakSubjects?: string[];
+  mobileNumber?: string;
+  preferredSubjects?: string[];
 }
 
-// Add User interface for compatibility
-export interface User extends UserProfileBase {
-  subscription?: Subscription;
+export interface Goal {
+  id: string;
+  title: string;
+  description?: string;
+  targetDate: string;
+  progress: number;
+  targetYear: string;
+  dueDate?: string;
+  status?: 'in-progress' | 'not-started' | 'completed';
+}
+
+export interface StudyPreferences {
+  pace: StudyPace;
+  hoursPerDay: number;
+  preferredTimeStart: string;
+  preferredTimeEnd: string;
+  preferenceType: StudyPreferenceType;
+}
+
+export interface Preferences {
+  studyReminders: boolean;
+  emailNotifications: boolean;
+  darkMode: boolean;
+}
+
+export interface RecentActivity {
+  lastLogin: Date;
+  lastStudySession?: Date;
+  completedTasks: number;
 }

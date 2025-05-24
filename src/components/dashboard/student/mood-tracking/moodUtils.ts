@@ -78,7 +78,12 @@ export const getStudyRecommendationForMood = (mood: MoodType): string => {
 };
 
 export const analyzeMoodTrends = (moodHistory: Array<{ mood: MoodType; timestamp: Date }>) => {
-  if (moodHistory.length === 0) return { trend: 'stable', dominant: MoodType.Neutral };
+  if (moodHistory.length === 0) return { 
+    trend: 'stable', 
+    dominant: MoodType.Neutral,
+    stressSignals: [],
+    improved: false
+  };
   
   const recentMoods = moodHistory.slice(-7); // Last 7 entries
   const moodCounts: Partial<Record<MoodType, number>> = {};
@@ -91,7 +96,19 @@ export const analyzeMoodTrends = (moodHistory: Array<{ mood: MoodType; timestamp
     (moodCounts[a as MoodType] || 0) > (moodCounts[b as MoodType] || 0) ? a : b
   ) as MoodType;
   
-  return { trend: 'improving', dominant: dominantMood };
+  const stressSignals = recentMoods.filter(entry => 
+    [MoodType.Stressed, MoodType.Anxious, MoodType.Overwhelmed].includes(entry.mood)
+  );
+  
+  const improved = recentMoods.length >= 2 && 
+    [MoodType.Happy, MoodType.Motivated, MoodType.Focused].includes(recentMoods[recentMoods.length - 1].mood);
+  
+  return { 
+    trend: 'improving', 
+    dominant: dominantMood,
+    stressSignals: stressSignals.map(s => s.mood),
+    improved
+  };
 };
 
 export const updateStudyTimeAllocationsByMood = (mood: MoodType) => {

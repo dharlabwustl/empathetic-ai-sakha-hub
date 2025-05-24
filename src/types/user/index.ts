@@ -1,5 +1,6 @@
 
 export interface SubjectProgress {
+  id?: string;
   subject: string;
   progress: number;
   totalChapters: number;

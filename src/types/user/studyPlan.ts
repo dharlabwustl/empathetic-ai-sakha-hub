@@ -1,4 +1,27 @@
 
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  subjectId: string;
+  completed: boolean;
+  difficulty: 'easy' | 'medium' | 'hard';
+  estimatedMinutes: number;
+  actualMinutes?: number;
+  resources: StudyResource[];
+  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
+  priority?: 'high' | 'medium' | 'low';
+}
+
+export interface StudyResource {
+  id: string;
+  type: 'video' | 'reading' | 'practice' | 'flashcard' | 'interactive' | '3d-model';
+  title: string;
+  url?: string;
+  duration?: number;
+  completed: boolean;
+  format?: 'text' | 'visual' | 'interactive' | '3d' | 'video';
+}
+
 export interface StudyPlanSubject {
   id: string;
   name: string;
@@ -10,35 +33,25 @@ export interface StudyPlanSubject {
   estimatedHours: number;
   actualHours: number;
   topics: StudyPlanTopic[];
-}
-
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  subjectId: string;
+  color: string;
+  proficiency: 'weak' | 'medium' | 'strong';
+  hoursPerWeek: number;
   completed: boolean;
-  difficulty: 'easy' | 'medium' | 'hard';
-  estimatedMinutes: number;
-  actualMinutes?: number;
-  resources: StudyResource[];
-}
-
-export interface StudyResource {
-  id: string;
-  type: 'video' | 'reading' | 'practice' | 'flashcard';
-  title: string;
-  url?: string;
-  duration?: number;
-  completed: boolean;
+  isWeakSubject?: boolean;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
 }
 
 export interface StudyPlan {
   id: string;
   userId: string;
-  examType: string;
+  title?: string;
+  goal?: string;
+  examGoal: string;
+  examDate: string | Date;
   targetDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   subjects: StudyPlanSubject[];
   weeklyGoal: number;
   dailyGoal: number;
@@ -48,6 +61,28 @@ export interface StudyPlan {
     breakDuration: number;
     studyStyle: 'visual' | 'auditory' | 'kinesthetic' | 'mixed';
   };
+  learningPace?: 'slow' | 'moderate' | 'fast';
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  studyHoursPerDay?: number;
+  weeklyHours?: number;
+  progressPercent?: number;
+  progressPercentage?: number;
+  progress?: number;
+  daysLeft?: number;
+  status: 'active' | 'completed' | 'archived' | 'pending';
+}
+
+export interface NewStudyPlan {
+  title?: string;
+  goal?: string;
+  examGoal: string;
+  examDate: string | Date;
+  subjects: Omit<StudyPlanSubject, 'topics'>[];
+  learningPace?: 'slow' | 'moderate' | 'fast';
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  studyHoursPerDay?: number;
+  weeklyHours?: number;
+  status: 'active' | 'completed' | 'archived' | 'pending';
 }
 
 // Export alias for backward compatibility
