@@ -8,7 +8,7 @@ import {
   Shield, Activity, Settings, FileText, Brain, MessageSquare, 
   Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
   TrendingUp, UserCheck, Zap, Cpu, Globe, Lock, Heart,
-  Target, Award, HelpCircle, Smartphone, Puzzle
+  Target, Award, HelpCircle, Smartphone, Puzzle, Upload
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -31,7 +31,7 @@ const AdminSidebar: React.FC = () => {
       items: [
         { icon: <Users size={20} />, title: "All Users", path: "/admin/dashboard", tab: "users" },
         { icon: <UserCheck size={20} />, title: "Student Profiles", path: "/admin/dashboard", tab: "student-profiles" },
-        { icon: <Calendar size={20} />, title: "User Activity", path: "/admin/dashboard", tab: "user-activity" },
+        { icon: <Users size={20} />, title: "Batch Management", path: "/admin/dashboard", tab: "batch-management" },
         { icon: <Heart size={20} />, title: "Mood Analytics", path: "/admin/dashboard", tab: "mood-analytics" }
       ]
     },
@@ -39,17 +39,17 @@ const AdminSidebar: React.FC = () => {
       section: "Content & Curriculum",
       items: [
         { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
+        { icon: <Upload size={20} />, title: "Enhanced CMS", path: "/admin/dashboard", tab: "enhanced-content" },
         { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
         { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
-        { icon: <Video size={20} />, title: "Video Content", path: "/admin/dashboard", tab: "videos" },
         { icon: <Target size={20} />, title: "Study Plans", path: "/admin/dashboard", tab: "study-plan-management" }
       ]
     },
     { 
       section: "AI & Personalization",
       items: [
-        { icon: <Brain size={20} />, title: "Personalization Engine", path: "/admin/dashboard", tab: "personalization-control" },
-        { icon: <Puzzle size={20} />, title: "AI Personalization", path: "/admin/dashboard", tab: "ai-personalization" },
+        { icon: <Brain size={20} />, title: "AI Features", path: "/admin/dashboard", tab: "ai-features" },
+        { icon: <Puzzle size={20} />, title: "Personalization", path: "/admin/dashboard", tab: "personalization-control" },
         { icon: <Zap size={20} />, title: "Feature Management", path: "/admin/dashboard", tab: "features" }
       ]
     },

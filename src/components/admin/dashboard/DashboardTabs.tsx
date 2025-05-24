@@ -27,6 +27,11 @@ import PersonalizationControlTab from './tabs/PersonalizationControlTab';
 import CommunicationManagementTab from './tabs/CommunicationManagementTab';
 import GamificationManagementTab from './tabs/GamificationManagementTab';
 
+// Import the new comprehensive tabs
+import BatchManagementTab from './BatchManagementTab';
+import AIFeaturesManagementTab from './AIFeaturesManagementTab';
+import EnhancedContentManagementTab from './EnhancedContentManagementTab';
+
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
@@ -80,13 +85,25 @@ const DashboardTabs: React.FC = () => {
       <TabsContent value="mood-analytics" className="space-y-4 mt-4">
         <MoodAnalyticsTab />
       </TabsContent>
+
+      <TabsContent value="batch-management" className="space-y-4 mt-4">
+        <BatchManagementTab />
+      </TabsContent>
       
       <TabsContent value="content" className="space-y-4 mt-4">
         <ContentManagement />
       </TabsContent>
 
+      <TabsContent value="enhanced-content" className="space-y-4 mt-4">
+        <EnhancedContentManagementTab />
+      </TabsContent>
+
       <TabsContent value="ai-models" className="space-y-4 mt-4">
         <AIModelsTab />
+      </TabsContent>
+
+      <TabsContent value="ai-features" className="space-y-4 mt-4">
+        <AIFeaturesManagementTab />
       </TabsContent>
 
       <TabsContent value="exams" className="space-y-4 mt-4">
