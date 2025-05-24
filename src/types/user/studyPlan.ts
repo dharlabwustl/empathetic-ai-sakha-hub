@@ -28,7 +28,7 @@ export interface StudyPlan {
   goal?: string;
   examGoal: string;
   examDate: string | Date;
-  status: 'active' | 'completed' | 'archived' | 'pending';
+  status: 'active' | 'completed' | 'archived' | 'pending' | 'paused';
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
@@ -54,7 +54,7 @@ export interface NewStudyPlan {
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
   weeklyHours?: number;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
+  status?: 'active' | 'completed' | 'archived' | 'pending' | 'paused';
 }
 
 // Export types to be used in other files
