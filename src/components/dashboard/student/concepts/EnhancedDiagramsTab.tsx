@@ -1,399 +1,487 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Eye, Play, Pause, RotateCcw, Volume2, ZoomIn, ZoomOut, MessageSquare, Info, Target } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Play, Pause, Volume2, MessageSquare, Eye, Network, Lightbulb, 
+  FlaskConical, GitCompare, RotateCw, Settings 
+} from 'lucide-react';
+import AITutorDialog from './AITutorDialog';
 
 interface EnhancedDiagramsTabProps {
   conceptName: string;
   subject: string;
-  isPlaying?: boolean;
-  audioEnabled?: boolean;
-  onPlayStateChange?: (playing: boolean) => void;
 }
 
-const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ 
-  conceptName, 
-  subject, 
-  isPlaying, 
-  audioEnabled, 
-  onPlayStateChange 
-}) => {
-  const [currentDiagram, setCurrentDiagram] = useState(0);
-  const [zoomLevel, setZoomLevel] = useState(100);
-  const [activeHotspot, setActiveHotspot] = useState<number | null>(null);
-  const [isPlaying3D, setIsPlaying3D] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [annotationsVisible, setAnnotationsVisible] = useState(true);
+const EnhancedDiagramsTab: React.FC<EnhancedDiagramsTabProps> = ({ conceptName, subject }) => {
+  const [activeSubTab, setActiveSubTab] = useState('interactive');
+  const [isAudioPlaying, setIsAudioPlaying] = useState<string | null>(null);
+  const [isTutorOpen, setIsTutorOpen] = useState(false);
+  const [tutorContext, setTutorContext] = useState('');
 
-  const diagrams = [
-    {
-      id: 1,
-      title: "Force Vector Diagram",
-      description: "Understanding force vectors and their components in Newton's Second Law",
-      imageUrl: "/api/placeholder/600/400",
-      hotspots: [
-        { x: 50, y: 30, label: "Applied Force", description: "The external force applied to the object" },
-        { x: 50, y: 70, label: "Weight", description: "The gravitational force acting downward" },
-        { x: 80, y: 50, label: "Acceleration", description: "The resulting acceleration of the object" }
-      ],
-      audioScript: "This diagram shows the force vectors acting on an object. The applied force and weight combine to produce a net force, which results in acceleration according to Newton's Second Law."
-    },
-    {
-      id: 2,
-      title: "Free Body Diagram",
-      description: "Isolating the object and showing all forces acting upon it",
-      imageUrl: "/api/placeholder/600/400",
-      hotspots: [
-        { x: 50, y: 50, label: "Object", description: "The object being analyzed" },
-        { x: 30, y: 30, label: "Normal Force", description: "The force perpendicular to the surface" },
-        { x: 70, y: 30, label: "Applied Force", description: "The external force applied" },
-        { x: 50, y: 80, label: "Weight", description: "The gravitational force" }
-      ],
-      audioScript: "A free body diagram isolates the object and shows all forces acting upon it. This helps us apply Newton's Second Law by identifying the net force."
-    },
-    {
-      id: 3,
-      title: "Motion Analysis",
-      description: "Showing the relationship between force, mass, and acceleration",
-      imageUrl: "/api/placeholder/600/400",
-      hotspots: [
-        { x: 25, y: 50, label: "Initial State", description: "Object at rest or constant velocity" },
-        { x: 50, y: 30, label: "Applied Force", description: "Force causing acceleration" },
-        { x: 75, y: 50, label: "Final State", description: "Object with increased velocity" }
-      ],
-      audioScript: "This diagram demonstrates how applying a force changes the motion of an object, illustrating the direct relationship described in Newton's Second Law."
-    }
-  ];
-
-  useEffect(() => {
-    if (isPlaying && audioEnabled) {
-      playDiagramAudio();
-    } else {
-      stopAudio();
-    }
-  }, [isPlaying, audioEnabled, currentDiagram]);
-
-  const playDiagramAudio = () => {
-    const diagram = diagrams[currentDiagram];
-    if ('speechSynthesis' in window && audioEnabled) {
+  const playAudioExplanation = (diagramType: string, content: string) => {
+    if (isAudioPlaying === diagramType) {
+      // Pause current audio
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(diagram.audioScript);
+      setIsAudioPlaying(null);
+    } else {
+      // Stop any current audio and play new one
+      window.speechSynthesis.cancel();
+      setIsAudioPlaying(diagramType);
+      
+      const utterance = new SpeechSynthesisUtterance(content);
       utterance.rate = 0.9;
       utterance.volume = 0.8;
-      utterance.onstart = () => setIsPlaying3D(true);
-      utterance.onend = () => {
-        setIsPlaying3D(false);
-        onPlayStateChange?.(false);
-        if (currentDiagram < diagrams.length - 1) {
-          setTimeout(() => {
-            setCurrentDiagram(prev => prev + 1);
-            setProgress(((currentDiagram + 1) / diagrams.length) * 100);
-          }, 1000);
-        }
-      };
+      utterance.onend = () => setIsAudioPlaying(null);
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const stopAudio = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    setIsPlaying3D(false);
+  const openAITutor = (context: string) => {
+    setTutorContext(context);
+    setIsTutorOpen(true);
   };
-
-  const handlePlayPause = () => {
-    const newState = !isPlaying3D;
-    setIsPlaying3D(newState);
-    onPlayStateChange?.(newState);
-    
-    if (newState) {
-      playDiagramAudio();
-    } else {
-      stopAudio();
-    }
-  };
-
-  const handleReset = () => {
-    setCurrentDiagram(0);
-    setProgress(0);
-    setActiveHotspot(null);
-    setZoomLevel(100);
-    stopAudio();
-    onPlayStateChange?.(false);
-  };
-
-  const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(200, prev + 25));
-  };
-
-  const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(50, prev - 25));
-  };
-
-  const currentDiagramData = diagrams[currentDiagram];
 
   return (
     <div className="space-y-6">
-      <motion.div 
-        className="flex items-center justify-between"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-          Interactive Diagrams - {conceptName}
-        </h2>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePlayPause}
-            className="flex items-center gap-2"
-          >
-            {isPlaying3D ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            {isPlaying3D ? 'Pause' : 'Play Tour'}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="flex items-center gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Reset
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <MessageSquare className="h-4 w-4" />
-            AI Tutor
-          </Button>
-        </div>
-      </motion.div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-blue-600" />
+            Interactive Diagrams - {subject}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="interactive">Interactive</TabsTrigger>
+              <TabsTrigger value="relationships">Relationships</TabsTrigger>
+              <TabsTrigger value="applications">Applications</TabsTrigger>
+              <TabsTrigger value="comparison">Comparison</TabsTrigger>
+              <TabsTrigger value="lab">Virtual Laboratory</TabsTrigger>
+            </TabsList>
 
-      {/* Progress and Controls */}
-      <motion.div 
-        className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-xl border"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-      >
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium">Diagram Progress</span>
-          <span className="text-sm text-gray-600">{currentDiagram + 1}/{diagrams.length}</span>
+            <TabsContent value="interactive" className="mt-6">
+              <InteractiveDiagramsSection 
+                conceptName={conceptName}
+                subject={subject}
+                isAudioPlaying={isAudioPlaying}
+                onPlayAudio={playAudioExplanation}
+                onOpenTutor={openAITutor}
+              />
+            </TabsContent>
+
+            <TabsContent value="relationships" className="mt-6">
+              <RelationshipGraphsSection 
+                conceptName={conceptName}
+                subject={subject}
+                isAudioPlaying={isAudioPlaying}
+                onPlayAudio={playAudioExplanation}
+                onOpenTutor={openAITutor}
+              />
+            </TabsContent>
+
+            <TabsContent value="applications" className="mt-6">
+              <RealWorldApplicationsSection 
+                conceptName={conceptName}
+                subject={subject}
+                isAudioPlaying={isAudioPlaying}
+                onPlayAudio={playAudioExplanation}
+                onOpenTutor={openAITutor}
+              />
+            </TabsContent>
+
+            <TabsContent value="comparison" className="mt-6">
+              <ComparisonToolsSection 
+                conceptName={conceptName}
+                subject={subject}
+                isAudioPlaying={isAudioPlaying}
+                onPlayAudio={playAudioExplanation}
+                onOpenTutor={openAITutor}
+              />
+            </TabsContent>
+
+            <TabsContent value="lab" className="mt-6">
+              <InteractiveLabSection 
+                conceptName={conceptName}
+                subject={subject}
+                isAudioPlaying={isAudioPlaying}
+                onPlayAudio={playAudioExplanation}
+                onOpenTutor={openAITutor}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <AITutorDialog
+        isOpen={isTutorOpen}
+        onClose={() => setIsTutorOpen(false)}
+        conceptName={conceptName}
+        context={tutorContext}
+        subject={subject}
+      />
+    </div>
+  );
+};
+
+// Individual Section Components
+const InteractiveDiagramsSection: React.FC<{
+  conceptName: string;
+  subject: string;
+  isAudioPlaying: string | null;
+  onPlayAudio: (type: string, content: string) => void;
+  onOpenTutor: (context: string) => void;
+}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
+  const audioContent = `This interactive diagram shows the key components and relationships within ${conceptName}. You can click on different elements to explore how they interact with each other in ${subject}.`;
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-blue-50 to-purple-100 dark:from-blue-950 dark:to-purple-900 p-6 rounded-lg min-h-[400px]">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Interactive {conceptName} Diagram</h3>
+          <Badge variant="outline">{subject}</Badge>
         </div>
-        <Progress value={((currentDiagram + 1) / diagrams.length) * 100} className="h-2 mb-3" />
+        
+        <div className="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-lg mb-4">
+          <div className="text-center space-y-4">
+            <div className="w-32 h-32 mx-auto rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+              <Eye className="h-16 w-16 text-white" />
+            </div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Interactive diagram for {conceptName} loads here
+            </p>
+          </div>
+        </div>
         
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {diagrams.map((_, index) => (
-              <Button
-                key={index}
-                variant={index === currentDiagram ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentDiagram(index)}
-                className="w-8 h-8 p-0"
-              >
-                {index + 1}
-              </Button>
-            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPlayAudio('interactive', audioContent)}
+              className="flex items-center gap-2"
+            >
+              {isAudioPlaying === 'interactive' ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {isAudioPlaying === 'interactive' ? 'Pause' : 'Play'} Audio
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenTutor(`Interactive diagram of ${conceptName} in ${subject}`)}
+              className="flex items-center gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Ask AI Tutor
+            </Button>
           </div>
-          
+          <Button variant="outline" size="sm">
+            <Settings className="h-4 w-4 mr-2" />
+            Customize View
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RelationshipGraphsSection: React.FC<{
+  conceptName: string;
+  subject: string;
+  isAudioPlaying: string | null;
+  onPlayAudio: (type: string, content: string) => void;
+  onOpenTutor: (context: string) => void;
+}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
+  const audioContent = `This relationship graph visualizes how ${conceptName} connects to other concepts in ${subject}. The network shows dependencies, influences, and correlations between different elements.`;
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-green-50 to-teal-100 dark:from-green-950 dark:to-teal-900 p-6 rounded-lg min-h-[400px]">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Relationship Network - {conceptName}</h3>
+          <Badge variant="outline">{subject}</Badge>
+        </div>
+        
+        <div className="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-lg mb-4">
+          <div className="text-center space-y-4">
+            <div className="w-32 h-32 mx-auto rounded-lg bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center">
+              <Network className="h-16 w-16 text-white" />
+            </div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Network graph showing relationships for {conceptName}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={handleZoomOut}
-              disabled={zoomLevel <= 50}
+              onClick={() => onPlayAudio('relationships', audioContent)}
+              className="flex items-center gap-2"
             >
-              <ZoomOut className="h-4 w-4" />
+              {isAudioPlaying === 'relationships' ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {isAudioPlaying === 'relationships' ? 'Pause' : 'Play'} Audio
             </Button>
-            
-            <span className="text-sm font-medium w-12 text-center">{zoomLevel}%</span>
-            
             <Button
               variant="outline"
               size="sm"
-              onClick={handleZoomIn}
-              disabled={zoomLevel >= 200}
+              onClick={() => onOpenTutor(`Relationship network of ${conceptName} in ${subject}`)}
+              className="flex items-center gap-2"
             >
-              <ZoomIn className="h-4 w-4" />
+              <MessageSquare className="h-4 w-4" />
+              Ask AI Tutor
             </Button>
           </div>
+          <Button variant="outline" size="sm">
+            <RotateCw className="h-4 w-4 mr-2" />
+            Rearrange Network
+          </Button>
         </div>
-      </motion.div>
+      </div>
+    </div>
+  );
+};
 
-      {/* Audio Status */}
-      {isPlaying3D && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
-        >
+const RealWorldApplicationsSection: React.FC<{
+  conceptName: string;
+  subject: string;
+  isAudioPlaying: string | null;
+  onPlayAudio: (type: string, content: string) => void;
+  onOpenTutor: (context: string) => void;
+}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
+  const audioContent = `Here are practical applications of ${conceptName} in real-world scenarios. These examples show how the concept is used in industry, daily life, and modern technology within ${subject}.`;
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900 p-6 rounded-lg min-h-[400px]">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Real-World Applications</h3>
+          <Badge variant="outline">{subject}</Badge>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {[
+            { title: 'Industry Application', description: `How ${conceptName} is used in manufacturing and industry` },
+            { title: 'Daily Life Example', description: `Common examples of ${conceptName} in everyday situations` },
+            { title: 'Technology Integration', description: `Modern tech applications leveraging ${conceptName}` },
+            { title: 'Future Innovations', description: `Emerging uses of ${conceptName} in cutting-edge research` }
+          ].map((app, index) => (
+            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">{app.title}</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{app.description}</p>
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Volume2 className="h-4 w-4 text-green-600 animate-pulse" />
-            <span className="text-sm font-medium text-green-800 dark:text-green-300">
-              Audio explanation playing for: {currentDiagramData.title}
-            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPlayAudio('applications', audioContent)}
+              className="flex items-center gap-2"
+            >
+              {isAudioPlaying === 'applications' ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {isAudioPlaying === 'applications' ? 'Pause' : 'Play'} Audio
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenTutor(`Real-world applications of ${conceptName} in ${subject}`)}
+              className="flex items-center gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Ask AI Tutor
+            </Button>
           </div>
-        </motion.div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Diagram Display */}
-        <div className="lg:col-span-2">
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-green-500 to-blue-500 text-white">
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
-                {currentDiagramData.title}
-              </CardTitle>
-              <p className="text-sm text-green-100">{currentDiagramData.description}</p>
-            </CardHeader>
-            <CardContent className="p-0 relative">
-              <div 
-                className="relative overflow-auto bg-gray-50 dark:bg-gray-900"
-                style={{ height: '400px' }}
-              >
-                <motion.div
-                  className="relative w-full h-full flex items-center justify-center"
-                  style={{ 
-                    transform: `scale(${zoomLevel / 100})`,
-                    transition: 'transform 0.3s ease'
-                  }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  key={currentDiagram}
-                >
-                  {/* Diagram Placeholder */}
-                  <div className="w-96 h-64 bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center relative">
-                    <div className="text-center">
-                      <Eye className="h-16 w-16 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-500">Interactive Diagram: {currentDiagramData.title}</p>
-                    </div>
-                    
-                    {/* Interactive Hotspots */}
-                    {annotationsVisible && currentDiagramData.hotspots.map((hotspot, index) => (
-                      <motion.div
-                        key={index}
-                        className={`absolute w-4 h-4 rounded-full cursor-pointer transition-all ${
-                          activeHotspot === index 
-                            ? 'bg-blue-500 ring-4 ring-blue-200' 
-                            : 'bg-red-500 hover:bg-red-600'
-                        }`}
-                        style={{ 
-                          left: `${hotspot.x}%`, 
-                          top: `${hotspot.y}%`,
-                          transform: 'translate(-50%, -50%)'
-                        }}
-                        onClick={() => setActiveHotspot(activeHotspot === index ? null : index)}
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <motion.div
-                          className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"
-                          animate={{ scale: [1, 1.5, 1] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              </div>
-              
-              {/* Diagram Controls */}
-              <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setAnnotationsVisible(!annotationsVisible)}
-                  className="bg-white/90 hover:bg-white"
-                >
-                  <Target className="h-4 w-4 mr-1" />
-                  {annotationsVisible ? 'Hide' : 'Show'} Hotspots
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <Button variant="outline" size="sm">
+            <Lightbulb className="h-4 w-4 mr-2" />
+            More Examples
+          </Button>
         </div>
+      </div>
+    </div>
+  );
+};
 
-        {/* Sidebar with Hotspot Info */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Info className="h-5 w-5 text-blue-500" />
-                Diagram Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {currentDiagramData.hotspots.map((hotspot, index) => (
-                <motion.div
-                  key={index}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                    activeHotspot === index
-                      ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
-                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700'
-                  }`}
-                  onClick={() => setActiveHotspot(activeHotspot === index ? null : index)}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="flex items-start gap-2">
-                    <div className={`w-3 h-3 rounded-full mt-1 ${
-                      activeHotspot === index ? 'bg-blue-500' : 'bg-red-500'
-                    }`} />
-                    <div>
-                      <h4 className="font-medium text-sm">{hotspot.label}</h4>
-                      {activeHotspot === index && (
-                        <motion.p 
-                          className="text-xs text-gray-600 dark:text-gray-400 mt-1"
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                        >
-                          {hotspot.description}
-                        </motion.p>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
+const ComparisonToolsSection: React.FC<{
+  conceptName: string;
+  subject: string;
+  isAudioPlaying: string | null;
+  onPlayAudio: (type: string, content: string) => void;
+  onOpenTutor: (context: string) => void;
+}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
+  const audioContent = `This comparison tool analyzes ${conceptName} against related concepts in ${subject}. It highlights similarities, differences, and helps you understand when to apply each concept.`;
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950 dark:to-pink-900 p-6 rounded-lg min-h-[400px]">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Concept Comparison Analysis</h3>
+          <Badge variant="outline">{subject}</Badge>
+        </div>
+        
+        <div className="flex items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-lg mb-4">
+          <div className="text-center space-y-4">
+            <div className="w-32 h-32 mx-auto rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+              <GitCompare className="h-16 w-16 text-white" />
+            </div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Interactive comparison tool for {conceptName}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPlayAudio('comparison', audioContent)}
+              className="flex items-center gap-2"
+            >
+              {isAudioPlaying === 'comparison' ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {isAudioPlaying === 'comparison' ? 'Pause' : 'Play'} Audio
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenTutor(`Comparison analysis of ${conceptName} with related concepts in ${subject}`)}
+              className="flex items-center gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Ask AI Tutor
+            </Button>
+          </div>
+          <Button variant="outline" size="sm">
+            <GitCompare className="h-4 w-4 mr-2" />
+            Add Concepts
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InteractiveLabSection: React.FC<{
+  conceptName: string;
+  subject: string;
+  isAudioPlaying: string | null;
+  onPlayAudio: (type: string, content: string) => void;
+  onOpenTutor: (context: string) => void;
+}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
+  const [experimentRunning, setExperimentRunning] = useState(false);
+  const [labResults, setLabResults] = useState<string[]>([]);
+
+  const audioContent = `Welcome to the virtual laboratory for ${conceptName}. Here you can conduct interactive experiments, adjust parameters, and observe real-time results to better understand the concept in ${subject}.`;
+
+  const startExperiment = () => {
+    setExperimentRunning(true);
+    const newResult = `${conceptName} experiment completed at ${new Date().toLocaleTimeString()}`;
+    
+    setTimeout(() => {
+      setLabResults(prev => [...prev, newResult]);
+      setExperimentRunning(false);
+    }, 3000);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-indigo-950 dark:to-blue-900 p-6 rounded-lg min-h-[400px]">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Virtual Laboratory</h3>
+          <Badge variant="outline">{subject}</Badge>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h4 className="font-semibold">Lab Equipment & Controls</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {['Measuring Tools', 'Sensors', 'Controls', 'Data Logger'].map((tool, index) => (
+                <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
+                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-indigo-600" />
+                  <p className="text-xs">{tool}</p>
+                </div>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+            
+            <Button
+              onClick={startExperiment}
+              disabled={experimentRunning}
+              className="w-full"
+              variant={experimentRunning ? "secondary" : "default"}
+            >
+              {experimentRunning ? 'Running...' : 'Start Experiment'}
+            </Button>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Navigation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setCurrentDiagram(Math.max(0, currentDiagram - 1))}
-                disabled={currentDiagram === 0}
-              >
-                Previous Diagram
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setCurrentDiagram(Math.min(diagrams.length - 1, currentDiagram + 1))}
-                disabled={currentDiagram === diagrams.length - 1}
-              >
-                Next Diagram
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <h4 className="font-semibold">Results & Analysis</h4>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg min-h-[150px]">
+              {labResults.length === 0 ? (
+                <p className="text-gray-500 text-center">No experiments run yet</p>
+              ) : (
+                <div className="space-y-2">
+                  {labResults.map((result, index) => (
+                    <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                      {result}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPlayAudio('lab', audioContent)}
+              className="flex items-center gap-2"
+            >
+              {isAudioPlaying === 'lab' ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {isAudioPlaying === 'lab' ? 'Pause' : 'Play'} Audio
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenTutor(`Virtual laboratory experiments for ${conceptName} in ${subject}`)}
+              className="flex items-center gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Ask AI Tutor
+            </Button>
+          </div>
+          <Button variant="outline" size="sm">
+            <FlaskConical className="h-4 w-4 mr-2" />
+            Lab Settings
+          </Button>
         </div>
       </div>
     </div>

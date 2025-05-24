@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTodaysPlan } from '@/hooks/useTodaysPlan';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MoodSelector } from '@/components/dashboard/student/MoodSelector';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Clock, FileText, Brain, AlertTriangle, CheckCircle, Calendar, Target, TrendingUp, Star, Zap } from 'lucide-react';
+import { BookOpen, Clock, FileText, Brain, AlertTriangle, CheckCircle, Calendar } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
+
+// Import DashboardLayout to integrate with main dashboard
+import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { getMoodTheme } from '@/components/dashboard/student/moodThemes';
-import { motion } from 'framer-motion';
 
 const TodaysPlanView = () => {
   const navigate = useNavigate();
@@ -21,17 +22,6 @@ const TodaysPlanView = () => {
   const { planData, loading, activeView, setActiveView, markTaskCompleted } = useTodaysPlan("IIT-JEE", "Student");
   const [currentTab, setCurrentTab] = useState('all');
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>();
-
-  // Load mood from localStorage on component mount
-  useEffect(() => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
-      }
-    }
-  }, []);
 
   // Mocked tasks for demonstration
   const tasks = [
@@ -102,6 +92,7 @@ const TodaysPlanView = () => {
     }
   ];
 
+  // Filter tasks based on current tab
   const getFilteredTasks = () => {
     switch (currentTab) {
       case 'all':
@@ -123,6 +114,7 @@ const TodaysPlanView = () => {
 
   const filteredTasks = getFilteredTasks();
   
+  // Calculate total time
   const totalTimeEstimate = tasks.reduce((total, task) => {
     if (task.status !== 'completed') {
       return total + task.timeEstimate;
@@ -134,12 +126,15 @@ const TodaysPlanView = () => {
   const totalTasks = tasks.length;
   const percentageCompleted = Math.round((completedTasks / totalTasks) * 100);
 
+  // Handle task action (start or review)
   const handleTaskAction = (task: any) => {
     console.log("TodaysPlanView - Task action clicked:", task.id, task.type);
     
     if (task.status === 'completed') {
+      // Navigate to review page based on task type
       switch (task.type) {
         case 'concept':
+          console.log("TodaysPlanView - Navigating to concept detail (review):", task.id);
           navigate(`/dashboard/student/concepts/${task.id}`);
           break;
         case 'flashcard':
@@ -150,8 +145,10 @@ const TodaysPlanView = () => {
           break;
       }
     } else {
+      // Navigate to start page based on task type
       switch (task.type) {
         case 'concept':
+          console.log("TodaysPlanView - Navigating to concept detail (start):", task.id);
           navigate(`/dashboard/student/concepts/${task.id}`);
           break;
         case 'flashcard':
@@ -164,20 +161,27 @@ const TodaysPlanView = () => {
     }
   };
 
+  // Handle task card click (entire card clickable)
   const handleTaskCardClick = (task: any) => {
     console.log("TodaysPlanView - Task card clicked:", task.id, task.type);
     
+    // For concept cards, navigate to concept detail page
     if (task.type === 'concept') {
+      console.log("TodaysPlanView - Navigating to concept detail page:", task.id);
       navigate(`/dashboard/student/concepts/${task.id}`);
     } else {
+      // For other types, use the same logic as handleTaskAction
       handleTaskAction(task);
     }
   };
 
+  // Handle mood selection
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
+    // In a real implementation, we would update the user's mood in the backend
     console.log('User mood updated:', mood);
     
+    // Save mood to local storage for persistence
     const userData = localStorage.getItem("userData");
     if (userData) {
       const parsedData = JSON.parse(userData);
@@ -214,331 +218,208 @@ const TodaysPlanView = () => {
     }
   };
 
-  const moodTheme = currentMood ? getMoodTheme(currentMood) : null;
-
+  // Today's plan content
   const todaysPlanContent = (
-    <div className="min-h-screen">
-      {/* Beautiful Gradient Header with Mood-based Theming */}
-      <motion.div 
-        className={`relative overflow-hidden rounded-3xl mb-8 ${
-          moodTheme ? moodTheme.background : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
-        }`}
-        style={moodTheme ? { backgroundColor: moodTheme.backgroundColor } : {}}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-        <div className="relative p-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6">
-            <div className="mb-4 lg:mb-0">
-              <motion.div 
-                className="flex items-center mb-2"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Calendar className="h-8 w-8 mr-3 text-primary" />
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Today's Study Plan</h1>
-                  <p className="text-lg text-gray-600 dark:text-gray-300">
-                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                  </p>
-                </div>
-              </motion.div>
-              
-              {currentMood && (
-                <motion.div 
-                  className="flex items-center mt-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">Current mood:</span>
-                  <Badge className={`${moodTheme?.text || 'text-blue-700'} ${moodTheme?.background || 'bg-blue-50'} capitalize`}>
-                    {currentMood.toLowerCase()}
-                  </Badge>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Progress Metrics */}
-            <motion.div 
-              className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 text-center">
-                <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-50">{percentageCompleted}%</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Completed</div>
-              </div>
-              
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 text-center">
-                <Clock className="h-6 w-6 mx-auto mb-2 text-green-600" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-50">{totalTimeEstimate}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Min Left</div>
-              </div>
-              
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 text-center">
-                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-50">5</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Day Streak</div>
-              </div>
-              
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 text-center">
-                <Star className="h-6 w-6 mx-auto mb-2 text-amber-600" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-50">72%</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Readiness</div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Progress Bar */}
-          <motion.div 
-            className="mb-6"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Today's Progress</span>
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-50">{completedTasks}/{totalTasks} tasks</span>
-            </div>
-            <Progress value={percentageCompleted} className="h-3 bg-white/50" />
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Mood and Enhancement Section */}
-      <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <Card className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold flex items-center">
+          <Calendar className="h-6 w-6 mr-2 text-primary" />
+          Today's Study Plan
+        </h1>
+        <Badge className="text-sm py-1">
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+        </Badge>
+      </div>
+      
+      {/* Mood and Completion Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card>
           <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <Zap className="h-6 w-6 text-purple-600 mr-3" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-50">How are you feeling today?</h3>
-            </div>
+            <h3 className="text-lg font-medium mb-4">How are you feeling today?</h3>
             <MoodSelector currentMood={currentMood} onMoodSelect={handleMoodChange} />
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+        <Card>
           <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="h-6 w-6 text-green-600 mr-3" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-50">Performance Overview</h3>
+            <h3 className="text-lg font-medium mb-2">Today's Progress</h3>
+            <div className="flex justify-between items-center mb-2 text-sm text-muted-foreground">
+              <span>Completed {completedTasks} of {totalTasks} tasks</span>
+              <span>{percentageCompleted}%</span>
             </div>
+            <Progress value={percentageCompleted} className="h-2 mb-4" />
             
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Study Efficiency</span>
-                <span className="text-lg font-bold text-green-600">85%</span>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Remaining Time</p>
+                <p className="text-lg font-semibold">{totalTimeEstimate} min</p>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Focus Score</span>
-                <span className="text-lg font-bold text-blue-600">92%</span>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Completed</p>
+                <p className="text-lg font-semibold">{completedTasks}</p>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Retention Rate</span>
-                <span className="text-lg font-bold text-purple-600">78%</span>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Pending</p>
+                <p className="text-lg font-semibold">{totalTasks - completedTasks}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
       
-      {/* Enhanced Tasks Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-      >
-        <Card className="overflow-hidden border-0 shadow-xl bg-white dark:bg-gray-800">
-          <CardHeader className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <Calendar className="h-6 w-6" />
-                Task Breakdown
-              </CardTitle>
-              <div className="text-sm bg-white/20 px-3 py-1 rounded-full">
-                Total: <span className="font-bold">{totalTimeEstimate} min</span>
-              </div>
+      {/* Today's tasks with tabs */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Task Breakdown
+            </CardTitle>
+            <div className="text-sm text-muted-foreground">
+              Total Estimated Time: <span className="font-semibold">{totalTimeEstimate} min</span>
             </div>
-          </CardHeader>
-          
-          <div className="p-6">
-            <div className="flex space-x-2 overflow-x-auto pb-4 mb-6">
-              {['all', 'pending', 'completed', 'concept', 'flashcard', 'exam'].map((tab) => (
-                <Button
-                  key={tab}
-                  variant={currentTab === tab ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCurrentTab(tab)}
-                  className={`capitalize whitespace-nowrap ${
-                    currentTab === tab 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' 
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {tab}
-                </Button>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredTasks.map((task, index) => (
-                <motion.div
-                  key={task.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                >
-                  <Card 
-                    className={`overflow-hidden transition-all duration-300 border-l-4 cursor-pointer hover:shadow-lg hover:-translate-y-1 ${
-                      task.priority === 'high' ? "border-l-red-500 hover:border-l-red-600" : 
-                      task.priority === 'medium' ? "border-l-amber-500 hover:border-l-amber-600" : 
-                      "border-l-blue-500 hover:border-l-blue-600"
-                    }`}
-                    onClick={() => handleTaskCardClick(task)}
-                  >
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center space-x-2">
-                          {getTaskTypeIcon(task.type)}
-                          <span className="font-medium text-gray-700 dark:text-gray-300">{task.subject}</span>
-                        </div>
-                        {getTaskStatusBadge(task.status)}
-                      </div>
-                      
-                      <h3 className="font-bold text-lg mb-3 text-gray-900 dark:text-gray-50">{task.title}</h3>
-                      
-                      <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{task.timeEstimate} min</span>
-                        </div>
-                        
-                        {task.isBacklog && (
-                          <div className="flex items-center gap-1 text-amber-600">
-                            <AlertTriangle className="h-4 w-4" />
-                            <span className="text-xs">Backlog</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {task.status === 'completed' && task.completedAt && (
-                        <div className="flex items-center gap-1 text-xs text-green-600 mb-3">
-                          <CheckCircle className="h-3 w-3" />
-                          <span>Completed</span>
-                        </div>
-                      )}
-                      
-                      {task.smartTip && (
-                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <p className="text-xs text-blue-800 dark:text-blue-300">{task.smartTip}</p>
-                        </div>
-                      )}
-                      
-                      <Button 
-                        className={`w-full ${
-                          task.status === 'completed' 
-                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600' 
-                            : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white'
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTaskAction(task);
-                        }}
-                      >
-                        {task.status === 'completed' ? 'Review' : 'Start Now'}
-                      </Button>
+          </div>
+        </CardHeader>
+        
+        <div className="px-6">
+          <div className="flex space-x-2 overflow-x-auto pb-2">
+            {['all', 'pending', 'completed', 'concept', 'flashcard', 'exam'].map((tab) => (
+              <Button
+                key={tab}
+                variant={currentTab === tab ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentTab(tab)}
+                className="capitalize"
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+        </div>
+        
+        <div className="p-6 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredTasks.map(task => (
+              <Card 
+                key={task.id} 
+                className={`overflow-hidden transition-all border-l-4 cursor-pointer ${
+                  task.priority === 'high' ? "border-l-red-500" : 
+                  task.priority === 'medium' ? "border-l-amber-500" : "border-l-blue-500"
+                } hover:shadow-md`}
+                onClick={() => handleTaskCardClick(task)}
+              >
+                <div className="p-5">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-2">
+                      {getTaskTypeIcon(task.type)}
+                      <span className="font-medium">{task.subject}</span>
                     </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-            
-            {filteredTasks.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-gray-400 dark:text-gray-600 mb-2">
-                  <BookOpen className="h-12 w-12 mx-auto" />
+                    {getTaskStatusBadge(task.status)}
+                  </div>
+                  
+                  <h3 className="font-semibold mt-3">{task.title}</h3>
+                  
+                  <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>{task.timeEstimate} min</span>
+                    
+                    {task.isBacklog && (
+                      <div className="ml-auto flex items-center space-x-1 text-amber-600">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span className="text-xs">Backlog</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {task.status === 'completed' && task.completedAt && (
+                    <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
+                      <CheckCircle className="h-3 w-3" />
+                      <span>Completed</span>
+                    </div>
+                  )}
+                  
+                  {task.smartTip && (
+                    <div className="mt-3 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-xs text-blue-800 dark:text-blue-300">
+                      <p>{task.smartTip}</p>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    className="w-full mt-3"
+                    variant={task.status === 'completed' ? "outline" : "default"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTaskAction(task);
+                    }}
+                  >
+                    {task.status === 'completed' ? 'Review' : 'Start Now'}
+                  </Button>
                 </div>
-                <p className="text-gray-500 dark:text-gray-400">No tasks found for this category</p>
+              </Card>
+            ))}
+          </div>
+          
+          {filteredTasks.length === 0 && (
+            <div className="text-center py-10 text-muted-foreground">
+              <p>No tasks found for this category</p>
+            </div>
+          )}
+        </div>
+      </Card>
+      
+      {/* Smart Suggestions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Smart Suggestions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {currentMood === MoodType.STRESSED ? (
+              <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-700">
+                <h3 className="font-medium text-violet-800 dark:text-violet-300 mb-2">You seem stressed today</h3>
+                <p className="text-sm text-violet-700 dark:text-violet-400 mb-2">
+                  Try shorter study sessions of 15-20 minutes with more frequent breaks.
+                </p>
+                <Button variant="outline" className="text-xs h-7 border-violet-300 text-violet-800">
+                  Adjust My Schedule
+                </Button>
+              </div>
+            ) : currentMood === MoodType.TIRED ? (
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
+                <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Energy management for tired days</h3>
+                <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
+                  Focus on review tasks instead of new concepts. Take a short walk before studying.
+                </p>
+                <Button variant="outline" className="text-xs h-7 border-amber-300 text-amber-800">
+                  Show Review Tasks
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700">
+                <h3 className="font-medium text-emerald-800 dark:text-emerald-300 mb-2">
+                  {currentMood ? `Great to see you're feeling ${currentMood}!` : 'Optimize your study session'}
+                </h3>
+                <p className="text-sm text-emerald-700 dark:text-emerald-400 mb-2">
+                  Your calculus scores have improved! Try tackling the advanced practice exam.
+                </p>
+                <Button variant="outline" className="text-xs h-7 border-emerald-300 text-emerald-800">
+                  Start Advanced Exam
+                </Button>
               </div>
             )}
-          </div>
-        </Card>
-      </motion.div>
-      
-      {/* Smart Suggestions with Enhanced Design */}
-      <motion.div
-        className="mt-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
-      >
-        <Card className="overflow-hidden border-0 shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-green-400 to-blue-500 text-white">
-            <CardTitle className="text-xl flex items-center gap-2">
-              <Zap className="h-6 w-6" />
-              Smart Suggestions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              {currentMood === MoodType.STRESSED ? (
-                <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-violet-200 dark:border-violet-800/50">
-                  <h3 className="font-bold text-violet-800 dark:text-violet-300 mb-2">You seem stressed today</h3>
-                  <p className="text-sm text-violet-700 dark:text-violet-400 mb-3">
-                    Try shorter study sessions of 15-20 minutes with more frequent breaks.
-                  </p>
-                  <Button variant="outline" className="border-violet-300 text-violet-800 hover:bg-violet-50">
-                    Adjust My Schedule
-                  </Button>
-                </div>
-              ) : currentMood === MoodType.TIRED ? (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-6 rounded-xl border border-amber-200 dark:border-amber-800/50">
-                  <h3 className="font-bold text-amber-800 dark:text-amber-300 mb-2">Energy management for tired days</h3>
-                  <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
-                    Focus on review tasks instead of new concepts. Take a short walk before studying.
-                  </p>
-                  <Button variant="outline" className="border-amber-300 text-amber-800 hover:bg-amber-50">
-                    Show Review Tasks
-                  </Button>
-                </div>
-              ) : (
-                <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 p-6 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
-                  <h3 className="font-bold text-emerald-800 dark:text-emerald-300 mb-2">
-                    {currentMood ? `Great to see you're feeling ${currentMood}!` : 'Optimize your study session'}
-                  </h3>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-400 mb-3">
-                    Your calculus scores have improved! Try tackling the advanced practice exam.
-                  </p>
-                  <Button variant="outline" className="border-emerald-300 text-emerald-800 hover:bg-emerald-50">
-                    Start Advanced Exam
-                  </Button>
-                </div>
-              )}
 
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800/50">
-                <h3 className="font-bold text-blue-800 dark:text-blue-300 mb-2">Subject focus recommendation</h3>
-                <p className="text-sm text-blue-700 dark:text-blue-400 mb-3">
-                  Physics concepts need attention based on your recent quiz performance.
-                </p>
-                <Button variant="outline" className="border-blue-300 text-blue-800 hover:bg-blue-50">
-                  View Physics Resources
-                </Button>
-              </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+              <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Subject focus recommendation</h3>
+              <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                Physics concepts need attention based on your recent quiz performance.
+              </p>
+              <Button variant="outline" className="text-xs h-7 border-blue-300 text-blue-800">
+                View Physics Resources
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 
