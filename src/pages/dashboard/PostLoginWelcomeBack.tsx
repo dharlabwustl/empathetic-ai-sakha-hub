@@ -12,7 +12,7 @@ const PostLoginWelcomeBack = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userData, setUserData] = useState<any>({});
-  const [showSlider, setShowSlider] = useState(true);
+  const [showSlider, setShowSlider] = useState(false);
   const [showDashboardPrompt, setShowDashboardPrompt] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [showStudyPlanDialog, setShowStudyPlanDialog] = useState(false);
@@ -62,14 +62,14 @@ const PostLoginWelcomeBack = () => {
     
     if (isNewUser || isGoogleSignup) {
       // For new users, show welcome slider if they haven't seen it
-      if (sawWelcomeSlider) {
-        setShowSlider(false);
+      if (!sawWelcomeSlider) {
+        setShowSlider(true);
+      } else {
         // Show dashboard prompt if they haven't seen it
-        if (hasSeenDashboardWelcome) {
-          setShowDashboardPrompt(false);
-          setShowTour(true);
-        } else {
+        if (!hasSeenDashboardWelcome) {
           setShowDashboardPrompt(true);
+        } else {
+          setShowTour(true);
         }
       }
       
@@ -83,7 +83,7 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // For returning users who have seen both, skip directly to dashboard
+    // For returning users who have seen everything, skip directly to dashboard
     const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
     
     if (sawWelcomeSlider && hasSeenDashboardWelcome && sawWelcomeTour) {
@@ -93,12 +93,14 @@ const PostLoginWelcomeBack = () => {
         localStorage.removeItem('needs_study_plan_creation');
       } else {
         // For returning users, skip all flows and go to dashboard directly
-        if (isReturningUser) {
-          redirectToDashboard();
-        } else {
-          redirectToDashboard();
-        }
+        redirectToDashboard();
       }
+      return;
+    }
+    
+    // For returning users who haven't seen some flows, show welcome back prompt
+    if (isReturningUser) {
+      setShowDashboardPrompt(true);
       return;
     }
     

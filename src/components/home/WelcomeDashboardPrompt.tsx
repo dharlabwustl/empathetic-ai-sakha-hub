@@ -52,8 +52,8 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
     } else {
       return [
         {
-          title: "Welcome to PREPZR",
-          description: `Welcome, ${userName}! I'm Sakha AI, your personalized learning companion. This is your central hub for exam preparation. Let's explore key features to maximize your learning experience.`,
+          title: "Welcome Back to PREPZR",
+          description: `Welcome back, ${userName}! I'm Sakha AI, your personalized learning companion. This is your central hub for exam preparation. Let's explore key features to maximize your learning experience.`,
           icon: <UserCheck className="h-8 w-8 text-indigo-500" />
         },
         {
@@ -62,8 +62,8 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
           icon: <BookOpen className="h-8 w-8 text-blue-500" />
         },
         {
-          title: "Ready to Begin?",
-          description: "Your AI-powered learning journey starts now! Use voice commands anytime by clicking the microphone button on the bottom right of your screen. I'll be here to guide you throughout your preparation.",
+          title: "Ready to Continue?",
+          description: "Your AI-powered learning journey continues! Use voice commands anytime by clicking the microphone button on the bottom right of your screen. I'll be here to guide you throughout your preparation.",
           icon: <CheckCircle className="h-8 w-8 text-green-500" />
         }
       ];
@@ -161,14 +161,39 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
       
       // Show toast confirmation
       toast({
-        title: isReturningUser ? "Welcome back!" : "Welcome tour completed!",
+        title: isReturningUser ? "Welcome back!" : "Welcome back!",
         description: isReturningUser 
           ? "Ready to continue your learning journey!" 
-          : "You're all set to begin your personalized learning journey.",
+          : "You're all set to continue your personalized learning journey.",
         duration: 5000,
       });
     }, 300);
   };
+
+  useEffect(() => {
+    // Mark that the user has seen the dashboard welcome
+    localStorage.setItem("hasSeenDashboardWelcome", "true");
+    
+    // Start speaking the first step intro
+    speakWelcomeMessage(welcomeSteps[currentStep].description);
+    
+    // Clean up
+    return () => {
+      if (window.speechSynthesis && speechRef.current) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // Update progress when step changes
+  useEffect(() => {
+    setProgress(((currentStep + 1) / welcomeSteps.length) * 100);
+    
+    // Speak the new step content
+    if (currentStep < welcomeSteps.length) {
+      speakWelcomeMessage(welcomeSteps[currentStep].description);
+    }
+  }, [currentStep]);
 
   return (
     <AnimatePresence>

@@ -38,7 +38,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
           greeting += `You have ${pendingTasks.length} pending activities waiting for you. `;
         }
         
-        greeting += `I'm here to help you with your study plan, daily activities, and any questions you have. Let's make today productive!`;
+        greeting += `I'm here to help you with your study plan, daily activities, and any questions you have. Let's continue where you left off and make today productive!`;
       } else if (isFirstTimeUser) {
         greeting = `Welcome to PREPZR, ${userName}! I'm Sakha AI, your AI-powered learning companion. I'm excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
       } else {
