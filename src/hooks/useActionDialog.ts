@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 interface DialogState {
-  type: 'view' | 'edit' | 'settings' | 'delete' | 'approve' | 'reject' | null;
+  type: 'view' | 'edit' | 'settings' | 'delete' | 'approve' | 'reject' | 'add' | 'create' | 'upload' | null;
   title: string;
   data: any;
   isOpen: boolean;
