@@ -131,9 +131,8 @@ const DashboardLayout = ({
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <div className="flex min-h-screen">
-        {/* IMPORTANT: Only show the UniversalSidebar from the parent component - removed sidebar from here to fix double sidebar issue */}
-        
         <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
+          {/* Top Navigation Controls with Voice Assistant and Study Plan buttons */}
           <TopNavigationControls 
             hideSidebar={hideSidebar}
             onToggleSidebar={onToggleSidebar}
@@ -202,8 +201,6 @@ const DashboardLayout = ({
           )}
         </main>
       </div>
-      
-      {/* Removed the ChatAssistant component */}
       
       {showStudyPlan && (
         <StudyPlanDialog 
