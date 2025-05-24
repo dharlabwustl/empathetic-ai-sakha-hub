@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Edit, Search, Filter, Download, Plus, Trash2 } from "lucide-react";
+import { Edit, Search, Filter, Download, Plus, Trash2, Eye, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import FeatureEditDialog from "@/components/admin/features/FeatureEditDialog";
@@ -89,9 +88,54 @@ const FeaturesManagementPage = () => {
     }
   };
 
+  const handleViewFeature = (feature: Feature) => {
+    toast({
+      title: "View Feature",
+      description: `Opening detailed view for ${feature.title}`,
+    });
+    console.log(`Viewing feature: ${feature.title}`);
+  };
+
   const handleEditFeature = (feature: Feature) => {
     setSelectedFeature(feature);
     setIsEditDialogOpen(true);
+    toast({
+      title: "Edit Feature",
+      description: `Opening edit dialog for ${feature.title}`,
+    });
+  };
+
+  const handleFeatureSettings = (feature: Feature) => {
+    toast({
+      title: "Feature Settings",
+      description: `Opening settings for ${feature.title}`,
+    });
+    console.log(`Settings for feature: ${feature.title}`);
+  };
+
+  const handleDeleteFeature = (feature: Feature) => {
+    toast({
+      title: "Delete Feature",
+      description: `Deleting feature: ${feature.title}`,
+      variant: "destructive"
+    });
+    console.log(`Deleting feature: ${feature.title}`);
+  };
+
+  const handleAddFeature = () => {
+    toast({
+      title: "Add Feature",
+      description: "Opening new feature creation form",
+    });
+    console.log("Opening add feature form");
+  };
+
+  const handleExportFeatures = () => {
+    toast({
+      title: "Export Features",
+      description: "Exporting features data to CSV",
+    });
+    console.log("Exporting features data");
   };
 
   const handleSaveFeature = async (editedFeature: Feature) => {
@@ -208,7 +252,12 @@ const FeaturesManagementPage = () => {
             </SelectContent>
           </Select>
 
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={handleExportFeatures}
+          >
             <Download size={16} />
             <span>Export</span>
           </Button>
@@ -218,7 +267,12 @@ const FeaturesManagementPage = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Platform Features</CardTitle>
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={handleAddFeature}
+          >
             <Plus size={16} />
             <span>Add Feature</span>
           </Button>
@@ -273,7 +327,14 @@ const FeaturesManagementPage = () => {
                     {getPlanBadges(feature)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewFeature(feature)}
+                      >
+                        <Eye size={16} />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -284,7 +345,15 @@ const FeaturesManagementPage = () => {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleFeatureSettings(feature)}
+                      >
+                        <Settings size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        onClick={() => handleDeleteFeature(feature)}
                       >
                         <Trash2 size={16} />
                       </Button>

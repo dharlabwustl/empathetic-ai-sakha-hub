@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Search, MoreHorizontal, Filter, Download, UserPlus, UserX, Check, X } from "lucide-react";
+import { Search, MoreHorizontal, Filter, Download, UserPlus, UserX, Check, X, Eye, Edit, Settings } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import StudentProfileModal from "../students/StudentProfileModal";
 import { StudentData } from "@/types/admin/studentData";
 
@@ -120,6 +121,7 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const filteredStudents = recentStudents.filter(student => {
     const query = searchQuery.toLowerCase();
@@ -134,6 +136,78 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
   const handleViewStudent = (student: StudentData) => {
     setSelectedStudent(student);
     setProfileModalOpen(true);
+    toast({
+      title: "View Student",
+      description: `Opening profile for ${student.name}`,
+    });
+  };
+
+  const handleEditStudent = (student: StudentData) => {
+    setSelectedStudent(student);
+    toast({
+      title: "Edit Student",
+      description: `Opening edit dialog for ${student.name}`,
+    });
+    console.log(`Editing student: ${student.id}`);
+  };
+
+  const handleStudentSettings = (student: StudentData) => {
+    setSelectedStudent(student);
+    toast({
+      title: "Student Settings",
+      description: `Opening settings for ${student.name}`,
+    });
+    console.log(`Settings for student: ${student.id}`);
+  };
+
+  const handleResetPassword = (student: StudentData) => {
+    toast({
+      title: "Reset Password",
+      description: `Password reset initiated for ${student.name}`,
+    });
+    console.log(`Resetting password for: ${student.id}`);
+  };
+
+  const handleDeleteStudent = (student: StudentData) => {
+    setSelectedStudent(student);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedStudent) {
+      toast({
+        title: "Student Deleted",
+        description: `${selectedStudent.name}'s account has been deleted`,
+        variant: "destructive"
+      });
+      console.log(`Deleted student: ${selectedStudent.id}`);
+    }
+    setShowDeleteConfirm(false);
+    setSelectedStudent(null);
+  };
+
+  const handleAddStudent = () => {
+    setShowAddStudentDialog(true);
+    toast({
+      title: "Add Student",
+      description: "Opening new student creation form",
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Export Students",
+      description: "Exporting student data to CSV",
+    });
+    console.log("Exporting student data");
+  };
+
+  const handleFilter = () => {
+    toast({
+      title: "Filter Students",
+      description: "Opening filter options",
+    });
+    console.log("Opening filter dialog");
   };
 
   const formatDate = (date: string) => {
@@ -156,15 +230,15 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
           />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleFilter}>
             <Filter className="mr-2 h-4 w-4" />
             Filter
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button size="sm" onClick={() => setShowAddStudentDialog(true)}>
+          <Button size="sm" onClick={handleAddStudent}>
             <UserPlus className="mr-2 h-4 w-4" />
             Add Student
           </Button>
@@ -187,7 +261,7 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
           </TableHeader>
           <TableBody>
             {filteredStudents.map((student) => (
-              <TableRow key={student.id} onClick={() => handleViewStudent(student)} className="cursor-pointer">
+              <TableRow key={student.id}>
                 <TableCell className="font-medium">{student.name}</TableCell>
                 <TableCell>{student.email}</TableCell>
                 <TableCell>{student.examPrep}</TableCell>
@@ -224,28 +298,58 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewStudent(student);
-                      }}>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Edit Profile</DropdownMenuItem>
-                      <DropdownMenuItem>Reset Password</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600" onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedStudent(student);
-                        setShowDeleteConfirm(true);
-                      }}>Delete Account</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleViewStudent(student)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleEditStudent(student)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleStudentSettings(student)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleViewStudent(student)}>
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditStudent(student)}>
+                          Edit Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleResetPassword(student)}>
+                          Reset Password
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleStudentSettings(student)}>
+                          Settings
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-red-600" 
+                          onClick={() => handleDeleteStudent(student)}
+                        >
+                          Delete Account
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -253,7 +357,6 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
         </Table>
       </div>
 
-      {/* Student Profile Modal */}
       {selectedStudent && (
         <StudentProfileModal
           open={profileModalOpen}
@@ -262,7 +365,6 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent>
           <DialogHeader>
@@ -274,7 +376,7 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
             <Button variant="destructive" onClick={() => {
-              setShowDeleteConfirm(false);
+              confirmDelete();
             }}>
               <UserX className="mr-2 h-4 w-4" />
               Delete Account
@@ -283,7 +385,6 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
         </DialogContent>
       </Dialog>
 
-      {/* Add Student Dialog */}
       <Dialog open={showAddStudentDialog} onOpenChange={setShowAddStudentDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

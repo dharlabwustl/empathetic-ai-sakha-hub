@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpRight, Users, Server, CreditCard, Activity } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowUpRight, Users, Server, CreditCard, Activity, Eye, Edit, Settings } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { AdminDashboardStats } from '@/types/admin';
 
 interface DashboardStatsProps {
@@ -9,6 +11,8 @@ interface DashboardStatsProps {
 }
 
 const DashboardStatsComponent: React.FC<DashboardStatsProps> = ({ stats }) => {
+  const { toast } = useToast();
+  
   const {
     totalUsers,
     activeUsers,
@@ -17,12 +21,43 @@ const DashboardStatsComponent: React.FC<DashboardStatsProps> = ({ stats }) => {
     dailyActiveUsers
   } = stats;
 
+  const handleAction = (action: string, metric: string) => {
+    toast({
+      title: `${action} ${metric}`,
+      description: `Opening ${action.toLowerCase()} panel for ${metric.toLowerCase()}`,
+    });
+    console.log(`${action} action for ${metric}`);
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("View", "Total Users")}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Edit", "Total Users")}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Settings", "Total Users")}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalUsers.toLocaleString()}</div>
@@ -31,10 +66,34 @@ const DashboardStatsComponent: React.FC<DashboardStatsProps> = ({ stats }) => {
           </p>
         </CardContent>
       </Card>
+      
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-          <Activity className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("View", "Active Users")}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Edit", "Active Users")}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Settings", "Active Users")}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{activeUsers.toLocaleString()}</div>
@@ -43,10 +102,34 @@ const DashboardStatsComponent: React.FC<DashboardStatsProps> = ({ stats }) => {
           </p>
         </CardContent>
       </Card>
+      
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-          <CreditCard className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("View", "Total Revenue")}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Edit", "Total Revenue")}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Settings", "Total Revenue")}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</div>
@@ -57,10 +140,34 @@ const DashboardStatsComponent: React.FC<DashboardStatsProps> = ({ stats }) => {
           </div>
         </CardContent>
       </Card>
+      
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Server Status</CardTitle>
-          <Server className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("View", "Server Status")}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Edit", "Server Status")}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleAction("Settings", "Server Status")}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Server className="h-4 w-4 text-muted-foreground" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">Operational</div>

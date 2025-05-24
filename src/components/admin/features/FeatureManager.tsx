@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   Card, 
@@ -21,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Filter, Check, X, Settings } from "lucide-react";
+import { Plus, Search, Filter, Check, X, Settings, Edit, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Sample feature data that matches student dashboard features
@@ -145,6 +144,31 @@ const FeatureManager = () => {
     setSelectedFeatures([]);
   };
   
+  // Add proper action handlers
+  const handleViewFeature = (featureId: string, featureName: string) => {
+    toast({
+      title: "View Feature",
+      description: `Opening detailed view for ${featureName}`,
+    });
+    console.log(`Viewing feature: ${featureId}`);
+  };
+
+  const handleEditFeature = (featureId: string, featureName: string) => {
+    toast({
+      title: "Edit Feature",
+      description: `Opening edit dialog for ${featureName}`,
+    });
+    console.log(`Editing feature: ${featureId}`);
+  };
+
+  const handleFeatureSettings = (featureId: string, featureName: string) => {
+    toast({
+      title: "Feature Settings",
+      description: `Opening settings for ${featureName}`,
+    });
+    console.log(`Settings for feature: ${featureId}`);
+  };
+
   // Handle adding a new feature
   const handleAddFeature = () => {
     toast({
@@ -238,6 +262,20 @@ const FeatureManager = () => {
                   <TableCell>{feature.lastUpdated}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleViewFeature(feature.id, feature.name)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEditFeature(feature.id, feature.name)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       <div className="flex items-center space-x-2">
                         <Switch
                           id={`feature-toggle-${feature.id}`}
@@ -248,7 +286,11 @@ const FeatureManager = () => {
                           Toggle {feature.name}
                         </Label>
                       </div>
-                      <Button variant="ghost" size="icon">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleFeatureSettings(feature.id, feature.name)}
+                      >
                         <Settings className="h-4 w-4" />
                       </Button>
                     </div>

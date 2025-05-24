@@ -2,16 +2,61 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Edit, Check, X } from "lucide-react";
+import { Search, Filter, Edit, Check, X, Eye, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Book, FileText, FileCode } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TabContentApprovalQueueProps {
   handleContentAction: (action: string, title: string) => void;
 }
 
 const TabContentApprovalQueue = ({ handleContentAction }: TabContentApprovalQueueProps) => {
+  const { toast } = useToast();
+
+  const handleViewContent = (title: string) => {
+    toast({
+      title: "View Content",
+      description: `Opening detailed view for ${title}`,
+    });
+    handleContentAction("View", title);
+  };
+
+  const handleEditContent = (title: string) => {
+    toast({
+      title: "Edit Content",  
+      description: `Opening edit dialog for ${title}`,
+    });
+    handleContentAction("Edit", title);
+  };
+
+  const handleContentSettings = (title: string) => {
+    toast({
+      title: "Content Settings",
+      description: `Opening settings for ${title}`,
+    });
+    handleContentAction("Settings", title);
+  };
+
+  const handleApproveContent = (title: string) => {
+    toast({
+      title: "Content Approved",
+      description: `${title} has been approved and is now live`,
+      variant: "default"
+    });
+    handleContentAction("Approve", title);
+  };
+
+  const handleRejectContent = (title: string) => {
+    toast({
+      title: "Content Rejected",
+      description: `${title} has been rejected and moved to drafts`,
+      variant: "destructive"
+    });
+    handleContentAction("Reject", title);
+  };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-4">
@@ -98,27 +143,40 @@ const TabContentApprovalQueue = ({ handleContentAction }: TabContentApprovalQueu
                     <div className="flex items-center gap-1">
                       <Button 
                         variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8"
-                        onClick={() => handleContentAction("Edit", item.title)}
+                        size="sm" 
+                        onClick={() => handleViewContent(item.title)}
+                      >
+                        <Eye size={14} />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleEditContent(item.title)}
                       >
                         <Edit size={14} />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleContentSettings(item.title)}
+                      >
+                        <Settings size={14} />
                       </Button>
                       {item.status === 'pending' && (
                         <>
                           <Button 
                             variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-green-600"
-                            onClick={() => handleContentAction("Approve", item.title)}
+                            size="sm" 
+                            className="text-green-600 hover:bg-green-50"
+                            onClick={() => handleApproveContent(item.title)}
                           >
                             <Check size={14} />
                           </Button>
                           <Button 
                             variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-red-600"
-                            onClick={() => handleContentAction("Reject", item.title)}
+                            size="sm" 
+                            className="text-red-600 hover:bg-red-50"
+                            onClick={() => handleRejectContent(item.title)}
                           >
                             <X size={14} />
                           </Button>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -11,7 +10,10 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Download, 
-  Filter 
+  Filter,
+  Eye,
+  Edit,
+  Settings
 } from "lucide-react";
 import { adminService } from "@/services/adminService";
 import { StudentData } from "@/types/admin";
@@ -70,6 +72,30 @@ const StudentsPage = () => {
         description: "Students data has been exported successfully.",
       });
     }, 1500);
+  };
+
+  const handleViewStudent = (studentId: string, studentName: string) => {
+    toast({
+      title: "View Student",
+      description: `Opening detailed view for ${studentName}`,
+    });
+    console.log(`Viewing student: ${studentId}`);
+  };
+
+  const handleEditStudent = (studentId: string, studentName: string) => {
+    toast({
+      title: "Edit Student",
+      description: `Opening edit dialog for ${studentName}`,
+    });
+    console.log(`Editing student: ${studentId}`);
+  };
+
+  const handleStudentSettings = (studentId: string, studentName: string) => {
+    toast({
+      title: "Student Settings",
+      description: `Opening settings for ${studentName}`,
+    });
+    console.log(`Settings for student: ${studentId}`);
   };
 
   const totalPages = Math.ceil(totalStudents / studentsPerPage);
@@ -190,7 +216,30 @@ const StudentsPage = () => {
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline">View</Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleViewStudent(student.id, student.name)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleEditStudent(student.id, student.name)}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleStudentSettings(student.id, student.name)}
+                            >
+                              <Settings className="h-4 w-4 mr-1" />
+                              Settings
+                            </Button>
                           </div>
                         </td>
                       </tr>
