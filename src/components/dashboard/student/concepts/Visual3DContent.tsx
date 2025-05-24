@@ -27,32 +27,32 @@ const Visual3DContent: React.FC<Visual3DContentProps> = ({ conceptName }) => {
 
   const models = [
     {
-      id: 'molecular',
-      title: 'Molecular Structure',
-      description: 'Explore the 3D molecular arrangement',
+      id: 'structure',
+      title: 'Structure Model',
+      description: 'Explore the 3D structural arrangement',
       difficulty: 'Beginner',
       duration: '3-5 min'
     },
     {
-      id: 'atomic',
-      title: 'Atomic Model',
-      description: 'Interactive atomic structure visualization',
+      id: 'interactive',
+      title: 'Interactive Model',
+      description: 'Interactive visualization and exploration',
       difficulty: 'Intermediate',
       duration: '5-7 min'
     },
     {
-      id: 'reaction',
-      title: 'Reaction Mechanism',
-      description: 'Step-by-step reaction visualization',
+      id: 'mechanism',
+      title: 'Mechanism Model',
+      description: 'Step-by-step process visualization',
       difficulty: 'Advanced',
       duration: '7-10 min'
     }
   ];
 
   const explanations = {
-    molecular: `This 3D model shows the molecular structure of ${conceptName}. You can see how atoms are arranged in three-dimensional space, with different colors representing different elements. The bonds between atoms are shown as connections, helping you understand the spatial relationships.`,
-    atomic: `The atomic model demonstrates the internal structure with electrons orbiting the nucleus. This visualization helps understand electron shells, bonding capabilities, and how atoms interact with each other in chemical reactions.`,
-    reaction: `This interactive mechanism shows how ${conceptName} participates in chemical reactions. Each step is animated to show bond breaking and formation, helping you understand the reaction pathway and energy changes involved.`
+    structure: `This 3D model shows the structure of ${conceptName}. You can see how components are arranged in three-dimensional space, with different colors representing different elements. The connections between parts are shown as links, helping you understand the spatial relationships.`,
+    interactive: `The interactive model demonstrates the internal workings with dynamic components. This visualization helps understand how different parts interact with each other and how the system functions as a whole.`,
+    mechanism: `This interactive mechanism shows how ${conceptName} works in practice. Each step is animated to show the process flow and changes, helping you understand the underlying principles and transformations involved.`
   };
 
   return (
