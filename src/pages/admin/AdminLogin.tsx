@@ -22,10 +22,19 @@ const AdminLogin: React.FC = () => {
   const { isAdminAuthenticated, loginAdmin, error } = useAdminAuth();
   const { toast } = useToast();
 
+  console.log("🎬 AdminLogin: Component rendered with state:", {
+    isAdminAuthenticated,
+    email,
+    passwordLength: password.length,
+    isLoading,
+    loginError,
+    contextError: error
+  });
+
   useEffect(() => {
-    console.log("🔍 AdminLogin: Checking auth state - isAdminAuthenticated:", isAdminAuthenticated);
+    console.log("🔍 AdminLogin: Auth state check - isAdminAuthenticated:", isAdminAuthenticated);
     if (isAdminAuthenticated) {
-      console.log("✅ AdminLogin: User already authenticated, redirecting immediately");
+      console.log("✅ AdminLogin: User already authenticated, redirecting to dashboard");
       navigate('/admin/dashboard', { replace: true });
     }
   }, [isAdminAuthenticated, navigate]);
@@ -39,21 +48,24 @@ const AdminLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("🚀 AdminLogin: Form submitted");
+    console.log("🚀 AdminLogin: Form submission started");
     console.log("📧 AdminLogin: Email:", email);
+    console.log("🔒 AdminLogin: Password provided:", password ? "YES" : "NO");
     console.log("🔒 AdminLogin: Password length:", password.length);
     
     setLoginError(null);
     setIsLoading(true);
     
+    console.log("🔄 AdminLogin: Starting login process...");
+    
     try {
-      console.log("🔐 AdminLogin: Calling loginAdmin function");
+      console.log("🔐 AdminLogin: Calling loginAdmin function with credentials");
       const success = await loginAdmin(email, password);
       
       console.log("📊 AdminLogin: Login result received:", success);
       
       if (success) {
-        console.log("✅ AdminLogin: Login successful!");
+        console.log("✅ AdminLogin: Login successful! Showing success toast");
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
@@ -62,7 +74,7 @@ const AdminLogin: React.FC = () => {
         console.log("🎯 AdminLogin: Navigating to dashboard...");
         navigate("/admin/dashboard", { replace: true });
       } else {
-        console.log("❌ AdminLogin: Login failed");
+        console.log("❌ AdminLogin: Login failed - setting error message");
         setLoginError("Invalid admin credentials");
       }
     } catch (err) {
@@ -74,13 +86,7 @@ const AdminLogin: React.FC = () => {
     }
   };
 
-  console.log("🎨 AdminLogin: Rendering component with state:", {
-    email,
-    passwordLength: password.length,
-    isLoading,
-    loginError,
-    isAdminAuthenticated
-  });
+  console.log("🎨 AdminLogin: About to render component");
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">

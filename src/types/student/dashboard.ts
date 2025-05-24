@@ -25,12 +25,19 @@ export interface ProgressSnapshot {
   completedTasks: number;
   studyTime: number;
   score: number;
+  conceptsDone: number;
+  flashcardsDone: number;
+  testsTaken: number;
+  completionPercentage: number;
 }
 
 export interface ProgressTracker {
   snapshots: ProgressSnapshot[];
   weeklyGoal: number;
   currentStreak: number;
+  daily: ProgressSnapshot;
+  weekly: ProgressSnapshot;
+  monthly: ProgressSnapshot;
 }
 
 export interface Subject {
@@ -40,6 +47,22 @@ export interface Subject {
   color: string;
   topics: number;
   completedTopics: number;
+  priority: string;
+  status: string;
+  conceptsTotal: number;
+  conceptsCompleted: number;
+  flashcards: {
+    total: number;
+    completed: number;
+    accuracy: number;
+  };
+  practiceTests: {
+    total: number;
+    completed: number;
+    score: number;
+  };
+  quizAverage: number;
+  recommendedStudyHours: number;
 }
 
 export interface ConceptCard {

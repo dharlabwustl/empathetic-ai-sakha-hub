@@ -28,9 +28,34 @@ export interface AdminDashboardStats {
   completedSurveys: number;
 }
 
-// Add missing interface for DashboardStats
-export interface DashboardStats extends AdminDashboardStats {
-  // This ensures compatibility with existing code
+// Add missing interface for DashboardStats with all required fields
+export interface DashboardStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalRevenue: number;
+  newUsersToday: number;
+  dailyActiveUsers: Array<{date: string; count: number}>;
+  subscriptionsByPlan: {
+    free: number;
+    basic: number;
+    premium: number;
+  };
+  verifiedMoodImprovement: number;
+  averageMoodScore: number;
+  averageTimeSavedPerWeek: number;
+  studyPlanEfficiencyImprovement: number;
+  studentsWithVerifiedConsistentHabits: number;
+  studentsWithConsistentHabits: number;
+  totalStudents: number;
+  verifiedRetentionRate: number;
+  completedStudyPlans: number;
+  verifiedExamConfidenceImprovement: number;
+  averageConfidenceScore: number;
+  activeStudents: number;
+  verifiedMoodFeatureUsage: number;
+  moodBasedSessionsCount: number;
+  totalSessions: number;
+  completedSurveys: number;
 }
 
 export interface SystemLog {

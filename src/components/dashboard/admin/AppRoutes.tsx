@@ -10,13 +10,19 @@ import { DashboardStats as DashboardStatsType } from '@/types/admin';
 const AdminAppRoutes: React.FC = () => {
   const { isAdminAuthenticated, isLoading } = useAdminAuth();
 
+  console.log("🚀 AdminAppRoutes: Rendering with auth state:", { isAdminAuthenticated, isLoading });
+
   if (isLoading) {
+    console.log("🔄 AdminAppRoutes: Showing loading state");
     return <LoadingState />;
   }
 
   if (!isAdminAuthenticated) {
+    console.log("❌ AdminAppRoutes: Not authenticated, redirecting to login");
     return <Navigate to="/admin/login" replace />;
   }
+
+  console.log("✅ AdminAppRoutes: Authenticated, showing dashboard");
 
   // Fixed mock data for the dashboard stats - properly typed
   const mockDashboardStats: DashboardStatsType = {
