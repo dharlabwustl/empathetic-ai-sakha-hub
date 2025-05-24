@@ -1,43 +1,38 @@
-
 import React from 'react';
 import { MoodType } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
-import { getMoodEmoji } from './mood-tracking/moodUtils';
 
 interface MoodSelectorProps {
   currentMood?: MoodType;
-  onMoodSelect: (mood: MoodType) => void;
-  className?: string;
+  onMoodChange: (mood: MoodType) => void;
 }
 
-export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
-  const moodOptions = [
-    { type: MoodType.HAPPY, label: 'Happy' },
-    { type: MoodType.FOCUSED, label: 'Focused' },
-    { type: MoodType.MOTIVATED, label: 'Motivated' },
-    { type: MoodType.TIRED, label: 'Tired' },
-    { type: MoodType.STRESSED, label: 'Stressed' },
-    { type: MoodType.CONFUSED, label: 'Confused' },
-    { type: MoodType.ANXIOUS, label: 'Anxious' },
-    { type: MoodType.NEUTRAL, label: 'Neutral' },
-    { type: MoodType.OKAY, label: 'Okay' },
-    { type: MoodType.OVERWHELMED, label: 'Overwhelmed' },
-    { type: MoodType.CURIOUS, label: 'Curious' },
-    { type: MoodType.SAD, label: 'Sad' },
-  ];
+const moods = [
+  { type: MoodType.Happy, emoji: '😊', label: 'Happy' },
+  { type: MoodType.Focused, emoji: '🎯', label: 'Focused' },
+  { type: MoodType.Motivated, emoji: '🔥', label: 'Motivated' },
+  { type: MoodType.Tired, emoji: '😴', label: 'Tired' },
+  { type: MoodType.Stressed, emoji: '😫', label: 'Stressed' },
+  { type: MoodType.Confused, emoji: '😕', label: 'Confused' },
+  { type: MoodType.Anxious, emoji: '😰', label: 'Anxious' },
+  { type: MoodType.Neutral, emoji: '😐', label: 'Neutral' },
+  { type: MoodType.Okay, emoji: '👍', label: 'Okay' },
+  { type: MoodType.Overwhelmed, emoji: '😵', label: 'Overwhelmed' },
+  { type: MoodType.Curious, emoji: '🔍', label: 'Curious' },
+  { type: MoodType.Sad, emoji: '😢', label: 'Sad' }
+];
 
+const MoodSelector: React.FC<MoodSelectorProps> = ({ currentMood, onMoodChange }) => {
   return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
-      {moodOptions.map((mood) => (
+    <div className="flex flex-wrap gap-2">
+      {moods.map((mood) => (
         <Button
           key={mood.type}
           variant={currentMood === mood.type ? "default" : "outline"}
-          onClick={() => onMoodSelect(mood.type)}
-          className="flex flex-col items-center p-2 h-auto"
-          size="sm"
+          onClick={() => onMoodChange(mood.type)}
+          className="flex items-center gap-1"
         >
-          <span className="text-xl mb-1">{getMoodEmoji(mood.type)}</span>
-          <span className="text-xs">{mood.label}</span>
+          {mood.emoji} {mood.label}
         </Button>
       ))}
     </div>

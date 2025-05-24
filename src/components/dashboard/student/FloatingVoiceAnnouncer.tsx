@@ -1,9 +1,24 @@
-
-import React, { useState } from 'react';
-import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import React from 'react';
 import { MoodType } from '@/types/user/base';
-import { useLocation } from 'react-router-dom';
+
+const moodMessages = {
+  [MoodType.Happy]: "You're radiating positivity today! 🌟",
+  [MoodType.Motivated]: "Your motivation is contagious! 🔥",
+  [MoodType.Focused]: "Love the focus - you're in the zone! 🎯",
+  [MoodType.Tired]: "Remember to take breaks when you need them 😴",
+  [MoodType.Tired]: "A little rest can boost your energy ⚡",
+  [MoodType.Stressed]: "Take a deep breath - you've got this! 🌱",
+  [MoodType.Anxious]: "It's okay to feel anxious - let's work through it together 💙",
+  [MoodType.Okay]: "Steady as she goes! 🚀",
+  [MoodType.Okay]: "You're doing great - keep it up! 👍",
+  [MoodType.Okay]: "One step at a time! 🦶",
+  [MoodType.Overwhelmed]: "Let's break things down into smaller steps 🧩",
+  [MoodType.Overwhelmed]: "You don't have to do everything at once 🌊",
+  [MoodType.Curious]: "Your curiosity is your superpower! 🔍",
+  [MoodType.Curious]: "Questions lead to great discoveries! 💡",
+  [MoodType.Confused]: "Confusion is just clarity waiting to happen ✨",
+  [MoodType.Confused]: "Let's figure this out together! 🤝"
+};
 
 // Map of text terms to mood types
 const moodMap: Record<string, MoodType> = {

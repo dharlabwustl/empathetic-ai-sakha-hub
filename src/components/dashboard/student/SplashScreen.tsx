@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart, Volume2, Brain, Sparkles } from "lucide-react";
@@ -26,6 +26,29 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
   const animationRef = useRef<number>(0);
   const particlesRef = useRef<THREE.Points | null>(null);
   
+  const moodAnimations = {
+    [MoodType.Motivated]: {
+      particles: { color: '#ff6b35', intensity: 'high' },
+      text: 'Ready to conquer your goals! 🔥',
+      gradient: 'from-orange-400 to-red-500'
+    },
+    [MoodType.Happy]: {
+      particles: { color: '#ffd23f', intensity: 'medium' },
+      text: 'Spreading sunshine and positivity! ☀️',
+      gradient: 'from-yellow-400 to-orange-400'
+    },
+    [MoodType.Focused]: {
+      particles: { color: '#4ecdc4', intensity: 'low' },
+      text: 'Laser-focused and ready to learn! 🎯',
+      gradient: 'from-teal-400 to-blue-500'
+    },
+    [MoodType.Okay]: {
+      particles: { color: '#95a5a6', intensity: 'medium' },
+      text: 'Taking it one step at a time! 👍',
+      gradient: 'from-gray-400 to-gray-600'
+    }
+  };
+
   useEffect(() => {
     // Faster animation sequence for better UX
     const timer = setTimeout(() => {
@@ -353,7 +376,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
     const defaultImage = "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png";
     
     const moodContent = {
-      [MoodType.MOTIVATED]: {
+      [MoodType.Motivated]: {
         quote: "Success is the sum of small efforts, repeated day in and day out.",
         message: "You're motivated! Let's channel that energy into focused study.",
         image: "/lovable-uploads/1d4f90c6-4bcf-4265-89ba-b51ffa584307.png",
@@ -364,7 +387,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
         shape2Color: '#818cf8',
         shape3Color: '#a5b4fc'
       },
-      [MoodType.HAPPY]: {
+      [MoodType.Happy]: {
         quote: "A positive mindset brings positive results.",
         message: "Great to see you happy! Ready to learn something new?",
         image: "/lovable-uploads/16da1ff5-9fab-4b4b-bd21-5977748acd16.png",

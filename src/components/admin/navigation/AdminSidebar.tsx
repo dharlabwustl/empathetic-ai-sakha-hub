@@ -8,7 +8,7 @@ import {
   Shield, Activity, Settings, FileText, Brain, MessageSquare, 
   Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
   TrendingUp, UserCheck, Zap, Cpu, Globe, Lock, Heart,
-  Target, Award, HelpCircle, Smartphone, Puzzle
+  Target, Award, HelpCircle, Smartphone, Puzzle, Monitor
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -22,6 +22,7 @@ const AdminSidebar: React.FC = () => {
       section: "Dashboard",
       items: [
         { icon: <LayoutDashboard size={20} />, title: "Overview", path: "/admin/dashboard", tab: "overview" },
+        { icon: <Monitor size={20} />, title: "Comprehensive", path: "/admin/dashboard", tab: "comprehensive" },
         { icon: <BarChart3 size={20} />, title: "Analytics", path: "/admin/dashboard", tab: "analytics" },
         { icon: <TrendingUp size={20} />, title: "Reports", path: "/admin/dashboard", tab: "reports" }
       ]
