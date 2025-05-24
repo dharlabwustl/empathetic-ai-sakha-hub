@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react';
@@ -66,7 +65,6 @@ const ConceptDetailPage = () => {
   // Global audio control handlers
   const handleGlobalPlayPause = () => {
     setIsGlobalAudioPlaying(!isGlobalAudioPlaying);
-    // Broadcast to all tabs
     window.dispatchEvent(new CustomEvent('globalAudioToggle', { 
       detail: { isPlaying: !isGlobalAudioPlaying } 
     }));
@@ -75,7 +73,6 @@ const ConceptDetailPage = () => {
   const handleGlobalReset = () => {
     setCurrentAudioProgress(0);
     setIsGlobalAudioPlaying(false);
-    // Broadcast reset to all tabs
     window.dispatchEvent(new CustomEvent('globalAudioReset'));
   };
 
@@ -84,7 +81,6 @@ const ConceptDetailPage = () => {
     if (!isGlobalAudioEnabled) {
       setIsGlobalAudioPlaying(false);
     }
-    // Broadcast audio enable/disable to all tabs
     window.dispatchEvent(new CustomEvent('globalAudioEnable', {
       detail: { enabled: !isGlobalAudioEnabled }
     }));
@@ -194,11 +190,11 @@ const ConceptDetailPage = () => {
                   </TabsTrigger>
                   <TabsTrigger value="visual" className="flex items-center gap-2">
                     <Eye className="h-4 w-4" />
-                    Visuals
+                    Interactive Visuals
                   </TabsTrigger>
                   <TabsTrigger value="interactive" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    Interactive Lab
+                    3D Lab
                   </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
@@ -247,7 +243,6 @@ const ConceptDetailPage = () => {
 
                 <TabsContent value="tools" className="mt-0">
                   <div className="space-y-6">
-                    {/* Quick Recall Test Section */}
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -267,7 +262,6 @@ const ConceptDetailPage = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Other Learning Tools */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card>
                         <CardHeader>
