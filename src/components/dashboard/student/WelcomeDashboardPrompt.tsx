@@ -27,7 +27,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
-            Welcome Back, {userName}!
+            Welcome to Your Personalized Dashboard
           </DialogTitle>
         </DialogHeader>
         
@@ -50,10 +50,10 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
             </motion.div>
             
             <h3 className="text-lg font-semibold mt-4">
-              Great to see you again, {userName}!
+              Hi {userName}, your learning journey begins now!
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Your AI-powered personalized dashboard is ready to continue your learning journey.
+              Your AI-powered personalized dashboard is ready.
             </p>
           </div>
           
@@ -95,7 +95,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
             onClick={handleClose}
             className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
           >
-            Continue Learning <ChevronRight className="ml-2 h-4 w-4" />
+            Get Started <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </DialogContent>

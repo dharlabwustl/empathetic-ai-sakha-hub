@@ -31,11 +31,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
   const { toast } = useToast();
   
   const getWelcomeSteps = () => {
-    // Check if user is returning based on login history
-    const loginCount = parseInt(localStorage.getItem('login_count') || '0', 10);
-    const hasSeenWelcome = localStorage.getItem('sawWelcomeSlider') === 'true';
-    
-    if (loginCount > 1 || hasSeenWelcome || isReturningUser) {
+    if (isReturningUser) {
       return [
         {
           title: `Welcome Back, ${userName}!`,
@@ -163,15 +159,10 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
     setTimeout(() => {
       onComplete();
       
-      // Check if user is returning
-      const loginCount = parseInt(localStorage.getItem('login_count') || '0', 10);
-      const hasSeenWelcome = localStorage.getItem('sawWelcomeSlider') === 'true';
-      const isReturning = loginCount > 1 || hasSeenWelcome || isReturningUser;
-      
       // Show toast confirmation
       toast({
-        title: isReturning ? "Welcome back!" : "Welcome tour completed!",
-        description: isReturning 
+        title: isReturningUser ? "Welcome back!" : "Welcome tour completed!",
+        description: isReturningUser 
           ? "Ready to continue your learning journey!" 
           : "You're all set to begin your personalized learning journey.",
         duration: 5000,
@@ -235,7 +226,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
                 </div>
                 
                 {/* Show pending tasks for returning users */}
-                {(isReturningUser || localStorage.getItem('login_count')) && pendingTasks.length > 0 && currentStep === 1 && (
+                {isReturningUser && pendingTasks.length > 0 && currentStep === 1 && (
                   <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
                       Pending Activities:
@@ -265,8 +256,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
                   {currentStep < welcomeSteps.length - 1 ? (
                     <>Next <ChevronRight className="ml-1 h-4 w-4" /></>
                   ) : (
-                    // Check if returning user for button text
-                    (isReturningUser || localStorage.getItem('login_count')) ? "Continue Learning" : "Get Started"
+                    isReturningUser ? "Continue Learning" : "Get Started"
                   )}
                 </Button>
               </CardFooter>

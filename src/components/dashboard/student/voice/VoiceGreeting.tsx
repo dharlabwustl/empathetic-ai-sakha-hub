@@ -27,11 +27,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       
       let greeting = '';
       
-      // Check if user is returning (has logged in before)
-      const loginCount = parseInt(localStorage.getItem('login_count') || '0', 10);
-      const hasSeenWelcome = localStorage.getItem('sawWelcomeSlider') === 'true';
-      
-      if (loginCount > 1 || hasSeenWelcome || isReturningUser) {
+      if (isReturningUser) {
         greeting = `Welcome back to PREPZR, ${userName}! I'm Sakha AI, your learning companion. `;
         
         if (lastActivity) {
