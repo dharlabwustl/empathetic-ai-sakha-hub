@@ -4,17 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Brain, Coffee, Book, Music, Moon } from 'lucide-react';
-
-export enum MoodType {
-  Happy = 'Happy',
-  Motivated = 'Motivated',
-  Focused = 'Focused',
-  Neutral = 'Neutral',
-  Tired = 'Tired',
-  Anxious = 'Anxious',
-  Stressed = 'Stressed',
-  Sad = 'Sad'
-}
+import { MoodType } from '@/types/user/base';
 
 interface MoodBasedSuggestionsProps {
   currentMood?: MoodType;

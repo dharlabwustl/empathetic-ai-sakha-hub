@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Check, X, Settings, Eye, Edit } from "lucide-react";
+import { Plus, Search, Filter, Check, X, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Sample feature data that matches student dashboard features
@@ -65,6 +65,30 @@ const featureData = [
     status: "active",
     availableIn: ["student"],
     lastUpdated: "2023-10-05"
+  },
+  {
+    id: "feature-6",
+    name: "Mood-Based Learning",
+    description: "Adapt learning based on student mood",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-10-03"
+  },
+  {
+    id: "feature-7",
+    name: "Study Plans",
+    description: "Create and manage study plans",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-10-01"
+  },
+  {
+    id: "feature-8",
+    name: "Welcome Tour",
+    description: "Onboarding tour for new students",
+    status: "active",
+    availableIn: ["student"],
+    lastUpdated: "2023-09-28"
   }
 ];
 
@@ -87,6 +111,9 @@ const FeatureManager = () => {
       title: `Feature ${newStatus === 'active' ? 'Activated' : 'Deactivated'}`,
       description: `Feature has been ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully.`
     });
+    
+    // In a real app, you would update the feature status in the database
+    console.log(`Feature ${featureId} status changed to ${newStatus}`);
   };
   
   // Handle feature selection
@@ -114,6 +141,7 @@ const FeatureManager = () => {
       description: `${selectedFeatures.length} features have been ${action === 'activate' ? 'activated' : 'deactivated'}.`
     });
     
+    // In a real app, you would update the features status in the database
     setSelectedFeatures([]);
   };
   
@@ -123,14 +151,7 @@ const FeatureManager = () => {
       title: "Create New Feature",
       description: "Feature creation form will open."
     });
-  };
-
-  // Handle individual feature actions
-  const handleFeatureAction = (action: string, featureName: string) => {
-    toast({
-      title: `${action} Feature`,
-      description: `${action} action performed on "${featureName}".`
-    });
+    // In a real app, you would open a modal or navigate to a form
   };
 
   return (
@@ -217,20 +238,6 @@ const FeatureManager = () => {
                   <TableCell>{feature.lastUpdated}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleFeatureAction('View', feature.name)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleFeatureAction('Edit', feature.name)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
                       <div className="flex items-center space-x-2">
                         <Switch
                           id={`feature-toggle-${feature.id}`}
@@ -241,11 +248,7 @@ const FeatureManager = () => {
                           Toggle {feature.name}
                         </Label>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleFeatureAction('Settings', feature.name)}
-                      >
+                      <Button variant="ghost" size="icon">
                         <Settings className="h-4 w-4" />
                       </Button>
                     </div>
