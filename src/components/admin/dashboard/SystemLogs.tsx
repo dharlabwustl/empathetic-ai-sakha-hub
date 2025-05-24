@@ -1,76 +1,57 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { SystemLog } from '@/types/admin/systemLog';
+
+interface SystemLog {
+  id: string;
+  event: string;
+  timestamp: string;
+  level: 'info' | 'warning' | 'error';
+  message: string;
+  details?: any;
+}
 
 interface SystemLogsProps {
   logs: SystemLog[];
 }
 
 const SystemLogs: React.FC<SystemLogsProps> = ({ logs }) => {
-  // Function to format timestamp
-  const formatTimestamp = (timestamp: string): string => {
-    return new Date(timestamp).toLocaleString();
-  };
-
-  // Function to get log level badge variant
-  const getLogLevelBadge = (level: string) => {
+  const getLevelColor = (level: string) => {
     switch (level) {
-      case 'info':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Info</Badge>;
-      case 'warning':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Warning</Badge>;
-      case 'error':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Error</Badge>;
-      case 'debug':
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Debug</Badge>;
-      default:
-        return <Badge variant="outline">{level}</Badge>;
+      case 'info': return 'bg-blue-100 text-blue-800';
+      case 'warning': return 'bg-yellow-100 text-yellow-800';
+      case 'error': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold">System Logs</h2>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent System Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Event</TableHead>
-                <TableHead>Details</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.length > 0 ? (
-                logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell>{formatTimestamp(log.timestamp)}</TableCell>
-                    <TableCell>{getLogLevelBadge(log.level)}</TableCell>
-                    <TableCell className="font-medium">{log.event}</TableCell>
-                    <TableCell>{log.details ? JSON.stringify(log.details).substring(0, 50) + '...' : 'N/A'}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-4">No logs available</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>System Logs</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {logs.map((log) => (
+            <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge className={getLevelColor(log.level)}>
+                    {log.level.toUpperCase()}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(log.timestamp).toLocaleString()}
+                  </span>
+                </div>
+                <p className="font-medium">{log.event}</p>
+                <p className="text-sm text-muted-foreground">{log.message}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

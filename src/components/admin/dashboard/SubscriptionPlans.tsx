@@ -2,163 +2,80 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, Check, X } from "lucide-react";
+import { Plus, CreditCard, Users, TrendingUp } from 'lucide-react';
 
-const SubscriptionPlans = () => {
-  // Mock subscription plans data
-  const plans = [
-    { 
-      id: 1, 
-      name: "Free", 
-      price: 0, 
-      billingCycle: "N/A", 
-      users: 120, 
-      features: ["Basic Content Access", "Limited Practice Tests", "Community Access"],
-      isActive: true
-    },
-    { 
-      id: 2, 
-      name: "Basic", 
-      price: 9.99, 
-      billingCycle: "Monthly", 
-      users: 78, 
-      features: ["All Free Features", "Unlimited Practice Tests", "Personalized Study Plan", "Progress Tracking"],
-      isActive: true
-    },
-    { 
-      id: 3, 
-      name: "Premium", 
-      price: 19.99, 
-      billingCycle: "Monthly", 
-      users: 45, 
-      features: ["All Basic Features", "1-on-1 Tutoring", "Advanced Analytics", "Exam Simulations"],
-      isActive: true
-    },
-    { 
-      id: 4, 
-      name: "Ultimate", 
-      price: 29.99, 
-      billingCycle: "Monthly", 
-      users: 23, 
-      features: ["All Premium Features", "Priority Support", "Personalized AI Tutor", "Unlimited Resources"],
-      isActive: true
-    },
-    { 
-      id: 5, 
-      name: "Enterprise", 
-      price: "Custom", 
-      billingCycle: "Annual", 
-      users: 2, 
-      features: ["All Ultimate Features", "Dedicated Support Manager", "Custom Content", "API Access"],
-      isActive: false
-    }
-  ];
-  
-  // Calculate total subscribed users and revenue
-  const totalUsers = plans.reduce((sum, plan) => sum + plan.users, 0);
-  const monthlyRevenue = plans.reduce((sum, plan) => {
-    if (typeof plan.price === 'number') {
-      return sum + (plan.price * plan.users);
-    }
-    return sum;
-  }, 0);
-  
+const SubscriptionPlans: React.FC = () => {
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold">Subscription Plans</h2>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add New Plan
-        </Button>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader>
-            <CardTitle>Total Subscribed Users</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Subscribers</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalUsers}</div>
+            <div className="text-2xl font-bold">2,350</div>
+            <p className="text-xs text-muted-foreground">+180.1% from last month</p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Monthly Revenue</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">${monthlyRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">$45,231</div>
+            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Active Plans</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{plans.filter(p => p.isActive).length} / {plans.length}</div>
+            <div className="text-2xl font-bold">12.5%</div>
+            <p className="text-xs text-muted-foreground">+2.1% from last month</p>
           </CardContent>
         </Card>
       </div>
       
       <Card>
         <CardHeader>
-          <CardTitle>Subscription Plans</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Subscription Plans</CardTitle>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Plan
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Billing Cycle</TableHead>
-                <TableHead>Users</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Features</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {plans.map((plan) => (
-                <TableRow key={plan.id}>
-                  <TableCell className="font-medium">{plan.name}</TableCell>
-                  <TableCell>{typeof plan.price === 'number' ? `$${plan.price}` : plan.price}</TableCell>
-                  <TableCell>{plan.billingCycle}</TableCell>
-                  <TableCell>{plan.users}</TableCell>
-                  <TableCell>
-                    {plan.isActive ? (
-                      <div className="flex items-center text-green-600">
-                        <Check className="h-4 w-4 mr-1" />
-                        <span>Active</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center text-red-600">
-                        <X className="h-4 w-4 mr-1" />
-                        <span>Inactive</span>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="max-w-[200px] truncate">
-                      {plan.features.join(", ")}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-red-500">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="grid gap-4 md:grid-cols-3">
+            {['Free', 'Basic', 'Premium'].map((plan) => (
+              <Card key={plan}>
+                <CardHeader>
+                  <CardTitle className="text-lg">{plan} Plan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold mb-2">
+                    {plan === 'Free' ? '$0' : plan === 'Basic' ? '$9.99' : '$19.99'}
+                    <span className="text-sm font-normal text-muted-foreground">/month</span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div>• Feature 1</div>
+                    <div>• Feature 2</div>
+                    <div>• Feature 3</div>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Edit Plan
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
