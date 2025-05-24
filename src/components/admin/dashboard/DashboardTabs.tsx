@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,9 +26,6 @@ import StudyPlanManagementTab from './tabs/StudyPlanManagementTab';
 import PersonalizationControlTab from './tabs/PersonalizationControlTab';
 import CommunicationManagementTab from './tabs/CommunicationManagementTab';
 import GamificationManagementTab from './tabs/GamificationManagementTab';
-import BatchManagementTab from './tabs/BatchManagementTab';
-import AIFeaturesManagementTab from './tabs/AIFeaturesManagementTab';
-import EnhancedContentManagementTab from './tabs/EnhancedContentManagementTab';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -84,11 +82,7 @@ const DashboardTabs: React.FC = () => {
       </TabsContent>
       
       <TabsContent value="content" className="space-y-4 mt-4">
-        <EnhancedContentManagementTab />
-      </TabsContent>
-
-      <TabsContent value="ai-features" className="space-y-4 mt-4">
-        <AIFeaturesManagementTab />
+        <ContentManagement />
       </TabsContent>
 
       <TabsContent value="ai-models" className="space-y-4 mt-4">
@@ -174,10 +168,6 @@ const DashboardTabs: React.FC = () => {
           <h3 className="text-lg font-semibold mb-2">Integration Management</h3>
           <p className="text-muted-foreground">Third-party service integrations and webhook management coming soon.</p>
         </div>
-      </TabsContent>
-
-      <TabsContent value="batch-management" className="space-y-4 mt-4">
-        <BatchManagementTab />
       </TabsContent>
     </Tabs>
   );

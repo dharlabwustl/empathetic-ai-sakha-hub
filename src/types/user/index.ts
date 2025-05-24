@@ -1,5 +1,7 @@
 
 export * from './base';
-export * from './studyPlan';
-export * from './batch';
 export * from './conceptCard';
+export * from './studyPlan';
+
+// Define standard event types for clarity in components
+export type MouseClickEvent = React.MouseEvent<HTMLElement, MouseEvent>;
