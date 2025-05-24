@@ -1,3 +1,4 @@
+
 export enum MoodType {
   HAPPY = 'happy',
   FOCUSED = 'focused',
@@ -99,6 +100,18 @@ export interface BillingHistory {
   planName: string;
 }
 
+export interface SubjectProgress {
+  id?: string;
+  subject: string;
+  progress: number;
+  topicsTotal: number;
+  topicsCompleted: number;
+  quizzesCompleted: number;
+  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
+  isWeakSubject?: boolean;
+  proficiency?: number;
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
@@ -180,18 +193,6 @@ export interface UserProfileBase {
 }
 
 export type UserProfileType = UserProfileBase;
-
-export interface SubjectProgress {
-  id?: string;
-  subject: string;
-  progress: number;
-  topicsTotal: number;
-  topicsCompleted: number;
-  quizzesCompleted: number;
-  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
-  isWeakSubject?: boolean;
-  proficiency?: number;
-}
 
 export interface SubscriptionPlan {
   id: string;

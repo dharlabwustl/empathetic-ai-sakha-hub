@@ -1,316 +1,330 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Lightbulb, Brain, Volume2, VolumeX, Play, Pause } from 'lucide-react';
-import ReadAloudSection from './concept-detail/ReadAloudSection';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Play, Pause, Volume2, VolumeX, MessageSquare, FileText, Lightbulb } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface EnhancedLearnTabProps {
   conceptName: string;
+  isPlaying?: boolean;
+  audioEnabled?: boolean;
+  onPlayPause?: () => void;
 }
 
-const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({ conceptName }) => {
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState('basic');
-  const [readAloudActive, setReadAloudActive] = useState(false);
-  const [currentReadingContent, setCurrentReadingContent] = useState('');
+const EnhancedLearnTab: React.FC<EnhancedLearnTabProps> = ({
+  conceptName,
+  isPlaying = false,
+  audioEnabled = true,
+  onPlayPause
+}) => {
+  const [selectedSection, setSelectedSection] = useState('overview');
+  const [aiTutorActive, setAiTutorActive] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
 
-  const toggleAudio = () => {
-    setIsAudioPlaying(!isAudioPlaying);
-  };
-
-  const startReadAloud = (content: string) => {
-    setCurrentReadingContent(content);
-    setReadAloudActive(true);
-    
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(content);
-      utterance.rate = 0.95;
-      utterance.volume = 0.8;
-      utterance.onend = () => setReadAloudActive(false);
-      window.speechSynthesis.speak(utterance);
+  const sections = [
+    {
+      id: 'overview',
+      title: 'Overview',
+      icon: BookOpen,
+      content: `${conceptName} is a fundamental concept that forms the foundation for understanding more complex topics. This comprehensive guide will walk you through all the essential aspects you need to master.`,
+      audioScript: `Let's begin our exploration of ${conceptName}. This concept is crucial for your understanding...`
+    },
+    {
+      id: 'theory',
+      title: 'Theory & Principles',
+      icon: FileText,
+      content: `The theoretical foundation of ${conceptName} is built upon several key principles. Understanding these principles will help you apply the concept effectively in various scenarios.`,
+      audioScript: `The theoretical aspects of ${conceptName} involve several interconnected principles...`
+    },
+    {
+      id: 'applications',
+      title: 'Applications',
+      icon: Lightbulb,
+      content: `${conceptName} has numerous real-world applications across different fields. Let's explore how this concept is used in practice and why it's so important.`,
+      audioScript: `Now let's look at how ${conceptName} is applied in real-world situations...`
+    },
+    {
+      id: 'examples',
+      title: 'Examples',
+      icon: MessageSquare,
+      content: `Here are practical examples that demonstrate ${conceptName} in action. These examples will help solidify your understanding through concrete scenarios.`,
+      audioScript: `These examples will help you see ${conceptName} in action and understand its practical implications...`
     }
-  };
+  ];
 
-  const stopReadAloud = () => {
-    setReadAloudActive(false);
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+  const currentSection = sections.find(s => s.id === selectedSection) || sections[0];
+
+  // Simulate reading progress
+  React.useEffect(() => {
+    if (isPlaying) {
+      const interval = setInterval(() => {
+        setReadingProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 2;
+        });
+      }, 100);
+      return () => clearInterval(interval);
     }
-  };
-
-  const basicContent = `What is ${conceptName}? Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting upon it and inversely proportional to its mass. This fundamental principle of physics helps us understand how forces affect motion in our everyday world.`;
-
-  const detailedContent = `Newton's Second Law is fundamental to understanding motion. It tells us that when a net force acts on an object, it will accelerate in the direction of that force. The greater the force, the greater the acceleration. However, the more massive an object is, the less it will accelerate for the same force. This relationship is expressed mathematically as F equals m times a, where F is force measured in Newtons, m is mass in kilograms, and a is acceleration in meters per second squared.`;
-
-  const advancedContent = `The advanced mathematical framework of Newton's Second Law extends beyond simple scalar equations to vector analysis. In vector form, the sum of all forces equals mass times acceleration vector. This allows us to analyze complex systems where forces act in multiple directions simultaneously. Component analysis becomes crucial when dealing with inclined planes, circular motion, and other complex scenarios where forces must be resolved into perpendicular components.`;
+  }, [isPlaying, selectedSection]);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Learn {conceptName}</h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={toggleAudio}
-          className="flex items-center gap-2"
-        >
-          {isAudioPlaying ? (
-            <>
-              <VolumeX className="h-4 w-4" />
-              Mute Audio
-            </>
-          ) : (
-            <>
-              <Volume2 className="h-4 w-4" />
-              Enable Audio
-            </>
-          )}
-        </Button>
+      {/* Header */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+                Learn {conceptName}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Comprehensive text-based learning with audio support
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAiTutorActive(!aiTutorActive)}
+                className={aiTutorActive ? "bg-blue-50 text-blue-700" : ""}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                AI Tutor
+              </Button>
+              <Badge variant={isPlaying ? "default" : "outline"}>
+                {isPlaying ? "Reading" : "Paused"}
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Section Navigation */}
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Sections</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {sections.map((section) => {
+                const IconComponent = section.icon;
+                return (
+                  <motion.div
+                    key={section.id}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      variant={selectedSection === section.id ? "default" : "outline"}
+                      className="w-full justify-start text-left h-auto p-3"
+                      onClick={() => {
+                        setSelectedSection(section.id);
+                        setReadingProgress(0);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <IconComponent className="h-4 w-4" />
+                        <span className="font-medium">{section.title}</span>
+                      </div>
+                    </Button>
+                  </motion.div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          {/* Reading Progress */}
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle className="text-sm">Reading Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Current Section</span>
+                  <span>{readingProgress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <motion.div 
+                    className="bg-blue-600 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${readingProgress}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <currentSection.icon className="h-5 w-5" />
+                  {currentSection.title}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onPlayPause}
+                    className="flex items-center gap-2"
+                  >
+                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    {isPlaying ? 'Pause' : 'Read Aloud'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={audioEnabled ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}
+                  >
+                    {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <motion.div
+                key={selectedSection}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="prose prose-lg max-w-none"
+              >
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 min-h-96">
+                  <h3 className="text-xl font-semibold mb-4">{currentSection.title}</h3>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {currentSection.content}
+                  </p>
+                  
+                  {/* Additional detailed content based on section */}
+                  {selectedSection === 'theory' && (
+                    <div className="mt-6 space-y-4">
+                      <h4 className="text-lg font-medium">Key Principles:</h4>
+                      <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                        <li>Fundamental principle of {conceptName}</li>
+                        <li>Mathematical relationships and formulas</li>
+                        <li>Underlying assumptions and limitations</li>
+                        <li>Historical development and context</li>
+                      </ul>
+                    </div>
+                  )}
+
+                  {selectedSection === 'applications' && (
+                    <div className="mt-6 space-y-4">
+                      <h4 className="text-lg font-medium">Real-World Applications:</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border">
+                          <h5 className="font-medium mb-2">Engineering</h5>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Applications in mechanical and electrical engineering
+                          </p>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border">
+                          <h5 className="font-medium mb-2">Technology</h5>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Modern technological implementations
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedSection === 'examples' && (
+                    <div className="mt-6 space-y-4">
+                      <h4 className="text-lg font-medium">Worked Examples:</h4>
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <h5 className="font-medium mb-2">Example 1: Basic Application</h5>
+                        <p className="text-sm text-blue-800 dark:text-blue-300">
+                          Step-by-step solution demonstrating {conceptName} in a simple scenario
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Audio Reading Panel */}
+              <AnimatePresence>
+                {isPlaying && audioEnabled && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Volume2 className="h-5 w-5 text-green-600" />
+                        <span className="font-medium text-green-800">Reading Audio</span>
+                      </div>
+                      <div className="flex-1 bg-green-200 h-2 rounded-full overflow-hidden">
+                        <motion.div 
+                          className="bg-green-600 h-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${readingProgress}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                      <span className="text-sm text-green-700">{readingProgress}%</span>
+                    </div>
+                    <p className="text-sm text-green-700 mt-2">
+                      {currentSection.audioScript}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* AI Tutor Panel */}
+              <AnimatePresence>
+                {aiTutorActive && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg"
+                  >
+                    <div className="flex items-start gap-3">
+                      <MessageSquare className="h-5 w-5 text-purple-600 mt-1" />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-purple-800 mb-2">AI Tutor Support</h4>
+                        <p className="text-sm text-purple-700">
+                          I'm here to help you understand {conceptName} better. You're currently reading about {currentSection.title}. 
+                          {selectedSection === 'theory' && " This section covers the fundamental principles. "}
+                          {selectedSection === 'applications' && " This section shows real-world uses. "}
+                          {selectedSection === 'examples' && " This section provides practical examples. "}
+                          Would you like me to explain anything in simpler terms?
+                        </p>
+                        <div className="flex gap-2 mt-3">
+                          <Button size="sm" variant="outline" className="border-purple-300 text-purple-700">
+                            Simplify This
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-purple-300 text-purple-700">
+                            Ask Question
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-purple-300 text-purple-700">
+                            More Examples
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {readAloudActive && (
-        <ReadAloudSection 
-          text={currentReadingContent}
-          isActive={readAloudActive}
-          onStop={stopReadAloud}
-        />
-      )}
-
-      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="basic">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Basic
-          </TabsTrigger>
-          <TabsTrigger value="detailed">
-            <Lightbulb className="h-4 w-4 mr-2" />
-            Detailed with Examples
-          </TabsTrigger>
-          <TabsTrigger value="advanced">
-            <Brain className="h-4 w-4 mr-2" />
-            Advanced Analysis
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="basic" className="mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
-                  Basic Understanding
-                </CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => startReadAloud(basicContent)}
-                  disabled={readAloudActive}
-                >
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Read Aloud
-                </Button>
-              </div>
-              <CardDescription>
-                Fundamental concepts and definitions
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">What is {conceptName}?</h3>
-                <p className="text-gray-700 dark:text-gray-300">
-                  Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting upon it and inversely proportional to its mass.
-                </p>
-              </div>
-              
-              <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Key Formula</h3>
-                <div className="text-2xl font-bold text-center py-4 bg-white dark:bg-gray-800 rounded-lg">
-                  F = m × a
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Where F is force (N), m is mass (kg), and a is acceleration (m/s²)
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <div className="text-3xl font-bold text-blue-600">F</div>
-                  <div className="text-sm font-medium">Force</div>
-                  <div className="text-xs text-gray-500">Newtons (N)</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <div className="text-3xl font-bold text-green-600">m</div>
-                  <div className="text-sm font-medium">Mass</div>
-                  <div className="text-xs text-gray-500">Kilograms (kg)</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <div className="text-3xl font-bold text-purple-600">a</div>
-                  <div className="text-sm font-medium">Acceleration</div>
-                  <div className="text-xs text-gray-500">m/s²</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="detailed" className="mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-yellow-600" />
-                  Detailed Explanation with Examples
-                </CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => startReadAloud(detailedContent)}
-                  disabled={readAloudActive}
-                >
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Read Aloud
-                </Button>
-              </div>
-              <CardDescription>
-                In-depth understanding with real-world applications
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-3">Detailed Concept</h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
-                  Newton's Second Law is fundamental to understanding motion. It tells us that when a net force acts on an object, 
-                  it will accelerate in the direction of that force. The greater the force, the greater the acceleration. 
-                  However, the more massive an object is, the less it will accelerate for the same force.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-                    <h4 className="font-medium mb-2 text-blue-600">Direct Proportionality</h4>
-                    <p className="text-sm">If force increases, acceleration increases (assuming constant mass)</p>
-                    <div className="mt-2 text-xs bg-blue-100 dark:bg-blue-900/30 p-2 rounded">
-                      Example: Pushing a shopping cart harder makes it accelerate faster
-                    </div>
-                  </div>
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-                    <h4 className="font-medium mb-2 text-red-600">Inverse Proportionality</h4>
-                    <p className="text-sm">If mass increases, acceleration decreases (assuming constant force)</p>
-                    <div className="mt-2 text-xs bg-red-100 dark:bg-red-900/30 p-2 rounded">
-                      Example: Same push on a full vs empty cart - empty cart accelerates more
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-3">Practical Examples</h3>
-                <div className="space-y-4">
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <h4 className="font-medium text-green-600 mb-2">Example 1: Car Acceleration</h4>
-                    <p className="text-sm mb-2">A 1000 kg car experiences a 3000 N force from its engine.</p>
-                    <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono text-sm">
-                      a = F/m = 3000 N / 1000 kg = 3 m/s²
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <h4 className="font-medium text-green-600 mb-2">Example 2: Falling Objects</h4>
-                    <p className="text-sm mb-2">A 2 kg object falls under gravity (9.8 m/s²).</p>
-                    <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono text-sm">
-                      F = m × a = 2 kg × 9.8 m/s² = 19.6 N
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="advanced" className="mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                  Advanced Analysis
-                </CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => startReadAloud(advancedContent)}
-                  disabled={readAloudActive}
-                >
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Read Aloud
-                </Button>
-              </div>
-              <CardDescription>
-                Complex applications and mathematical analysis
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-3">Advanced Mathematical Framework</h3>
-                <div className="space-y-4">
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-                    <h4 className="font-medium mb-2">Vector Form</h4>
-                    <div className="text-center text-lg font-mono bg-gray-100 dark:bg-gray-700 p-3 rounded">
-                      ∑F⃗ = ma⃗
-                    </div>
-                    <p className="text-sm mt-2">The net force vector equals mass times acceleration vector</p>
-                  </div>
-                  
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-                    <h4 className="font-medium mb-2">Component Analysis</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm font-mono bg-gray-100 dark:bg-gray-700 p-3 rounded">
-                      <div>Fx = max</div>
-                      <div>Fy = may</div>
-                    </div>
-                    <p className="text-sm mt-2">Forces and accelerations can be analyzed in components</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-indigo-50 dark:bg-indigo-950/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-3">Complex Applications</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <h4 className="font-medium text-indigo-600 mb-2">Inclined Planes</h4>
-                    <p className="text-sm mb-2">Force components on an incline:</p>
-                    <div className="text-xs font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      F∥ = mg sin θ<br/>
-                      F⊥ = mg cos θ
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <h4 className="font-medium text-indigo-600 mb-2">Circular Motion</h4>
-                    <p className="text-sm mb-2">Centripetal force application:</p>
-                    <div className="text-xs font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                      Fc = mac = mv²/r
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-orange-50 dark:bg-orange-950/30 p-4 rounded-lg">
-                <h3 className="font-semibold mb-3">Problem-Solving Strategy</h3>
-                <ol className="list-decimal list-inside space-y-2 text-sm">
-                  <li>Identify all forces acting on the object</li>
-                  <li>Draw a free-body diagram</li>
-                  <li>Choose a coordinate system</li>
-                  <li>Apply Newton's Second Law in component form</li>
-                  <li>Solve the resulting equations</li>
-                  <li>Check units and reasonableness</li>
-                </ol>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };
