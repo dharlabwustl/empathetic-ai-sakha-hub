@@ -15,11 +15,10 @@ const AdminAppRoutes: React.FC = () => {
   }
 
   if (!isAdminAuthenticated) {
-    // If not authenticated, redirect to admin login
     return <Navigate to="/admin/login" replace />;
   }
 
-  // Basic mock data for the dashboard stats - fix TypeScript errors
+  // Fixed mock data for the dashboard stats - properly typed
   const mockDashboardStats: AdminDashboardStats = {
     totalUsers: 250,
     activeUsers: 180,
@@ -39,7 +38,6 @@ const AdminAppRoutes: React.FC = () => {
     studentsWithConsistentHabits: 120,
     totalStudents: 250,
     verifiedRetentionRate: 72,
-    activeMoodTrackers: 150,
     studyTimeConsistencyImprovement: 28,
     completedStudyPlans: 145,
     verifiedExamConfidenceImprovement: 70,

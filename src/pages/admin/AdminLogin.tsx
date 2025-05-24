@@ -22,17 +22,15 @@ const AdminLogin: React.FC = () => {
   const { isAdminAuthenticated, loginAdmin, error } = useAdminAuth();
   const { toast } = useToast();
 
-  // If already logged in, redirect to dashboard immediately
   useEffect(() => {
-    console.log("AdminLogin: checking auth state", { isAdminAuthenticated });
+    console.log("AdminLogin: Auth state check", { isAdminAuthenticated });
     if (isAdminAuthenticated) {
-      console.log("Admin already authenticated, redirecting to dashboard");
+      console.log("Admin already authenticated, redirecting");
       navigate('/admin/dashboard', { replace: true });
     }
   }, [isAdminAuthenticated, navigate]);
 
   useEffect(() => {
-    // Update local error state when context error changes
     if (error) {
       setLoginError(error);
     }
@@ -40,16 +38,15 @@ const AdminLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("AdminLogin: handleSubmit called");
+    console.log("AdminLogin: Form submitted");
     setLoginError(null);
     setIsLoading(true);
     
     try {
-      console.log("AdminLogin: attempting login with", { email });
-      // Use login function from context
+      console.log("AdminLogin: Attempting login");
       const success = await loginAdmin(email, password);
       
-      console.log("AdminLogin: login result", { success });
+      console.log("AdminLogin: Login result:", success);
       
       if (success) {
         toast({
@@ -57,17 +54,14 @@ const AdminLogin: React.FC = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        console.log("AdminLogin: login successful, navigating to dashboard");
-        // Get the intended destination or default to dashboard
         const from = location.state?.from?.pathname || "/admin/dashboard";
         navigate(from, { replace: true });
       } else {
-        console.log("AdminLogin: login failed");
-        setLoginError("Invalid admin credentials. Please check your email and password.");
+        setLoginError("Invalid admin credentials");
       }
     } catch (err) {
       console.error("AdminLogin: Login error:", err);
-      setLoginError("An unexpected error occurred during login");
+      setLoginError("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +96,7 @@ const AdminLogin: React.FC = () => {
               </div>
             )}
             
-            <form id="admin-login-form" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -124,15 +118,10 @@ const AdminLogin: React.FC = () => {
                       autoComplete="username"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Use: admin@prepzr.com
-                  </p>
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
                       <Lock size={16} />
@@ -159,9 +148,6 @@ const AdminLogin: React.FC = () => {
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Use: Admin@2025#Secure
-                  </p>
                 </div>
               </CardContent>
               
