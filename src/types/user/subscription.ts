@@ -1,218 +1,162 @@
 
 export enum SubscriptionType {
-  FREE = "free",
-  TRIAL = "trial",
-  BASIC = "basic",
-  PREMIUM = "premium",
-  PRO = "pro",
-  PRO_MONTHLY = "pro_monthly",
-  PRO_ANNUAL = "pro_annual",
-  GROUP_SMALL = "group_small",
-  GROUP_MEDIUM = "group_medium",
-  GROUP_LARGE = "group_large",
-  GROUP_ANNUAL = "group_annual",
-  ENTERPRISE = "enterprise"
+  FREE = 'free',
+  BASIC = 'basic',
+  PRO = 'pro',
+  PREMIUM = 'premium',
+  PRO_MONTHLY = 'pro_monthly',
+  PRO_ANNUAL = 'pro_annual',
+  GROUP_SMALL = 'group_small',
+  GROUP_LARGE = 'group_large',
+  GROUP_ANNUAL = 'group_annual'
+}
+
+export interface SubscriptionInfo {
+  planType: string;
+  startDate?: string | Date;
+  expiryDate?: string | Date;
+  status?: 'active' | 'expired' | 'cancelled';
+  autoRenew?: boolean;
+  features?: string[];
+  isActive?: boolean;
+  endDate?: string;
 }
 
 export interface SubscriptionPlan {
   id: string;
   name: string;
+  type: SubscriptionType | string;
   price: number;
+  priceAnnual?: number;
+  description: string;
   features: string[];
-  type: string;
+  highlighted?: boolean;
+  popular?: boolean;
+  buttonText?: string;
   maxMembers?: number;
 }
 
-export interface SubscriptionInfo {
-  planType: string | SubscriptionType;
-  expiryDate?: string;
-  startDate?: string;
-  isActive?: boolean;
-  features?: string[];
-}
-
-export interface PricingTier {
-  name: string;
-  description: string;
-  price: {
-    monthly?: number;
-    annual?: number;
-  };
-  features: Array<{
-    name: string;
-    included: boolean;
-    tooltip?: string;
-  }>;
-  highlights?: string[];
-  recommended?: boolean;
-  trial?: boolean;
-  maxUsers?: number;
-}
-
-// Credit system types
-export interface CreditPack {
-  id: string;
-  name: string;
-  credits: number;
-  price: number;
-  isExamCredits?: boolean;
-  bestValue?: boolean;
-}
-
-export interface UserCredits {
-  standard: number;
-  exam: number;
-}
-
-// Standardized subscription plans that will be used across the application
 export const standardSubscriptionPlans = {
   individual: [
     {
       id: 'free',
-      name: 'Free Plan',
+      name: 'Free',
+      type: 'free',
       price: 0,
-      description: 'Basic access with limited features',
+      description: 'Perfect for getting started with your exam preparation',
       features: [
         'Access to basic study materials',
         'Limited practice questions',
-        'Community forum access',
-        'One mock test per month'
+        'Basic progress tracking',
+        'Community support'
       ],
-      type: SubscriptionType.FREE
+      buttonText: 'Get Started'
     },
     {
       id: 'basic',
       name: 'Basic',
-      price: 299,
-      priceAnnual: 2990,
-      description: 'Essential features for serious students',
+      type: 'basic',
+      price: 199,
+      priceAnnual: 1990,
+      description: 'Essential tools for focused exam preparation',
       features: [
-        'Everything in Free',
+        'All Free features',
         'Unlimited practice questions',
-        'Personalized study plan',
-        'Weekly performance reports',
-        '10 mock tests per month'
+        'Detailed performance analytics',
+        'Study schedule planning',
+        'Email support'
       ],
-      popular: true,
-      type: SubscriptionType.BASIC,
-      buttonText: 'Upgrade Now'
+      buttonText: 'Choose Basic'
     },
     {
       id: 'premium',
       name: 'Premium',
+      type: 'premium',
       price: 499,
       priceAnnual: 4990,
-      description: 'Advanced features for top performance',
+      description: 'Advanced features for serious exam preparation',
       features: [
-        'Everything in Basic',
-        'AI-powered study assistant',
-        'All premium study materials',
+        'All Basic features',
+        'AI-powered personalized study plans',
+        'Mock tests with detailed analysis',
         'Video explanations',
-        'Detailed performance analytics',
-        'Unlimited mock tests'
+        'Priority support',
+        '1-on-1 doubt clearing sessions'
       ],
-      type: SubscriptionType.PREMIUM,
-      buttonText: 'Go Premium'
+      highlighted: true,
+      popular: true,
+      buttonText: 'Choose Premium'
     },
     {
       id: 'pro',
       name: 'Pro',
+      type: 'pro',
       price: 999,
       priceAnnual: 9990,
-      description: 'The complete package for serious students',
+      description: 'Complete exam preparation solution with expert guidance',
       features: [
-        'Everything in Premium',
-        'Live doubt clearing sessions',
-        'Personalized feedback',
-        'Subject expert consultations',
+        'All Premium features',
+        'Live classes with expert teachers',
+        'Unlimited doubt clearing',
+        'Personalized mentoring',
+        'Exam strategy sessions',
         'Guaranteed score improvement'
       ],
-      type: SubscriptionType.PRO,
-      buttonText: 'Go Pro'
+      buttonText: 'Choose Pro'
     }
   ],
   group: [
     {
       id: 'group_small',
-      name: 'Group Small',
+      name: 'Team',
+      type: 'group_small',
       price: 1999,
       priceAnnual: 19990,
       description: 'Perfect for small study groups',
       features: [
-        'Access for up to 5 members',
-        'Everything in Premium plan',
-        'Team progress dashboard',
-        'Collaborative study tools',
-        'Group mock tests'
+        'All Premium features for each member',
+        'Group study dashboard',
+        'Shared resources and notes',
+        'Group performance analytics',
+        'Collaborative study tools'
       ],
-      type: SubscriptionType.GROUP_SMALL,
-      maxMembers: 5
+      maxMembers: 5,
+      buttonText: 'Choose Team'
     },
     {
       id: 'group_medium',
-      name: 'Group Medium',
-      price: 3499,
-      priceAnnual: 34990,
+      name: 'Class',
+      type: 'group_medium',
+      price: 3999,
+      priceAnnual: 39990,
       description: 'Ideal for medium-sized groups',
       features: [
-        'Access for up to 10 members',
-        'Everything in Group Small',
-        'Extended member management',
-        'Advanced analytics',
-        'Priority support'
+        'All Team features',
+        'Advanced group analytics',
+        'Custom group challenges',
+        'Teacher dashboard access',
+        'Bulk content management'
       ],
-      type: SubscriptionType.GROUP_MEDIUM,
-      maxMembers: 10
+      maxMembers: 15,
+      buttonText: 'Choose Class'
     },
     {
       id: 'group_large',
-      name: 'Group Large',
-      price: 5999,
-      priceAnnual: 59990,
-      description: 'Complete solution for coaching institutes',
+      name: 'Enterprise',
+      type: 'group_large',
+      price: 7999,
+      priceAnnual: 79990,
+      description: 'Complete solution for large organizations',
       features: [
-        'Access for up to 20 members',
-        'Everything in Group Medium',
-        'Admin dashboard',
-        'Custom branding',
-        'API access',
-        'Dedicated support'
+        'All Class features',
+        'Unlimited members',
+        'Custom branding options',
+        'Dedicated account manager',
+        'Advanced reporting and analytics',
+        'API access for integrations'
       ],
-      type: SubscriptionType.GROUP_LARGE,
-      maxMembers: 20
-    }
-  ],
-  creditPacks: [
-    {
-      id: 'credits_50',
-      name: '50 Credits',
-      credits: 50,
-      price: 99,
-      isExamCredits: false
-    },
-    {
-      id: 'credits_100',
-      name: '100 Credits',
-      credits: 100,
-      price: 179,
-      isExamCredits: false,
-      bestValue: true
-    },
-    {
-      id: 'credits_250',
-      name: '250 Credits',
-      credits: 250,
-      price: 399,
-      isExamCredits: false
-    },
-    {
-      id: 'exam_credits_100',
-      name: '100 Exam Credits',
-      credits: 100,
-      price: 499,
-      isExamCredits: true
+      maxMembers: 50,
+      buttonText: 'Choose Enterprise'
     }
   ]
 };
-
-export const creditPacks: CreditPack[] = standardSubscriptionPlans.creditPacks;

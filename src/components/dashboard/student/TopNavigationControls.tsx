@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings } from 'lucide-react';
+import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -73,6 +73,26 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
+  };
+
+  const handleSubscriptionClick = () => {
+    navigate('/dashboard/student/subscription');
+  };
+
+  // Get current subscription status
+  const getCurrentPlan = () => {
+    if (!user?.subscription) return 'Free';
+    
+    if (typeof user.subscription === 'string') {
+      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
+             user.subscription === 'pro_annual' ? 'Pro Annual' :
+             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
+    }
+    
+    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
+           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
+           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
+           (user.subscription.planType || 'Free').slice(1);
   };
   
   return (
@@ -188,6 +208,26 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Voice Assistant</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Current Plan Display */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSubscriptionClick}
+                className="gap-2"
+              >
+                <Crown className="h-4 w-4" />
+                <span className="hidden sm:inline">{getCurrentPlan()}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View subscription details</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
