@@ -6,68 +6,21 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { StudyTimeChart } from './study-progress/StudyTimeChart';
 import { QuizzesList } from './study-progress/QuizzesList';
 import { TopicsList } from './study-progress/TopicsList';
-import { SubjectProgress, StudyStreak } from "@/types/user/base";
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
 interface StudyProgressProps {
-  subjects?: SubjectProgress[];
-  studyStreak?: StudyStreak;
+  subjects: SubjectProgress[];
+  studyStreak: StudyStreak;
 }
 
-const StudyProgress: React.FC<StudyProgressProps> = ({ 
-  subjects = [], 
-  studyStreak = { current: 5, longest: 12, lastActiveDate: new Date().toISOString() }
-}) => {
+const StudyProgress: React.FC<StudyProgressProps> = ({ subjects, studyStreak }) => {
   const [activeTab, setActiveTab] = useState<string>('study-time');
-  
-  // Use mock data if no subjects provided
-  const mockSubjects: SubjectProgress[] = subjects.length > 0 ? subjects : [
-    {
-      id: 'physics',
-      subject: 'Physics',
-      totalConcepts: 50,
-      completedConcepts: 35,
-      progress: 70,
-      timeSpent: 48,
-      lastActivity: '2 hours ago',
-      streak: 5,
-      averageScore: 85,
-      conceptsThisWeek: 8,
-      improvementRate: 12
-    },
-    {
-      id: 'chemistry',
-      subject: 'Chemistry',
-      totalConcepts: 45,
-      completedConcepts: 20,
-      progress: 44,
-      timeSpent: 32,
-      lastActivity: '1 day ago',
-      streak: 3,
-      averageScore: 78,
-      conceptsThisWeek: 5,
-      improvementRate: 8
-    },
-    {
-      id: 'mathematics',
-      subject: 'Mathematics',
-      totalConcepts: 60,
-      completedConcepts: 42,
-      progress: 70,
-      timeSpent: 56,
-      lastActivity: '3 hours ago',
-      streak: 7,
-      averageScore: 92,
-      conceptsThisWeek: 10,
-      improvementRate: 15
-    }
-  ];
-
   const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(
-    mockSubjects.length > 0 ? mockSubjects[0] : null
+    subjects.length > 0 ? subjects[0] : null
   );
 
   const handleSelectSubject = (subjectId: string) => {
-    const subject = mockSubjects.find(s => s.id === subjectId);
+    const subject = subjects.find(s => s.id === subjectId);
     if (subject) {
       setSelectedSubject(subject);
     }
@@ -89,7 +42,7 @@ const StudyProgress: React.FC<StudyProgressProps> = ({
           <TabsContent value="study-time">
             <StudyTimeChart 
               selectedSubject={selectedSubject} 
-              subjects={mockSubjects}
+              subjects={subjects}
               selectSubject={handleSelectSubject}
               studyStreak={studyStreak}
             />
@@ -98,7 +51,7 @@ const StudyProgress: React.FC<StudyProgressProps> = ({
           <TabsContent value="quizzes">
             <QuizzesList 
               selectedSubject={selectedSubject}
-              subjects={mockSubjects}
+              subjects={subjects}
               selectSubject={handleSelectSubject}
             />
           </TabsContent>
@@ -106,7 +59,7 @@ const StudyProgress: React.FC<StudyProgressProps> = ({
           <TabsContent value="topics">
             <TopicsList 
               selectedSubject={selectedSubject}
-              subjects={mockSubjects}
+              subjects={subjects}
               selectSubject={handleSelectSubject}
             />
           </TabsContent>
