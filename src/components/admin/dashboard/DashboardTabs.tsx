@@ -1,17 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
-  Settings, 
-  BarChart3, 
-  Database, 
-  Shield, 
-  Activity,
-  CreditCard
-} from 'lucide-react';
 
 // Import components
 import Overview from './Overview';
@@ -22,9 +12,21 @@ import SubscriptionPlans from './SubscriptionPlans';
 import Analytics from './Analytics';
 import DatabaseManagement from './DatabaseManagement';
 import Security from './Security';
+import StudentProfilesTab from './StudentProfilesTab';
+import AIModelsTab from './AIModelsTab';
+import ExamManagementTab from './ExamManagementTab';
+import FeatureManagementTab from './FeatureManagementTab';
+import RevenueAnalyticsTab from './RevenueAnalyticsTab';
+import APIManagementTab from './APIManagementTab';
+import SystemSettingsTab from './SystemSettingsTab';
 
 const DashboardTabs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'overview';
+
+  const handleTabChange = (newTab: string) => {
+    setSearchParams({ tab: newTab });
+  };
 
   // Mock system logs data
   const mockLogs = [
@@ -49,70 +51,63 @@ const DashboardTabs: React.FC = () => {
   return (
     <Tabs 
       value={activeTab} 
-      onValueChange={setActiveTab}
+      onValueChange={handleTabChange}
       className="w-full space-y-6"
     >
-      <TabsList className="grid w-full grid-cols-8 lg:grid-cols-8">
-        <TabsTrigger value="overview" className="flex items-center gap-2">
-          <LayoutDashboard className="h-4 w-4" />
-          <span className="hidden sm:inline">Overview</span>
-        </TabsTrigger>
-        <TabsTrigger value="users" className="flex items-center gap-2">
-          <Users className="h-4 w-4" />
-          <span className="hidden sm:inline">Users</span>
-        </TabsTrigger>
-        <TabsTrigger value="content" className="flex items-center gap-2">
-          <BookOpen className="h-4 w-4" />
-          <span className="hidden sm:inline">Content</span>
-        </TabsTrigger>
-        <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-          <CreditCard className="h-4 w-4" />
-          <span className="hidden sm:inline">Plans</span>
-        </TabsTrigger>
-        <TabsTrigger value="analytics" className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4" />
-          <span className="hidden sm:inline">Analytics</span>
-        </TabsTrigger>
-        <TabsTrigger value="database" className="flex items-center gap-2">
-          <Database className="h-4 w-4" />
-          <span className="hidden sm:inline">Database</span>
-        </TabsTrigger>
-        <TabsTrigger value="security" className="flex items-center gap-2">
-          <Shield className="h-4 w-4" />
-          <span className="hidden sm:inline">Security</span>
-        </TabsTrigger>
-        <TabsTrigger value="logs" className="flex items-center gap-2">
-          <Activity className="h-4 w-4" />
-          <span className="hidden sm:inline">Logs</span>
-        </TabsTrigger>
-      </TabsList>
-
       <TabsContent value="overview" className="space-y-4 mt-4">
         <Overview />
-      </TabsContent>
-      
-      <TabsContent value="users" className="space-y-4 mt-4">
-        <UsersManagement />
-      </TabsContent>
-      
-      <TabsContent value="content" className="space-y-4 mt-4">
-        <ContentManagement />
-      </TabsContent>
-      
-      <TabsContent value="subscriptions" className="space-y-4 mt-4">
-        <SubscriptionPlans />
       </TabsContent>
       
       <TabsContent value="analytics" className="space-y-4 mt-4">
         <Analytics />
       </TabsContent>
       
+      <TabsContent value="users" className="space-y-4 mt-4">
+        <UsersManagement />
+      </TabsContent>
+
+      <TabsContent value="student-profiles" className="space-y-4 mt-4">
+        <StudentProfilesTab />
+      </TabsContent>
+      
+      <TabsContent value="content" className="space-y-4 mt-4">
+        <ContentManagement />
+      </TabsContent>
+
+      <TabsContent value="ai-models" className="space-y-4 mt-4">
+        <AIModelsTab />
+      </TabsContent>
+
+      <TabsContent value="exams" className="space-y-4 mt-4">
+        <ExamManagementTab />
+      </TabsContent>
+      
+      <TabsContent value="subscriptions" className="space-y-4 mt-4">
+        <SubscriptionPlans />
+      </TabsContent>
+
+      <TabsContent value="features" className="space-y-4 mt-4">
+        <FeatureManagementTab />
+      </TabsContent>
+
+      <TabsContent value="revenue" className="space-y-4 mt-4">
+        <RevenueAnalyticsTab />
+      </TabsContent>
+      
       <TabsContent value="database" className="space-y-4 mt-4">
         <DatabaseManagement />
+      </TabsContent>
+
+      <TabsContent value="api" className="space-y-4 mt-4">
+        <APIManagementTab />
       </TabsContent>
       
       <TabsContent value="security" className="space-y-4 mt-4">
         <Security />
+      </TabsContent>
+
+      <TabsContent value="settings" className="space-y-4 mt-4">
+        <SystemSettingsTab />
       </TabsContent>
       
       <TabsContent value="logs" className="space-y-4 mt-4">
