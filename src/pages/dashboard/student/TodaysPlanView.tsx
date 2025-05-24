@@ -7,14 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MoodSelector } from '@/components/dashboard/student/MoodSelector';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Clock, FileText, Brain, AlertTriangle, CheckCircle, Calendar } from 'lucide-react';
+import { BookOpen, Clock, FileText, Brain, AlertTriangle, CheckCircle, Calendar, Target, TrendingUp } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
-
-// Import DashboardLayout to integrate with main dashboard
-import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { getMoodTheme } from '@/components/dashboard/student/moodThemes';
+import { motion } from 'framer-motion';
 
 const TodaysPlanView = () => {
   const navigate = useNavigate();
@@ -91,6 +90,9 @@ const TodaysPlanView = () => {
       completedAt: new Date(Date.now() - 7200000).toISOString()
     }
   ];
+
+  // Get mood theme for styling
+  const moodTheme = currentMood ? getMoodTheme(currentMood.toLowerCase()) : getMoodTheme('okay');
 
   // Filter tasks based on current tab
   const getFilteredTasks = () => {
@@ -218,57 +220,94 @@ const TodaysPlanView = () => {
     }
   };
 
-  // Today's plan content
+  // Today's plan content with enhanced header
   const todaysPlanContent = (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold flex items-center">
-          <Calendar className="h-6 w-6 mr-2 text-primary" />
-          Today's Study Plan
-        </h1>
-        <Badge className="text-sm py-1">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-        </Badge>
-      </div>
-      
-      {/* Mood and Completion Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4">How are you feeling today?</h3>
-            <MoodSelector currentMood={currentMood} onMoodSelect={handleMoodChange} />
-          </CardContent>
-        </Card>
+      {/* Beautiful Gradient Header with Mood-based Theming */}
+      <motion.div 
+        className={`relative overflow-hidden rounded-xl p-6 ${moodTheme.background} border-2 ${moodTheme.border}`}
+        style={{ 
+          background: `linear-gradient(135deg, ${moodTheme.backgroundColor}dd, ${moodTheme.backgroundColor}99)`
+        }}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+              <h1 className={`text-3xl font-bold ${moodTheme.text} mb-2 flex items-center`}>
+                <Calendar className="h-8 w-8 mr-3" />
+                Today's Study Plan
+              </h1>
+              <p className={`${moodTheme.accent} text-lg`}>
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'long', 
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </p>
+            </div>
+          </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-2">Today's Progress</h3>
-            <div className="flex justify-between items-center mb-2 text-sm text-muted-foreground">
-              <span>Completed {completedTasks} of {totalTasks} tasks</span>
-              <span>{percentageCompleted}%</span>
-            </div>
-            <Progress value={percentageCompleted} className="h-2 mb-4" />
-            
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Remaining Time</p>
-                <p className="text-lg font-semibold">{totalTimeEstimate} min</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Completed</p>
-                <p className="text-lg font-semibold">{completedTasks}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Pending</p>
-                <p className="text-lg font-semibold">{totalTasks - completedTasks}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Progress Metrics Display */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <motion.div 
+              className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className={`text-2xl font-bold ${moodTheme.text}`}>{percentageCompleted}%</div>
+              <div className={`text-sm ${moodTheme.accent}`}>Completion</div>
+              <Progress value={percentageCompleted} className="h-2 mt-2" />
+            </motion.div>
+
+            <motion.div 
+              className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className={`text-2xl font-bold ${moodTheme.text}`}>{totalTimeEstimate}</div>
+              <div className={`text-sm ${moodTheme.accent}`}>Minutes Left</div>
+              <Clock className={`h-4 w-4 mx-auto mt-1 ${moodTheme.accent}`} />
+            </motion.div>
+
+            <motion.div 
+              className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className={`text-2xl font-bold ${moodTheme.text}`}>7</div>
+              <div className={`text-sm ${moodTheme.accent}`}>Day Streak</div>
+              <TrendingUp className={`h-4 w-4 mx-auto mt-1 ${moodTheme.accent}`} />
+            </motion.div>
+
+            <motion.div 
+              className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className={`text-2xl font-bold ${moodTheme.text}`}>72%</div>
+              <div className={`text-sm ${moodTheme.accent}`}>Exam Ready</div>
+              <Target className={`h-4 w-4 mx-auto mt-1 ${moodTheme.accent}`} />
+            </motion.div>
+          </div>
+
+          {/* Mood Selector */}
+          <div className="bg-white/30 backdrop-blur-sm rounded-lg p-4">
+            <h3 className={`text-lg font-medium mb-4 ${moodTheme.text}`}>How are you feeling today?</h3>
+            <MoodSelector currentMood={currentMood} onMoodSelect={handleMoodChange} />
+          </div>
+        </div>
+        
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full translate-y-10 -translate-x-10"></div>
+      </motion.div>
       
-      {/* Today's tasks with tabs */}
-      <Card>
+      {/* Enhanced Task Cards */}
+      <Card className="border-0 shadow-lg">
         <CardHeader className="pb-3">
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl flex items-center gap-2">
@@ -289,7 +328,7 @@ const TodaysPlanView = () => {
                 variant={currentTab === tab ? "default" : "outline"}
                 size="sm"
                 onClick={() => setCurrentTab(tab)}
-                className="capitalize"
+                className="capitalize min-w-fit"
               >
                 {tab}
               </Button>
@@ -299,63 +338,70 @@ const TodaysPlanView = () => {
         
         <div className="p-6 pt-2">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredTasks.map(task => (
-              <Card 
-                key={task.id} 
-                className={`overflow-hidden transition-all border-l-4 cursor-pointer ${
-                  task.priority === 'high' ? "border-l-red-500" : 
-                  task.priority === 'medium' ? "border-l-amber-500" : "border-l-blue-500"
-                } hover:shadow-md`}
-                onClick={() => handleTaskCardClick(task)}
+            {filteredTasks.map((task, index) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,0,0,0.1)" }}
               >
-                <div className="p-5">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center space-x-2">
-                      {getTaskTypeIcon(task.type)}
-                      <span className="font-medium">{task.subject}</span>
+                <Card 
+                  className={`overflow-hidden transition-all border-l-4 cursor-pointer ${
+                    task.priority === 'high' ? "border-l-red-500" : 
+                    task.priority === 'medium' ? "border-l-amber-500" : "border-l-blue-500"
+                  } hover:shadow-lg`}
+                  onClick={() => handleTaskCardClick(task)}
+                >
+                  <div className="p-5">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center space-x-2">
+                        {getTaskTypeIcon(task.type)}
+                        <span className="font-medium">{task.subject}</span>
+                      </div>
+                      {getTaskStatusBadge(task.status)}
                     </div>
-                    {getTaskStatusBadge(task.status)}
-                  </div>
-                  
-                  <h3 className="font-semibold mt-3">{task.title}</h3>
-                  
-                  <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{task.timeEstimate} min</span>
                     
-                    {task.isBacklog && (
-                      <div className="ml-auto flex items-center space-x-1 text-amber-600">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span className="text-xs">Backlog</span>
+                    <h3 className="font-semibold mt-3 text-gray-900 dark:text-gray-100">{task.title}</h3>
+                    
+                    <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>{task.timeEstimate} min</span>
+                      
+                      {task.isBacklog && (
+                        <div className="ml-auto flex items-center space-x-1 text-amber-600">
+                          <AlertTriangle className="h-4 w-4" />
+                          <span className="text-xs">Backlog</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {task.status === 'completed' && task.completedAt && (
+                      <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
+                        <CheckCircle className="h-3 w-3" />
+                        <span>Completed</span>
                       </div>
                     )}
+                    
+                    {task.smartTip && (
+                      <div className="mt-3 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-xs text-blue-800 dark:text-blue-300">
+                        <p>{task.smartTip}</p>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      className="w-full mt-3"
+                      variant={task.status === 'completed' ? "outline" : "default"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTaskAction(task);
+                      }}
+                    >
+                      {task.status === 'completed' ? 'Review' : 'Start Now'}
+                    </Button>
                   </div>
-                  
-                  {task.status === 'completed' && task.completedAt && (
-                    <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
-                      <CheckCircle className="h-3 w-3" />
-                      <span>Completed</span>
-                    </div>
-                  )}
-                  
-                  {task.smartTip && (
-                    <div className="mt-3 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-xs text-blue-800 dark:text-blue-300">
-                      <p>{task.smartTip}</p>
-                    </div>
-                  )}
-                  
-                  <Button 
-                    className="w-full mt-3"
-                    variant={task.status === 'completed' ? "outline" : "default"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTaskAction(task);
-                    }}
-                  >
-                    {task.status === 'completed' ? 'Review' : 'Start Now'}
-                  </Button>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
             ))}
           </div>
           
@@ -367,59 +413,77 @@ const TodaysPlanView = () => {
         </div>
       </Card>
       
-      {/* Smart Suggestions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Smart Suggestions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {currentMood === MoodType.STRESSED ? (
-              <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-700">
-                <h3 className="font-medium text-violet-800 dark:text-violet-300 mb-2">You seem stressed today</h3>
-                <p className="text-sm text-violet-700 dark:text-violet-400 mb-2">
-                  Try shorter study sessions of 15-20 minutes with more frequent breaks.
-                </p>
-                <Button variant="outline" className="text-xs h-7 border-violet-300 text-violet-800">
-                  Adjust My Schedule
-                </Button>
-              </div>
-            ) : currentMood === MoodType.TIRED ? (
-              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
-                <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Energy management for tired days</h3>
-                <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
-                  Focus on review tasks instead of new concepts. Take a short walk before studying.
-                </p>
-                <Button variant="outline" className="text-xs h-7 border-amber-300 text-amber-800">
-                  Show Review Tasks
-                </Button>
-              </div>
-            ) : (
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700">
-                <h3 className="font-medium text-emerald-800 dark:text-emerald-300 mb-2">
-                  {currentMood ? `Great to see you're feeling ${currentMood}!` : 'Optimize your study session'}
-                </h3>
-                <p className="text-sm text-emerald-700 dark:text-emerald-400 mb-2">
-                  Your calculus scores have improved! Try tackling the advanced practice exam.
-                </p>
-                <Button variant="outline" className="text-xs h-7 border-emerald-300 text-emerald-800">
-                  Start Advanced Exam
-                </Button>
-              </div>
-            )}
+      {/* Smart Suggestions with Enhanced Design */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl">Smart Suggestions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {currentMood === MoodType.STRESSED ? (
+                <motion.div 
+                  className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-700"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <h3 className="font-medium text-violet-800 dark:text-violet-300 mb-2">You seem stressed today</h3>
+                  <p className="text-sm text-violet-700 dark:text-violet-400 mb-2">
+                    Try shorter study sessions of 15-20 minutes with more frequent breaks.
+                  </p>
+                  <Button variant="outline" className="text-xs h-7 border-violet-300 text-violet-800">
+                    Adjust My Schedule
+                  </Button>
+                </motion.div>
+              ) : currentMood === MoodType.TIRED ? (
+                <motion.div 
+                  className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Energy management for tired days</h3>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
+                    Focus on review tasks instead of new concepts. Take a short walk before studying.
+                  </p>
+                  <Button variant="outline" className="text-xs h-7 border-amber-300 text-amber-800">
+                    Show Review Tasks
+                  </Button>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <h3 className="font-medium text-emerald-800 dark:text-emerald-300 mb-2">
+                    {currentMood ? `Great to see you're feeling ${currentMood}!` : 'Optimize your study session'}
+                  </h3>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-400 mb-2">
+                    Your calculus scores have improved! Try tackling the advanced practice exam.
+                  </p>
+                  <Button variant="outline" className="text-xs h-7 border-emerald-300 text-emerald-800">
+                    Start Advanced Exam
+                  </Button>
+                </motion.div>
+              )}
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-              <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Subject focus recommendation</h3>
-              <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
-                Physics concepts need attention based on your recent quiz performance.
-              </p>
-              <Button variant="outline" className="text-xs h-7 border-blue-300 text-blue-800">
-                View Physics Resources
-              </Button>
+              <motion.div 
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700"
+                whileHover={{ scale: 1.02 }}
+              >
+                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Subject focus recommendation</h3>
+                <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                  Physics concepts need attention based on your recent quiz performance.
+                </p>
+                <Button variant="outline" className="text-xs h-7 border-blue-300 text-blue-800">
+                  View Physics Resources
+                </Button>
+              </motion.div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 

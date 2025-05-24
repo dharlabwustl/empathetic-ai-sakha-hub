@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,12 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { ConceptCard } from '@/types/user/conceptCard';
 import EnhancedLearnTab from './EnhancedLearnTab';
-import EnhancedDiagramsTab from './EnhancedDiagramsTab';
 import Enhanced3DTab from './Enhanced3DTab';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
+import { motion } from 'framer-motion';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -22,6 +22,11 @@ const ConceptDetailPage = () => {
   const [activeTab, setActiveTab] = useState('learn');
   const [concept, setConcept] = useState<ConceptCard | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  
+  // Global audio controls state
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   // Load bookmark status from localStorage
   useEffect(() => {
@@ -54,6 +59,46 @@ const ConceptDetailPage = () => {
     
     localStorage.setItem('bookmarkedConcepts', JSON.stringify(updatedBookmarks));
     setIsBookmarked(!isBookmarked);
+  };
+
+  // Global audio control functions
+  const handlePlayPause = () => {
+    if (isAudioPlaying) {
+      setIsAudioPlaying(false);
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.pause();
+      }
+    } else {
+      setIsAudioPlaying(true);
+      if (currentAudio) {
+        currentAudio.play();
+      }
+      if ('speechSynthesis' in window && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }
+  };
+
+  const handleReset = () => {
+    setIsAudioPlaying(false);
+    if (currentAudio) {
+      currentAudio.currentTime = 0;
+      currentAudio.pause();
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  const handleAudioToggle = () => {
+    setAudioEnabled(!audioEnabled);
+    if (!audioEnabled) {
+      // If re-enabling audio, stop any current playback
+      handleReset();
+    }
   };
 
   if (!concept) {
@@ -92,6 +137,51 @@ const ConceptDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
+
+          {/* Global Audio Controls */}
+          <motion.div 
+            className="ml-auto flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePlayPause}
+              className="flex items-center gap-2"
+              disabled={!audioEnabled}
+            >
+              {isAudioPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {isAudioPlaying ? 'Pause' : 'Play'}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              disabled={!audioEnabled}
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleAudioToggle}
+              className="flex items-center gap-2"
+            >
+              {audioEnabled ? (
+                <Volume2 className="h-4 w-4" />
+              ) : (
+                <VolumeX className="h-4 w-4" />
+              )}
+            </Button>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -119,7 +209,7 @@ const ConceptDetailPage = () => {
                   </TabsTrigger>
                   <TabsTrigger value="3d" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    3D Lab
+                    3D Interactive Lab
                   </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
@@ -132,13 +222,22 @@ const ConceptDetailPage = () => {
                 </TabsList>
 
                 <TabsContent value="learn" className="mt-0">
-                  <EnhancedLearnTab conceptName={concept.title} />
+                  <EnhancedLearnTab 
+                    conceptName={concept.title} 
+                    isAudioPlaying={isAudioPlaying}
+                    audioEnabled={audioEnabled}
+                    onAudioStateChange={setIsAudioPlaying}
+                  />
                 </TabsContent>
 
                 <TabsContent value="diagrams" className="mt-0">
-                  <EnhancedDiagramsTab 
+                  <Enhanced3DTab 
                     conceptName={concept.title}
                     subject={concept.subject}
+                    mode="diagrams"
+                    isAudioPlaying={isAudioPlaying}
+                    audioEnabled={audioEnabled}
+                    onAudioStateChange={setIsAudioPlaying}
                   />
                 </TabsContent>
 
@@ -146,6 +245,10 @@ const ConceptDetailPage = () => {
                   <Enhanced3DTab 
                     conceptName={concept.title}
                     subject={concept.subject}
+                    mode="3d"
+                    isAudioPlaying={isAudioPlaying}
+                    audioEnabled={audioEnabled}
+                    onAudioStateChange={setIsAudioPlaying}
                   />
                 </TabsContent>
 

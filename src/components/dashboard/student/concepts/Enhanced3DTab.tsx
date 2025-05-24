@@ -1,450 +1,495 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { 
-  Box, Play, Pause, RotateCcw, ZoomIn, ZoomOut, 
-  Move3D, Settings, Download, Share2, Volume2,
-  Atom, FlaskConical, Target, Activity, MessageSquare
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Volume2, 
+  VolumeX, 
+  Maximize, 
+  Settings,
+  Zap,
+  Eye,
+  MousePointer,
+  Move3D,
+  Lightbulb,
+  MessageSquare
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import AITutorDialog from './AITutorDialog';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Enhanced3DTabProps {
   conceptName: string;
   subject: string;
+  mode?: '3d' | 'diagrams';
+  isAudioPlaying?: boolean;
+  audioEnabled?: boolean;
+  onAudioStateChange?: (playing: boolean) => void;
 }
 
-const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ conceptName, subject }) => {
-  const [activeTab, setActiveTab] = useState('simulation');
-  const [selectedModel, setSelectedModel] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [rotationSpeed, setRotationSpeed] = useState([50]);
-  const [forceValue, setForceValue] = useState([20]);
-  const [massValue, setMassValue] = useState([5]);
-  const [isAudioPlaying, setIsAudioPlaying] = useState<string | null>(null);
-  const [isTutorOpen, setIsTutorOpen] = useState(false);
-  const [tutorContext, setTutorContext] = useState('');
+const Enhanced3DTab: React.FC<Enhanced3DTabProps> = ({ 
+  conceptName, 
+  subject, 
+  mode = '3d',
+  isAudioPlaying = false,
+  audioEnabled = true,
+  onAudioStateChange
+}) => {
+  const [localAudioPlaying, setLocalAudioPlaying] = useState(false);
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [selectedVisualization, setSelectedVisualization] = useState(0);
+  const [showAITutor, setShowAITutor] = useState(false);
+  const [parameters, setParameters] = useState({
+    speed: 1,
+    angle: 45,
+    force: 10,
+    mass: 2
+  });
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const subjects = ['Physics', 'Chemistry', 'Biology'];
-  const [activeSubject, setActiveSubject] = useState(subject || 'Physics');
-
-  const models = {
-    Physics: [
-      {
-        id: 'force-vectors',
-        title: 'Force Vector Visualization',
-        description: 'Interactive 3D representation of force vectors and their effects',
-        type: 'Interactive',
-        difficulty: 'Beginner'
-      },
-      {
-        id: 'mass-acceleration',
-        title: 'Mass-Acceleration Relationship',
-        description: 'Visual demonstration of how mass affects acceleration',
-        type: 'Simulation',
-        difficulty: 'Intermediate'
-      }
-    ],
-    Chemistry: [
-      {
-        id: 'molecular-structure',
-        title: 'Molecular Structure',
-        description: '3D visualization of molecular bonds and structures',
-        type: 'Interactive',
-        difficulty: 'Intermediate'
-      },
-      {
-        id: 'reaction-dynamics',
-        title: 'Chemical Reaction Dynamics',
-        description: 'Real-time chemical reaction simulation',
-        type: 'Simulation',
-        difficulty: 'Advanced'
-      }
-    ],
-    Biology: [
-      {
-        id: 'cell-structure',
-        title: 'Cell Structure',
-        description: '3D exploration of cellular components',
-        type: 'Interactive',
-        difficulty: 'Beginner'
-      },
-      {
-        id: 'dna-replication',
-        title: 'DNA Replication',
-        description: 'Step-by-step DNA replication process',
-        type: 'Animation',
-        difficulty: 'Advanced'
-      }
-    ]
-  };
-
-  const playAudioExplanation = (tabName: string, content: string) => {
-    if (isAudioPlaying === tabName) {
-      window.speechSynthesis.cancel();
-      setIsAudioPlaying(null);
+  // Get subject-specific visualizations
+  const getVisualizations = () => {
+    if (mode === 'diagrams') {
+      return [
+        {
+          id: 1,
+          title: 'Force Vector Diagram',
+          description: 'Interactive diagram showing force vectors',
+          duration: 120,
+          audioText: `This force vector diagram illustrates how multiple forces act on an object. The arrows represent force vectors, with their length indicating magnitude and direction showing the force direction.`,
+          hotspots: [
+            { x: 30, y: 40, label: 'Applied Force', info: 'The external force applied to the object' },
+            { x: 70, y: 60, label: 'Normal Force', info: 'The support force perpendicular to the surface' },
+            { x: 50, y: 80, label: 'Weight', info: 'The gravitational force acting downward' }
+          ]
+        },
+        {
+          id: 2,
+          title: 'Free Body Diagram',
+          description: 'Isolated view of forces acting on the object',
+          duration: 90,
+          audioText: `A free body diagram isolates the object and shows all forces acting on it. This helps us analyze the net force and predict motion.`,
+          hotspots: [
+            { x: 50, y: 30, label: 'Tension', info: 'Force transmitted through a rope or cable' },
+            { x: 50, y: 70, label: 'Friction', info: 'Force opposing motion along the surface' }
+          ]
+        },
+        {
+          id: 3,
+          title: 'Motion Analysis',
+          description: 'Visual representation of acceleration and velocity',
+          duration: 150,
+          audioText: `This diagram shows how velocity and acceleration vectors change over time as forces are applied to the object.`,
+          hotspots: [
+            { x: 40, y: 50, label: 'Velocity Vector', info: 'Shows the speed and direction of motion' },
+            { x: 60, y: 50, label: 'Acceleration Vector', info: 'Shows the rate of change of velocity' }
+          ]
+        }
+      ];
     } else {
+      // 3D visualizations
+      return [
+        {
+          id: 1,
+          title: '3D Force Simulation',
+          description: 'Interactive 3D model demonstrating force application',
+          duration: 180,
+          audioText: `In this 3D simulation, we can observe how forces in three dimensions affect object motion. Adjust the parameters to see real-time changes.`,
+          controls: ['Rotate', 'Zoom', 'Pan', 'Reset View']
+        },
+        {
+          id: 2,
+          title: 'Molecular Dynamics',
+          description: 'Atomic-level visualization of molecular forces',
+          duration: 200,
+          audioText: `This molecular dynamics simulation shows how atoms interact through various forces at the microscopic level.`,
+          controls: ['Play/Pause', 'Speed Control', 'Temperature', 'Pressure']
+        },
+        {
+          id: 3,
+          title: 'Electromagnetic Field',
+          description: '3D visualization of electromagnetic interactions',
+          duration: 160,
+          audioText: `Visualize electromagnetic fields in three dimensions and see how charges interact with the field lines.`,
+          controls: ['Field Strength', 'Charge Value', 'View Angle', 'Time Control']
+        }
+      ];
+    }
+  };
+
+  const visualizations = getVisualizations();
+  const currentVisualization = visualizations[selectedVisualization];
+
+  // Audio playback management
+  useEffect(() => {
+    if (isAudioPlaying && audioEnabled) {
+      startAudioExplanation();
+    } else {
+      stopAudioExplanation();
+    }
+  }, [isAudioPlaying, audioEnabled, selectedVisualization]);
+
+  const startAudioExplanation = () => {
+    if (!audioEnabled) return;
+
+    // Stop any existing audio
+    if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      setIsAudioPlaying(tabName);
-      
-      const utterance = new SpeechSynthesisUtterance(content);
-      utterance.rate = 0.9;
-      utterance.volume = 0.8;
-      utterance.onend = () => setIsAudioPlaying(null);
-      window.speechSynthesis.speak(utterance);
     }
+
+    const utterance = new SpeechSynthesisUtterance(currentVisualization.audioText);
+    utterance.rate = 0.9;
+    utterance.volume = 0.8;
+    utterance.onstart = () => {
+      setLocalAudioPlaying(true);
+      startProgressTracking();
+    };
+    utterance.onend = () => {
+      setLocalAudioPlaying(false);
+      onAudioStateChange?.(false);
+      stopProgressTracking();
+    };
+
+    window.speechSynthesis.speak(utterance);
   };
 
-  const openAITutor = (context: string) => {
-    setTutorContext(context);
-    setIsTutorOpen(true);
+  const stopAudioExplanation = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setLocalAudioPlaying(false);
+    stopProgressTracking();
   };
 
-  const getTabContent = (tabName: string) => {
-    const currentModels = models[activeSubject as keyof typeof models] || models.Physics;
+  const startProgressTracking = () => {
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+    }
     
-    switch (tabName) {
-      case 'simulation':
-        return {
-          title: 'Live Simulation',
-          content: `This is a live 3D simulation of ${conceptName} for ${activeSubject}. You can interact with the parameters to see real-time changes in the system behavior and explore the concept in three dimensions.`,
-          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      case 'analysis':
-        return {
-          title: 'Analysis',
-          content: `Detailed 3D analysis for ${conceptName}. This shows how different forces and parameters interact and affect the system in ${activeSubject} using interactive 3D models.`,
-          component: <AnalysisTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      case 'examples':
-        return {
-          title: '3D Examples',
-          content: `Interactive 3D examples demonstrating ${conceptName} concepts in ${activeSubject}. Click and rotate different elements to explore various scenarios and applications.`,
-          component: <Examples3DTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      case 'lab':
-        return {
-          title: 'Virtual Laboratory',
-          content: `Welcome to the 3D virtual laboratory for ${conceptName}. Conduct experiments, manipulate 3D objects, and observe results in a comprehensive three-dimensional environment.`,
-          component: <VirtualLab3DTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
-      default:
-        return {
-          title: 'Live Simulation',
-          content: `This is a live 3D simulation of ${conceptName}.`,
-          component: <LiveSimulationTab conceptName={conceptName} subject={activeSubject} isAudioPlaying={isAudioPlaying} onPlayAudio={playAudioExplanation} onOpenTutor={openAITutor} />
-        };
+    setCurrentProgress(0);
+    const duration = currentVisualization.duration * 1000; // Convert to milliseconds
+    const intervalDuration = 100; // Update every 100ms
+    const increment = (intervalDuration / duration) * 100;
+
+    progressInterval.current = setInterval(() => {
+      setCurrentProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval.current!);
+          return 100;
+        }
+        return prev + increment;
+      });
+    }, intervalDuration);
+  };
+
+  const stopProgressTracking = () => {
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
     }
+  };
+
+  const handleParameterChange = (param: string, value: number) => {
+    setParameters(prev => ({
+      ...prev,
+      [param]: value
+    }));
   };
 
   return (
     <div className="space-y-6">
-      {/* Subject Selector */}
+      {/* Header with Controls */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Atom className="h-5 w-5 text-indigo-600" />
-            3D Subject Selection
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                {mode === 'diagrams' ? (
+                  <Eye className="h-5 w-5 text-blue-600" />
+                ) : (
+                  <Move3D className="h-5 w-5 text-purple-600" />
+                )}
+                {mode === 'diagrams' ? 'Interactive Diagrams' : 'Advanced 3D Interactive Lab'}
+              </CardTitle>
+              <CardDescription>
+                {mode === 'diagrams' 
+                  ? 'Explore interactive diagrams with synchronized audio explanations' 
+                  : 'Experience immersive 3D simulations with real-time parameter control'
+                }
+              </CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAITutor(!showAITutor)}
+              className="flex items-center gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              AI Tutor
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            {subjects.map((subj) => (
-              <Button
-                key={subj}
-                variant={activeSubject === subj ? "default" : "outline"}
-                onClick={() => setActiveSubject(subj)}
-                className="flex items-center gap-2"
+      </Card>
+
+      {/* Visualization Selector */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {visualizations.map((viz, index) => (
+              <motion.div
+                key={viz.id}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                {subj === 'Physics' && <Atom className="h-4 w-4" />}
-                {subj === 'Chemistry' && <FlaskConical className="h-4 w-4" />}
-                {subj === 'Biology' && <Target className="h-4 w-4" />}
-                {subj}
-              </Button>
+                <Card 
+                  className={`cursor-pointer transition-all ${
+                    selectedVisualization === index 
+                      ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950/30' 
+                      : 'hover:shadow-md'
+                  }`}
+                  onClick={() => setSelectedVisualization(index)}
+                >
+                  <CardContent className="p-4">
+                    <h3 className="font-medium mb-2">{viz.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      {viz.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline">
+                        {Math.floor(viz.duration / 60)}:{(viz.duration % 60).toString().padStart(2, '0')}
+                      </Badge>
+                      {selectedVisualization === index && (
+                        <Badge className="bg-blue-500">Active</Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
+
+          {/* Audio Progress */}
+          {(localAudioPlaying || isAudioPlaying) && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                  Audio Explanation Playing
+                </span>
+                <span className="text-xs text-blue-600 dark:text-blue-400">
+                  {Math.floor(currentProgress)}%
+                </span>
+              </div>
+              <Progress value={currentProgress} className="h-2" />
+            </motion.div>
+          )}
         </CardContent>
       </Card>
 
-      {/* 3D Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="simulation">Live Simulation</TabsTrigger>
-          <TabsTrigger value="analysis">Analysis</TabsTrigger>
-          <TabsTrigger value="examples">3D Examples</TabsTrigger>
-          <TabsTrigger value="lab">Virtual Laboratory</TabsTrigger>
-        </TabsList>
-
-        {(['simulation', 'analysis', 'examples', 'lab'] as const).map((tabName) => {
-          const tabContent = getTabContent(tabName);
-          return (
-            <TabsContent key={tabName} value={tabName} className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Move3D className="h-5 w-5 text-indigo-600" />
-                      {tabContent.title}
-                    </CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => playAudioExplanation(tabName, tabContent.content)}
-                        className="flex items-center gap-2"
+      {/* Main Visualization Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Visualization Display */}
+        <div className="lg:col-span-2">
+          <Card className="h-96">
+            <CardContent className="p-0 h-full">
+              <div className="relative h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center">
+                {mode === 'diagrams' ? (
+                  // Diagram View
+                  <div className="relative w-full h-full">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-64 h-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                        <div className="text-center">
+                          <Eye className="h-12 w-12 mx-auto mb-4 text-blue-500" />
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                            {currentVisualization.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-2">
+                            Interactive diagram visualization
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Interactive Hotspots */}
+                    {mode === 'diagrams' && currentVisualization.hotspots?.map((hotspot, index) => (
+                      <motion.div
+                        key={index}
+                        className="absolute w-4 h-4 bg-blue-500 rounded-full cursor-pointer shadow-lg"
+                        style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }}
+                        whileHover={{ scale: 1.5 }}
+                        title={hotspot.info}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: index * 0.2 }}
                       >
-                        {isAudioPlaying === tabName ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Volume2 className="h-4 w-4" />
-                        )}
-                        {isAudioPlaying === tabName ? 'Pause' : 'Play'} Audio
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity whitespace-nowrap">
+                          {hotspot.label}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  // 3D View
+                  <div className="text-center">
+                    <Move3D className="h-16 w-16 mx-auto mb-4 text-purple-500" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                      {currentVisualization.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      3D Interactive Simulation
+                    </p>
+                    <div className="flex justify-center gap-2">
+                      <Button variant="outline" size="sm">
+                        <MousePointer className="h-4 w-4 mr-2" />
+                        Interact
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openAITutor(`3D ${tabContent.title} for ${conceptName} in ${activeSubject}`)}
-                        className="flex items-center gap-2"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        Ask AI Tutor
+                      <Button variant="outline" size="sm">
+                        <Maximize className="h-4 w-4 mr-2" />
+                        Fullscreen
                       </Button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {tabContent.component}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          );
-        })}
-      </Tabs>
-
-      <AITutorDialog
-        isOpen={isTutorOpen}
-        onClose={() => setIsTutorOpen(false)}
-        conceptName={conceptName}
-        context={tutorContext}
-        subject={activeSubject}
-      />
-    </div>
-  );
-};
-
-// Individual Tab Components
-const LiveSimulationTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const [isRunning, setIsRunning] = useState(false);
-  const [speed, setSpeed] = useState([50]);
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 p-6 rounded-lg min-h-[400px] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className={`w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center ${isRunning ? 'animate-spin' : ''}`}>
-            <Atom className="h-16 w-16 text-white" />
-          </div>
-          <h3 className="text-xl font-bold">Live {subject} 3D Simulation</h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Interactive 3D simulation of {conceptName} running in real-time
-          </p>
-        </div>
-      </div>
-      
-      <div className="flex items-center justify-between">
-        <div className="space-y-2 flex-1 mr-4">
-          <label className="text-sm font-medium">Simulation Speed</label>
-          <Slider
-            value={speed}
-            onValueChange={setSpeed}
-            min={1}
-            max={100}
-            step={1}
-            className="w-full"
-          />
-        </div>
-        <Button
-          onClick={() => setIsRunning(!isRunning)}
-          variant={isRunning ? "destructive" : "default"}
-          className="flex items-center gap-2"
-        >
-          {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          {isRunning ? 'Stop' : 'Start'} 3D Simulation
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const AnalysisTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900 p-6 rounded-lg min-h-[400px]">
-        <h3 className="text-xl font-bold mb-4">3D Analysis - {subject}</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">3D Parameters</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>X-Axis Force:</span>
-                <span className="font-mono">25 N</span>
+                )}
               </div>
-              <div className="flex justify-between">
-                <span>Y-Axis Force:</span>
-                <span className="font-mono">15 N</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Z-Axis Force:</span>
-                <span className="font-mono">10 N</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Resultant:</span>
-                <span className="font-mono font-bold">32.4 N</span>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">3D Analysis Results</h4>
-            <div className="space-y-2 text-sm">
-              <p>• Resultant direction: θ = 45°, φ = 30°</p>
-              <p>• System equilibrium: No</p>
-              <p>• 3D acceleration: 8 m/s²</p>
-              <p>• Spatial distribution: Uniform</p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
-    </div>
-  );
-};
 
-const Examples3DTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const examples = [
-    { title: 'Basic 3D Example', description: `Simple ${conceptName} demonstration in 3D space` },
-    { title: 'Complex 3D Scenario', description: `Advanced ${conceptName} scenario with multiple dimensions` },
-    { title: 'Real-world 3D Application', description: `${conceptName} in practical 3D environments` }
-  ];
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950 dark:to-pink-900 p-6 rounded-lg min-h-[400px]">
-        <h3 className="text-xl font-bold mb-4">3D Examples - {subject}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {examples.map((example, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="w-full h-32 bg-gradient-to-br from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 rounded-lg mb-3 flex items-center justify-center">
-                <Box className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h4 className="font-semibold">{example.title}</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{example.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const VirtualLab3DTab: React.FC<{
-  conceptName: string;
-  subject: string;
-  isAudioPlaying: string | null;
-  onPlayAudio: (type: string, content: string) => void;
-  onOpenTutor: (context: string) => void;
-}> = ({ conceptName, subject, isAudioPlaying, onPlayAudio, onOpenTutor }) => {
-  const [experimentRunning, setExperimentRunning] = useState(false);
-  const [labResults, setLabResults] = useState<string[]>([]);
-
-  const startExperiment = () => {
-    setExperimentRunning(true);
-    const newResult = `3D Experiment ${labResults.length + 1}: ${conceptName} test completed at ${new Date().toLocaleTimeString()}`;
-    
-    setTimeout(() => {
-      setLabResults(prev => [...prev, newResult]);
-      setExperimentRunning(false);
-    }, 3000);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900 p-6 rounded-lg min-h-[400px]">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold">Virtual Laboratory - 3D</h3>
-          <Badge variant="outline">{conceptName}</Badge>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h4 className="font-semibold">3D Lab Equipment</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {['3D Measuring Tools', '3D Sensors', '3D Controls', '3D Data Logger'].map((tool, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg text-center">
-                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-orange-600" />
-                  <p className="text-xs">{tool}</p>
-                </div>
-              ))}
-            </div>
-            
-            <Button
-              onClick={startExperiment}
-              disabled={experimentRunning}
-              className="w-full flex items-center gap-2"
-              variant={experimentRunning ? "secondary" : "default"}
-            >
-              {experimentRunning ? (
-                <>
-                  <Activity className="h-4 w-4 animate-spin" />
-                  Running 3D Experiment...
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4" />
-                  Start 3D Experiment
-                </>
-              )}
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="font-semibold">3D Experiment Results</h4>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg min-h-[200px]">
-              {labResults.length === 0 ? (
-                <p className="text-gray-500 text-center">No 3D experiments run yet</p>
-              ) : (
-                <div className="space-y-2">
-                  {labResults.map((result, index) => (
-                    <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                      {result}
+        {/* Controls Panel */}
+        <div className="space-y-4">
+          {/* Parameter Controls for 3D mode */}
+          {mode === '3d' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Simulation Parameters
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Object.entries(parameters).map(([key, value]) => (
+                  <div key={key}>
+                    <div className="flex justify-between mb-2">
+                      <label className="text-sm font-medium capitalize">{key}</label>
+                      <span className="text-sm text-gray-500">{value}</span>
                     </div>
-                  ))}
-                </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="10"
+                      step="0.1"
+                      value={value}
+                      onChange={(e) => handleParameterChange(key, parseFloat(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Interactive Features */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                Interactive Features
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {mode === 'diagrams' ? (
+                <>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Eye className="h-4 w-4 mr-2" />
+                    Zoom & Pan
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <MousePointer className="h-4 w-4 mr-2" />
+                    Hotspot Info
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Lightbulb className="h-4 w-4 mr-2" />
+                    Annotations
+                  </Button>
+                </>
+              ) : (
+                currentVisualization.controls?.map((control, index) => (
+                  <Button key={index} variant="outline" size="sm" className="w-full justify-start">
+                    <Settings className="h-4 w-4 mr-2" />
+                    {control}
+                  </Button>
+                ))
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+
+          {/* Visualization Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Current Visualization</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <h3 className="font-medium mb-2">{currentVisualization.title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {currentVisualization.description}
+              </p>
+              <div className="text-xs text-gray-500">
+                Duration: {Math.floor(currentVisualization.duration / 60)}:{(currentVisualization.duration % 60).toString().padStart(2, '0')}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
+
+      {/* AI Tutor Panel */}
+      <AnimatePresence>
+        {showAITutor && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <Card className="border-2 border-blue-200 dark:border-blue-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                  <MessageSquare className="h-5 w-5" />
+                  AI Tutor - {currentVisualization.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg mb-4">
+                  <p className="text-sm text-blue-800 dark:text-blue-300">
+                    I'm here to help explain this {mode === 'diagrams' ? 'diagram' : '3D simulation'}. 
+                    {mode === 'diagrams' 
+                      ? ' Click on the hotspots to learn about different elements, or ask me specific questions about the forces and interactions shown.'
+                      : ' Adjust the parameters to see how they affect the simulation, and I\'ll explain what\'s happening in real-time.'
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    Explain Current View
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Ask Question
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Show Key Concepts
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
