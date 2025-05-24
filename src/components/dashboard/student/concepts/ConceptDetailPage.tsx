@@ -175,6 +175,7 @@ const ConceptDetailPage = () => {
 
                 <TabsContent value="tools" className="mt-0">
                   <div className="space-y-6">
+                    {/* Quick Recall Test Section */}
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -194,6 +195,7 @@ const ConceptDetailPage = () => {
                       </CardContent>
                     </Card>
 
+                    {/* Other Learning Tools */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card>
                         <CardHeader>
@@ -244,6 +246,7 @@ const ConceptDetailPage = () => {
             </div>
           </div>
 
+          {/* Sidebar */}
           <div className="lg:col-span-1">
             <ConceptSidebar 
               masteryLevel={concept.masteryLevel || 65}

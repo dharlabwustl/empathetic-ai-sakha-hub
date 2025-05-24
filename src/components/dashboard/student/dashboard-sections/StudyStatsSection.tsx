@@ -2,44 +2,67 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Subject, ConceptCard } from '@/types/student/dashboard';
 import { BookOpen, Brain, Check, Clock, FileText } from 'lucide-react';
 
 interface StudyStatsSectionProps {
-  subjects?: any[];
-  conceptCards?: any[];
+  subjects: Subject[];
+  conceptCards: ConceptCard[];
 }
 
-const StudyStatsSection: React.FC<StudyStatsSectionProps> = ({ subjects = [], conceptCards = [] }) => {
-  // Mock data for stats
+const StudyStatsSection: React.FC<StudyStatsSectionProps> = ({ subjects, conceptCards }) => {
+  // Calculate overall statistics
+  const totalConcepts = subjects.reduce((sum, subject) => sum + subject.conceptsTotal, 0);
+  const completedConcepts = subjects.reduce((sum, subject) => sum + subject.conceptsCompleted, 0);
+  const conceptsCompletionPercentage = totalConcepts > 0 ? Math.round((completedConcepts / totalConcepts) * 100) : 0;
+
+  const totalFlashcards = subjects.reduce((sum, subject) => sum + subject.flashcards.total, 0);
+  const completedFlashcards = subjects.reduce((sum, subject) => sum + subject.flashcards.completed, 0);
+  const flashcardsCompletionPercentage = totalFlashcards > 0 ? Math.round((completedFlashcards / totalFlashcards) * 100) : 0;
+
+  // Calculate average scores across subjects
+  const totalQuizScore = subjects.reduce((sum, subject) => sum + subject.quizAverage, 0);
+  const avgQuizScore = subjects.length > 0 ? Math.round(totalQuizScore / subjects.length) : 0;
+
+  const totalFlashcardAccuracy = subjects.reduce((sum, subject) => sum + subject.flashcards.accuracy, 0);
+  const avgFlashcardAccuracy = subjects.length > 0 ? Math.round(totalFlashcardAccuracy / subjects.length) : 0;
+
+  // Calculate total practice tests
+  const totalPracticeTests = subjects.reduce((sum, subject) => sum + subject.practiceTests.total, 0);
+  const completedPracticeTests = subjects.reduce((sum, subject) => sum + subject.practiceTests.completed, 0);
+
+  // Calculate total study time recommended
+  const totalStudyHours = subjects.reduce((sum, subject) => sum + subject.recommendedStudyHours, 0);
+  
   const stats = [
     {
       title: 'Concepts Completed',
-      value: '24 / 40',
-      percentage: 60,
+      value: `${completedConcepts} / ${totalConcepts}`,
+      percentage: conceptsCompletionPercentage,
       icon: <BookOpen className="h-5 w-5 text-blue-500" />,
     },
     {
       title: 'Quiz Average Score',
-      value: '78%',
-      percentage: 78,
+      value: `${avgQuizScore}%`,
+      percentage: avgQuizScore,
       icon: <Brain className="h-5 w-5 text-purple-500" />,
     },
     {
       title: 'Flashcard Recall Accuracy',
-      value: '85%',
-      percentage: 85,
+      value: `${avgFlashcardAccuracy}%`,
+      percentage: avgFlashcardAccuracy,
       icon: <FileText className="h-5 w-5 text-amber-500" />,
     },
     {
       title: 'Practice Tests Completed',
-      value: '12 / 20',
-      percentage: 60,
+      value: `${completedPracticeTests} / ${totalPracticeTests}`,
+      percentage: totalPracticeTests > 0 ? Math.round((completedPracticeTests / totalPracticeTests) * 100) : 0,
       icon: <Check className="h-5 w-5 text-green-500" />,
     },
     {
       title: 'Recommended Daily Study',
-      value: '3.5 hrs',
-      percentage: 70,
+      value: `${totalStudyHours.toFixed(1)} hrs`,
+      percentage: Math.min(100, Math.round((totalStudyHours / 8) * 100)), // 8 hours is considered 100%
       icon: <Clock className="h-5 w-5 text-indigo-500" />,
     }
   ];

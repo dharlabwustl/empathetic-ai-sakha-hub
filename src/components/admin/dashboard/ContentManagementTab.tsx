@@ -17,28 +17,24 @@ import ContentSummaryCards from "./content/ContentSummaryCards";
 import TabContentApprovalQueue from "./content/TabContentApprovalQueue";
 import TabContentStudyMaterials from "./content/TabContentStudyMaterials";
 import TabContentPrompts from "./content/TabContentPrompts";
-import ActionDialog from "@/components/admin/dialogs/ActionDialog";
-import { useActionDialog } from "@/hooks/useActionDialog";
 
 const ContentManagementTab = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("queue");
-  const { dialogState, openDialog, closeDialog } = useActionDialog();
   
   const handleUpload = () => {
-    openDialog('upload', 'Upload Content', {
-      title: '',
-      description: '',
-      category: 'Study Material'
+    toast({
+      title: "Upload Content",
+      description: "Upload panel opened for content files",
+      variant: "default"
     });
   };
   
   const handleCreateContent = () => {
-    openDialog('create', 'Create New Content', {
-      name: '',
-      type: 'Study Material',
-      subject: '',
-      description: ''
+    toast({
+      title: "Create Content",
+      description: "Content creation wizard launched",
+      variant: "default"
     });
   };
   
@@ -121,77 +117,59 @@ const ContentManagementTab = () => {
     });
   };
 
-  const handleSave = (data: any) => {
-    toast({
-      title: "Success",
-      description: `${data.title || data.name} has been saved successfully.`,
-    });
-  };
-
   // This function converts string to ContentType to fix the type mismatch
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
 
   return (
-    <>
-      <div className="space-y-6">
-        <ContentManagementHeader 
-          handleUpload={handleUpload}
-          handleCreateContent={handleCreateContent}
-          handleTagManagement={handleTagManagement}
-          handlePromptTuning={handlePromptTuning}
-          handleContentGeneration={handleTestContentGeneration}
-        />
-        
-        <Card>
-          <CardContent className="pt-6">
-            <ContentSummaryCards handleManageContent={handleManageContent} />
-
-            <Tabs defaultValue="queue" value={activeTab} onValueChange={handleTabChange}>
-              <TabsList className="mb-4 grid w-full grid-cols-3 gap-2">
-                <TabsTrigger value="queue">Approval Queue</TabsTrigger>
-                <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
-                <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
-              </TabsList>
-
-              {/* Approval Queue Tab */}
-              <TabsContent value="queue">
-                <TabContentApprovalQueue handleContentAction={handleContentAction} />
-              </TabsContent>
-
-              {/* Study Materials Tab */}
-              <TabsContent value="studyMaterials">
-                <TabContentStudyMaterials 
-                  handleUpload={handleUpload} 
-                  handleContentAction={handleContentAction} 
-                />
-              </TabsContent>
-
-              {/* GPT Prompt Tuner Tab */}
-              <TabsContent value="prompts">
-                <TabContentPrompts 
-                  handleEditPrompt={handleEditPrompt}
-                  handleManageAllPrompts={handleManageAllPrompts}
-                  handleTestContentGeneration={handleTestContentGeneration}
-                  handleSaveSettings={handleSaveSettings}
-                  handleResetSettings={handleResetSettings}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
-
-      <ActionDialog
-        type={dialogState.type!}
-        title={dialogState.title}
-        data={dialogState.data}
-        isOpen={dialogState.isOpen}
-        onClose={closeDialog}
-        onSave={handleSave}
+    <div className="space-y-6">
+      <ContentManagementHeader 
+        handleUpload={handleUpload}
+        handleCreateContent={handleCreateContent}
+        handleTagManagement={handleTagManagement}
+        handlePromptTuning={handlePromptTuning}
+        handleContentGeneration={handleTestContentGeneration}
       />
-    </>
+      
+      <Card>
+        <CardContent className="pt-6">
+          <ContentSummaryCards handleManageContent={handleManageContent} />
+
+          <Tabs defaultValue="queue" value={activeTab} onValueChange={handleTabChange}>
+            <TabsList className="mb-4 grid w-full grid-cols-3 gap-2">
+              <TabsTrigger value="queue">Approval Queue</TabsTrigger>
+              <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
+              <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
+            </TabsList>
+
+            {/* Approval Queue Tab */}
+            <TabsContent value="queue">
+              <TabContentApprovalQueue handleContentAction={handleContentAction} />
+            </TabsContent>
+
+            {/* Study Materials Tab */}
+            <TabsContent value="studyMaterials">
+              <TabContentStudyMaterials 
+                handleUpload={handleUpload} 
+                handleContentAction={handleContentAction} 
+              />
+            </TabsContent>
+
+            {/* GPT Prompt Tuner Tab */}
+            <TabsContent value="prompts">
+              <TabContentPrompts 
+                handleEditPrompt={handleEditPrompt}
+                handleManageAllPrompts={handleManageAllPrompts}
+                handleTestContentGeneration={handleTestContentGeneration}
+                handleSaveSettings={handleSaveSettings}
+                handleResetSettings={handleResetSettings}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

@@ -1,85 +1,48 @@
 
-export interface StudyPlanTopic {
+// Study Plan Types
+export interface StudyPlan {
   id: string;
-  name: string;
-  completed: boolean;
-  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  priority?: 'high' | 'medium' | 'low';
-  difficulty?: 'easy' | 'medium' | 'hard';
+  title: string;
+  description: string;
+  subjects: StudyPlanSubject[];
+  startDate: string;
+  endDate: string;
+  targetExam: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  estimatedHours: number;
+  status: 'active' | 'completed' | 'paused';
+  progress: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StudyPlanSubject {
   id: string;
   name: string;
   topics: string[];
-  hours: number;
-  difficulty: 'easy' | 'medium' | 'hard';
-  priority: 'low' | 'medium' | 'high';
-  progress: number;
-  completed: boolean;
-  color?: string;
-  proficiency?: 'weak' | 'medium' | 'strong';
-  hoursPerWeek?: number;
-  isWeakSubject?: boolean;
-  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-}
-
-export interface StudyPlan {
-  id: string;
-  name: string;
-  description: string;
-  subjects: StudyPlanSubject[];
-  startDate: string;
-  endDate: string;
-  totalHours: number;
+  allocatedHours: number;
   completedHours: number;
   progress: number;
-  status: 'active' | 'completed' | 'paused';
-  createdAt: string;
-  updatedAt: string;
-  isCustom: boolean;
-  examType?: string;
-  examGoal: string;
-  examDate: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  studyHoursPerDay?: number;
-  weeklyHours?: number;
-  progressPercent?: number;
-  progressPercentage?: number;
-  daysLeft?: number;
-  userId?: string;
-  title?: string;
-  goal?: string;
+  priority: 'high' | 'medium' | 'low';
+  resources: StudyResource[];
+}
+
+export interface StudyResource {
+  id: string;
+  title: string;
+  type: 'video' | 'pdf' | 'practice' | 'concept';
+  url: string;
+  duration?: number;
+  completed: boolean;
 }
 
 export interface NewStudyPlan {
-  name: string;
+  title: string;
   description: string;
-  subjects: Omit<StudyPlanSubject, 'id' | 'progress' | 'completed'>[];
+  targetExam: string;
+  subjects: string[];
   startDate: string;
   endDate: string;
-  examType?: string;
-  examGoal: string;
-  examDate: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  studyHoursPerDay?: number;
-  weeklyHours?: number;
-  status: 'active' | 'completed' | 'paused';
-  title?: string;
-  goal?: string;
-}
-
-export interface StudySession {
-  id: string;
-  studyPlanId: string;
-  subjectId: string;
-  topic: string;
-  duration: number;
-  completedAt: string;
-  efficiency: number;
-  notes?: string;
+  studyHoursPerDay: number;
 }

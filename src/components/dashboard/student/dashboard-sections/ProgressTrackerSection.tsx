@@ -3,51 +3,15 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from '@/components/ui/progress';
+import { ProgressSnapshot, ProgressTracker } from '@/types/student/dashboard';
 import { BookOpen, Calendar, Check, FileText, TrendingUp } from 'lucide-react';
 
-interface ProgressSnapshot {
-  conceptsDone: number;
-  flashcardsDone: number;
-  testsTaken: number;
-  completionPercentage: number;
-}
-
-interface ProgressTracker {
-  daily: ProgressSnapshot;
-  weekly: ProgressSnapshot;
-  monthly: ProgressSnapshot;
-}
-
 interface ProgressTrackerSectionProps {
-  progressTracker?: ProgressTracker;
+  progressTracker: ProgressTracker;
 }
 
 const ProgressTrackerSection: React.FC<ProgressTrackerSectionProps> = ({ progressTracker }) => {
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  
-  // Mock data if not provided
-  const defaultProgressTracker: ProgressTracker = {
-    daily: {
-      conceptsDone: 3,
-      flashcardsDone: 15,
-      testsTaken: 1,
-      completionPercentage: 75
-    },
-    weekly: {
-      conceptsDone: 18,
-      flashcardsDone: 95,
-      testsTaken: 5,
-      completionPercentage: 68
-    },
-    monthly: {
-      conceptsDone: 72,
-      flashcardsDone: 380,
-      testsTaken: 20,
-      completionPercentage: 82
-    }
-  };
-
-  const tracker = progressTracker || defaultProgressTracker;
   
   const renderProgressSnapshot = (snapshot: ProgressSnapshot, timeframe: string) => {
     const progressItems = [
@@ -118,13 +82,13 @@ const ProgressTrackerSection: React.FC<ProgressTrackerSectionProps> = ({ progres
             <TabsTrigger value="monthly">Monthly</TabsTrigger>
           </TabsList>
           <TabsContent value="daily">
-            {renderProgressSnapshot(tracker.daily, 'Daily')}
+            {renderProgressSnapshot(progressTracker.daily, 'Daily')}
           </TabsContent>
           <TabsContent value="weekly">
-            {renderProgressSnapshot(tracker.weekly, 'Weekly')}
+            {renderProgressSnapshot(progressTracker.weekly, 'Weekly')}
           </TabsContent>
           <TabsContent value="monthly">
-            {renderProgressSnapshot(tracker.monthly, 'Monthly')}
+            {renderProgressSnapshot(progressTracker.monthly, 'Monthly')}
           </TabsContent>
         </Tabs>
       </CardContent>
