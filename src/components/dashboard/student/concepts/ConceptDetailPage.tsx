@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -8,8 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { ConceptCard } from '@/types/user/conceptCard';
 import EnhancedLearnTab from './EnhancedLearnTab';
-import InteractiveVisualizationsTab from './InteractiveVisualizationsTab';
-import Enhanced3DLabTab from './Enhanced3DLabTab';
+import Visual3DContent from './Visual3DContent';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
@@ -136,11 +136,41 @@ const ConceptDetailPage = () => {
                 </TabsContent>
 
                 <TabsContent value="interactive" className="mt-0">
-                  <InteractiveVisualizationsTab conceptName={concept.title} />
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Eye className="h-5 w-5 text-purple-600" />
+                        Interactive Visualizations with Audio
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-purple-50 dark:bg-purple-950/30 p-6 rounded-lg">
+                        <p className="text-center text-gray-600 dark:text-gray-400">
+                          Interactive visualizations with audio explanations for {concept.title} will be loaded here.
+                        </p>
+                        <div className="mt-4 text-center">
+                          <Button 
+                            onClick={() => {
+                              const audioExplanation = `This interactive visualization shows ${concept.title}. Click on different elements to explore the concept in detail.`;
+                              if ('speechSynthesis' in window) {
+                                const utterance = new SpeechSynthesisUtterance(audioExplanation);
+                                utterance.rate = 0.9;
+                                window.speechSynthesis.speak(utterance);
+                              }
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Video className="h-4 w-4" />
+                            Play Audio Explanation
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
 
                 <TabsContent value="3d" className="mt-0">
-                  <Enhanced3DLabTab conceptName={concept.title} subject={concept.subject} />
+                  <Visual3DContent conceptName={concept.title} />
                 </TabsContent>
 
                 <TabsContent value="tools" className="mt-0">

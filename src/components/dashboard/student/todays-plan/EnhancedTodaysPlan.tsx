@@ -10,7 +10,7 @@ import { MoodSelector } from '@/components/dashboard/student/MoodSelector';
 import { 
   Calendar, Clock, BookOpen, Brain, FileText, Target, 
   Play, Pause, CheckCircle, Star, TrendingUp, Zap,
-  Volume2, Settings, Award, Users, Lightbulb, AlertTriangle
+  Volume2, Settings, Award, Users
 } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -183,102 +183,67 @@ const EnhancedTodaysPlan: React.FC = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="absolute inset-0 bg-black/10"></div>
-          <div className="absolute top-4 right-4">
-            <motion.div
-              animate={{ 
-                rotate: 360,
-                scale: [1, 1.2, 1]
-              }}
-              transition={{ 
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "loop"
-              }}
-            >
-              <Star className="h-8 w-8 text-white/60" />
-            </motion.div>
-          </div>
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <motion.h1 
-                  className="text-3xl font-bold mb-2"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  Today's Learning Adventure
-                </motion.h1>
-                <motion.p 
-                  className="text-white/90 text-lg"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
+                <h1 className="text-3xl font-bold mb-2">Today's Learning Adventure</h1>
+                <p className="text-white/90 text-lg">
                   {new Date().toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric' 
                   })}
-                </motion.p>
+                </p>
               </div>
-              <motion.div 
-                className="flex items-center gap-4"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-              >
+              <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <div className="text-3xl font-bold">{completionPercentage}%</div>
+                  <div className="text-2xl font-bold">{completionPercentage}%</div>
                   <div className="text-sm text-white/80">Complete</div>
                 </div>
-                <motion.div
-                  animate={{ rotate: completionPercentage * 3.6 }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                  className="relative w-16 h-16"
-                >
-                  <div className="w-16 h-16 rounded-full border-4 border-white/30"></div>
-                  <div 
-                    className="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-white border-r-transparent transform -rotate-90"
-                    style={{ 
-                      background: `conic-gradient(from 0deg, white ${completionPercentage * 3.6}deg, transparent ${completionPercentage * 3.6}deg)`
-                    }}
-                  ></div>
-                </motion.div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Progress Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              {[
-                { icon: Target, value: `${completedTasks}/${totalTasks}`, label: 'Tasks Done', delay: 0.1 },
-                { icon: Clock, value: `${totalTimeRemaining}m`, label: 'Remaining', delay: 0.2 },
-                { icon: Zap, value: '7', label: 'Day Streak', delay: 0.3 },
-                { icon: TrendingUp, value: '85%', label: 'Readiness', delay: 0.4 }
-              ].map(({ icon: Icon, value, label, delay }, index) => (
-                <motion.div 
-                  key={index}
-                  className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 + delay }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                >
-                  <Icon className="h-6 w-6 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{value}</div>
-                  <div className="text-sm text-white/80">{label}</div>
-                </motion.div>
-              ))}
+              <motion.div 
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Target className="h-6 w-6 mx-auto mb-2" />
+                <div className="text-2xl font-bold">{completedTasks}/{totalTasks}</div>
+                <div className="text-sm text-white/80">Tasks Done</div>
+              </motion.div>
+              
+              <motion.div 
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Clock className="h-6 w-6 mx-auto mb-2" />
+                <div className="text-2xl font-bold">{totalTimeRemaining}m</div>
+                <div className="text-sm text-white/80">Remaining</div>
+              </motion.div>
+              
+              <motion.div 
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Zap className="h-6 w-6 mx-auto mb-2" />
+                <div className="text-2xl font-bold">7</div>
+                <div className="text-sm text-white/80">Day Streak</div>
+              </motion.div>
+              
+              <motion.div 
+                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center"
+                whileHover={{ scale: 1.05 }}
+              >
+                <TrendingUp className="h-6 w-6 mx-auto mb-2" />
+                <div className="text-2xl font-bold">85%</div>
+                <div className="text-sm text-white/80">Readiness</div>
+              </motion.div>
             </div>
 
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1, delay: 1 }}
-            >
-              <Progress value={completionPercentage} className="h-3 bg-white/20" />
-            </motion.div>
+            <Progress value={completionPercentage} className="h-3 bg-white/20" />
           </div>
         </motion.div>
 
@@ -288,7 +253,7 @@ const EnhancedTodaysPlan: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Card className={`border-2 border-${theme.accent}/20 bg-gradient-to-r from-${theme.bg}/30 to-white/50`}>
+          <Card className={`border-2 border-${theme.accent}/20 bg-${theme.bg}/30`}>
             <CardHeader>
               <CardTitle className={`text-${theme.text} flex items-center gap-2`}>
                 <Star className="h-5 w-5" />
@@ -312,26 +277,16 @@ const EnhancedTodaysPlan: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          {['all', 'pending', 'completed', 'concept', 'flashcard', 'quiz'].map((tab, index) => (
-            <motion.div
+          {['all', 'pending', 'completed', 'concept', 'flashcard', 'quiz'].map((tab) => (
+            <Button
               key={tab}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 + index * 0.1 }}
+              variant={currentTab === tab ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentTab(tab)}
+              className={`capitalize ${currentTab === tab ? `bg-${theme.accent} text-white` : ''}`}
             >
-              <Button
-                variant={currentTab === tab ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentTab(tab)}
-                className={`capitalize transition-all ${
-                  currentTab === tab 
-                    ? `bg-gradient-to-r from-${theme.accent} to-${theme.accent}/80 text-white shadow-lg` 
-                    : 'hover:shadow-md'
-                }`}
-              >
-                {tab}
-              </Button>
-            </motion.div>
+              {tab}
+            </Button>
           ))}
         </motion.div>
 
@@ -350,46 +305,34 @@ const EnhancedTodaysPlan: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -8, scale: 1.02 }}
+                whileHover={{ y: -5, scale: 1.02 }}
                 className="cursor-pointer"
                 onClick={() => handleTaskClick(task)}
               >
                 <Card className={`overflow-hidden border-l-4 border-l-${
                   task.priority === 'high' ? 'red-500' : 
                   task.priority === 'medium' ? 'amber-500' : 'blue-500'
-                } hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 group`}>
+                } hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50`}>
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2">
-                        <motion.div 
-                          className={`p-2 rounded-lg bg-gradient-to-r from-${theme.accent}/10 to-${theme.accent}/20`}
-                          whileHover={{ rotate: 5, scale: 1.1 }}
-                        >
+                        <div className={`p-2 rounded-lg bg-${theme.accent}/10`}>
                           {getTaskIcon(task.type)}
-                        </motion.div>
+                        </div>
                         <div>
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs bg-gradient-to-r from-${theme.bg} to-white`}
-                          >
+                          <Badge variant="outline" className="text-xs">
                             {task.subject}
                           </Badge>
                         </div>
                       </div>
                       {task.status === 'completed' && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                        >
-                          <CheckCircle className="h-5 w-5 text-green-500" />
-                        </motion.div>
+                        <CheckCircle className="h-5 w-5 text-green-500" />
                       )}
                     </div>
                   </CardHeader>
                   
                   <CardContent>
-                    <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2">
                       {task.title}
                     </h3>
                     
@@ -399,9 +342,9 @@ const EnhancedTodaysPlan: React.FC = () => {
                       <Badge 
                         variant="outline" 
                         className={`text-xs ${
-                          task.difficulty === 'hard' ? 'border-red-200 text-red-700 bg-red-50' :
-                          task.difficulty === 'medium' ? 'border-amber-200 text-amber-700 bg-amber-50' :
-                          'border-green-200 text-green-700 bg-green-50'
+                          task.difficulty === 'hard' ? 'border-red-200 text-red-700' :
+                          task.difficulty === 'medium' ? 'border-amber-200 text-amber-700' :
+                          'border-green-200 text-green-700'
                         }`}
                       >
                         {task.difficulty}
@@ -409,50 +352,30 @@ const EnhancedTodaysPlan: React.FC = () => {
                     </div>
 
                     {task.smartTip && (
-                      <motion.div 
-                        className={`p-3 bg-gradient-to-r from-${theme.bg}/50 to-${theme.bg}/30 rounded-lg text-sm text-${theme.text} mb-3 border border-${theme.accent}/20`}
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        transition={{ delay: 0.5 + index * 0.1 }}
-                      >
-                        <div className="flex items-start gap-2">
-                          <Lightbulb className="h-4 w-4 mt-0.5 text-amber-500 flex-shrink-0" />
-                          <span>{task.smartTip}</span>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {task.isBacklog && (
-                      <div className="flex items-center gap-2 text-amber-600 mb-3">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span className="text-xs">Backlog Task</span>
+                      <div className={`p-3 bg-${theme.bg}/50 rounded-lg text-sm text-${theme.text} mb-3`}>
+                        💡 {task.smartTip}
                       </div>
                     )}
 
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <Button 
+                      className={`w-full bg-gradient-to-r from-${theme.accent} to-${theme.accent}/80 hover:from-${theme.accent}/90 hover:to-${theme.accent}/70`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTaskClick(task);
+                      }}
                     >
-                      <Button 
-                        className={`w-full bg-gradient-to-r from-${theme.accent} to-${theme.accent}/80 hover:from-${theme.accent}/90 hover:to-${theme.accent}/70 shadow-lg hover:shadow-xl transition-all`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTaskClick(task);
-                        }}
-                      >
-                        {task.status === 'completed' ? (
-                          <>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Review
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4 mr-2" />
-                            Start Learning
-                          </>
-                        )}
-                      </Button>
-                    </motion.div>
+                      {task.status === 'completed' ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Review
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 mr-2" />
+                          Start Learning
+                        </>
+                      )}
+                    </Button>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -466,10 +389,10 @@ const EnhancedTodaysPlan: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Volume2 className="h-5 w-5 text-blue-600" />
+                <Volume2 className="h-5 w-5" />
                 Audio Learning Controls
               </CardTitle>
             </CardHeader>
@@ -478,12 +401,12 @@ const EnhancedTodaysPlan: React.FC = () => {
                 <Button
                   variant={isAudioPlaying ? "destructive" : "default"}
                   onClick={() => setIsAudioPlaying(!isAudioPlaying)}
-                  className="flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
+                  className="flex items-center gap-2"
                 >
                   {isAudioPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   {isAudioPlaying ? 'Pause' : 'Play'} Study Guide
                 </Button>
-                <Button variant="outline" size="sm" className="shadow-sm hover:shadow-md">
+                <Button variant="outline" size="sm">
                   <Settings className="h-4 w-4 mr-2" />
                   Audio Settings
                 </Button>
