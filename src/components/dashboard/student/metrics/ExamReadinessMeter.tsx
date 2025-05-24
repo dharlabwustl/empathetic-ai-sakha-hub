@@ -151,7 +151,7 @@ const ExamReadinessMeter: React.FC<ExamReadinessProps> = ({
             </div>
           )}
           
-          {/* Smart Suggestions Section - replaces Tips to Improve */}
+          {/* Smart Suggestions Section */}
           <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
             <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
               <Brain className="h-3 w-3" /> Smart Suggestions
