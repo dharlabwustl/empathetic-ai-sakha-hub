@@ -22,8 +22,6 @@ export const API_ENDPOINTS = {
     SYSTEM_LOGS: '/admin/logs',
     SETTINGS: '/admin/settings',
     NOTIFICATIONS: '/admin/notifications',
-    EXAMS: '/admin/exams',
-    QUESTIONS: '/admin/questions',
     STUDY_HABITS: {
       SETTINGS: '/admin/study-habits/settings',
       ANALYTICS: '/admin/study-habits/analytics',
@@ -48,19 +46,14 @@ export const API_ENDPOINTS = {
     MOOD_LOGS: (studentId: string) => `/students/${studentId}/mood-logs`,
     DOUBTS: (studentId: string) => `/students/${studentId}/doubts`,
     STUDY_SESSIONS: (studentId: string) => `/students/${studentId}/study-sessions`,
-    STUDY_HABITS: (studentId: string) => `/students/${studentId}/study-habits`,
-    EXAM_PROGRESS: (studentId: string) => `/students/${studentId}/exam-progress`,
-    READINESS_TESTS: (studentId: string) => `/students/${studentId}/readiness-tests`
+    STUDY_HABITS: (studentId: string) => `/students/${studentId}/study-habits`
   },
   CONTENT: {
     CONCEPTS: '/content/concepts',
     FLASHCARDS: '/content/flashcards',
     QUESTIONS: '/content/questions',
     EXAMS: '/content/exams',
-    FEEL_GOOD: '/content/feel-good',
-    INTERACTIVE: '/content/interactive',
-    FORMULA_CARDS: '/content/formula-cards',
-    CONCEPT_CARDS: '/content/concept-cards'
+    FEEL_GOOD: '/content/feel-good'
   },
   AI: {
     PERSONALIZE: '/ai/personalize',
@@ -69,14 +62,7 @@ export const API_ENDPOINTS = {
     DOUBT_RESPONSE: '/ai/doubt-response',
     TUTOR_CHAT: '/ai/tutor-chat',
     MOOD_SUGGESTIONS: '/ai/mood-suggestions',
-    TIME_SAVED_ANALYSIS: '/ai/time-saved-analysis',
-    EXAM_RECOMMENDATIONS: '/ai/exam-recommendations'
-  },
-  DATABASE: {
-    SCHEMA: '/database/schema',
-    SYNC: '/database/sync',
-    EXPORT: '/database/export',
-    HEALTH: '/database/health'
+    TIME_SAVED_ANALYSIS: '/ai/time-saved-analysis'
   }
 };
 

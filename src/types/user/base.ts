@@ -38,19 +38,19 @@ export enum StudyPreferenceType {
 }
 
 export enum MoodType {
-  Happy = 'Happy',
-  Sad = 'Sad',
-  Anxious = 'Anxious',
-  Excited = 'Excited',
-  Tired = 'Tired',
-  Stressed = 'Stressed',
-  Motivated = 'Motivated',
-  Focused = 'Focused',
-  Confused = 'Confused',
-  Overwhelmed = 'Overwhelmed',
-  Neutral = 'Neutral',
-  Okay = 'Okay',
-  Curious = 'Curious'
+  Happy = 'happy',
+  Motivated = 'motivated',
+  Focused = 'focused',
+  Tired = 'tired',
+  Anxious = 'anxious',
+  Neutral = 'neutral',
+  Stressed = 'stressed',
+  Sad = 'sad',
+  Calm = 'calm',
+  Confused = 'confused',
+  Overwhelmed = 'overwhelmed',
+  Okay = 'okay',
+  Curious = 'curious'
 }
 
 export const SubscriptionType = {
