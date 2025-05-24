@@ -1,3 +1,4 @@
+
 export enum UserRole {
   Student = 'student',
   Teacher = 'teacher',
@@ -85,6 +86,8 @@ export interface UserProfileBase {
   subscription?: Subscription;
   studyStreak?: number;
   goals?: Goal[];
+  studyPreferences?: StudyPreferences;
+  subjects?: string[];
 }
 
 export interface Goal {
@@ -165,4 +168,11 @@ export interface UserProfileType extends UserProfileBase {
 // Add User interface for compatibility
 export interface User extends UserProfileBase {
   subscription?: Subscription;
+}
+
+// Add LanguageOption interface for VoiceTestPanel
+export interface LanguageOption {
+  value: string;
+  label: string;
+  flag: string;
 }

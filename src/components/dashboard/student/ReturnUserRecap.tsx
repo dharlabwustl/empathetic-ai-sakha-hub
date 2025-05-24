@@ -1,14 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Clock, X, Globe } from 'lucide-react';
+import { X, Clock, Target } from 'lucide-react';
 
 interface ReturnUserRecapProps {
-  userName: string;
+  userName?: string;
   lastLoginDate: string;
   suggestedNextTasks?: string[];
-  onClose?: () => void;
+  onClose: () => void;
   loginCount?: number;
 }
 
@@ -17,71 +17,47 @@ const ReturnUserRecap: React.FC<ReturnUserRecapProps> = ({
   lastLoginDate,
   suggestedNextTasks = [],
   onClose,
-  loginCount = 0
+  loginCount
 }) => {
-  const [isVisible, setIsVisible] = useState(true);
-
-  const handleClose = () => {
-    setIsVisible(false);
-    if (onClose) onClose();
-  };
-
-  if (!isVisible) {
-    return null;
-  }
-
   return (
-    <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 border-blue-100 dark:border-blue-900/30 mb-6 overflow-hidden">
-      <CardContent className="p-4 sm:p-6 relative">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full"
-          onClick={handleClose}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-
-        <div>
-          <h2 className="text-xl font-bold text-blue-900 dark:text-blue-400">
-            Welcome back, {userName}!
-          </h2>
-          
-          <div className="flex items-center mt-1 mb-3 text-sm text-blue-600 dark:text-blue-300">
-            <Clock className="h-4 w-4 mr-1" />
-            <span>Last seen: {lastLoginDate}</span>
-          </div>
-          
-          <div className="mb-3 py-2 px-3 bg-blue-100 dark:bg-blue-800/40 rounded-md text-sm flex items-start">
-            <Globe className="h-4 w-4 text-blue-700 dark:text-blue-300 mt-0.5 mr-2 flex-shrink-0" />
-            <p className="text-blue-700 dark:text-blue-300">
-              We support UN Sustainability goals - inclusive and equitable quality education and promote lifelong learning opportunities for all.
+    <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="h-4 w-4 text-purple-600" />
+              <h3 className="font-medium">Welcome back, {userName}!</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              You last visited {lastLoginDate}. Ready to continue your learning journey?
             </p>
+            
+            {suggestedNextTasks.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium">Suggested next steps:</span>
+                </div>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  {suggestedNextTasks.map((task, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                      {task}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-
-          {loginCount > 0 && loginCount % 5 === 0 && (
-            <div className="mb-3 py-2 px-3 bg-blue-100 dark:bg-blue-800/40 rounded-md text-sm">
-              <p className="text-blue-700 dark:text-blue-300 font-medium">
-                🎉 You've logged in {loginCount} times! Keep up the amazing work.
-              </p>
-            </div>
-          )}
-
-          {suggestedNextTasks?.length > 0 && (
-            <div className="mt-3">
-              <p className="text-sm font-medium text-blue-900 dark:text-blue-400">
-                Suggested next steps:
-              </p>
-              <ul className="mt-1 space-y-1">
-                {suggestedNextTasks.map((task, i) => (
-                  <li key={i} className="flex items-center text-sm">
-                    <ArrowRight className="h-3 w-3 mr-1 text-blue-500" />
-                    <span className="text-blue-700 dark:text-blue-300">{task}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       </CardContent>
     </Card>
