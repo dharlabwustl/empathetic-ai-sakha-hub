@@ -114,6 +114,16 @@ const ExamReadinessMeter: React.FC<ExamReadinessProps> = ({
             <Progress value={score} className={`h-2 ${getColorByScore(score)}`} />
           </div>
           
+          {/* Action Buttons placed below progress meter */}
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="flex-1 text-xs">
+              Switch Exam
+            </Button>
+            <Button size="sm" variant="outline" className="flex-1 text-xs">
+              Generate New Plan
+            </Button>
+          </div>
+          
           {weeklyTrend.length > 0 && (
             <div className="pt-2">
               <h4 className="text-sm font-medium mb-2">Weekly Progress</h4>
@@ -140,16 +150,6 @@ const ExamReadinessMeter: React.FC<ExamReadinessProps> = ({
               </div>
             </div>
           )}
-          
-          {/* Action Buttons placed below progress meter */}
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1 text-xs">
-              Switch Exam
-            </Button>
-            <Button size="sm" variant="outline" className="flex-1 text-xs">
-              Generate New Plan
-            </Button>
-          </div>
           
           {/* Smart Suggestions Section - replaces Tips to Improve */}
           <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
