@@ -1,3 +1,4 @@
+
 export interface StudyPlan {
   id: string;
   userId: string;
@@ -10,6 +11,7 @@ export interface StudyPlan {
   subjects: StudyPlanSubject[];
   createdAt: Date;
   updatedAt: Date;
+  status?: 'active' | 'completed' | 'paused';
 }
 
 export interface StudyPlanSubject {
@@ -20,10 +22,8 @@ export interface StudyPlanSubject {
   estimatedHours: number;
   completed: boolean;
   progress: number;
+  status?: 'not_started' | 'in_progress' | 'completed';
 }
-
-// Remove NewStudyPlanSubject if it exists and use StudyPlanSubject instead
-export type { StudyPlanSubject as NewStudyPlanSubject };
 
 export interface StudySession {
   id: string;
