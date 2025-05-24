@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -15,9 +14,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { DialogType } from '@/hooks/useActionDialog';
 
 interface ActionDialogProps {
-  type: 'view' | 'edit' | 'settings' | 'delete' | 'approve' | 'reject' | 'add' | 'create' | 'upload' | 'batch-create' | 'ai-settings' | 'content-upload';
+  type: DialogType;
   title: string;
   data: any;
   isOpen: boolean;
@@ -52,7 +52,7 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
   };
 
   const renderViewContent = () => (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div className="space-y-4">
       {Object.entries(data || {}).map(([key, value]) => (
         <div key={key} className="grid grid-cols-3 gap-4">
           <Label className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
@@ -73,7 +73,7 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
   );
 
   const renderUserFormContent = () => (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div className="space-y-4">
       <div>
         <Label htmlFor="name">Full Name *</Label>
         <Input
@@ -94,12 +94,12 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
         />
       </div>
       <div>
-        <Label htmlFor="phoneNumber">Phone Number</Label>
+        <Label htmlFor="phone">Phone Number</Label>
         <Input
-          id="phoneNumber"
+          id="phone"
           type="tel"
-          value={formData.phoneNumber || ''}
-          onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+          value={formData.phone || ''}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           placeholder="Enter phone number"
         />
       </div>
@@ -117,15 +117,6 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
             <SelectItem value="UPSC">UPSC</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-      <div>
-        <Label htmlFor="subjects">Subjects</Label>
-        <Input
-          id="subjects"
-          value={formData.subjects || ''}
-          onChange={(e) => setFormData({ ...formData, subjects: e.target.value })}
-          placeholder="Enter subjects (comma separated)"
-        />
       </div>
       <div>
         <Label htmlFor="role">Role</Label>
@@ -152,7 +143,7 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
   );
 
   const renderBatchFormContent = () => (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div className="space-y-4">
       <div>
         <Label htmlFor="batchName">Batch Name *</Label>
         <Input
@@ -213,7 +204,7 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
   );
 
   const renderContentUploadForm = () => (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div className="space-y-4">
       <div>
         <Label htmlFor="title">Content Title *</Label>
         <Input
@@ -318,20 +309,11 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
           placeholder="Enter content description"
         />
       </div>
-      <div>
-        <Label htmlFor="file">Upload File</Label>
-        <Input
-          id="file"
-          type="file"
-          onChange={(e) => setFormData({ ...formData, file: e.target.files?.[0] })}
-          accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mov"
-        />
-      </div>
     </div>
   );
 
   const renderAISettingsForm = () => (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div className="space-y-4">
       <div>
         <Label htmlFor="modelName">AI Model Name</Label>
         <Select value={formData.modelName || ''} onValueChange={(value) => setFormData({ ...formData, modelName: value })}>
@@ -515,11 +497,11 @@ const ActionDialog: React.FC<ActionDialogProps> = ({
             <Button variant="destructive" onClick={handleConfirm}>
               Delete
             </Button>
-          ) : type !== 'view' ? (
+          ) : (
             <Button onClick={handleSave}>
-              {type === 'add' || type === 'create' || type === 'batch-create' ? 'Create' : 'Save Changes'}
+              Save Changes
             </Button>
-          ) : null}
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,10 +15,12 @@ import Security from './Security';
 import StudentProfilesTab from './StudentProfilesTab';
 import AIModelsTab from './AIModelsTab';
 import ExamManagementTab from './ExamManagementTab';
-import FeatureManagementTab from './FeatureManagementTab';
 import RevenueAnalyticsTab from './RevenueAnalyticsTab';
 import APIManagementTab from './APIManagementTab';
 import SystemSettingsTab from './SystemSettingsTab';
+
+// Import new unified features management
+import UnifiedFeaturesManagementTab from './UnifiedFeaturesManagementTab';
 
 // Import new tabs
 import MoodAnalyticsTab from './tabs/MoodAnalyticsTab';
@@ -94,10 +97,6 @@ const DashboardTabs: React.FC = () => {
         <StudentDataSyncTab />
       </TabsContent>
 
-      <TabsContent value="feature-audit" className="space-y-4 mt-4">
-        <FeatureAuditTab />
-      </TabsContent>
-
       <TabsContent value="mood-analytics" className="space-y-4 mt-4">
         <MoodAnalyticsTab />
       </TabsContent>
@@ -154,8 +153,13 @@ const DashboardTabs: React.FC = () => {
         <EnhancedSubscriptionPlans />
       </TabsContent>
 
+      {/* Unified Features Management - replaces individual feature tabs */}
       <TabsContent value="features" className="space-y-4 mt-4">
-        <FeatureManagementTab />
+        <UnifiedFeaturesManagementTab />
+      </TabsContent>
+
+      <TabsContent value="feature-audit" className="space-y-4 mt-4">
+        <FeatureAuditTab />
       </TabsContent>
 
       <TabsContent value="revenue" className="space-y-4 mt-4">

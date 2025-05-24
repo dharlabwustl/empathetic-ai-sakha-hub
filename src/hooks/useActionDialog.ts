@@ -1,36 +1,38 @@
 
 import { useState } from 'react';
 
+export type DialogType = 'view' | 'edit' | 'settings' | 'delete' | 'approve' | 'reject' | 'add' | 'create' | 'upload' | 'batch-create' | 'ai-settings' | 'content-upload';
+
 interface DialogState {
-  type: 'view' | 'edit' | 'settings' | 'delete' | 'approve' | 'reject' | 'add' | 'create' | 'upload' | null;
+  isOpen: boolean;
+  type: DialogType | null;
   title: string;
   data: any;
-  isOpen: boolean;
 }
 
 export const useActionDialog = () => {
   const [dialogState, setDialogState] = useState<DialogState>({
+    isOpen: false,
     type: null,
     title: '',
-    data: null,
-    isOpen: false
+    data: null
   });
 
-  const openDialog = (type: DialogState['type'], title: string, data: any) => {
+  const openDialog = (type: DialogType, title: string, data: any = {}) => {
     setDialogState({
+      isOpen: true,
       type,
       title,
-      data,
-      isOpen: true
+      data
     });
   };
 
   const closeDialog = () => {
     setDialogState({
+      isOpen: false,
       type: null,
       title: '',
-      data: null,
-      isOpen: false
+      data: null
     });
   };
 
