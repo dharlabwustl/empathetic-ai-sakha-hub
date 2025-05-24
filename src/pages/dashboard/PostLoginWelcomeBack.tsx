@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WelcomeSlider from '@/components/welcome/WelcomeSlider';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
-import WelcomeDashboardPrompt from '@/components/dashboard/student/WelcomeDashboardPrompt';
+import WelcomeDashboardPrompt from '@/components/home/WelcomeDashboardPrompt';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,9 @@ const PostLoginWelcomeBack = () => {
   const [showDashboardPrompt, setShowDashboardPrompt] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [showStudyPlanDialog, setShowStudyPlanDialog] = useState(false);
+  const [isReturningUser, setIsReturningUser] = useState(false);
+  const [lastActivity, setLastActivity] = useState<string>('');
+  const [pendingTasks, setPendingTasks] = useState<string[]>([]);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -25,6 +28,20 @@ const PostLoginWelcomeBack = () => {
       try {
         const parsedData = JSON.parse(storedData);
         setUserData(parsedData);
+        
+        // Check if user is returning (has logged in before)
+        const loginCount = parsedData.loginCount || 0;
+        const hasSeenWelcome = localStorage.getItem('sawWelcomeSlider') === 'true';
+        
+        if (loginCount > 1 || hasSeenWelcome) {
+          setIsReturningUser(true);
+          setLastActivity(parsedData.lastActivity || 'working on concept cards');
+          setPendingTasks([
+            'Complete Physics - Motion chapter',
+            'Review Mathematics formulas',
+            'Take Chemistry practice test'
+          ]);
+        }
         
       } catch (error) {
         console.error("Error parsing user data:", error);
@@ -75,8 +92,12 @@ const PostLoginWelcomeBack = () => {
         setShowStudyPlanDialog(true);
         localStorage.removeItem('needs_study_plan_creation');
       } else {
-        // Redirect to app subdomain for dashboard
-        redirectToDashboard();
+        // For returning users, skip all flows and go to dashboard directly
+        if (isReturningUser) {
+          redirectToDashboard();
+        } else {
+          redirectToDashboard();
+        }
       }
       return;
     }
@@ -102,7 +123,7 @@ const PostLoginWelcomeBack = () => {
       localStorage.setItem('isLoggedIn', 'true');
       redirectToDashboard();
       toast({
-        title: "Welcome back!",
+        title: isReturningUser ? "Welcome back!" : "Welcome back!",
         description: "You've been automatically redirected to your dashboard."
       });
     }, 45000);
@@ -121,7 +142,13 @@ const PostLoginWelcomeBack = () => {
   const handleDashboardPromptComplete = () => {
     localStorage.setItem('hasSeenDashboardWelcome', 'true');
     setShowDashboardPrompt(false);
-    setShowTour(true);
+    
+    // For returning users, skip tour and go to dashboard
+    if (isReturningUser) {
+      redirectToDashboard();
+    } else {
+      setShowTour(true);
+    }
   };
   
   // Handle tour completion
@@ -174,6 +201,9 @@ const PostLoginWelcomeBack = () => {
         <WelcomeDashboardPrompt 
           userName={userData.name || "Student"}
           onComplete={handleDashboardPromptComplete}
+          isReturningUser={isReturningUser}
+          lastActivity={lastActivity}
+          pendingTasks={pendingTasks}
         />
       )}
       
@@ -185,10 +215,10 @@ const PostLoginWelcomeBack = () => {
             onOpenChange={setShowTour}
             onSkipTour={handleTourComplete}
             onCompleteTour={handleTourComplete}
-            isFirstTimeUser={true}
+            isFirstTimeUser={!isReturningUser}
             lastActivity={null}
             suggestedNextAction={null}
-            loginCount={1}
+            loginCount={userData.loginCount || 1}
           />
         </div>
       )}

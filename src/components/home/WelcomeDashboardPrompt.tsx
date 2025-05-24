@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, UserCheck, BookOpen, ChevronRight, Volume2 } from 'lucide-react';
+import { CheckCircle, UserCheck, BookOpen, ChevronRight, Volume2, Calendar, Target } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -11,11 +11,17 @@ import { Badge } from '@/components/ui/badge';
 interface WelcomeDashboardPromptProps {
   userName: string;
   onComplete: () => void;
+  isReturningUser?: boolean;
+  lastActivity?: string;
+  pendingTasks?: string[];
 }
 
 const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({ 
   userName, 
-  onComplete 
+  onComplete,
+  isReturningUser = false,
+  lastActivity,
+  pendingTasks = []
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
@@ -24,23 +30,47 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
   
-  const welcomeSteps = [
-    {
-      title: "Welcome to Your Dashboard",
-      description: `Welcome, ${userName}! I'm Sakha AI, your personalized learning companion. This is your central hub for exam preparation. Let's explore key features to maximize your learning experience.`,
-      icon: <UserCheck className="h-8 w-8 text-indigo-500" />
-    },
-    {
-      title: "Your Personalized Study Plans",
-      description: "I've analyzed your learning style and created adaptive study plans to help you master the concepts you need. Your dashboard adapts to your progress and mood to offer the most effective learning path.",
-      icon: <BookOpen className="h-8 w-8 text-blue-500" />
-    },
-    {
-      title: "Ready to Begin?",
-      description: "Your AI-powered learning journey starts now! Use voice commands anytime by clicking the microphone button on the bottom right of your screen. I'll be here to guide you throughout your preparation.",
-      icon: <CheckCircle className="h-8 w-8 text-green-500" />
+  const getWelcomeSteps = () => {
+    if (isReturningUser) {
+      return [
+        {
+          title: `Welcome Back, ${userName}!`,
+          description: `Great to see you again! I'm Sakha AI, and I'm here to help you continue your learning journey. ${lastActivity ? `Last time you were ${lastActivity}.` : ''} Let's pick up where you left off and make today even more productive.`,
+          icon: <UserCheck className="h-8 w-8 text-blue-500" />
+        },
+        {
+          title: "Your Study Progress",
+          description: `I've been tracking your progress and I'm ready to help you stay on track. ${pendingTasks.length > 0 ? `You have ${pendingTasks.length} pending activities that we can tackle together.` : 'Your study plan is up to date!'} Would you like me to suggest what to focus on today?`,
+          icon: <BookOpen className="h-8 w-8 text-green-500" />
+        },
+        {
+          title: "Ready to Continue?",
+          description: `I'm here to assist you with your daily study plan, practice sessions, and any questions you might have. Use the voice assistant anytime by clicking the microphone button. Let's make today a great learning day!`,
+          icon: <Target className="h-8 w-8 text-purple-500" />
+        }
+      ];
+    } else {
+      return [
+        {
+          title: "Welcome to PREPZR",
+          description: `Welcome, ${userName}! I'm Sakha AI, your personalized learning companion. This is your central hub for exam preparation. Let's explore key features to maximize your learning experience.`,
+          icon: <UserCheck className="h-8 w-8 text-indigo-500" />
+        },
+        {
+          title: "Your Personalized Study Plans",
+          description: "I've analyzed your learning style and created adaptive study plans to help you master the concepts you need. Your dashboard adapts to your progress and mood to offer the most effective learning path.",
+          icon: <BookOpen className="h-8 w-8 text-blue-500" />
+        },
+        {
+          title: "Ready to Begin?",
+          description: "Your AI-powered learning journey starts now! Use voice commands anytime by clicking the microphone button on the bottom right of your screen. I'll be here to guide you throughout your preparation.",
+          icon: <CheckCircle className="h-8 w-8 text-green-500" />
+        }
+      ];
     }
-  ];
+  };
+
+  const welcomeSteps = getWelcomeSteps();
 
   useEffect(() => {
     // Mark that the user has seen the dashboard welcome
@@ -131,8 +161,10 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
       
       // Show toast confirmation
       toast({
-        title: "Welcome tour completed!",
-        description: "You're all set to begin your personalized learning journey.",
+        title: isReturningUser ? "Welcome back!" : "Welcome tour completed!",
+        description: isReturningUser 
+          ? "Ready to continue your learning journey!" 
+          : "You're all set to begin your personalized learning journey.",
         duration: 5000,
       });
     }, 300);
@@ -192,6 +224,23 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
                     </motion.p>
                   </AnimatePresence>
                 </div>
+                
+                {/* Show pending tasks for returning users */}
+                {isReturningUser && pendingTasks.length > 0 && currentStep === 1 && (
+                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
+                      Pending Activities:
+                    </h4>
+                    <ul className="text-xs text-blue-600 dark:text-blue-400 space-y-1">
+                      {pendingTasks.slice(0, 3).map((task, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <Calendar className="h-3 w-3" />
+                          {task}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-between pt-2">
                 <Button 
@@ -207,7 +256,7 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
                   {currentStep < welcomeSteps.length - 1 ? (
                     <>Next <ChevronRight className="ml-1 h-4 w-4" /></>
                   ) : (
-                    "Get Started"
+                    isReturningUser ? "Continue Learning" : "Get Started"
                   )}
                 </Button>
               </CardFooter>
