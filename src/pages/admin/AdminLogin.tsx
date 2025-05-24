@@ -23,53 +23,64 @@ const AdminLogin: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log("🔍 AdminLogin: Auth state check", { isAdminAuthenticated });
+    console.log("🔍 AdminLogin: Checking auth state - isAdminAuthenticated:", isAdminAuthenticated);
     if (isAdminAuthenticated) {
-      console.log("✅ Admin already authenticated, redirecting to dashboard");
-      // Use immediate redirect with replace to avoid loops
+      console.log("✅ AdminLogin: User already authenticated, redirecting immediately");
       navigate('/admin/dashboard', { replace: true });
     }
   }, [isAdminAuthenticated, navigate]);
 
   useEffect(() => {
     if (error) {
-      setLoginError(error);
       console.log("❌ AdminLogin: Error from context:", error);
+      setLoginError(error);
     }
   }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("🚀 AdminLogin: Form submitted");
+    console.log("📧 AdminLogin: Email:", email);
+    console.log("🔒 AdminLogin: Password length:", password.length);
+    
     setLoginError(null);
     setIsLoading(true);
     
     try {
-      console.log("🔐 AdminLogin: Attempting login with credentials:", { email });
+      console.log("🔐 AdminLogin: Calling loginAdmin function");
       const success = await loginAdmin(email, password);
       
-      console.log("📊 AdminLogin: Login result:", success);
+      console.log("📊 AdminLogin: Login result received:", success);
       
       if (success) {
+        console.log("✅ AdminLogin: Login successful!");
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        console.log("✅ AdminLogin: Successful login, navigating to dashboard");
-        // Immediate navigation after successful login
+        console.log("🎯 AdminLogin: Navigating to dashboard...");
         navigate("/admin/dashboard", { replace: true });
       } else {
         console.log("❌ AdminLogin: Login failed");
         setLoginError("Invalid admin credentials");
       }
     } catch (err) {
-      console.error("💥 AdminLogin: Login error:", err);
+      console.error("💥 AdminLogin: Unexpected login error:", err);
       setLoginError("Login failed. Please try again.");
     } finally {
+      console.log("🏁 AdminLogin: Setting loading to false");
       setIsLoading(false);
     }
   };
+
+  console.log("🎨 AdminLogin: Rendering component with state:", {
+    email,
+    passwordLength: password.length,
+    isLoading,
+    loginError,
+    isAdminAuthenticated
+  });
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">

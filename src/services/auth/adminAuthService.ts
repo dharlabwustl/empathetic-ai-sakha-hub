@@ -22,14 +22,22 @@ const ADMIN_CREDENTIALS = {
 
 const adminAuthService = {
   async adminLogin(credentials: LoginCredentials): Promise<LoginResponse> {
-    console.log("🔐 adminAuthService: login attempt for", credentials.email);
+    console.log("🔐 adminAuthService: Starting login attempt for", credentials.email);
     
     try {
       // Add a small delay to simulate network request
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      console.log("🔍 adminAuthService: Checking credentials...");
+      console.log("Expected email:", ADMIN_CREDENTIALS.email);
+      console.log("Provided email:", credentials.email);
+      console.log("Email match:", credentials.email === ADMIN_CREDENTIALS.email);
+      console.log("Password match:", credentials.password === ADMIN_CREDENTIALS.password);
+      
       if (credentials.email === ADMIN_CREDENTIALS.email && 
           credentials.password === ADMIN_CREDENTIALS.password) {
+        
+        console.log("✅ adminAuthService: Credentials are valid");
         
         const adminUser: AdminUser = {
           id: `admin_${Date.now()}`,
@@ -48,21 +56,23 @@ const adminAuthService = {
         
         // Store admin data
         const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+        console.log("💾 adminAuthService: Storing admin data with token:", mockToken);
+        
         localStorage.setItem("adminToken", mockToken);
         localStorage.setItem("adminUser", JSON.stringify(adminUser));
         localStorage.setItem("admin_logged_in", "true");
         
-        console.log("✅ adminAuthService: Admin data stored successfully");
-        console.log("📊 adminAuthService: Stored data check:", {
+        console.log("📊 adminAuthService: Verification - stored data check:", {
           token: !!localStorage.getItem("adminToken"),
           user: !!localStorage.getItem("adminUser"),
           loggedIn: localStorage.getItem("admin_logged_in")
         });
         
         // Dispatch auth state change event
+        console.log("📡 adminAuthService: Dispatching auth state change event");
         window.dispatchEvent(new Event('auth-state-changed'));
         
-        console.log("🎯 adminAuthService: Admin login successful, auth event dispatched");
+        console.log("🎯 adminAuthService: Admin login successful, returning success response");
         
         return {
           success: true,
@@ -70,7 +80,7 @@ const adminAuthService = {
           message: "Login successful"
         };
       } else {
-        console.log("❌ adminAuthService: Invalid credentials");
+        console.log("❌ adminAuthService: Invalid credentials provided");
         return {
           success: false,
           data: null,
@@ -89,13 +99,14 @@ const adminAuthService = {
   },
   
   async adminLogout(): Promise<void> {
-    console.log("🚪 adminAuthService: Logging out");
+    console.log("🚪 adminAuthService: Starting logout process");
     
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("admin_logged_in");
     localStorage.removeItem("admin_login_attempt");
     
+    console.log("📡 adminAuthService: Dispatching auth state change event for logout");
     window.dispatchEvent(new Event('auth-state-changed'));
     
     console.log("✅ adminAuthService: Logout complete");
@@ -107,19 +118,20 @@ const adminAuthService = {
       const userJson = localStorage.getItem("adminUser");
       const isAdminLoggedIn = localStorage.getItem("admin_logged_in") === "true";
       
-      console.log("🔍 adminAuthService: Getting admin user", {
+      console.log("🔍 adminAuthService: Getting admin user - checks:", {
         hasToken: !!token,
         hasUser: !!userJson,
-        isLoggedIn: isAdminLoggedIn
+        isLoggedIn: isAdminLoggedIn,
+        tokenValue: token ? token.substring(0, 20) + "..." : "null"
       });
       
       if (!token || !userJson || !isAdminLoggedIn) {
-        console.log("❌ adminAuthService: No valid admin session found");
+        console.log("❌ adminAuthService: Missing required admin session data");
         return null;
       }
       
       const user = JSON.parse(userJson) as AdminUser;
-      console.log("✅ adminAuthService: Retrieved admin user:", user.email);
+      console.log("✅ adminAuthService: Successfully retrieved admin user:", user.email);
       return user;
     } catch (error) {
       console.error("💥 adminAuthService: Error getting admin user:", error);
@@ -134,11 +146,11 @@ const adminAuthService = {
       const userJson = localStorage.getItem("adminUser");
       
       const isAuth = !!(token && isAdminLoggedIn && userJson);
-      console.log("🔐 adminAuthService: Authentication check:", { 
+      console.log("🔐 adminAuthService: Authentication check result:", { 
         token: !!token, 
         isAdminLoggedIn, 
         userJson: !!userJson, 
-        result: isAuth 
+        finalResult: isAuth 
       });
       return isAuth;
     } catch (error) {
