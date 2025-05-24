@@ -15,6 +15,15 @@ export interface Joke {
   content?: string;
 }
 
+export interface Video {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  duration: string;
+  category: string;
+}
+
 export interface MoodContent {
   activities: string[];
   music: string[];

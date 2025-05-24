@@ -44,3 +44,7 @@ export const moodThemes: Record<string, MoodTheme> = {
     border: 'border-green-200'
   }
 };
+
+export const getMoodTheme = (mood: string): MoodTheme => {
+  return moodThemes[mood] || moodThemes['okay'];
+};
