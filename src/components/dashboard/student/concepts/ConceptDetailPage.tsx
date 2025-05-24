@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -13,8 +14,6 @@ import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
-import EnhancedInteractiveTab from './EnhancedInteractiveTab';
-import AskAITab from './AskAITab';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -109,26 +108,22 @@ const ConceptDetailPage = () => {
             
             <div className="mt-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-6 mb-6">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
                   <TabsTrigger value="learn" className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
                     Learn
                   </TabsTrigger>
-                  <TabsTrigger value="diagrams" className="flex items-center gap-2">
+                  <TabsTrigger value="interactive" className="flex items-center gap-2">
                     <Eye className="h-4 w-4" />
-                    Diagrams
+                    Interactive
                   </TabsTrigger>
                   <TabsTrigger value="3d" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
                     3D Lab
                   </TabsTrigger>
-                  <TabsTrigger value="ai-tutor" className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    AI Tutor
-                  </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
-                    Tools
+                    Learning Tools
                   </TabsTrigger>
                   <TabsTrigger value="notes" className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
@@ -140,16 +135,42 @@ const ConceptDetailPage = () => {
                   <EnhancedLearnTab conceptName={concept.title} />
                 </TabsContent>
 
-                <TabsContent value="diagrams" className="mt-0">
-                  <EnhancedInteractiveTab conceptName={concept.title} />
+                <TabsContent value="interactive" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Eye className="h-5 w-5 text-purple-600" />
+                        Interactive Visualizations with Audio
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-purple-50 dark:bg-purple-950/30 p-6 rounded-lg">
+                        <p className="text-center text-gray-600 dark:text-gray-400">
+                          Interactive visualizations with audio explanations for {concept.title} will be loaded here.
+                        </p>
+                        <div className="mt-4 text-center">
+                          <Button 
+                            onClick={() => {
+                              const audioExplanation = `This interactive visualization shows ${concept.title}. Click on different elements to explore the concept in detail.`;
+                              if ('speechSynthesis' in window) {
+                                const utterance = new SpeechSynthesisUtterance(audioExplanation);
+                                utterance.rate = 0.9;
+                                window.speechSynthesis.speak(utterance);
+                              }
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Video className="h-4 w-4" />
+                            Play Audio Explanation
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
 
                 <TabsContent value="3d" className="mt-0">
                   <Visual3DContent conceptName={concept.title} />
-                </TabsContent>
-
-                <TabsContent value="ai-tutor" className="mt-0">
-                  <AskAITab conceptName={concept.title} />
                 </TabsContent>
 
                 <TabsContent value="tools" className="mt-0">

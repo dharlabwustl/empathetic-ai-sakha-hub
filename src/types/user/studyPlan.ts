@@ -22,15 +22,13 @@ export interface StudyPlanSubject {
   topics?: StudyPlanTopic[];
 }
 
-export type NewStudyPlanSubject = StudyPlanSubject;
-
 export interface StudyPlan {
   id: string;
   title?: string;
   goal?: string;
   examGoal: string;
   examDate: string | Date;
-  status: 'active' | 'completed' | 'archived' | 'pending' | 'paused';
+  status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
@@ -56,7 +54,7 @@ export interface NewStudyPlan {
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
   weeklyHours?: number;
-  status?: 'active' | 'completed' | 'archived' | 'pending' | 'paused';
+  status?: 'active' | 'completed' | 'archived' | 'pending';
 }
 
 // Export types to be used in other files
