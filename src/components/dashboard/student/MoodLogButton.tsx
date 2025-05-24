@@ -104,7 +104,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   };
   
   // Get emoji with fallback
-  const moodEmoji = getMoodEmoji(currentMood || MoodType.Neutral);
+  const moodEmoji = getMoodEmoji(currentMood);
   
   // Get mood label text
   const moodLabelText = currentMood 

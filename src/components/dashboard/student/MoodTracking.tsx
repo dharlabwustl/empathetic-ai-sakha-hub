@@ -1,192 +1,154 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { SmilePlus, ArrowRight } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood } from './mood-tracking/moodUtils';
-import MoodLogButton from './MoodLogButton';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 
-interface MoodEntry {
-  id: string;
-  mood: MoodType;
-  timestamp: Date;
-  note?: string;
-}
-
-interface MoodTrackingProps {
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
-}
-
-const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }) => {
-  const [moodHistory, setMoodHistory] = useState<MoodEntry[]>([]);
-  const [showRecommendation, setShowRecommendation] = useState(false);
-
-  // Mock mood history data
-  useEffect(() => {
-    const mockHistory: MoodEntry[] = [
-      { id: '1', mood: MoodType.Happy, timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) },
-      { id: '2', mood: MoodType.Motivated, timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
-      { id: '3', mood: MoodType.Focused, timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
-      { id: '4', mood: MoodType.Neutral, timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
-      { id: '5', mood: MoodType.Tired, timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
-      { id: '6', mood: MoodType.Anxious, timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
-      { id: '7', mood: MoodType.Stressed, timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000) },
-      { id: '8', mood: MoodType.Sad, timestamp: new Date() }
-    ];
-    setMoodHistory(mockHistory);
+const MoodTracking: React.FC = () => {
+  const [currentMood, setCurrentMood] = useState<MoodType | null>(null);
+  const [open, setOpen] = useState(false);
+  
+  const handleMoodSelect = (mood: MoodType) => {
+    setCurrentMood(mood);
+    setOpen(false);
+    
+    // Save to localStorage
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
+  };
+  
+  const moods: { label: string; emoji: string; value: MoodType; color: string }[] = [
+    { label: 'Happy', emoji: '😊', value: MoodType.HAPPY, color: 'bg-yellow-100 dark:bg-yellow-900/30' },
+    { label: 'Motivated', emoji: '💪', value: MoodType.MOTIVATED, color: 'bg-green-100 dark:bg-green-900/30' },
+    { label: 'Focused', emoji: '🧠', value: MoodType.FOCUSED, color: 'bg-blue-100 dark:bg-blue-900/30' },
+    { label: 'Neutral', emoji: '😐', value: MoodType.NEUTRAL, color: 'bg-gray-100 dark:bg-gray-800/50' },
+    { label: 'Tired', emoji: '😴', value: MoodType.TIRED, color: 'bg-indigo-100 dark:bg-indigo-900/30' },
+    { label: 'Anxious', emoji: '😰', value: MoodType.ANXIOUS, color: 'bg-amber-100 dark:bg-amber-900/30' },
+    { label: 'Stressed', emoji: '😓', value: MoodType.STRESSED, color: 'bg-red-100 dark:bg-red-900/30' },
+    { label: 'Sad', emoji: '😢', value: MoodType.SAD, color: 'bg-purple-100 dark:bg-purple-900/30' },
+  ];
+  
+  // Load mood from localStorage on first render
+  React.useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      if (parsedData.mood) {
+        setCurrentMood(parsedData.mood);
+      }
+    }
   }, []);
 
-  // Show recommendation when mood changes
-  useEffect(() => {
-    if (currentMood) {
-      setShowRecommendation(true);
-      const timer = setTimeout(() => setShowRecommendation(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [currentMood]);
-
-  // Convert mood to numeric value for chart
-  const getMoodValue = (mood: MoodType): number => {
-    const moodValues: Record<MoodType, number> = {
-      [MoodType.Happy]: 9,
-      [MoodType.Motivated]: 8,
-      [MoodType.Focused]: 8,
-      [MoodType.Neutral]: 5,
-      [MoodType.Tired]: 3,
-      [MoodType.Anxious]: 2,
-      [MoodType.Stressed]: 2,
-      [MoodType.Sad]: 1,
-      [MoodType.Calm]: 7,
-      [MoodType.Confused]: 4,
-      [MoodType.Overwhelmed]: 2,
-      [MoodType.Okay]: 6,
-      [MoodType.Curious]: 7
-    };
-    return moodValues[mood] || 5;
-  };
-
-  // Prepare chart data
-  const chartData = moodHistory.slice(-7).map((entry, index) => ({
-    day: `Day ${index + 1}`,
-    mood: getMoodValue(entry.mood),
-    moodType: entry.mood
-  }));
-
-  const handleMoodUpdate = (mood: MoodType) => {
-    const newEntry: MoodEntry = {
-      id: Date.now().toString(),
-      mood,
-      timestamp: new Date()
-    };
-    
-    setMoodHistory(prev => [...prev, newEntry]);
-    onMoodChange?.(mood);
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Current Mood Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            How are you feeling today?
-            <span className="text-2xl">{currentMood ? getMoodEmoji(currentMood) : '😐'}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg flex items-center">
+          <SmilePlus className="mr-2 h-5 w-5 text-primary" />
+          Mood Tracking
+        </CardTitle>
+        <CardDescription>How are you feeling today?</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {currentMood ? (
           <div className="space-y-4">
-            {currentMood ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-sm">
-                    Currently feeling {getMoodLabel(currentMood)}
-                  </Badge>
-                  <span className="text-sm text-gray-500">
-                    Updated {new Date().toLocaleTimeString()}
-                  </span>
-                </div>
-                
-                {showRecommendation && (
-                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      💡 {getStudyRecommendationForMood(currentMood)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500">Track your mood to get personalized study recommendations!</p>
-            )}
-            
-            <MoodLogButton 
-              currentMood={currentMood}
-              onMoodChange={handleMoodUpdate}
-              className="w-full sm:w-auto"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Mood Trend Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Mood Journey</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis domain={[1, 9]} />
-                <Tooltip 
-                  formatter={(value, name, props) => [
-                    `${getMoodLabel(props.payload.moodType)} (${value})`,
-                    'Mood Level'
-                  ]}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="mood" 
-                  stroke="#3B82F6" 
-                  strokeWidth={2}
-                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          
-          <div className="mt-4 text-sm text-gray-600">
-            <p>Track your mood daily to identify patterns and optimize your study schedule.</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Mood History */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Moods</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {moodHistory.slice(-5).reverse().map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between p-2 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{getMoodEmoji(entry.mood)}</span>
-                  <span className="font-medium">{getMoodLabel(entry.mood)}</span>
-                </div>
-                <span className="text-sm text-gray-500">
-                  {entry.timestamp.toLocaleDateString()}
+            <div className={`rounded-lg p-4 ${moods.find(m => m.value === currentMood)?.color}`}>
+              <div className="flex items-center mb-2">
+                <span className="text-3xl mr-3">
+                  {moods.find(m => m.value === currentMood)?.emoji}
                 </span>
+                <div>
+                  <p className="font-medium">{moods.find(m => m.value === currentMood)?.label}</p>
+                  <p className="text-xs text-muted-foreground">Logged just now</p>
+                </div>
               </div>
-            ))}
+              <p className="text-sm">
+                {currentMood === MoodType.HAPPY && "Great mood! This is a perfect time to tackle challenging concepts."}
+                {currentMood === MoodType.MOTIVATED && "You're in peak condition for productive study sessions!"}
+                {currentMood === MoodType.FOCUSED && "Excellent! Your concentration is high, ideal for deep learning."}
+                {currentMood === MoodType.NEUTRAL && "A balanced state of mind, good for steady progress."}
+                {currentMood === MoodType.TIRED && "Consider shorter study sessions with more frequent breaks today."}
+                {currentMood === MoodType.ANXIOUS && "Try some breathing exercises before starting your studies."}
+                {currentMood === MoodType.STRESSED && "Focus on review rather than new concepts today."}
+                {currentMood === MoodType.SAD && "Start with small, achievable goals to build momentum."}
+              </p>
+            </div>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setOpen(true)}
+            >
+              Change Mood
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="text-center py-6">
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SmilePlus className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p>No mood logged today</p>
+                <p className="text-sm text-muted-foreground">
+                  Logging your mood helps us adapt your study plan for better results
+                </p>
+              </motion.div>
+            </div>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button className="w-full">
+                  Log Your Mood
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72">
+                <div className="space-y-2 p-2">
+                  <h4 className="font-medium text-center">Select your mood</h4>
+                  <div className="grid grid-cols-4 gap-2">
+                    {moods.map((mood) => (
+                      <Button
+                        key={mood.value}
+                        variant="ghost"
+                        className="flex flex-col items-center p-2 h-auto"
+                        onClick={() => handleMoodSelect(mood.value)}
+                      >
+                        <span className="text-2xl mb-1">{mood.emoji}</span>
+                        <span className="text-xs">{mood.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
+        
+        <div className="mt-4 pt-4 border-t">
+          <p className="text-xs text-muted-foreground mb-2">Previous moods</p>
+          <div className="flex flex-wrap gap-2">
+            <div className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs">
+              Focused (Yesterday)
+            </div>
+            <div className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs">
+              Motivated (2 days ago)
+            </div>
+            <div className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 rounded text-xs">
+              Anxious (3 days ago)
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

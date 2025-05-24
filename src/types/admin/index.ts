@@ -4,7 +4,7 @@ export interface AdminDashboardStats {
   activeUsers: number;
   totalRevenue: number;
   newUsersToday: number;
-  dailyActiveUsers: Array<{ date: string; count: number }>;
+  dailyActiveUsers: Array<{date: string; count: number}>;
   subscriptionsByPlan: {
     free: number;
     basic: number;
@@ -18,6 +18,7 @@ export interface AdminDashboardStats {
   studentsWithConsistentHabits: number;
   totalStudents: number;
   verifiedRetentionRate: number;
+  completedStudyPlans: number;
   verifiedExamConfidenceImprovement: number;
   averageConfidenceScore: number;
   activeStudents: number;
@@ -27,28 +28,34 @@ export interface AdminDashboardStats {
   completedSurveys: number;
 }
 
-export interface StudentData {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  subscriptionType: string;
-  joinDate: string;
-  lastActive: string;
-  studyStreak: number;
-  totalStudyHours: number;
-  averageScore: number;
-}
-
-export interface ContentItem {
-  id: string;
-  title: string;
-  type: string;
-  subject: string;
-  difficulty: string;
-  status: string;
-  createdAt: string;
-  author: string;
+// Add missing interface for DashboardStats with all required fields
+export interface DashboardStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalRevenue: number;
+  newUsersToday: number;
+  dailyActiveUsers: Array<{date: string; count: number}>;
+  subscriptionsByPlan: {
+    free: number;
+    basic: number;
+    premium: number;
+  };
+  verifiedMoodImprovement: number;
+  averageMoodScore: number;
+  averageTimeSavedPerWeek: number;
+  studyPlanEfficiencyImprovement: number;
+  studentsWithVerifiedConsistentHabits: number;
+  studentsWithConsistentHabits: number;
+  totalStudents: number;
+  verifiedRetentionRate: number;
+  completedStudyPlans: number;
+  verifiedExamConfidenceImprovement: number;
+  averageConfidenceScore: number;
+  activeStudents: number;
+  verifiedMoodFeatureUsage: number;
+  moodBasedSessionsCount: number;
+  totalSessions: number;
+  completedSurveys: number;
 }
 
 export interface SystemLog {
@@ -57,31 +64,30 @@ export interface SystemLog {
   timestamp: string;
   level: 'info' | 'warning' | 'error';
   message: string;
-  details: Record<string, any>;
+  details?: Record<string, any>;
 }
 
-export interface AdminSettings {
-  siteName: string;
-  maintenanceMode: boolean;
-  registrationEnabled: boolean;
-  emailNotifications: boolean;
-  backupFrequency: string;
-}
-
-export interface NotificationTemplate {
+export interface StudentData {
   id: string;
   name: string;
-  subject: string;
-  content: string;
-  type: string;
-  active: boolean;
-}
-
-export interface FeelGoodContent {
-  id: string;
-  title: string;
-  content: string;
-  type: string;
-  tags: string[];
-  active: boolean;
+  email: string;
+  enrollmentDate: string;
+  lastActive: string;
+  progress: number;
+  joinedDate: Date;
+  role: string;
+  status: string;
+  examType?: string;
+  subjects?: string[];
+  subjectsSelected?: string[];
+  examPrep?: string;
+  phoneNumber?: string;
+  completedOnboarding?: boolean;
+  goals?: string[];
+  studyHours?: number;
+  moodScore?: number;
+  engagementScore?: number;
+  targetScore?: number;
+  avatarUrl?: string;
+  registrationDate?: Date;
 }
