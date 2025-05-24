@@ -19,6 +19,9 @@ import FeatureManagementTab from './FeatureManagementTab';
 import RevenueAnalyticsTab from './RevenueAnalyticsTab';
 import APIManagementTab from './APIManagementTab';
 import SystemSettingsTab from './SystemSettingsTab';
+import MoodAnalyticsTab from './MoodAnalyticsTab';
+import StudyPlanManagementTab from './StudyPlanManagementTab';
+import NotificationManagementTab from './NotificationManagementTab';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,6 +95,18 @@ const DashboardTabs: React.FC = () => {
 
       <TabsContent value="revenue" className="space-y-4 mt-4">
         <RevenueAnalyticsTab />
+      </TabsContent>
+
+      <TabsContent value="mood-analytics" className="space-y-4 mt-4">
+        <MoodAnalyticsTab />
+      </TabsContent>
+
+      <TabsContent value="study-plans" className="space-y-4 mt-4">
+        <StudyPlanManagementTab />
+      </TabsContent>
+
+      <TabsContent value="notifications" className="space-y-4 mt-4">
+        <NotificationManagementTab />
       </TabsContent>
       
       <TabsContent value="database" className="space-y-4 mt-4">
