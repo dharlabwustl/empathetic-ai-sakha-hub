@@ -3,31 +3,19 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  FileText,
-  Book,
-  FileSpreadsheet,
-  GraduationCap
-} from "lucide-react";
-import { ContentType } from "@/types/content";
-
-// Import the new component files
 import ContentManagementHeader from "./content/ContentManagementHeader";
 import ContentSummaryCards from "./content/ContentSummaryCards";
 import TabContentApprovalQueue from "./content/TabContentApprovalQueue";
 import TabContentStudyMaterials from "./content/TabContentStudyMaterials";
 import TabContentPrompts from "./content/TabContentPrompts";
+import AIContentGenerator from "./content/AIContentGenerator";
 
 const ContentManagementTab = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("queue");
+  const [activeTab, setActiveTab] = useState("ai-generator");
   
   const handleUpload = () => {
-    toast({
-      title: "Upload Content",
-      description: "Upload panel opened for content files",
-      variant: "default"
-    });
+    setActiveTab("ai-generator");
   };
   
   const handleCreateContent = () => {
@@ -69,7 +57,6 @@ const ContentManagementTab = () => {
       variant: "default"
     });
     
-    // Simulate testing process
     setTimeout(() => {
       toast({
         title: "Test Complete",
@@ -117,7 +104,6 @@ const ContentManagementTab = () => {
     });
   };
 
-  // This function converts string to ContentType to fix the type mismatch
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
@@ -136,12 +122,18 @@ const ContentManagementTab = () => {
         <CardContent className="pt-6">
           <ContentSummaryCards handleManageContent={handleManageContent} />
 
-          <Tabs defaultValue="queue" value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="mb-4 grid w-full grid-cols-3 gap-2">
+          <Tabs defaultValue="ai-generator" value={activeTab} onValueChange={handleTabChange}>
+            <TabsList className="mb-4 grid w-full grid-cols-4 gap-2">
+              <TabsTrigger value="ai-generator">AI Content Generator</TabsTrigger>
               <TabsTrigger value="queue">Approval Queue</TabsTrigger>
               <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
               <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
             </TabsList>
+
+            {/* AI Content Generator Tab */}
+            <TabsContent value="ai-generator">
+              <AIContentGenerator />
+            </TabsContent>
 
             {/* Approval Queue Tab */}
             <TabsContent value="queue">

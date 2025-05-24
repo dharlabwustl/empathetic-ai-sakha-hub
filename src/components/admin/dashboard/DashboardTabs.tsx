@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // Import components
 import Overview from './Overview';
 import UsersManagement from './UsersManagement';
-import ContentManagement from './ContentManagement';
+import ContentManagementTab from './ContentManagementTab';
 import SystemLogs from './SystemLogs';
 import SubscriptionPlans from './SubscriptionPlans';
 import Analytics from './Analytics';
@@ -74,7 +74,7 @@ const DashboardTabs: React.FC = () => {
       </TabsContent>
       
       <TabsContent value="content" className="space-y-4 mt-4">
-        <ContentManagement />
+        <ContentManagementTab />
       </TabsContent>
 
       <TabsContent value="ai-models" className="space-y-4 mt-4">

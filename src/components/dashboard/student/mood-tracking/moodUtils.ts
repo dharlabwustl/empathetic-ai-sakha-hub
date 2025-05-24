@@ -57,3 +57,59 @@ export const getMoodColor = (mood: MoodType): string => {
   };
   return moodColors[mood] || 'bg-gray-100 text-gray-800';
 };
+
+export const getStudyRecommendationForMood = (mood: MoodType): string => {
+  const recommendations: Record<MoodType, string> = {
+    [MoodType.Happy]: 'Great time for challenging topics and practice tests!',
+    [MoodType.Motivated]: 'Perfect for starting new chapters or difficult concepts.',
+    [MoodType.Focused]: 'Ideal for deep study sessions and problem solving.',
+    [MoodType.Calm]: 'Good for revision and concept consolidation.',
+    [MoodType.Tired]: 'Consider light revision or visual learning materials.',
+    [MoodType.Confused]: 'Take a break or review fundamentals.',
+    [MoodType.Anxious]: 'Try relaxation exercises before studying.',
+    [MoodType.Stressed]: 'Focus on easier topics or take a study break.',
+    [MoodType.Overwhelmed]: 'Break down tasks into smaller chunks.',
+    [MoodType.Neutral]: 'Standard study session recommended.',
+    [MoodType.Okay]: 'Suitable for moderate study activities.',
+    [MoodType.Sad]: 'Consider motivational content or group study.',
+    [MoodType.Curious]: 'Explore new topics and expand knowledge.'
+  };
+  return recommendations[mood] || 'Continue with your regular study plan.';
+};
+
+export const analyzeMoodTrends = (moodHistory: Array<{ mood: MoodType; timestamp: Date }>) => {
+  if (moodHistory.length === 0) return { trend: 'stable', dominant: MoodType.Neutral };
+  
+  const recentMoods = moodHistory.slice(-7); // Last 7 entries
+  const moodCounts: Partial<Record<MoodType, number>> = {};
+  
+  recentMoods.forEach(entry => {
+    moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+  });
+  
+  const dominantMood = Object.keys(moodCounts).reduce((a, b) => 
+    (moodCounts[a as MoodType] || 0) > (moodCounts[b as MoodType] || 0) ? a : b
+  ) as MoodType;
+  
+  return { trend: 'improving', dominant: dominantMood };
+};
+
+export const updateStudyTimeAllocationsByMood = (mood: MoodType) => {
+  const allocations: Record<MoodType, { focus: number; break: number; difficulty: 'easy' | 'medium' | 'hard' }> = {
+    [MoodType.Happy]: { focus: 90, break: 10, difficulty: 'medium' },
+    [MoodType.Motivated]: { focus: 85, break: 15, difficulty: 'hard' },
+    [MoodType.Focused]: { focus: 95, break: 5, difficulty: 'hard' },
+    [MoodType.Calm]: { focus: 80, break: 20, difficulty: 'medium' },
+    [MoodType.Tired]: { focus: 60, break: 40, difficulty: 'easy' },
+    [MoodType.Confused]: { focus: 70, break: 30, difficulty: 'easy' },
+    [MoodType.Anxious]: { focus: 50, break: 50, difficulty: 'easy' },
+    [MoodType.Stressed]: { focus: 55, break: 45, difficulty: 'easy' },
+    [MoodType.Overwhelmed]: { focus: 45, break: 55, difficulty: 'easy' },
+    [MoodType.Neutral]: { focus: 75, break: 25, difficulty: 'medium' },
+    [MoodType.Okay]: { focus: 75, break: 25, difficulty: 'medium' },
+    [MoodType.Sad]: { focus: 65, break: 35, difficulty: 'easy' },
+    [MoodType.Curious]: { focus: 85, break: 15, difficulty: 'medium' }
+  };
+  
+  return allocations[mood] || allocations[MoodType.Neutral];
+};
