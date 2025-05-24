@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ const StudentProfilesTab: React.FC = () => {
     mood: MoodType; 
     completionRate: number;
     lastActive: string;
-    studyStreak: StudyStreak;
+    studyStreakData: StudyStreak;
     examGoal: ExamGoal;
   })[] = [
     {
@@ -38,7 +37,7 @@ const StudentProfilesTab: React.FC = () => {
         startDate: '2024-01-01',
         endDate: '2024-12-31'
       },
-      studyStreak: {
+      studyStreakData: {
         currentStreak: 12,
         longestStreak: 25,
         lastActiveDate: '2024-01-15'
@@ -66,7 +65,7 @@ const StudentProfilesTab: React.FC = () => {
         startDate: '2024-01-01',
         endDate: '2024-12-31'
       },
-      studyStreak: {
+      studyStreakData: {
         currentStreak: 7,
         longestStreak: 15,
         lastActiveDate: '2024-01-15'
@@ -94,7 +93,7 @@ const StudentProfilesTab: React.FC = () => {
         startDate: '2024-01-01',
         endDate: '2024-12-31'
       },
-      studyStreak: {
+      studyStreakData: {
         currentStreak: 25,
         longestStreak: 45,
         lastActiveDate: '2024-01-15'
@@ -181,7 +180,7 @@ const StudentProfilesTab: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockStudentProfiles.reduce((sum, p) => sum + p.studyStreak.currentStreak, 0)} days
+              {mockStudentProfiles.reduce((sum, p) => sum + p.studyStreakData.currentStreak, 0)} days
             </div>
             <p className="text-xs text-muted-foreground">Combined streaks</p>
           </CardContent>
@@ -274,7 +273,7 @@ const StudentProfilesTab: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium">{profile.studyStreak.currentStreak} days</span>
+                      <span className="font-medium">{profile.studyStreakData.currentStreak} days</span>
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {profile.lastActive}

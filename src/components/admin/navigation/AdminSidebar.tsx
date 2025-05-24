@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import {
   Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
   TrendingUp, UserCheck, Zap, Cpu, Globe, Lock, Heart,
   Target, Award, HelpCircle, Smartphone, Puzzle, Upload,
-  RefreshCw, CheckSquare
+  RefreshCw, CheckSquare, TestTube, PieChart
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -24,7 +23,7 @@ const AdminSidebar: React.FC = () => {
       items: [
         { icon: <LayoutDashboard size={20} />, title: "Overview", path: "/admin/dashboard", tab: "overview" },
         { icon: <BarChart3 size={20} />, title: "Analytics", path: "/admin/dashboard", tab: "analytics" },
-        { icon: <TrendingUp size={20} />, title: "Reports", path: "/admin/dashboard", tab: "reports" }
+        { icon: <PieChart size={20} />, title: "Analytics & Reports", path: "/admin/dashboard", tab: "analytics-reporting" }
       ]
     },
     { 
@@ -43,7 +42,7 @@ const AdminSidebar: React.FC = () => {
       items: [
         { icon: <BookOpen size={20} />, title: "Content Library", path: "/admin/dashboard", tab: "content" },
         { icon: <Upload size={20} />, title: "Enhanced CMS", path: "/admin/dashboard", tab: "enhanced-content" },
-        { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
+        { icon: <Video size={20} />, title: "Interactive Content", path: "/admin/dashboard", tab: "interactive-content" },
         { icon: <FileText size={20} />, title: "Exam Management", path: "/admin/dashboard", tab: "exams" },
         { icon: <Target size={20} />, title: "Study Plans", path: "/admin/dashboard", tab: "study-plan-management" }
       ]
@@ -51,6 +50,8 @@ const AdminSidebar: React.FC = () => {
     { 
       section: "AI & Personalization",
       items: [
+        { icon: <Brain size={20} />, title: "AI Models", path: "/admin/dashboard", tab: "ai-models" },
+        { icon: <TestTube size={20} />, title: "AI Model Management", path: "/admin/dashboard", tab: "ai-model-management" },
         { icon: <Brain size={20} />, title: "AI Features", path: "/admin/dashboard", tab: "ai-features" },
         { icon: <Puzzle size={20} />, title: "Personalization", path: "/admin/dashboard", tab: "personalization-control" },
         { icon: <Zap size={20} />, title: "Feature Management", path: "/admin/dashboard", tab: "features" }
@@ -68,6 +69,7 @@ const AdminSidebar: React.FC = () => {
       section: "Subscriptions & Revenue",
       items: [
         { icon: <CreditCard size={20} />, title: "Subscription Plans", path: "/admin/dashboard", tab: "subscriptions" },
+        { icon: <CreditCard size={20} />, title: "Subscription Mgmt", path: "/admin/dashboard", tab: "subscription-management" },
         { icon: <LineChart size={20} />, title: "Revenue Analytics", path: "/admin/dashboard", tab: "revenue" }
       ]
     },

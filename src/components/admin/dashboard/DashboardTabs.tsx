@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,6 +34,12 @@ import EnhancedContentManagementTab from './EnhancedContentManagementTab';
 // Import alignment tabs
 import StudentDataSyncTab from './StudentDataSyncTab';
 import FeatureAuditTab from './FeatureAuditTab';
+
+// Import new feature tabs
+import AIModelManagementTab from './AIModelManagementTab';
+import SubscriptionManagementTab from './SubscriptionManagementTab';
+import InteractiveContentTab from './InteractiveContentTab';
+import AnalyticsReportingTab from './AnalyticsReportingTab';
 
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -110,8 +115,16 @@ const DashboardTabs: React.FC = () => {
         <EnhancedContentManagementTab />
       </TabsContent>
 
+      <TabsContent value="interactive-content" className="space-y-4 mt-4">
+        <InteractiveContentTab />
+      </TabsContent>
+
       <TabsContent value="ai-models" className="space-y-4 mt-4">
         <AIModelsTab />
+      </TabsContent>
+
+      <TabsContent value="ai-model-management" className="space-y-4 mt-4">
+        <AIModelManagementTab />
       </TabsContent>
 
       <TabsContent value="ai-features" className="space-y-4 mt-4">
@@ -142,12 +155,20 @@ const DashboardTabs: React.FC = () => {
         <SubscriptionPlans />
       </TabsContent>
 
+      <TabsContent value="subscription-management" className="space-y-4 mt-4">
+        <SubscriptionManagementTab />
+      </TabsContent>
+
       <TabsContent value="features" className="space-y-4 mt-4">
         <FeatureManagementTab />
       </TabsContent>
 
       <TabsContent value="revenue" className="space-y-4 mt-4">
         <RevenueAnalyticsTab />
+      </TabsContent>
+
+      <TabsContent value="analytics-reporting" className="space-y-4 mt-4">
+        <AnalyticsReportingTab />
       </TabsContent>
       
       <TabsContent value="database" className="space-y-4 mt-4">
