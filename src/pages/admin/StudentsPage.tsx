@@ -17,9 +17,12 @@ import {
 } from "lucide-react";
 import { adminService } from "@/services/adminService";
 import { StudentData } from "@/types/admin";
+import ActionDialog from "@/components/admin/dialogs/ActionDialog";
+import { useActionDialog } from "@/hooks/useActionDialog";
 
 const StudentsPage = () => {
   const { toast } = useToast();
+  const { dialogState, openDialog, closeDialog } = useActionDialog();
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState<StudentData[]>([]);
   const [totalStudents, setTotalStudents] = useState(0);
@@ -74,28 +77,46 @@ const StudentsPage = () => {
     }, 1500);
   };
 
-  const handleViewStudent = (studentId: string, studentName: string) => {
-    toast({
-      title: "View Student",
-      description: `Opening detailed view for ${studentName}`,
+  const handleViewStudent = (student: StudentData) => {
+    openDialog('view', student.name, {
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      phoneNumber: student.phoneNumber,
+      registrationDate: formatDate(student.registrationDate),
+      examType: student.examType,
+      completedOnboarding: student.completedOnboarding,
+      status: student.completedOnboarding ? 'Active' : 'Onboarding'
     });
-    console.log(`Viewing student: ${studentId}`);
   };
 
-  const handleEditStudent = (studentId: string, studentName: string) => {
-    toast({
-      title: "Edit Student",
-      description: `Opening edit dialog for ${studentName}`,
+  const handleEditStudent = (student: StudentData) => {
+    openDialog('edit', student.name, {
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      phoneNumber: student.phoneNumber,
+      examType: student.examType,
+      completedOnboarding: student.completedOnboarding
     });
-    console.log(`Editing student: ${studentId}`);
   };
 
-  const handleStudentSettings = (studentId: string, studentName: string) => {
-    toast({
-      title: "Student Settings",
-      description: `Opening settings for ${studentName}`,
+  const handleStudentSettings = (student: StudentData) => {
+    openDialog('settings', student.name, {
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      activeStatus: student.completedOnboarding,
+      permissions: 'Standard Access',
+      notifications: 'Enabled'
     });
-    console.log(`Settings for student: ${studentId}`);
+  };
+
+  const handleSave = (data: any) => {
+    toast({
+      title: "Student Updated",
+      description: `${data.name} has been updated successfully.`,
+    });
   };
 
   const totalPages = Math.ceil(totalStudents / studentsPerPage);
@@ -109,189 +130,200 @@ const StudentsPage = () => {
   };
 
   return (
-    <AdminLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Students Management</h1>
-        <p className="text-gray-500">View and manage all student accounts</p>
-      </div>
-      
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Students Directory</span>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download size={16} className="mr-2" />
-                Export
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            <form onSubmit={handleSearch} className="relative w-full sm:max-w-md">
-              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-              <Input
-                type="text"
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </form>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm whitespace-nowrap">Filter by:</span>
-              <div className="flex items-center">
-                <Button
-                  variant={filter === 'all' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('all')}
-                >
-                  All
-                </Button>
-                <Button
-                  variant={filter === 'active' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('active')}
-                >
-                  Active
-                </Button>
-                <Button
-                  variant={filter === 'new' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('new')}
-                >
-                  New
-                </Button>
-                <Button
-                  variant={filter === 'inactive' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('inactive')}
-                >
-                  Inactive
+    <>
+      <AdminLayout>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">Students Management</h1>
+          <p className="text-gray-500">View and manage all student accounts</p>
+        </div>
+        
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Students Directory</span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                  <Download size={16} className="mr-2" />
+                  Export
                 </Button>
               </div>
-            </div>
-          </div>
-          
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="w-10 h-10 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-4"></div>
-              <p>Loading students data...</p>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-gray-50 dark:bg-gray-800/50">
-                      <th className="text-left p-4 font-medium">Name</th>
-                      <th className="text-left p-4 font-medium">Email</th>
-                      <th className="text-left p-4 font-medium">Phone</th>
-                      <th className="text-left p-4 font-medium">Registration Date</th>
-                      <th className="text-left p-4 font-medium">Exam Type</th>
-                      <th className="text-left p-4 font-medium">Status</th>
-                      <th className="text-left p-4 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {students.map((student) => (
-                      <tr key={student.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                        <td className="p-4">{student.name}</td>
-                        <td className="p-4">{student.email}</td>
-                        <td className="p-4">{student.phoneNumber}</td>
-                        <td className="p-4">{formatDate(student.registrationDate)}</td>
-                        <td className="p-4">{student.examType}</td>
-                        <td className="p-4">
-                          {student.completedOnboarding ? (
-                            <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
-                              Active
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
-                              Onboarding
-                            </Badge>
-                          )}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewStudent(student.id, student.name)}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleEditStudent(student.id, student.name)}
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleStudentSettings(student.id, student.name)}
-                            >
-                              <Settings className="h-4 w-4 mr-1" />
-                              Settings
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+              <form onSubmit={handleSearch} className="relative w-full sm:max-w-md">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </form>
               
-              <div className="flex items-center justify-between mt-6">
-                <p className="text-sm text-gray-500">
-                  Showing {(currentPage - 1) * studentsPerPage + 1} to {Math.min(currentPage * studentsPerPage, totalStudents)} of {totalStudents} students
-                </p>
-                
-                <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm whitespace-nowrap">Filter by:</span>
+                <div className="flex items-center">
                   <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
+                    variant={filter === 'all' ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleFilterChange('all')}
                   >
-                    <ChevronLeft size={16} />
+                    All
                   </Button>
-                  
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNumber = i + 1;
-                    return (
-                      <Button
-                        key={i}
-                        variant={pageNumber === currentPage ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => setCurrentPage(pageNumber)}
-                      >
-                        {pageNumber}
-                      </Button>
-                    );
-                  })}
-                  
                   <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(currentPage + 1)}
+                    variant={filter === 'active' ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleFilterChange('active')}
                   >
-                    <ChevronRight size={16} />
+                    Active
+                  </Button>
+                  <Button
+                    variant={filter === 'new' ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleFilterChange('new')}
+                  >
+                    New
+                  </Button>
+                  <Button
+                    variant={filter === 'inactive' ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleFilterChange('inactive')}
+                  >
+                    Inactive
                   </Button>
                 </div>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </AdminLayout>
+            </div>
+            
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="w-10 h-10 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-4"></div>
+                <p>Loading students data...</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b bg-gray-50 dark:bg-gray-800/50">
+                        <th className="text-left p-4 font-medium">Name</th>
+                        <th className="text-left p-4 font-medium">Email</th>
+                        <th className="text-left p-4 font-medium">Phone</th>
+                        <th className="text-left p-4 font-medium">Registration Date</th>
+                        <th className="text-left p-4 font-medium">Exam Type</th>
+                        <th className="text-left p-4 font-medium">Status</th>
+                        <th className="text-left p-4 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students.map((student) => (
+                        <tr key={student.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                          <td className="p-4">{student.name}</td>
+                          <td className="p-4">{student.email}</td>
+                          <td className="p-4">{student.phoneNumber}</td>
+                          <td className="p-4">{formatDate(student.registrationDate)}</td>
+                          <td className="p-4">{student.examType}</td>
+                          <td className="p-4">
+                            {student.completedOnboarding ? (
+                              <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
+                                Active
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+                                Onboarding
+                              </Badge>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleViewStudent(student)}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleEditStudent(student)}
+                              >
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleStudentSettings(student)}
+                              >
+                                <Settings className="h-4 w-4 mr-1" />
+                                Settings
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="flex items-center justify-between mt-6">
+                  <p className="text-sm text-gray-500">
+                    Showing {(currentPage - 1) * studentsPerPage + 1} to {Math.min(currentPage * studentsPerPage, totalStudents)} of {totalStudents} students
+                  </p>
+                  
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                    >
+                      <ChevronLeft size={16} />
+                    </Button>
+                    
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      const pageNumber = i + 1;
+                      return (
+                        <Button
+                          key={i}
+                          variant={pageNumber === currentPage ? "default" : "outline"}
+                          size="icon"
+                          onClick={() => setCurrentPage(pageNumber)}
+                        >
+                          {pageNumber}
+                        </Button>
+                      );
+                    })}
+                    
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                    >
+                      <ChevronRight size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </AdminLayout>
+
+      <ActionDialog
+        type={dialogState.type!}
+        title={dialogState.title}
+        data={dialogState.data}
+        isOpen={dialogState.isOpen}
+        onClose={closeDialog}
+        onSave={handleSave}
+      />
+    </>
   );
 };
 

@@ -22,6 +22,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Filter, Check, X, Settings, Edit, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ActionDialog from "@/components/admin/dialogs/ActionDialog";
+import { useActionDialog } from "@/hooks/useActionDialog";
 
 // Sample feature data that matches student dashboard features
 const featureData = [
@@ -95,6 +97,7 @@ const FeatureManager = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const { toast } = useToast();
+  const { dialogState, openDialog, closeDialog } = useActionDialog();
   
   // Filter features based on search query
   const filteredFeatures = featureData.filter(feature => 
@@ -145,28 +148,42 @@ const FeatureManager = () => {
   };
   
   // Add proper action handlers
-  const handleViewFeature = (featureId: string, featureName: string) => {
-    toast({
-      title: "View Feature",
-      description: `Opening detailed view for ${featureName}`,
+  const handleViewFeature = (feature: any) => {
+    openDialog('view', feature.name, {
+      id: feature.id,
+      name: feature.name,
+      description: feature.description,
+      status: feature.status,
+      availableIn: feature.availableIn,
+      lastUpdated: feature.lastUpdated
     });
-    console.log(`Viewing feature: ${featureId}`);
   };
 
-  const handleEditFeature = (featureId: string, featureName: string) => {
-    toast({
-      title: "Edit Feature",
-      description: `Opening edit dialog for ${featureName}`,
+  const handleEditFeature = (feature: any) => {
+    openDialog('edit', feature.name, {
+      id: feature.id,
+      name: feature.name,
+      description: feature.description,
+      status: feature.status,
+      availableIn: feature.availableIn
     });
-    console.log(`Editing feature: ${featureId}`);
   };
 
-  const handleFeatureSettings = (featureId: string, featureName: string) => {
-    toast({
-      title: "Feature Settings",
-      description: `Opening settings for ${featureName}`,
+  const handleFeatureSettings = (feature: any) => {
+    openDialog('settings', feature.name, {
+      id: feature.id,
+      name: feature.name,
+      activeStatus: feature.status === 'active',
+      permissions: 'Standard Access',
+      notifications: 'Enabled'
     });
-    console.log(`Settings for feature: ${featureId}`);
+  };
+
+  const handleSave = (data: any) => {
+    toast({
+      title: "Feature Updated",
+      description: `${data.name} has been updated successfully.`,
+    });
   };
 
   // Handle adding a new feature
@@ -179,142 +196,153 @@ const FeatureManager = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold">Feature Management</h2>
-        
-        <div className="flex gap-2 w-full sm:w-auto">
-          <div className="relative flex-grow sm:flex-grow-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input 
-              placeholder="Search features..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 w-full sm:w-[250px]"
-            />
-          </div>
-          <Button onClick={handleAddFeature}>
-            <Plus className="h-4 w-4 mr-1" /> Add
-          </Button>
-        </div>
-      </div>
-      
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
-            <CardTitle>Student Dashboard Features</CardTitle>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleBulkAction('activate')}
-                disabled={selectedFeatures.length === 0}
-              >
-                <Check className="h-4 w-4 mr-1" /> Activate
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleBulkAction('deactivate')}
-                disabled={selectedFeatures.length === 0}
-              >
-                <X className="h-4 w-4 mr-1" /> Deactivate
-              </Button>
+    <>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <h2 className="text-2xl font-bold">Feature Management</h2>
+          
+          <div className="flex gap-2 w-full sm:w-auto">
+            <div className="relative flex-grow sm:flex-grow-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input 
+                placeholder="Search features..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 w-full sm:w-[250px]"
+              />
             </div>
+            <Button onClick={handleAddFeature}>
+              <Plus className="h-4 w-4 mr-1" /> Add
+            </Button>
           </div>
-          <CardDescription>
-            Manage features available on the student dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]"></TableHead>
-                <TableHead>Feature</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredFeatures.map((feature) => (
-                <TableRow key={feature.id}>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      checked={selectedFeatures.includes(feature.id)}
-                      onChange={() => handleSelectFeature(feature.id)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{feature.name}</p>
-                      <p className="text-sm text-gray-500">{feature.description}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={feature.status === 'active' ? 'default' : 'secondary'}>
-                      {feature.status === 'active' ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{feature.lastUpdated}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleViewFeature(feature.id, feature.name)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleEditFeature(feature.id, feature.name)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id={`feature-toggle-${feature.id}`}
-                          checked={feature.status === 'active'}
-                          onCheckedChange={() => handleToggleFeature(feature.id, feature.status)}
-                        />
-                        <Label htmlFor={`feature-toggle-${feature.id}`} className="sr-only">
-                          Toggle {feature.name}
-                        </Label>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleFeatureSettings(feature.id, feature.name)}
-                      >
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              
-              {filteredFeatures.length === 0 && (
+        </div>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-center">
+              <CardTitle>Student Dashboard Features</CardTitle>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleBulkAction('activate')}
+                  disabled={selectedFeatures.length === 0}
+                >
+                  <Check className="h-4 w-4 mr-1" /> Activate
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleBulkAction('deactivate')}
+                  disabled={selectedFeatures.length === 0}
+                >
+                  <X className="h-4 w-4 mr-1" /> Deactivate
+                </Button>
+              </div>
+            </div>
+            <CardDescription>
+              Manage features available on the student dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                    No features found matching your search
-                  </TableCell>
+                  <TableHead className="w-[50px]"></TableHead>
+                  <TableHead>Feature</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-        <CardFooter className="flex justify-between border-t pt-6">
-          <p className="text-sm text-gray-500">
-            Showing {filteredFeatures.length} of {featureData.length} features
-          </p>
-        </CardFooter>
-      </Card>
-    </div>
+              </TableHeader>
+              <TableBody>
+                {filteredFeatures.map((feature) => (
+                  <TableRow key={feature.id}>
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedFeatures.includes(feature.id)}
+                        onChange={() => handleSelectFeature(feature.id)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{feature.name}</p>
+                        <p className="text-sm text-gray-500">{feature.description}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={feature.status === 'active' ? 'default' : 'secondary'}>
+                        {feature.status === 'active' ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{feature.lastUpdated}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleViewFeature(feature)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleEditFeature(feature)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id={`feature-toggle-${feature.id}`}
+                            checked={feature.status === 'active'}
+                            onCheckedChange={() => handleToggleFeature(feature.id, feature.status)}
+                          />
+                          <Label htmlFor={`feature-toggle-${feature.id}`} className="sr-only">
+                            Toggle {feature.name}
+                          </Label>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleFeatureSettings(feature)}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                
+                {filteredFeatures.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                      No features found matching your search
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+          <CardFooter className="flex justify-between border-t pt-6">
+            <p className="text-sm text-gray-500">
+              Showing {filteredFeatures.length} of {featureData.length} features
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
+
+      <ActionDialog
+        type={dialogState.type!}
+        title={dialogState.title}
+        data={dialogState.data}
+        isOpen={dialogState.isOpen}
+        onClose={closeDialog}
+        onSave={handleSave}
+      />
+    </>
   );
 };
 
