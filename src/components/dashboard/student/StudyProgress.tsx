@@ -1,71 +1,89 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { StudyTimeChart } from './study-progress/StudyTimeChart';
-import { QuizzesList } from './study-progress/QuizzesList';
-import { TopicsList } from './study-progress/TopicsList';
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Book, Clock, Target, TrendingUp } from 'lucide-react';
 
-interface StudyProgressProps {
-  subjects: SubjectProgress[];
-  studyStreak: StudyStreak;
+interface SubjectProgress {
+  subject: string;
+  progress: number;
+  hours: number;
+  totalHours: number;
+  status: 'on-track' | 'behind' | 'ahead';
 }
 
-const StudyProgress: React.FC<StudyProgressProps> = ({ subjects, studyStreak }) => {
-  const [activeTab, setActiveTab] = useState<string>('study-time');
-  const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(
-    subjects.length > 0 ? subjects[0] : null
-  );
+interface StudyProgressProps {
+  subjectProgress: SubjectProgress[];
+  overallProgress: number;
+  totalStudyTime: number;
+  weeklyGoal: number;
+}
 
-  const handleSelectSubject = (subjectId: string) => {
-    const subject = subjects.find(s => s.id === subjectId);
-    if (subject) {
-      setSelectedSubject(subject);
+const StudyProgress: React.FC<StudyProgressProps> = ({
+  subjectProgress,
+  overallProgress,
+  totalStudyTime,
+  weeklyGoal
+}) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'ahead': return 'bg-green-100 text-green-800';
+      case 'on-track': return 'bg-blue-100 text-blue-800';
+      case 'behind': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Study Progress</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full justify-start mb-4">
-            <TabsTrigger value="study-time">Study Time</TabsTrigger>
-            <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
-            <TabsTrigger value="topics">Topics</TabsTrigger>
-          </TabsList>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Study Progress Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{overallProgress}%</div>
+              <div className="text-sm text-gray-500">Overall Progress</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{totalStudyTime}h</div>
+              <div className="text-sm text-gray-500">Total Study Time</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{weeklyGoal}h</div>
+              <div className="text-sm text-gray-500">Weekly Goal</div>
+            </div>
+          </div>
           
-          <TabsContent value="study-time">
-            <StudyTimeChart 
-              selectedSubject={selectedSubject} 
-              subjects={subjects}
-              selectSubject={handleSelectSubject}
-              studyStreak={studyStreak}
-            />
-          </TabsContent>
-          
-          <TabsContent value="quizzes">
-            <QuizzesList 
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={handleSelectSubject}
-            />
-          </TabsContent>
-          
-          <TabsContent value="topics">
-            <TopicsList 
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={handleSelectSubject}
-            />
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          <div className="space-y-4">
+            <h3 className="font-medium">Subject Progress</h3>
+            {subjectProgress.map((subject, index) => (
+              <div key={index} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Book className="h-4 w-4" />
+                    <span className="font-medium">{subject.subject}</span>
+                    <Badge className={getStatusColor(subject.status)}>
+                      {subject.status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Clock className="h-4 w-4" />
+                    {subject.hours}h / {subject.totalHours}h
+                  </div>
+                </div>
+                <Progress value={subject.progress} className="h-2" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

@@ -1,369 +1,330 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { 
   Search, 
   Filter, 
   BookOpen, 
-  TrendingUp, 
-  Target, 
   Clock, 
+  Star, 
   Brain,
-  FlaskConical,
+  Target,
+  TrendingUp,
   Lightbulb,
-  Star,
-  ChevronRight,
-  Eye,
-  Video,
-  Calculator,
-  AlertTriangle
+  Calculator
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import BackButton from '../BackButton';
-import ConceptCard from '../ConceptCard';
-import FormulaTabContent from './FormulaTabContent';
 
-// Mock data for concepts
-const mockConcepts = [
-  {
-    id: 'ohms-law',
-    title: "Ohm's Law",
-    description: 'Understanding the relationship between voltage, current, and resistance in electrical circuits.',
-    subject: 'Physics',
-    difficulty: 'medium' as const,
-    progress: 75,
-    completed: false,
-    relatedConcepts: ['Electrical Circuits', 'Power Calculations']
-  },
-  {
-    id: 'newtons-laws',
-    title: "Newton's Laws of Motion",
-    description: 'The three fundamental laws that form the foundation of classical mechanics.',
-    subject: 'Physics',
-    difficulty: 'hard' as const,
-    progress: 45,
-    completed: false,
-    relatedConcepts: ['Force', 'Acceleration', 'Momentum']
-  },
-  {
-    id: 'photosynthesis',
-    title: 'Photosynthesis',
-    description: 'The process by which plants convert light energy into chemical energy.',
-    subject: 'Biology',
-    difficulty: 'easy' as const,
-    progress: 90,
-    completed: true,
-    relatedConcepts: ['Cellular Respiration', 'Plant Biology']
-  }
-];
-
-interface EnhancedConceptLandingPageProps {
-  onNavigateToDetail?: (conceptId: string) => void;
+interface FormulaTabContentProps {
+  formulaData: {
+    formula: string;
+    variables: { symbol: string; name: string; unit: string; }[];
+  };
 }
 
-const EnhancedConceptLandingPage: React.FC<EnhancedConceptLandingPageProps> = ({ 
-  onNavigateToDetail 
-}) => {
-  const navigate = useNavigate();
+const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ formulaData }) => {
+  return (
+    <div className="space-y-4">
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <h4 className="font-medium mb-2">Formula:</h4>
+        <code className="text-lg font-mono">{formulaData.formula}</code>
+      </div>
+      <div>
+        <h4 className="font-medium mb-2">Variables:</h4>
+        <div className="space-y-2">
+          {formulaData.variables.map((variable, index) => (
+            <div key={index} className="flex items-center gap-4 p-2 bg-gray-50 rounded">
+              <code className="font-mono font-bold">{variable.symbol}</code>
+              <span className="flex-1">{variable.name}</span>
+              <span className="text-sm text-gray-500">{variable.unit}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const EnhancedConceptLandingPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('All');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-  const [filteredConcepts, setFilteredConcepts] = useState(mockConcepts);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
 
-  const subjects = ['All', 'Physics', 'Chemistry', 'Biology', 'Mathematics'];
-  const difficulties = ['All', 'easy', 'medium', 'hard'];
-
-  useEffect(() => {
-    let filtered = mockConcepts;
-
-    if (searchTerm) {
-      filtered = filtered.filter(concept =>
-        concept.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        concept.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  // Mock data
+  const concepts = [
+    {
+      id: '1',
+      title: 'Quadratic Equations',
+      subject: 'Mathematics',
+      difficulty: 'Intermediate',
+      estimatedTime: '45 min',
+      rating: 4.8,
+      completions: 1247,
+      description: 'Master quadratic equations and their applications',
+      topics: ['Standard Form', 'Factoring', 'Quadratic Formula', 'Discriminant'],
+      prerequisites: ['Linear Equations', 'Basic Algebra']
+    },
+    {
+      id: '2',
+      title: "Newton's Laws of Motion",
+      subject: 'Physics',
+      difficulty: 'Intermediate',
+      estimatedTime: '60 min',
+      rating: 4.9,
+      completions: 892,
+      description: 'Understand the fundamental principles of motion and forces',
+      topics: ['First Law', 'Second Law', 'Third Law', 'Applications'],
+      prerequisites: ['Basic Mathematics', 'Vector Concepts']
+    },
+    {
+      id: '3',
+      title: 'Atomic Structure',
+      subject: 'Chemistry',
+      difficulty: 'Beginner',
+      estimatedTime: '30 min',
+      rating: 4.7,
+      completions: 1580,
+      description: 'Learn about atoms, electrons, protons, and neutrons',
+      topics: ['Electron Configuration', 'Atomic Number', 'Mass Number', 'Isotopes'],
+      prerequisites: ['Basic Chemistry']
     }
+  ];
 
-    if (selectedSubject !== 'All') {
-      filtered = filtered.filter(concept => concept.subject === selectedSubject);
-    }
+  const subjects = ['All', 'Mathematics', 'Physics', 'Chemistry', 'Biology'];
+  const difficulties = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
-    if (selectedDifficulty !== 'All') {
-      filtered = filtered.filter(concept => concept.difficulty === selectedDifficulty);
-    }
+  const filteredConcepts = concepts.filter(concept => {
+    const matchesSearch = concept.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         concept.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSubject = selectedSubject === 'all' || concept.subject === selectedSubject;
+    const matchesDifficulty = selectedDifficulty === 'all' || concept.difficulty === selectedDifficulty;
+    
+    return matchesSearch && matchesSubject && matchesDifficulty;
+  });
 
-    setFilteredConcepts(filtered);
-  }, [searchTerm, selectedSubject, selectedDifficulty]);
-
-  const handleConceptClick = (conceptId: string) => {
-    if (onNavigateToDetail) {
-      onNavigateToDetail(conceptId);
-    } else {
-      navigate(`/dashboard/student/concepts/${conceptId}`);
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Beginner': return 'bg-green-100 text-green-800';
+      case 'Intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'Advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const totalConcepts = mockConcepts.length;
-  const completedConcepts = mockConcepts.filter(c => c.completed).length;
-  const averageProgress = mockConcepts.reduce((acc, c) => acc + c.progress, 0) / totalConcepts;
+  const getSubjectIcon = (subject: string) => {
+    switch (subject) {
+      case 'Mathematics': return <Calculator className="h-4 w-4" />;
+      case 'Physics': return <Brain className="h-4 w-4" />;
+      case 'Chemistry': return <Lightbulb className="h-4 w-4" />;
+      default: return <BookOpen className="h-4 w-4" />;
+    }
+  };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <BackButton to="/dashboard/student" />
-      
+    <div className="space-y-6">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4"
-      >
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          Concept Cards Library
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Master key concepts with AI-powered learning cards. Each card adapts to your learning style and tracks your progress.
-        </p>
-      </motion.div>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Concept Cards</h1>
+          <p className="text-gray-600 mt-1">Interactive learning modules for deep understanding</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
+          <Button>
+            <Target className="h-4 w-4 mr-2" />
+            My Progress
+          </Button>
+        </div>
+      </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <BookOpen className="h-8 w-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold">{totalConcepts}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Total Concepts</p>
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search concepts..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
             </div>
+            <div className="flex gap-4">
+              <select
+                value={selectedSubject}
+                onChange={(e) => setSelectedSubject(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md"
+              >
+                {subjects.map(subject => (
+                  <option key={subject} value={subject.toLowerCase()}>
+                    {subject}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedDifficulty}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md"
+              >
+                {difficulties.map(difficulty => (
+                  <option key={difficulty} value={difficulty.toLowerCase()}>
+                    {difficulty}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Concept Cards Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredConcepts.map((concept) => (
+          <Card key={concept.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  {getSubjectIcon(concept.subject)}
+                  <Badge variant="outline" className="text-xs">
+                    {concept.subject}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 text-yellow-500" />
+                  <span className="text-sm">{concept.rating}</span>
+                </div>
+              </div>
+              <CardTitle className="text-lg leading-tight">{concept.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-gray-600 text-sm">{concept.description}</p>
+              
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Clock className="h-4 w-4" />
+                  {concept.estimatedTime}
+                </div>
+                <Badge className={getDifficultyColor(concept.difficulty)}>
+                  {concept.difficulty}
+                </Badge>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Topics Covered:</div>
+                <div className="flex flex-wrap gap-1">
+                  {concept.topics.slice(0, 3).map((topic, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {topic}
+                    </Badge>
+                  ))}
+                  {concept.topics.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{concept.topics.length - 3} more
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-xs text-gray-500">
+                {concept.completions} students completed
+              </div>
+
+              <Button className="w-full">
+                Start Learning
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Featured Formula Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Featured Formula: Quadratic Formula
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="formula">
+            <TabsList>
+              <TabsTrigger value="formula">Formula</TabsTrigger>
+              <TabsTrigger value="example">Example</TabsTrigger>
+              <TabsTrigger value="practice">Practice</TabsTrigger>
+            </TabsList>
+            <TabsContent value="formula">
+              <FormulaTabContent 
+                formulaData={{
+                  formula: "x = (-b ± √(b² - 4ac)) / 2a",
+                  variables: [
+                    { symbol: "x", name: "Solution/Root", unit: "" },
+                    { symbol: "a", name: "Coefficient of x²", unit: "" },
+                    { symbol: "b", name: "Coefficient of x", unit: "" },
+                    { symbol: "c", name: "Constant term", unit: "" }
+                  ]
+                }}
+              />
+            </TabsContent>
+            <TabsContent value="example">
+              <div className="space-y-4">
+                <h4 className="font-medium">Example: Solve 2x² + 5x - 3 = 0</h4>
+                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <p>Given: a = 2, b = 5, c = -3</p>
+                  <p>x = (-5 ± √(5² - 4(2)(-3))) / 2(2)</p>
+                  <p>x = (-5 ± √(25 + 24)) / 4</p>
+                  <p>x = (-5 ± √49) / 4</p>
+                  <p>x = (-5 ± 7) / 4</p>
+                  <p>x = 2/4 = 0.5 or x = -12/4 = -3</p>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="practice">
+              <div className="space-y-4">
+                <h4 className="font-medium">Practice Problem</h4>
+                <p>Solve: x² - 6x + 8 = 0</p>
+                <Button>Show Solution</Button>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Quick Stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-blue-600">156</div>
+            <div className="text-sm text-gray-500">Total Concepts</div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Target className="h-8 w-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold">{completedConcepts}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Completed</p>
-              </div>
-            </div>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-green-600">23</div>
+            <div className="text-sm text-gray-500">Completed</div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-8 w-8 text-purple-600" />
-              <div>
-                <p className="text-2xl font-bold">{Math.round(averageProgress)}%</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg Progress</p>
-              </div>
-            </div>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-purple-600">12h</div>
+            <div className="text-sm text-gray-500">Study Time</div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-8 w-8 text-orange-600" />
-              <div>
-                <p className="text-2xl font-bold">2.5h</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Study Time</p>
-              </div>
-            </div>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-orange-600">85%</div>
+            <div className="text-sm text-gray-500">Avg Score</div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="learn">Learn</TabsTrigger>
-          <TabsTrigger value="visual">Visual</TabsTrigger>
-          <TabsTrigger value="formula">Formula</TabsTrigger>
-          <TabsTrigger value="practice">Practice</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="mt-6">
-          {/* Search and Filters */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
-                Find Concepts
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Search concepts..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <select
-                    value={selectedSubject}
-                    onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="px-3 py-2 border rounded-md"
-                  >
-                    {subjects.map(subject => (
-                      <option key={subject} value={subject}>{subject}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={selectedDifficulty}
-                    onChange={(e) => setSelectedDifficulty(e.target.value)}
-                    className="px-3 py-2 border rounded-md"
-                  >
-                    {difficulties.map(difficulty => (
-                      <option key={difficulty} value={difficulty}>
-                        {difficulty === 'All' ? 'All Levels' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Concept Grid */}
-          <AnimatePresence>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredConcepts.map((concept, index) => (
-                <motion.div
-                  key={concept.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <ConceptCard
-                    {...concept}
-                    onView={() => handleConceptClick(concept.id)}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          </AnimatePresence>
-
-          {filteredConcepts.length === 0 && (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <p className="text-gray-500 dark:text-gray-400">No concepts found matching your criteria.</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="learn" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-blue-600" />
-                Text-Based Learning
-              </CardTitle>
-              <CardDescription>
-                Comprehensive explanations and theory
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p>Dive deep into theoretical foundations with our adaptive text content.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">Beginner Level</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Start with basic concepts and fundamental principles</p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">Advanced Level</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Explore complex applications and edge cases</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="visual" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-green-600" />
-                Visual Learning
-              </CardTitle>
-              <CardDescription>
-                Diagrams, charts, and visual representations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p>Learn through interactive diagrams and visual representations.</p>
-                <div className="bg-slate-100 dark:bg-slate-900 rounded-lg aspect-video flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <p className="text-slate-500 dark:text-slate-400">Interactive visual content would be displayed here</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="formula" className="mt-6">
-          <FormulaTabContent 
-            formula="V = I × R"
-            variables={[
-              { symbol: 'V', name: 'Voltage', unit: 'Volts (V)' },
-              { symbol: 'I', name: 'Current', unit: 'Amperes (A)' },
-              { symbol: 'R', name: 'Resistance', unit: 'Ohms (Ω)' }
-            ]}
-          />
-        </TabsContent>
-
-        <TabsContent value="practice" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                Practice & Assessment
-              </CardTitle>
-              <CardDescription>
-                Test your knowledge with interactive exercises
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p>Reinforce learning with practice questions and quizzes.</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 border rounded-lg text-center">
-                    <div className="text-2xl font-bold text-blue-600">25</div>
-                    <p className="text-sm">Practice Questions</p>
-                  </div>
-                  <div className="p-4 border rounded-lg text-center">
-                    <div className="text-2xl font-bold text-green-600">12</div>
-                    <p className="text-sm">Completed Quizzes</p>
-                  </div>
-                  <div className="p-4 border rounded-lg text-center">
-                    <div className="text-2xl font-bold text-purple-600">87%</div>
-                    <p className="text-sm">Average Score</p>
-                  </div>
-                </div>
-                <Button className="w-full">Start Practice Session</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };
