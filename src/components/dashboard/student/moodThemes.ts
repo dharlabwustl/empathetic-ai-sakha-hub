@@ -56,6 +56,22 @@ export const moodThemes: Record<string, MoodTheme> = {
     textColor: '#166534',
     accent: 'text-green-600',
     border: 'border-green-200'
+  },
+  'motivated': {
+    background: 'bg-emerald-50',
+    backgroundColor: '#ecfdf5',
+    text: 'text-emerald-800',
+    textColor: '#065f46',
+    accent: 'text-emerald-600',
+    border: 'border-emerald-200'
+  },
+  'anxious': {
+    background: 'bg-orange-50',
+    backgroundColor: '#fff7ed',
+    text: 'text-orange-800',
+    textColor: '#9a3412',
+    accent: 'text-orange-600',
+    border: 'border-orange-200'
   }
 };
 

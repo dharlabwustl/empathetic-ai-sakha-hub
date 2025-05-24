@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,7 @@ import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
+import { motion } from 'framer-motion';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -22,8 +24,9 @@ const ConceptDetailPage = () => {
   const [activeTab, setActiveTab] = useState('learn');
   const [concept, setConcept] = useState<ConceptCard | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
 
-  // Load bookmark status from localStorage
   useEffect(() => {
     if (conceptId) {
       const bookmarks = JSON.parse(localStorage.getItem('bookmarkedConcepts') || '[]');
@@ -54,6 +57,23 @@ const ConceptDetailPage = () => {
     
     localStorage.setItem('bookmarkedConcepts', JSON.stringify(updatedBookmarks));
     setIsBookmarked(!isBookmarked);
+  };
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
+    // Global play/pause logic will be handled by individual tabs
+  };
+
+  const handleReset = () => {
+    setIsPlaying(false);
+    // Reset logic will be handled by individual tabs
+  };
+
+  const handleAudioToggle = () => {
+    setAudioEnabled(!audioEnabled);
+    if (!audioEnabled && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
   };
 
   if (!concept) {
@@ -92,10 +112,42 @@ const ConceptDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
+          
+          {/* Global Controls */}
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAudioToggle}
+              className="flex items-center gap-2"
+            >
+              {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {audioEnabled ? 'Audio On' : 'Audio Off'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePlayPause}
+              className="flex items-center gap-2"
+            >
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {isPlaying ? 'Pause' : 'Play'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              className="flex items-center gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reset
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content */}
           <div className="lg:col-span-3">
             <ConceptHeader 
               title={concept.title}
@@ -106,39 +158,52 @@ const ConceptDetailPage = () => {
               onBookmarkToggle={handleBookmarkToggle}
             />
             
-            <div className="mt-6">
+            <motion.div 
+              className="mt-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-6">
-                  <TabsTrigger value="learn" className="flex items-center gap-2">
+                <TabsList className="grid w-full grid-cols-5 mb-6 bg-white dark:bg-gray-800 rounded-xl p-1">
+                  <TabsTrigger value="learn" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                     <BookOpen className="h-4 w-4" />
                     Learn
                   </TabsTrigger>
-                  <TabsTrigger value="diagrams" className="flex items-center gap-2">
+                  <TabsTrigger value="diagrams" className="flex items-center gap-2 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                     <Eye className="h-4 w-4" />
                     Diagrams
                   </TabsTrigger>
-                  <TabsTrigger value="3d" className="flex items-center gap-2">
+                  <TabsTrigger value="3d" className="flex items-center gap-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white">
                     <Brain className="h-4 w-4" />
-                    3D Lab
+                    Advanced 3D Interactive Lab
                   </TabsTrigger>
-                  <TabsTrigger value="tools" className="flex items-center gap-2">
+                  <TabsTrigger value="tools" className="flex items-center gap-2 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
                     <Lightbulb className="h-4 w-4" />
                     Learning Tools
                   </TabsTrigger>
-                  <TabsTrigger value="notes" className="flex items-center gap-2">
+                  <TabsTrigger value="notes" className="flex items-center gap-2 data-[state=active]:bg-gray-500 data-[state=active]:text-white">
                     <FileText className="h-4 w-4" />
                     Notes
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="learn" className="mt-0">
-                  <EnhancedLearnTab conceptName={concept.title} />
+                  <EnhancedLearnTab 
+                    conceptName={concept.title} 
+                    isPlaying={isPlaying}
+                    audioEnabled={audioEnabled}
+                    onPlayStateChange={setIsPlaying}
+                  />
                 </TabsContent>
 
                 <TabsContent value="diagrams" className="mt-0">
                   <EnhancedDiagramsTab 
                     conceptName={concept.title}
                     subject={concept.subject}
+                    isPlaying={isPlaying}
+                    audioEnabled={audioEnabled}
+                    onPlayStateChange={setIsPlaying}
                   />
                 </TabsContent>
 
@@ -146,12 +211,14 @@ const ConceptDetailPage = () => {
                   <Enhanced3DTab 
                     conceptName={concept.title}
                     subject={concept.subject}
+                    isPlaying={isPlaying}
+                    audioEnabled={audioEnabled}
+                    onPlayStateChange={setIsPlaying}
                   />
                 </TabsContent>
 
                 <TabsContent value="tools" className="mt-0">
                   <div className="space-y-6">
-                    {/* Quick Recall Test Section */}
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -171,7 +238,6 @@ const ConceptDetailPage = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Other Learning Tools */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Card>
                         <CardHeader>
@@ -219,10 +285,9 @@ const ConceptDetailPage = () => {
                   <NotesSection conceptName={concept.title} />
                 </TabsContent>
               </Tabs>
-            </div>
+            </motion.div>
           </div>
 
-          {/* Sidebar */}
           <div className="lg:col-span-1">
             <ConceptSidebar 
               masteryLevel={concept.masteryLevel || 65}
