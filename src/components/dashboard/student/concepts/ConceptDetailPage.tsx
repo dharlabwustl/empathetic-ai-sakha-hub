@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare, Play, Pause } from 'lucide-react';
+import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +22,6 @@ const ConceptDetailPage = () => {
   const [activeTab, setActiveTab] = useState('learn');
   const [concept, setConcept] = useState<ConceptCard | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(true);
 
   // Load bookmark status from localStorage
   useEffect(() => {
@@ -57,12 +54,6 @@ const ConceptDetailPage = () => {
     
     localStorage.setItem('bookmarkedConcepts', JSON.stringify(updatedBookmarks));
     setIsBookmarked(!isBookmarked);
-  };
-
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-    // Here you would integrate with actual audio/video controls
-    console.log(isPlaying ? 'Pausing audio explanation' : 'Starting audio explanation');
   };
 
   if (!concept) {
@@ -101,27 +92,6 @@ const ConceptDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
-          
-          {/* Global Play/Pause Controls */}
-          <div className="flex items-center gap-2 ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePlayPause}
-              className="flex items-center gap-2"
-            >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              {isPlaying ? 'Pause' : 'Play'} Audio
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAudioEnabled(!audioEnabled)}
-              className={audioEnabled ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}
-            >
-              Audio {audioEnabled ? 'On' : 'Off'}
-            </Button>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -149,7 +119,7 @@ const ConceptDetailPage = () => {
                   </TabsTrigger>
                   <TabsTrigger value="3d" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    Advanced 3D Interactive Lab
+                    3D Lab
                   </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
@@ -162,21 +132,13 @@ const ConceptDetailPage = () => {
                 </TabsList>
 
                 <TabsContent value="learn" className="mt-0">
-                  <EnhancedLearnTab 
-                    conceptName={concept.title} 
-                    isPlaying={isPlaying}
-                    audioEnabled={audioEnabled}
-                    onPlayPause={handlePlayPause}
-                  />
+                  <EnhancedLearnTab conceptName={concept.title} />
                 </TabsContent>
 
                 <TabsContent value="diagrams" className="mt-0">
                   <EnhancedDiagramsTab 
                     conceptName={concept.title}
                     subject={concept.subject}
-                    isPlaying={isPlaying}
-                    audioEnabled={audioEnabled}
-                    onPlayPause={handlePlayPause}
                   />
                 </TabsContent>
 
@@ -184,9 +146,6 @@ const ConceptDetailPage = () => {
                   <Enhanced3DTab 
                     conceptName={concept.title}
                     subject={concept.subject}
-                    isPlaying={isPlaying}
-                    audioEnabled={audioEnabled}
-                    onPlayPause={handlePlayPause}
                   />
                 </TabsContent>
 
