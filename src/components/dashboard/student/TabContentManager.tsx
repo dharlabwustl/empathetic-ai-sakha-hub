@@ -13,7 +13,6 @@ import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TabAIAssistant from './ai-assistant/TabAIAssistant';
 import TabProgressMeter from './progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
-import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
 
 interface RedesignedTodaysPlanProps {
   userProfile: UserProfileBase;
@@ -25,34 +24,19 @@ const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile
 
   return (
     <div className="space-y-6">
-      {/* Single Progress Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Today's Plan for {userProfile.name}</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <h2 className="text-2xl font-bold mb-4">Today's Plan for {userProfile.name}</h2>
+          <p className="text-muted-foreground mb-6">Your personalized study schedule is ready!</p>
+        </div>
+        <div className="space-y-4">
           <TabProgressMeter 
             tabName="Today's Plan" 
             progressData={progressData}
             showDetailed={false}
           />
+          <TabAIAssistant tabName="Today's Plan" isMinimized />
         </div>
-        <p className="text-muted-foreground">Your personalized study schedule is ready!</p>
-      </div>
-
-      {/* Smart Suggestions for Task Completion */}
-      <div className="mb-6">
-        <SmartSuggestionsCenter 
-          performance={{
-            accuracy: 75,
-            quizScores: 85,
-            conceptProgress: 65,
-            streak: 5
-          }}
-        />
-      </div>
-
-      {/* AI Assistant - Minimized */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <TabAIAssistant tabName="Today's Plan" isMinimized />
       </div>
     </div>
   );
