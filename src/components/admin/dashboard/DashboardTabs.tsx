@@ -27,9 +27,6 @@ import PersonalizationControlTab from './tabs/PersonalizationControlTab';
 import CommunicationManagementTab from './tabs/CommunicationManagementTab';
 import GamificationManagementTab from './tabs/GamificationManagementTab';
 
-// Import comprehensive admin dashboard
-import ComprehensiveAdminDashboard from './comprehensive/ComprehensiveAdminDashboard';
-
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
@@ -66,10 +63,6 @@ const DashboardTabs: React.FC = () => {
     >
       <TabsContent value="overview" className="space-y-4 mt-4">
         <Overview />
-      </TabsContent>
-
-      <TabsContent value="comprehensive" className="space-y-4 mt-4">
-        <ComprehensiveAdminDashboard />
       </TabsContent>
       
       <TabsContent value="analytics" className="space-y-4 mt-4">
