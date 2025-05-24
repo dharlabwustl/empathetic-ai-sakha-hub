@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartLine, TrendingUp, AlertCircle, CheckCircle2, BookOpen } from 'lucide-react';
+import { ChartLine, TrendingUp, Brain, Target, Clock, Zap, BookOpen, CheckCircle2 } from 'lucide-react';
 
 interface ExamReadinessProps {
   score: number;
@@ -37,33 +37,73 @@ const ExamReadinessMeter: React.FC<ExamReadinessProps> = ({
   
   const trendDirection = getTrendDirection();
   
-  const getImprovementTips = () => {
-    if (score >= 80) {
-      return [
-        "Keep reviewing high-yield topics regularly",
-        "Focus on advanced practice tests",
-        "Try teaching concepts to others to reinforce learning"
-      ];
-    } else if (score >= 60) {
-      return [
-        "Increase practice test frequency",
-        "Create concise summary sheets for key concepts",
-        "Form study groups for challenging topics"
-      ];
-    } else if (score >= 40) {
-      return [
-        "Establish a regular daily study schedule",
-        "Focus on core concepts before advanced topics",
-        "Use flashcards for active recall practice"
-      ];
+  // Smart suggestions based on score and current time
+  const getSmartSuggestions = () => {
+    const currentHour = new Date().getHours();
+    const currentDay = new Date().getDay();
+    const suggestions = [];
+
+    if (score < 40) {
+      suggestions.push({
+        icon: <Target className="h-4 w-4 text-amber-500" />,
+        text: "Focus on fundamentals first. Master basic concepts before moving to complex topics",
+        action: "Study Core Concepts",
+        priority: "high"
+      });
+    } else if (score >= 40 && score < 60) {
+      suggestions.push({
+        icon: <Brain className="h-4 w-4 text-blue-500" />,
+        text: "Good foundation! Try mixed practice tests to identify weak areas",
+        action: "Take Practice Test",
+        priority: "medium"
+      });
+    } else if (score >= 60 && score < 80) {
+      suggestions.push({
+        icon: <Zap className="h-4 w-4 text-purple-500" />,
+        text: "You're doing well! Focus on speed and accuracy with timed practice",
+        action: "Time-bound Practice",
+        priority: "medium"
+      });
     } else {
-      return [
-        "Build strong foundational knowledge first",
-        "Break down complex topics into smaller chunks",
-        "Schedule focused study sessions without distractions"
-      ];
+      suggestions.push({
+        icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+        text: "Excellent! Maintain consistency and try advanced challenging questions",
+        action: "Advanced Practice",
+        priority: "low"
+      });
     }
+
+    // Time-based suggestions
+    if (currentHour < 12) {
+      suggestions.push({
+        icon: <Clock className="h-4 w-4 text-orange-500" />,
+        text: "Morning energy is high! Tackle your most challenging topics now",
+        action: "Study Difficult Topics",
+        priority: "high"
+      });
+    } else if (currentHour > 18) {
+      suggestions.push({
+        icon: <BookOpen className="h-4 w-4 text-blue-500" />,
+        text: "Evening review time! Go through what you learned today",
+        action: "Review Today's Work",
+        priority: "medium"
+      });
+    }
+
+    // Day-based suggestions
+    if (currentDay === 0 || currentDay === 6) { // Weekend
+      suggestions.push({
+        icon: <Brain className="h-4 w-4 text-violet-500" />,
+        text: "Weekend deep dive! Perfect time for comprehensive topic revision",
+        action: "Deep Topic Study",
+        priority: "medium"
+      });
+    }
+
+    return suggestions.slice(0, 2); // Limit to 2 suggestions
   };
+
+  const smartSuggestions = getSmartSuggestions();
 
   return (
     <Card>
@@ -100,6 +140,16 @@ const ExamReadinessMeter: React.FC<ExamReadinessProps> = ({
             <Progress value={score} className={`h-2 ${getColorByScore(score)}`} />
           </div>
           
+          {/* Switch Exam and Generate New Plan buttons below progress meter */}
+          <div className="flex gap-2 pt-2">
+            <Button size="sm" variant="outline" className="flex-1">
+              Switch Exam
+            </Button>
+            <Button size="sm" variant="outline" className="flex-1">
+              Generate New Plan
+            </Button>
+          </div>
+          
           {weeklyTrend.length > 0 && (
             <div className="pt-2">
               <h4 className="text-sm font-medium mb-2">Weekly Progress</h4>
@@ -127,18 +177,35 @@ const ExamReadinessMeter: React.FC<ExamReadinessProps> = ({
             </div>
           )}
           
+          {/* Smart Suggestions Section (replaces Tips to Improve) */}
           <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-            <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" /> Tips to Improve
+            <h4 className="text-sm font-medium mb-3 flex items-center gap-1">
+              <Brain className="h-4 w-4 text-violet-600" /> Smart Suggestions
             </h4>
-            <ul className="space-y-1">
-              {getImprovementTips().map((tip, index) => (
-                <li key={index} className="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-1.5">
-                  <CheckCircle2 className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>{tip}</span>
-                </li>
+            <div className="space-y-3">
+              {smartSuggestions.map((suggestion, index) => (
+                <div 
+                  key={index}
+                  className={`p-3 rounded-lg border-l-4 ${
+                    suggestion.priority === 'high' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' :
+                    suggestion.priority === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
+                    'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    {suggestion.icon}
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-gray-800 dark:text-gray-200 mb-1">
+                        {suggestion.text}
+                      </p>
+                      <Button size="sm" variant="outline" className="text-xs h-6">
+                        {suggestion.action}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
           
           <Button size="sm" variant="outline" className="w-full mt-2 text-xs flex items-center gap-1">

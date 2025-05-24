@@ -128,72 +128,75 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
   
   return (
     <div className="space-y-8">
-      {/* Main Progress Overview - Only One */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Today's Progress</h3>
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold text-blue-600">{planData.completedTasks}</span>
-                <span className="text-gray-500 text-lg">/ {planData.totalTasks}</span>
-                <span className="text-sm text-gray-400">tasks</span>
+      {/* Today's Plan Progress - Single Main Title */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Today's Plan Progress</h2>
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Today's Progress</h3>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold text-blue-600">{planData.completedTasks}</span>
+                  <span className="text-gray-500 text-lg">/ {planData.totalTasks}</span>
+                  <span className="text-sm text-gray-400">tasks</span>
+                </div>
+                <Progress 
+                  value={(planData.completedTasks / planData.totalTasks) * 100} 
+                  className="h-3"
+                />
+                <div className="text-sm text-gray-600">
+                  {Math.round((planData.completedTasks / planData.totalTasks) * 100)}% Complete
+                </div>
               </div>
-              <Progress 
-                value={(planData.completedTasks / planData.totalTasks) * 100} 
-                className="h-3"
-              />
-              <div className="text-sm text-gray-600">
-                {Math.round((planData.completedTasks / planData.totalTasks) * 100)}% Complete
+              
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Time Allocation</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <span className="text-sm">Concepts</span>
+                    </div>
+                    <span className="text-sm font-medium">{planData.timeAllocation.concepts}m</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                      <span className="text-sm">Flashcards</span>
+                    </div>
+                    <span className="text-sm font-medium">{planData.timeAllocation.flashcards}m</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="text-sm">Practice</span>
+                    </div>
+                    <span className="text-sm font-medium">{planData.timeAllocation.practiceExams}m</span>
+                  </div>
+                </div>
+                <div className="pt-2 border-t">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Total Time:</span>
+                    <span className="text-sm font-bold text-blue-600">{planData.timeAllocation.total} min</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Study Streak</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-4xl font-bold text-orange-500">{planData.streak}</span>
+                  <span className="text-gray-500">days</span>
+                </div>
+                <Button className="w-full mt-4" variant="outline">
+                  Download Today's Plan
+                </Button>
               </div>
             </div>
-            
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Time Allocation</h3>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <span className="text-sm">Concepts</span>
-                  </div>
-                  <span className="text-sm font-medium">{planData.timeAllocation.concepts}m</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                    <span className="text-sm">Flashcards</span>
-                  </div>
-                  <span className="text-sm font-medium">{planData.timeAllocation.flashcards}m</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-sm">Practice</span>
-                  </div>
-                  <span className="text-sm font-medium">{planData.timeAllocation.practiceExams}m</span>
-                </div>
-              </div>
-              <div className="pt-2 border-t">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Total Time:</span>
-                  <span className="text-sm font-bold text-blue-600">{planData.timeAllocation.total} min</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Study Streak</h3>
-              <div className="flex items-center gap-2">
-                <span className="text-4xl font-bold text-orange-500">{planData.streak}</span>
-                <span className="text-gray-500">days</span>
-              </div>
-              <Button className="w-full mt-4" variant="outline">
-                Download Today's Plan
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Smart Suggestions Section */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20">
