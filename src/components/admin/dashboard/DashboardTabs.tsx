@@ -36,6 +36,11 @@ import EnhancedContentManagementTab from './EnhancedContentManagementTab';
 import StudentDataSyncTab from './StudentDataSyncTab';
 import FeatureAuditTab from './FeatureAuditTab';
 
+// Import new implementation tabs
+import AIModelManagementTab from './AIModelManagementTab';
+import InteractiveContentTab from './InteractiveContentTab';
+import AnalyticsReportingTab from './AnalyticsReportingTab';
+
 const DashboardTabs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
@@ -114,6 +119,10 @@ const DashboardTabs: React.FC = () => {
         <AIModelsTab />
       </TabsContent>
 
+      <TabsContent value="ai-model-management" className="space-y-4 mt-4">
+        <AIModelManagementTab />
+      </TabsContent>
+
       <TabsContent value="ai-features" className="space-y-4 mt-4">
         <AIFeaturesManagementTab />
       </TabsContent>
@@ -148,6 +157,14 @@ const DashboardTabs: React.FC = () => {
 
       <TabsContent value="revenue" className="space-y-4 mt-4">
         <RevenueAnalyticsTab />
+      </TabsContent>
+
+      <TabsContent value="interactive-content" className="space-y-4 mt-4">
+        <InteractiveContentTab />
+      </TabsContent>
+
+      <TabsContent value="analytics-reporting" className="space-y-4 mt-4">
+        <AnalyticsReportingTab />
       </TabsContent>
       
       <TabsContent value="database" className="space-y-4 mt-4">

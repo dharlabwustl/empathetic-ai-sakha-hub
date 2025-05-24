@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import {
   Video, Folder, Bell, LogOut, Home, Calendar, LineChart,
   TrendingUp, UserCheck, Zap, Cpu, Globe, Lock, Heart,
   Target, Award, HelpCircle, Smartphone, Puzzle, Upload,
-  Sync, CheckCircle
+  RefreshCw, CheckCircle
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -32,7 +31,7 @@ const AdminSidebar: React.FC = () => {
       items: [
         { icon: <Users size={20} />, title: "All Users", path: "/admin/dashboard", tab: "users" },
         { icon: <UserCheck size={20} />, title: "Student Profiles", path: "/admin/dashboard", tab: "student-profiles" },
-        { icon: <Sync size={20} />, title: "Data Sync", path: "/admin/dashboard", tab: "student-data-sync" },
+        { icon: <RefreshCw size={20} />, title: "Data Sync", path: "/admin/dashboard", tab: "student-data-sync" },
         { icon: <Users size={20} />, title: "Batch Management", path: "/admin/dashboard", tab: "batch-management" },
         { icon: <Heart size={20} />, title: "Mood Analytics", path: "/admin/dashboard", tab: "mood-analytics" }
       ]

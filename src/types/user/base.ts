@@ -1,3 +1,4 @@
+
 export enum UserRole {
   Student = 'student',
   Tutor = 'tutor',
@@ -61,6 +62,12 @@ export interface UserProfileBase {
     id: string;
     name: string;
   };
+  studyStreak?: StudyStreak;
+  examPreparation?: {
+    examName: string;
+    targetDate: string;
+    subjects: string[];
+  };
 }
 
 export interface SubjectProgress {
@@ -101,3 +108,6 @@ export interface BillingRecord {
   description: string;
   status: 'paid' | 'failed' | 'pending';
 }
+
+export type SubscriptionTypeValue = 'free' | 'basic' | 'premium' | 'pro' | 'pro_monthly' | 'pro_yearly' | 'group';
+export type UserProfileType = UserProfileBase;
