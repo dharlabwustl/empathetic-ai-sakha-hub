@@ -26,13 +26,9 @@ const adminAuthService = {
     
     try {
       // Add a small delay to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       console.log("🔍 adminAuthService: Checking credentials...");
-      console.log("Expected email:", ADMIN_CREDENTIALS.email);
-      console.log("Provided email:", credentials.email);
-      console.log("Email match:", credentials.email === ADMIN_CREDENTIALS.email);
-      console.log("Password match:", credentials.password === ADMIN_CREDENTIALS.password);
       
       if (credentials.email === ADMIN_CREDENTIALS.email && 
           credentials.password === ADMIN_CREDENTIALS.password) {
@@ -47,28 +43,21 @@ const adminAuthService = {
           permissions: ['all']
         };
         
-        // Clear any existing user data
+        // Clear any existing user data first
         console.log("🧹 adminAuthService: Clearing existing auth data");
-        localStorage.removeItem('userData');
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('new_user_signup');
-        localStorage.removeItem('google_signup');
+        localStorage.clear();
         
         // Store admin data
-        const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-        console.log("💾 adminAuthService: Storing admin data with token:", mockToken);
+        const mockToken = `admin_token_${Date.now()}`;
+        console.log("💾 adminAuthService: Storing admin data");
         
         localStorage.setItem("adminToken", mockToken);
         localStorage.setItem("adminUser", JSON.stringify(adminUser));
         localStorage.setItem("admin_logged_in", "true");
         
-        // Force redirect immediately
-        console.log("🚀 adminAuthService: Forcing immediate redirect to dashboard");
-        window.location.href = "/admin/dashboard";
-        
-        console.log("📊 adminAuthService: Verification - stored data check:", {
-          token: !!localStorage.getItem("adminToken"),
-          user: !!localStorage.getItem("adminUser"),
+        console.log("📊 adminAuthService: Stored data:", {
+          token: localStorage.getItem("adminToken"),
+          user: localStorage.getItem("adminUser"),
           loggedIn: localStorage.getItem("admin_logged_in")
         });
         
@@ -76,7 +65,7 @@ const adminAuthService = {
         console.log("📡 adminAuthService: Dispatching auth state change event");
         window.dispatchEvent(new Event('auth-state-changed'));
         
-        console.log("🎯 adminAuthService: Admin login successful, returning success response");
+        console.log("🎯 adminAuthService: Admin login successful");
         
         return {
           success: true,
@@ -108,7 +97,6 @@ const adminAuthService = {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("admin_logged_in");
-    localStorage.removeItem("admin_login_attempt");
     
     console.log("📡 adminAuthService: Dispatching auth state change event for logout");
     window.dispatchEvent(new Event('auth-state-changed'));
@@ -125,8 +113,7 @@ const adminAuthService = {
       console.log("🔍 adminAuthService: Getting admin user - checks:", {
         hasToken: !!token,
         hasUser: !!userJson,
-        isLoggedIn: isAdminLoggedIn,
-        tokenValue: token ? token.substring(0, 20) + "..." : "null"
+        isLoggedIn: isAdminLoggedIn
       });
       
       if (!token || !userJson || !isAdminLoggedIn) {

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,15 +17,12 @@ const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
   const { isAdminAuthenticated, loginAdmin, error } = useAdminAuth();
   const { toast } = useToast();
 
   console.log("🎬 AdminLogin: Component rendered with state:", {
     isAdminAuthenticated,
     email,
-    passwordLength: password.length,
     isLoading,
     loginError,
     contextError: error
@@ -34,7 +31,7 @@ const AdminLogin: React.FC = () => {
   useEffect(() => {
     console.log("🔍 AdminLogin: Auth state check - isAdminAuthenticated:", isAdminAuthenticated);
     if (isAdminAuthenticated) {
-      console.log("✅ AdminLogin: User already authenticated, forcing redirect to dashboard");
+      console.log("✅ AdminLogin: User already authenticated, redirecting immediately");
       window.location.href = '/admin/dashboard';
     }
   }, [isAdminAuthenticated]);
@@ -49,9 +46,6 @@ const AdminLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("🚀 AdminLogin: Form submission started");
-    console.log("📧 AdminLogin: Email:", email);
-    console.log("🔒 AdminLogin: Password provided:", password ? "YES" : "NO");
-    console.log("🔒 AdminLogin: Password length:", password.length);
     
     setLoginError(null);
     setIsLoading(true);
@@ -59,22 +53,25 @@ const AdminLogin: React.FC = () => {
     console.log("🔄 AdminLogin: Starting login process...");
     
     try {
-      console.log("🔐 AdminLogin: Calling loginAdmin function with credentials");
+      console.log("🔐 AdminLogin: Calling loginAdmin function");
       const success = await loginAdmin(email, password);
       
       console.log("📊 AdminLogin: Login result received:", success);
       
       if (success) {
-        console.log("✅ AdminLogin: Login successful! Showing success toast");
+        console.log("✅ AdminLogin: Login successful! Redirecting...");
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
         
-        console.log("🎯 AdminLogin: Forcing immediate redirect to dashboard");
-        window.location.href = "/admin/dashboard";
+        // Small delay then redirect
+        setTimeout(() => {
+          console.log("🎯 AdminLogin: Executing redirect to dashboard");
+          window.location.href = "/admin/dashboard";
+        }, 100);
       } else {
-        console.log("❌ AdminLogin: Login failed - setting error message");
+        console.log("❌ AdminLogin: Login failed");
         setLoginError("Invalid admin credentials");
       }
     } catch (err) {
