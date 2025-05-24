@@ -81,3 +81,32 @@ export const storeMoodInLocalStorage = (mood: MoodType): void => {
     console.error('Error storing mood in localStorage:', error);
   }
 };
+
+export const analyzeMoodTrends = () => {
+  // Mock implementation for mood trend analysis
+  const mockTrends = {
+    stressSignals: Math.random() > 0.7,
+    improved: Math.random() > 0.5,
+    pattern: 'stable'
+  };
+  return mockTrends;
+};
+
+export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
+  // Mock implementation for updating study time allocations
+  console.log('Updating study time allocations for mood:', mood);
+  
+  const allocations = {
+    [MoodType.Happy]: { focused: 0.6, review: 0.2, new: 0.2 },
+    [MoodType.Tired]: { focused: 0.2, review: 0.6, new: 0.2 },
+    [MoodType.Stressed]: { focused: 0.3, review: 0.5, new: 0.2 },
+    [MoodType.Motivated]: { focused: 0.5, review: 0.2, new: 0.3 }
+  };
+  
+  // Store in localStorage for demo purposes
+  try {
+    localStorage.setItem('studyAllocations', JSON.stringify(allocations[mood] || allocations[MoodType.Neutral]));
+  } catch (error) {
+    console.error('Error storing study allocations:', error);
+  }
+};
