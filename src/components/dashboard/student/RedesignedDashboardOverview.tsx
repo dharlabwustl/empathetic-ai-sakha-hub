@@ -19,6 +19,7 @@ import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import ProgressTrackerSection from './dashboard-sections/ProgressTrackerSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import DynamicSmartSuggestions from './dashboard-sections/DynamicSmartSuggestions';
 import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import { MoodType } from '@/types/user/base';
 import { Progress } from '@/components/ui/progress';
