@@ -5,185 +5,156 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, BookOpen, Target, TrendingUp, Clock, Star, AlertCircle } from 'lucide-react';
-import { UserProfileBase } from '@/types/user/base';
-import { StudyPlanSubject } from '@/types/user/studyPlan';
+import { useAcademicPlans } from './hooks/useAcademicPlans';
+import { StudyPlanSubject, StudyPlanTopic } from '@/types/user/studyPlan';
+import { 
+  Brain, 
+  BookOpen, 
+  Target, 
+  TrendingUp, 
+  Calendar,
+  Clock,
+  Award,
+  AlertCircle
+} from 'lucide-react';
 
-interface AcademicAdvisorViewProps {
-  userProfile: UserProfileBase;
-}
+const AcademicAdvisorView: React.FC = () => {
+  const { jeeSubjects, neetSubjects, loading, updateSubjectProgress } = useAcademicPlans();
+  const [activeExam, setActiveExam] = useState<'JEE' | 'NEET'>('JEE');
 
-const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }) => {
-  const [selectedTab, setSelectedTab] = useState('recommendations');
-
-  // Mock data with complete StudyPlanSubject structure
-  const currentSubjects: StudyPlanSubject[] = [
+  // Mock JEE subjects with proper topic structure
+  const mockJeeSubjects: StudyPlanSubject[] = [
     {
-      id: 'physics-1',
-      name: 'Physics - Mechanics',
+      id: 'jee-physics',
+      name: 'Physics',
       difficulty: 'medium',
       completed: false,
       status: 'in-progress',
       priority: 'high',
       proficiency: 'medium',
       hoursPerWeek: 8,
-      chaptersTotal: 12,
-      chaptersCompleted: 7,
-      estimatedHours: 96,
-      actualHours: 58,
-      topics: ['Motion', 'Forces', 'Energy', 'Momentum']
-    },
-    {
-      id: 'chemistry-1',
-      name: 'Chemistry - Organic',
-      difficulty: 'easy',
-      completed: false,
-      status: 'pending',
-      priority: 'medium',
-      proficiency: 'strong',
-      hoursPerWeek: 6,
-      chaptersTotal: 10,
-      chaptersCompleted: 3,
-      estimatedHours: 80,
-      actualHours: 24,
-      topics: ['Hydrocarbons', 'Alcohols', 'Carbonyl Compounds']
-    },
-    {
-      id: 'mathematics-1',
-      name: 'Mathematics - Calculus',
-      difficulty: 'hard',
-      completed: false,
-      status: 'completed',
-      priority: 'high',
-      proficiency: 'weak',
-      hoursPerWeek: 10,
-      chaptersTotal: 8,
+      chaptersTotal: 15,
       chaptersCompleted: 8,
       estimatedHours: 120,
-      actualHours: 145,
-      topics: ['Limits', 'Derivatives', 'Integration', 'Applications']
+      actualHours: 64,
+      topics: [
+        { id: 'mechanics', name: 'Mechanics', completed: true },
+        { id: 'thermodynamics', name: 'Thermodynamics', completed: false },
+        { id: 'electromagnetism', name: 'Electromagnetism', completed: false },
+        { id: 'optics', name: 'Optics', completed: true }
+      ]
+    },
+    {
+      id: 'jee-chemistry',
+      name: 'Chemistry',
+      difficulty: 'medium',
+      completed: false,
+      status: 'in-progress',
+      priority: 'medium',
+      proficiency: 'weak',
+      hoursPerWeek: 6,
+      chaptersTotal: 12,
+      chaptersCompleted: 5,
+      estimatedHours: 96,
+      actualHours: 42,
+      topics: [
+        { id: 'physical-chemistry', name: 'Physical Chemistry', completed: false },
+        { id: 'organic-chemistry', name: 'Organic Chemistry', completed: true },
+        { id: 'inorganic-chemistry', name: 'Inorganic Chemistry', completed: false }
+      ]
+    },
+    {
+      id: 'jee-mathematics',
+      name: 'Mathematics',
+      difficulty: 'hard',
+      completed: false,
+      status: 'pending',
+      priority: 'high',
+      proficiency: 'strong',
+      hoursPerWeek: 10,
+      chaptersTotal: 18,
+      chaptersCompleted: 12,
+      estimatedHours: 144,
+      actualHours: 96,
+      topics: [
+        { id: 'algebra', name: 'Algebra', completed: true },
+        { id: 'calculus', name: 'Calculus', completed: false },
+        { id: 'coordinate-geometry', name: 'Coordinate Geometry', completed: true },
+        { id: 'trigonometry', name: 'Trigonometry', completed: false }
+      ]
     }
   ];
 
-  const upcomingSubjects: StudyPlanSubject[] = [
+  // Mock NEET subjects with proper topic structure
+  const mockNeetSubjects: StudyPlanSubject[] = [
     {
-      id: 'physics-2',
-      name: 'Physics - Thermodynamics',
-      difficulty: 'hard',
-      completed: false,
-      status: 'pending',
-      priority: 'high',
-      proficiency: 'weak',
-      hoursPerWeek: 8,
-      chaptersTotal: 6,
-      chaptersCompleted: 0,
-      estimatedHours: 72,
-      actualHours: 0,
-      topics: ['Heat Transfer', 'Laws of Thermodynamics', 'Kinetic Theory']
-    },
-    {
-      id: 'chemistry-2',
-      name: 'Chemistry - Inorganic',
+      id: 'neet-physics',
+      name: 'Physics',
       difficulty: 'medium',
-      completed: false,
-      status: 'in-progress',
+      completed: true,
+      status: 'completed',
       priority: 'medium',
-      proficiency: 'medium',
+      proficiency: 'weak',
       hoursPerWeek: 6,
-      chaptersTotal: 8,
-      chaptersCompleted: 1,
-      estimatedHours: 64,
-      actualHours: 8,
-      topics: ['Coordination Compounds', 'Metallurgy', 'p-Block Elements']
+      chaptersTotal: 12,
+      chaptersCompleted: 12,
+      estimatedHours: 72,
+      actualHours: 78,
+      topics: [
+        { id: 'mechanics', name: 'Mechanics', completed: true },
+        { id: 'thermodynamics', name: 'Thermodynamics', completed: true },
+        { id: 'waves', name: 'Waves', completed: true }
+      ]
     },
     {
-      id: 'mathematics-2',
-      name: 'Mathematics - Probability',
-      difficulty: 'hard',
-      completed: false,
-      status: 'pending',
+      id: 'neet-chemistry',
+      name: 'Chemistry',
+      difficulty: 'easy',
+      completed: true,
+      status: 'completed',
       priority: 'low',
       proficiency: 'weak',
       hoursPerWeek: 5,
-      chaptersTotal: 5,
-      chaptersCompleted: 0,
-      estimatedHours: 50,
-      actualHours: 0,
-      topics: ['Probability Theory', 'Distributions', 'Statistics']
-    }
-  ];
-
-  const completedSubjects: StudyPlanSubject[] = [
+      chaptersTotal: 10,
+      chaptersCompleted: 10,
+      estimatedHours: 60,
+      actualHours: 65,
+      topics: [
+        { id: 'physical-chemistry', name: 'Physical Chemistry', completed: true },
+        { id: 'organic-chemistry', name: 'Organic Chemistry', completed: true }
+      ]
+    },
     {
-      id: 'biology-1',
-      name: 'Biology - Cell Biology',
+      id: 'neet-biology',
+      name: 'Biology',
       difficulty: 'medium',
       completed: true,
       status: 'completed',
       priority: 'high',
-      proficiency: 'strong',
-      hoursPerWeek: 7,
-      chaptersTotal: 10,
-      chaptersCompleted: 10,
-      estimatedHours: 70,
-      actualHours: 68,
-      topics: ['Cell Structure', 'Cell Division', 'Biomolecules', 'Enzymes']
-    },
-    {
-      id: 'chemistry-basics',
-      name: 'Chemistry - Basics',
-      difficulty: 'easy',
-      completed: true,
-      status: 'completed',
-      priority: 'high',
-      proficiency: 'strong',
-      hoursPerWeek: 5,
-      chaptersTotal: 8,
-      chaptersCompleted: 8,
-      estimatedHours: 40,
-      actualHours: 42,
-      topics: ['Atomic Structure', 'Chemical Bonding', 'Stoichiometry']
-    },
-    {
-      id: 'physics-basics',
-      name: 'Physics - Basics',
-      difficulty: 'hard',
-      completed: true,
-      status: 'in-progress',
-      priority: 'medium',
       proficiency: 'medium',
-      hoursPerWeek: 6,
-      chaptersTotal: 6,
-      chaptersCompleted: 6,
-      estimatedHours: 48,
-      actualHours: 52,
-      topics: ['Units & Measurements', 'Kinematics', 'Dynamics']
+      hoursPerWeek: 8,
+      chaptersTotal: 16,
+      chaptersCompleted: 16,
+      estimatedHours: 96,
+      actualHours: 88,
+      topics: [
+        { id: 'botany', name: 'Botany', completed: true },
+        { id: 'zoology', name: 'Zoology', completed: true },
+        { id: 'human-physiology', name: 'Human Physiology', completed: true }
+      ]
     }
   ];
 
-  const recommendations = [
-    {
-      type: 'priority',
-      title: 'Focus on Physics - Mechanics',
-      description: 'Complete this high-priority subject first. You\'re 58% done.',
-      action: 'Continue studying',
-      urgency: 'high'
-    },
-    {
-      type: 'weak-area',
-      title: 'Strengthen Mathematics Foundation',
-      description: 'Your calculus proficiency needs improvement. Consider extra practice.',
-      action: 'Practice more problems',
-      urgency: 'medium'
-    },
-    {
-      type: 'schedule',
-      title: 'Optimize Study Schedule',
-      description: 'You\'re spending more time than estimated on difficult topics.',
-      action: 'Adjust time allocation',
-      urgency: 'low'
+  const currentSubjects = activeExam === 'JEE' ? mockJeeSubjects : mockNeetSubjects;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'in-progress': return 'bg-blue-100 text-blue-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
-  ];
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -194,198 +165,170 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
     }
   };
 
-  const getProficiencyColor = (proficiency: string) => {
-    switch (proficiency) {
-      case 'strong': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'weak': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getUrgencyIcon = (urgency: string) => {
-    switch (urgency) {
-      case 'high': return <AlertCircle className="h-4 w-4 text-red-600" />;
-      case 'medium': return <Clock className="h-4 w-4 text-yellow-600" />;
-      case 'low': return <TrendingUp className="h-4 w-4 text-green-600" />;
-      default: return <Brain className="h-4 w-4" />;
-    }
-  };
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3">Loading academic plans...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* AI Academic Advisor Header */}
+      {/* Header */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="h-6 w-6 text-purple-600" />
-            AI Academic Advisor
+            <Brain className="h-5 w-5" />
+            Academic Advisor
           </CardTitle>
-          <p className="text-sm text-gray-600">
-            Personalized guidance based on your learning patterns and exam goals
+          <p className="text-sm text-muted-foreground">
+            AI-powered academic guidance and study plan management
           </p>
         </CardHeader>
       </Card>
 
-      {/* Main Content Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-          <TabsTrigger value="current">Current Subjects</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-        </TabsList>
+      {/* Exam Type Selector */}
+      <div className="flex gap-2">
+        <Button 
+          variant={activeExam === 'JEE' ? 'default' : 'outline'}
+          onClick={() => setActiveExam('JEE')}
+        >
+          JEE Plan
+        </Button>
+        <Button 
+          variant={activeExam === 'NEET' ? 'default' : 'outline'}
+          onClick={() => setActiveExam('NEET')}
+        >
+          NEET Plan
+        </Button>
+      </div>
 
-        <TabsContent value="recommendations" className="space-y-4">
-          <div className="grid gap-4">
-            {recommendations.map((rec, index) => (
-              <Card key={index}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    {getUrgencyIcon(rec.urgency)}
-                    <div className="flex-1">
-                      <h3 className="font-medium mb-1">{rec.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3">{rec.description}</p>
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline">
-                          {rec.action}
-                        </Button>
-                        <Badge className={getPriorityColor(rec.urgency)}>
-                          {rec.urgency} priority
+      {/* Subjects Overview */}
+      <div className="grid gap-4">
+        {currentSubjects.map((subject) => (
+          <Card key={subject.id}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <h3 className="font-medium">{subject.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {subject.chaptersCompleted}/{subject.chaptersTotal} chapters completed
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className={getStatusColor(subject.status)}>
+                    {subject.status}
+                  </Badge>
+                  <Badge className={getPriorityColor(subject.priority)}>
+                    {subject.priority} priority
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Progress */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Progress</span>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.round((subject.chaptersCompleted / subject.chaptersTotal) * 100)}%
+                    </span>
+                  </div>
+                  <Progress 
+                    value={(subject.chaptersCompleted / subject.chaptersTotal) * 100} 
+                    className="h-2"
+                  />
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-blue-600">{subject.hoursPerWeek}h</div>
+                    <div className="text-xs text-muted-foreground">Per Week</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-green-600">{subject.actualHours}h</div>
+                    <div className="text-xs text-muted-foreground">Completed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-purple-600">{subject.proficiency}</div>
+                    <div className="text-xs text-muted-foreground">Proficiency</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-orange-600">{subject.difficulty}</div>
+                    <div className="text-xs text-muted-foreground">Difficulty</div>
+                  </div>
+                </div>
+
+                {/* Topics */}
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Topics</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {subject.topics.map((topic, index) => {
+                      const topicObj = typeof topic === 'string' 
+                        ? { id: `topic-${index}`, name: topic, completed: false }
+                        : topic;
+                      
+                      return (
+                        <Badge 
+                          key={topicObj.id} 
+                          variant={topicObj.completed ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {topicObj.name}
+                          {topicObj.completed && ' ✓'}
                         </Badge>
-                      </div>
-                    </div>
+                      );
+                    })}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* AI Recommendations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            AI Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Focus Area</p>
+                <p className="text-sm text-muted-foreground">
+                  Spend more time on Chemistry - Organic reactions need attention
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+              <Award className="h-4 w-4 text-green-600 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Strength</p>
+                <p className="text-sm text-muted-foreground">
+                  Mathematics progress is excellent - maintain the momentum
+                </p>
+              </div>
+            </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="current" className="space-y-4">
-          <div className="grid gap-4">
-            {currentSubjects.map((subject) => (
-              <Card key={subject.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium">{subject.name}</h3>
-                    <div className="flex gap-2">
-                      <Badge className={getPriorityColor(subject.priority)}>
-                        {subject.priority}
-                      </Badge>
-                      <Badge className={getProficiencyColor(subject.proficiency)}>
-                        {subject.proficiency}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Progress</span>
-                      <span>{subject.chaptersCompleted}/{subject.chaptersTotal} chapters</span>
-                    </div>
-                    <Progress value={(subject.chaptersCompleted / subject.chaptersTotal) * 100} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Time Spent:</span>
-                      <span className="ml-2 font-medium">{subject.actualHours}h</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Estimated:</span>
-                      <span className="ml-2 font-medium">{subject.estimatedHours}h</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <Button size="sm" className="gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      Continue Study
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="upcoming" className="space-y-4">
-          <div className="grid gap-4">
-            {upcomingSubjects.map((subject) => (
-              <Card key={subject.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium">{subject.name}</h3>
-                    <div className="flex gap-2">
-                      <Badge className={getPriorityColor(subject.priority)}>
-                        {subject.priority}
-                      </Badge>
-                      <Badge variant="outline">
-                        {subject.estimatedHours}h estimated
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 mb-3">
-                    Topics: {subject.topics.join(', ')}
-                  </p>
-
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      <Target className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
-                    <Button size="sm">
-                      Start Early
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-4">
-          <div className="grid gap-4">
-            {completedSubjects.map((subject) => (
-              <Card key={subject.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium">{subject.name}</h3>
-                    <div className="flex gap-2">
-                      <Badge className="bg-green-100 text-green-800">
-                        <Star className="h-3 w-3 mr-1" />
-                        Completed
-                      </Badge>
-                      <Badge className={getProficiencyColor(subject.proficiency)}>
-                        {subject.proficiency}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                    <div>
-                      <span className="text-gray-500">Time Taken:</span>
-                      <span className="ml-2 font-medium">{subject.actualHours}h</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Efficiency:</span>
-                      <span className="ml-2 font-medium">
-                        {Math.round((subject.estimatedHours / subject.actualHours) * 100)}%
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button size="sm" variant="outline">
-                    Review & Practice
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

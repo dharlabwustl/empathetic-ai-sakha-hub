@@ -56,7 +56,6 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
-  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
 
   return (
     <div className="flex min-h-screen">
@@ -85,8 +84,8 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
 
         {/* Surrounding Influences Meter */}
         <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+          userProfile={userProfile}
+          currentMood={userProfile.currentMood}
         />
         
         {/* Mobile Navigation */}
