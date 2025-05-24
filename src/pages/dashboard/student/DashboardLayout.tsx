@@ -78,10 +78,8 @@ const DashboardLayout = ({
   const features = getFeatures();
   const navigate = useNavigate();
   
-  // Don't force disable tour popup
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
-  // Check if user is brand new
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
   
   const handleOpenTour = () => {
@@ -132,7 +130,7 @@ const DashboardLayout = ({
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <div className="flex min-h-screen">
         <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
-          {/* Top Navigation Controls with Voice Assistant and Study Plan buttons */}
+          {/* Top Navigation Controls with all voice controls and features */}
           <TopNavigationControls 
             hideSidebar={hideSidebar}
             onToggleSidebar={onToggleSidebar}
@@ -152,7 +150,7 @@ const DashboardLayout = ({
             isExpired={subscriptionDetails.isExpired}
           />
 
-          {/* Enhanced Dashboard Header */}
+          {/* Enhanced Dashboard Header without theme toggle (moved to top nav) */}
           <div className="mb-6">
             <EnhancedDashboardHeader 
               userProfile={userProfile}
@@ -177,7 +175,7 @@ const DashboardLayout = ({
             </div>
           )}
           
-          {/* Main Content - either custom children or standard dashboard content */}
+          {/* Main Content */}
           {children ? (
             <div className="mt-6">{children}</div>
           ) : (
@@ -209,7 +207,6 @@ const DashboardLayout = ({
         />
       )}
       
-      {/* WelcomeTour with modified text (no mention of free/donations) */}
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}

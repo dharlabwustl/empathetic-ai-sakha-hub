@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,14 +12,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Moon, Sun, Calendar, Mic, MicOff, Volume2 } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FloatingVoiceAssistant from './FloatingVoiceAssistant';
 
 interface TopNavigationControlsProps {
   hideSidebar?: boolean;
@@ -36,11 +43,16 @@ interface TopNavigationControlsProps {
 const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   onViewStudyPlan,
   userName,
-  onOpenTour
+  onOpenTour,
+  formattedTime,
+  formattedDate
 }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { setTheme, theme } = useTheme();
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('en-US');
   
   const handleLogout = async () => {
     await logout();
@@ -48,8 +60,19 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const handleVoiceAssistant = () => {
-    // Toggle voice assistant functionality
-    console.log('Voice assistant activated');
+    setIsVoiceAssistantOpen(true);
+  };
+
+  const handleMicToggle = () => {
+    setIsMicActive(!isMicActive);
+  };
+
+  const handleMuteToggle = () => {
+    setIsMuted(!isMuted);
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
   };
   
   return (
@@ -63,6 +86,92 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
       {/* Right side - Controls */}
       <div className="flex items-center space-x-3">
+        {/* Time Display */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <Clock className="h-4 w-4" />
+                <span>{formattedTime}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{formattedDate}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Language Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
+                <SelectTrigger className="w-[80px] h-8">
+                  <Globe className="h-4 w-4" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en-US">EN</SelectItem>
+                  <SelectItem value="hi-IN">HI</SelectItem>
+                  <SelectItem value="es-ES">ES</SelectItem>
+                  <SelectItem value="fr-FR">FR</SelectItem>
+                </SelectContent>
+              </Select>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Voice Language</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Microphone Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleMicToggle}
+                className={`relative ${isMicActive ? 'bg-green-50 border-green-300' : ''}`}
+              >
+                {isMicActive ? (
+                  <Mic className="h-4 w-4 text-green-600" />
+                ) : (
+                  <MicOff className="h-4 w-4" />
+                )}
+                {isMicActive && (
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isMicActive ? 'Microphone Active' : 'Activate Microphone'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Mute Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleMuteToggle}
+                className={isMuted ? 'bg-red-50 border-red-300' : ''}
+              >
+                {isMuted ? (
+                  <VolumeX className="h-4 w-4 text-red-600" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isMuted ? 'Unmute Voice' : 'Mute Voice'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         {/* Voice Assistant Button */}
         <TooltipProvider>
           <Tooltip>
@@ -120,10 +229,14 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard/student/subscription')}>
-              Subscription
+              Subscription Plan
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard/student/batch-management')}>
               Batch Management
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsVoiceAssistantOpen(true)}>
+              <Settings className="mr-2 h-4 w-4" />
+              Voice Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
@@ -131,18 +244,15 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Theme Toggle */}
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-        >
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
       </div>
+
+      {/* Voice Assistant Modal */}
+      <FloatingVoiceAssistant 
+        isOpen={isVoiceAssistantOpen}
+        onClose={() => setIsVoiceAssistantOpen(false)}
+        userName={userName || user?.name}
+        language={selectedLanguage}
+      />
     </div>
   );
 };
