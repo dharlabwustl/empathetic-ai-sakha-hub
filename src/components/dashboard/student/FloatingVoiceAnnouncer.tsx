@@ -1,103 +1,289 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Volume2, VolumeX } from 'lucide-react';
+import React, { useState } from 'react';
+import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 import { MoodType } from '@/types/user/base';
+import { useLocation } from 'react-router-dom';
+
+// Map of text terms to mood types
+const moodMap: Record<string, MoodType> = {
+  "happy": MoodType.HAPPY,
+  "motivated": MoodType.MOTIVATED,
+  "focused": MoodType.FOCUSED,
+  "tired": MoodType.TIRED,
+  "exhausted": MoodType.TIRED,
+  "stressed": MoodType.STRESSED,
+  "anxious": MoodType.ANXIOUS,
+  "okay": MoodType.OKAY,
+  "alright": MoodType.OKAY,
+  "so so": MoodType.OKAY,
+  "overwhelmed": MoodType.OVERWHELMED,
+  "swamped": MoodType.OVERWHELMED,
+  "curious": MoodType.CURIOUS,
+  "interested": MoodType.CURIOUS,
+  "confused": MoodType.CONFUSED,
+  "unsure": MoodType.CONFUSED
+};
+
+// Helper function to get context-specific responses
+const getContextResponse = (pathname: string) => {
+  if (pathname.includes('/welcome-flow')) {
+    return "Hello! I'm Sakha AI, the core AI engine of Prepzer. We offer personalized study plans, AI tutoring, and progress tracking to help you succeed in your exams. Our adaptive learning system adjusts to your pace and learning style. Would you like to explore our features?";
+  } else if (pathname.includes('/dashboard/student/today')) {
+    return "I'm Sakha AI, your exam assistant. This is your daily study plan. It shows concepts, flashcards, and practice tests scheduled for today. I've organized them based on your learning priorities and past performance.";
+  } else if (pathname.includes('/dashboard/student/overview')) {
+    return "Sakha AI here. This overview shows your study progress and key metrics. Your Exam Readiness score represents how prepared you are for your upcoming exams based on your performance and engagement.";
+  } else if (pathname.includes('/dashboard/student/concepts')) {
+    return "Sakha AI at your service. Here you can explore all the concepts you need to master. You can read detailed explanations, listen to audio guides, take notes, and practice with related flashcards.";
+  } else if (pathname.includes('/dashboard/student/flashcards')) {
+    return "This is Sakha AI. These flashcards help you memorize key facts and formulas. They use spaced repetition algorithms to show you cards at optimal intervals for better retention.";
+  } else if (pathname.includes('/dashboard/student/practice-exam')) {
+    return "Sakha AI here to help. Practice exams help you prepare for the real thing. They simulate exam conditions and provide detailed analytics on your performance to identify areas for improvement.";
+  } else if (pathname.includes('/dashboard/student/analytics')) {
+    return "Sakha AI at your service. These analytics show your learning progress over time. You can track improvements in your scores, time spent studying, and concept mastery.";
+  } else if (pathname.includes('/dashboard/student/create-study-plan')) {
+    return "Sakha AI here. Let's create a personalized study plan based on your exam date, available study time, and topic preferences. Our AI will optimize your schedule for maximum learning efficiency.";
+  }
+  
+  return "I'm Sakha AI, Prepzer's core AI engine. Ask me questions about your studies, and I'll guide you through Prepzer's features to help you prepare for your exams.";
+};
 
 interface FloatingVoiceAnnouncerProps {
-  currentMood?: MoodType;
-  studyStreak?: number;
-  todayProgress?: number;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({
-  currentMood,
-  studyStreak = 0,
-  todayProgress = 0
-}) => {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [currentAnnouncement, setCurrentAnnouncement] = useState<string>('');
-
-  const moodMessages: Record<MoodType, string[]> = {
-    [MoodType.Happy]: ['You're doing great! Keep up the positive energy!'],
-    [MoodType.Motivated]: ['Love the motivation! You're on fire today!'],
-    [MoodType.Focused]: ['Excellent focus! You're in the zone!'],
-    [MoodType.Tired]: ['Take a break when you need it. Rest is important too!'],
-    [MoodType.Tired]: ['Remember to take breaks. Your wellbeing matters!'],
-    [MoodType.Stressed]: ['Take a deep breath. You've got this!'],
-    [MoodType.Anxious]: ['One step at a time. You're stronger than you think!'],
-    [MoodType.Okay]: ['Steady progress is still progress. Keep going!'],
-    [MoodType.Okay]: ['Every small step counts. You're doing well!'],
-    [MoodType.Okay]: ['Consistency is key. You're on the right track!'],
-    [MoodType.Overwhelmed]: ['Break it down into smaller tasks. You can do this!'],
-    [MoodType.Overwhelmed]: ['Take it one task at a time. You've got this!'],
-    [MoodType.Curious]: ['Great questions lead to great discoveries!'],
-    [MoodType.Curious]: ['Your curiosity is your superpower!'],
-    [MoodType.Confused]: ['Confusion is the beginning of understanding!'],
-    [MoodType.Confused]: ['Ask questions! That\'s how we learn!'
+const FloatingVoiceAnnouncer: React.FC<FloatingVoiceAnnouncerProps> = ({ isOpen, onClose }) => {
+  const { toast } = useToast();
+  const [command, setCommand] = useState<string>('');
+  const [mood, setMood] = useState<MoodType | null>(null);
+  const [isListeningMode, setIsListeningMode] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const location = useLocation();
+  
+  // Function to handle voice commands
+  const processVoiceCommand = (command: string) => {
+    // Implement processing of voice commands
+    console.log("Processing command:", command);
+    
+    // Simple response system
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
+      speakMessage("Hello! I'm Sakha AI, Prepzer's core AI engine. How can I help you with your exam preparation today?");
+      return;
+    }
+    
+    if (lowerCommand.includes('today') || lowerCommand.includes('plan')) {
+      speakMessage("Your study plan for today includes reviewing biology concepts, practicing chemistry flashcards, and taking a short physics quiz. Would you like me to open your daily plan?");
+      return;
+    }
+    
+    if (lowerCommand.includes('exam') || lowerCommand.includes('test')) {
+      speakMessage("Based on your current progress, your exam readiness score is 72%. To improve, focus on the weak areas I've identified in your analytics.");
+      return;
+    }
+    
+    // Default response
+    speakMessage("I'm not sure how to help with that specific request. You can ask me about your study plan, exam readiness, or available learning resources.");
   };
-
-  const generalMessages = [
-    'Remember to stay hydrated!',
-    'Great job on maintaining your study streak!',
-    'You\'re making excellent progress today!',
-    'Keep up the fantastic work!',
-    'Your dedication is inspiring!'
-  ];
-
-  const announceMessage = (message: string) => {
-    if (isEnabled && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(message);
-      utterance.rate = 0.8;
-      utterance.pitch = 1;
-      utterance.volume = 0.7;
-      speechSynthesis.speak(utterance);
-      setCurrentAnnouncement(message);
+  
+  const handleClose = () => {
+    onClose();
+  };
+  
+  const handleMuteToggle = () => {
+    setIsMuted(!isMuted);
+    
+    if (!isMuted) {
+      // If currently not muted and about to be muted, stop any speech
+      window.speechSynthesis?.cancel();
+      setIsSpeaking(false);
     }
   };
-
-  useEffect(() => {
-    if (!isEnabled) return;
-
-    const interval = setInterval(() => {
-      let message = '';
-      
-      if (currentMood && moodMessages[currentMood]) {
-        const moodMsgs = moodMessages[currentMood];
-        message = moodMsgs[Math.floor(Math.random() * moodMsgs.length)];
-      } else {
-        message = generalMessages[Math.floor(Math.random() * generalMessages.length)];
+  
+  const speakMessage = (text: string) => {
+    if (!('speechSynthesis' in window) || isMuted) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    setIsSpeaking(true);
+    
+    // Use "Prepzer" as a single word
+    const correctedText = text
+      .replace(/PREPZR/gi, 'Prepzer')
+      .replace(/prepzr/gi, 'Prepzer')
+      .replace(/Prepzr/g, 'Prepzer');
+    
+    // Create a new utterance
+    const utterance = new SpeechSynthesisUtterance(correctedText);
+    
+    // Load voices
+    const voices = window.speechSynthesis.getVoices();
+    let selectedVoice = null;
+    
+    // Try to find an Indian English voice
+    const preferredVoiceNames = [
+      'Google English India', 'Microsoft Kajal', 'en-IN',
+      'Indian', 'India'
+    ];
+    
+    // Try to find a preferred voice
+    for (const name of preferredVoiceNames) {
+      const voice = voices.find(v => 
+        v.name?.toLowerCase().includes(name.toLowerCase()) || 
+        v.lang?.toLowerCase().includes(name.toLowerCase())
+      );
+      if (voice) {
+        selectedVoice = voice;
+        break;
       }
+    }
+    
+    // If still no voice selected, try to find any female voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => 
+        v.name?.toLowerCase().includes('female')
+      );
+    }
+    
+    // If still nothing, use any available voice
+    if (!selectedVoice && voices.length > 0) {
+      selectedVoice = voices[0];
+    }
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+    
+    // Set properties
+    utterance.rate = 0.95; // Slightly slower for better clarity on syllables
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    utterance.lang = 'en-IN';
+    
+    // Event handlers
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+    
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+    };
+    
+    // Speak the message
+    window.speechSynthesis.speak(utterance);
+  };
+  
+  // Simulate speech recognition
+  const startListening = () => {
+    setIsListeningMode(true);
+    toast({
+      title: "Sakha AI Listening...",
+      description: "Say something like 'Tell me about my study plan'",
+    });
+    
+    // Simulate recognition result after 3 seconds
+    setTimeout(() => {
+      setCommand("Tell me about today's plan");
+      processVoiceCommand("Tell me about today's plan");
+      setIsListeningMode(false);
+    }, 3000);
+  };
+  
+  const stopListening = () => {
+    setIsListeningMode(false);
+  };
 
-      announceMessage(message);
-    }, 300000); // Announce every 5 minutes
-
-    return () => clearInterval(interval);
-  }, [isEnabled, currentMood]);
-
+  // Speak context-specific information when the announcer is opened
+  React.useEffect(() => {
+    if (isOpen && !isSpeaking && !isMuted) {
+      const contextResponse = getContextResponse(location.pathname);
+      if (contextResponse) {
+        speakMessage(contextResponse);
+      }
+    }
+  }, [isOpen, location.pathname, isMuted]);
+  
+  // Mood detection logic
+  React.useEffect(() => {
+    if (command) {
+      const lowerCommand = command.toLowerCase();
+      
+      // Iterate through moodMap to find a matching mood
+      for (const key in moodMap) {
+        if (lowerCommand.includes(key)) {
+          setMood(moodMap[key]);
+          toast({
+            title: `Mood Detected: ${moodMap[key]}`,
+            description: `You seem ${key}.`,
+          });
+          break;
+        }
+      }
+    }
+  }, [command, toast]);
+  
+  if (!isOpen) return null;
+  
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <div className="bg-white shadow-lg rounded-lg p-4 max-w-sm border">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="font-semibold text-sm">Voice Announcer</h4>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsEnabled(!isEnabled)}
-          >
-            {isEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-          </Button>
-        </div>
+    <div className="fixed bottom-6 right-6 z-50 bg-white border rounded-lg shadow-lg p-4 dark:bg-gray-800 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Sakha AI Voice Assistant</h3>
+        <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <div className="mb-3">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {'speechSynthesis' in window ? 'Voice commands are supported.' : 'Voice commands are not supported in this browser.'}
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {isSpeaking ? 'Currently speaking...' : 'Ready for your command.'}
+        </p>
+      </div>
+      
+      <div className="flex items-center justify-between mb-3">
+        <button 
+          onClick={handleMuteToggle}
+          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm transition-colors"
+        >
+          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          {isMuted ? 'Unmute' : 'Mute'}
+        </button>
         
-        {isEnabled && currentAnnouncement && (
-          <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
-            "{currentAnnouncement}"
-          </div>
-        )}
-        
-        <div className="text-xs text-gray-500 mt-2">
-          {isEnabled ? 'Voice announcements active' : 'Click to enable voice announcements'}
+        <button 
+          onClick={isListeningMode ? stopListening : startListening}
+          className={`px-4 py-2 rounded-md text-sm transition-colors ${isListeningMode ? 'bg-red-500 hover:bg-red-700 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'}`}
+          disabled={!('speechSynthesis' in window)}
+        >
+          {isListeningMode ? 'Stop Listening' : 'Start Listening'}
+        </button>
+      </div>
+      
+      {command && (
+        <div className="mb-3">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            <strong>Last Command:</strong> {command}
+          </p>
         </div>
+      )}
+      
+      {mood && (
+        <div className="mb-3">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            <strong>Detected Mood:</strong> {mood}
+          </p>
+        </div>
+      )}
+      
+      <div className="text-xs text-gray-500 dark:text-gray-400 border-t pt-2 mt-2">
+        <p>Try saying: "Tell me about today's plan" or "I'm feeling tired"</p>
       </div>
     </div>
   );
