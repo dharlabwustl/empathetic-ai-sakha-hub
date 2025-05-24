@@ -11,7 +11,21 @@ export enum MoodType {
   OKAY = 'okay',
   OVERWHELMED = 'overwhelmed',
   CURIOUS = 'curious',
-  SAD = 'sad'
+  SAD = 'sad',
+  CALM = 'calm'
+}
+
+export enum SubscriptionType {
+  FREE = 'free',
+  BASIC = 'basic',
+  PRO = 'pro',
+  PREMIUM = 'premium'
+}
+
+export enum UserRole {
+  STUDENT = 'student',
+  TUTOR = 'tutor',
+  ADMIN = 'admin'
 }
 
 export interface SubjectProgress {
@@ -45,7 +59,14 @@ export interface UserProfile {
     timezone?: string;
     notifications?: boolean;
   };
+  subscription?: {
+    type: SubscriptionType;
+    status: string;
+  };
 }
+
+export type UserProfileBase = UserProfile;
+export type UserProfileType = UserProfile;
 
 export interface StudySession {
   id: string;
@@ -90,4 +111,20 @@ export interface WeeklySchedule {
     afternoon?: string[];
     evening?: string[];
   };
+}
+
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  lastStudyDate: string;
+}
+
+export interface Milestone {
+  id: string;
+  title: string;
+  description: string;
+  targetDate: string;
+  progress: number;
+  completed: boolean;
+  status: 'active' | 'completed' | 'paused';
 }

@@ -114,7 +114,7 @@ const ConceptDetailPage = () => {
                     <BookOpen className="h-4 w-4" />
                     Learn
                   </TabsTrigger>
-                  <TabsTrigger value="interactive" className="flex items-center gap-2">
+                  <TabsTrigger value="diagrams" className="flex items-center gap-2">
                     <Eye className="h-4 w-4" />
                     Diagrams
                   </TabsTrigger>
@@ -140,7 +140,7 @@ const ConceptDetailPage = () => {
                   <EnhancedLearnTab conceptName={concept.title} />
                 </TabsContent>
 
-                <TabsContent value="interactive" className="mt-0">
+                <TabsContent value="diagrams" className="mt-0">
                   <EnhancedInteractiveTab conceptName={concept.title} />
                 </TabsContent>
 

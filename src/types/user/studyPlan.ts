@@ -22,6 +22,8 @@ export interface StudyPlanSubject {
   topics?: StudyPlanTopic[];
 }
 
+export type NewStudyPlanSubject = StudyPlanSubject;
+
 export interface StudyPlan {
   id: string;
   title?: string;

@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Eye, Volume2, VolumeX, Lightbulb, Bot, 
-  GitBranch, Globe, BarChart3, FlaskConical 
+  Play, Pause, Volume2, MessageSquare, Brain, 
+  Network, Globe, BarChart3, FlaskConical,
+  Lightbulb, Target, Settings, HelpCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -15,497 +16,689 @@ interface EnhancedInteractiveTabProps {
 }
 
 const EnhancedInteractiveTab: React.FC<EnhancedInteractiveTabProps> = ({ conceptName }) => {
-  const [activeSubTab, setActiveSubTab] = useState('diagram');
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [currentExplanation, setCurrentExplanation] = useState('');
+  const [activeTab, setActiveTab] = useState('diagrams');
+  const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [showAITutor, setShowAITutor] = useState(false);
+  const [currentDiagram, setCurrentDiagram] = useState<string | null>(null);
 
-  const tabs = [
-    { id: 'diagram', name: 'Diagram', icon: <Eye className="h-4 w-4" /> },
-    { id: 'relationships', name: 'Relationships', icon: <GitBranch className="h-4 w-4" /> },
-    { id: 'realworld', name: 'Real World', icon: <Globe className="h-4 w-4" /> },
-    { id: 'comparison', name: 'Comparison', icon: <BarChart3 className="h-4 w-4" /> },
-    { id: 'lab', name: 'Interactive Lab', icon: <FlaskConical className="h-4 w-4" /> }
-  ];
-
-  const getTabExplanation = (tabId: string) => {
-    const explanations = {
-      diagram: `Welcome to the ${conceptName} diagram visualization. This interactive diagram shows the fundamental forces and their relationships. You can see how Newton's laws apply with vector representations. The red arrows represent applied forces, blue arrows show reaction forces, and green indicates the net force. Click on any element to get detailed explanations.`,
-      relationships: `This relationship graph demonstrates how ${conceptName} connects to other physics concepts. You can see the interconnected nature of force, acceleration, momentum, and energy. Each node represents a related concept, and the connections show how they influence each other in real physics problems.`,
-      realworld: `Explore real-world applications of ${conceptName}. From car safety systems to rocket propulsion, this visualization shows practical examples. Each scenario demonstrates the same underlying principles working in everyday life, helping you understand why this concept matters beyond textbooks.`,
-      comparison: `Compare different aspects of ${conceptName} with this interactive comparison tool. You can adjust parameters like mass, force, and acceleration to see how they affect each other. The side-by-side visualization helps you understand the mathematical relationships through visual feedback.`,
-      lab: `Welcome to the virtual physics laboratory for ${conceptName}. Here you can conduct experiments, adjust variables, and observe results in real-time. This hands-on approach helps solidify your understanding through experimentation and discovery.`
-    };
-    return explanations[tabId as keyof typeof explanations] || '';
-  };
-
-  const playAudioExplanation = (content: string) => {
+  const playAudioExplanation = (content: string, diagramId: string) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      setIsAudioPlaying(true);
-      setCurrentExplanation(content);
-      
       const utterance = new SpeechSynthesisUtterance(content);
       utterance.rate = 0.9;
       utterance.volume = 0.8;
-      utterance.onend = () => setIsAudioPlaying(false);
-      
+      utterance.onstart = () => setIsPlaying(diagramId);
+      utterance.onend = () => setIsPlaying(null);
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const stopAudio = () => {
+  const stopAudioExplanation = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      setIsAudioPlaying(false);
+      setIsPlaying(null);
     }
   };
 
-  useEffect(() => {
-    const explanation = getTabExplanation(activeSubTab);
-    if (explanation) {
-      playAudioExplanation(explanation);
-    }
-  }, [activeSubTab, conceptName]);
+  const openAITutor = (diagramType: string) => {
+    setCurrentDiagram(diagramType);
+    setShowAITutor(true);
+  };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-purple-600" />
-              Interactive Visualizations - {conceptName}
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAITutor(!showAITutor)}
-                className="flex items-center gap-2"
-              >
-                <Bot className="h-4 w-4" />
-                AI Tutor
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => isAudioPlaying ? stopAudio() : playAudioExplanation(getTabExplanation(activeSubTab))}
-                className="flex items-center gap-2"
-              >
-                {isAudioPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                {isAudioPlaying ? 'Stop' : 'Audio'}
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6">
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-50 data-[state=active]:to-blue-50"
-                >
-                  {tab.icon}
-                  <span className="hidden sm:inline">{tab.name}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="diagrams">Diagrams</TabsTrigger>
+          <TabsTrigger value="relationships">Relationships</TabsTrigger>
+          <TabsTrigger value="real-world">Real World</TabsTrigger>
+          <TabsTrigger value="comparison">Comparison</TabsTrigger>
+          <TabsTrigger value="lab">Interactive Lab</TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="diagram" className="mt-0">
-              <DiagramVisualization conceptName={conceptName} onElementClick={playAudioExplanation} />
-            </TabsContent>
+        <TabsContent value="diagrams" className="mt-6">
+          <DiagramsTab 
+            conceptName={conceptName}
+            isPlaying={isPlaying}
+            onPlayAudio={playAudioExplanation}
+            onStopAudio={stopAudioExplanation}
+            onOpenAITutor={openAITutor}
+          />
+        </TabsContent>
 
-            <TabsContent value="relationships" className="mt-0">
-              <RelationshipGraph conceptName={conceptName} onNodeClick={playAudioExplanation} />
-            </TabsContent>
+        <TabsContent value="relationships" className="mt-6">
+          <RelationshipsTab 
+            conceptName={conceptName}
+            isPlaying={isPlaying}
+            onPlayAudio={playAudioExplanation}
+            onStopAudio={stopAudioExplanation}
+            onOpenAITutor={openAITutor}
+          />
+        </TabsContent>
 
-            <TabsContent value="realworld" className="mt-0">
-              <RealWorldExamples conceptName={conceptName} onExampleClick={playAudioExplanation} />
-            </TabsContent>
+        <TabsContent value="real-world" className="mt-6">
+          <RealWorldTab 
+            conceptName={conceptName}
+            isPlaying={isPlaying}
+            onPlayAudio={playAudioExplanation}
+            onStopAudio={stopAudioExplanation}
+            onOpenAITutor={openAITutor}
+          />
+        </TabsContent>
 
-            <TabsContent value="comparison" className="mt-0">
-              <ComparisonTool conceptName={conceptName} onComparisonChange={playAudioExplanation} />
-            </TabsContent>
+        <TabsContent value="comparison" className="mt-6">
+          <ComparisonTab 
+            conceptName={conceptName}
+            isPlaying={isPlaying}
+            onPlayAudio={playAudioExplanation}
+            onStopAudio={stopAudioExplanation}
+            onOpenAITutor={openAITutor}
+          />
+        </TabsContent>
 
-            <TabsContent value="lab" className="mt-0">
-              <InteractiveLab conceptName={conceptName} onExperimentStart={playAudioExplanation} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        <TabsContent value="lab" className="mt-6">
+          <InteractiveLabTab 
+            conceptName={conceptName}
+            isPlaying={isPlaying}
+            onPlayAudio={playAudioExplanation}
+            onStopAudio={stopAudioExplanation}
+            onOpenAITutor={openAITutor}
+          />
+        </TabsContent>
+      </Tabs>
 
+      {/* AI Tutor Dialog */}
       {showAITutor && (
-        <AITutorPanel
+        <AITutorDialog 
           conceptName={conceptName}
-          currentTab={activeSubTab}
+          diagramType={currentDiagram || ''}
+          isOpen={showAITutor}
           onClose={() => setShowAITutor(false)}
-          onAudioExplanation={playAudioExplanation}
         />
       )}
     </div>
   );
 };
 
-// Diagram Visualization Component
-const DiagramVisualization: React.FC<{ conceptName: string; onElementClick: (text: string) => void }> = ({ conceptName, onElementClick }) => {
-  const [selectedElement, setSelectedElement] = useState<string | null>(null);
+// Individual Tab Components
+interface TabProps {
+  conceptName: string;
+  isPlaying: string | null;
+  onPlayAudio: (content: string, id: string) => void;
+  onStopAudio: () => void;
+  onOpenAITutor: (diagramType: string) => void;
+}
 
-  const diagramElements = [
-    { id: 'object', label: 'Object (5kg)', position: { x: 250, y: 200 }, color: 'bg-blue-500' },
-    { id: 'force1', label: 'Applied Force (20N)', position: { x: 150, y: 150 }, color: 'bg-red-500' },
-    { id: 'force2', label: 'Friction (5N)', position: { x: 350, y: 150 }, color: 'bg-orange-500' },
-    { id: 'net', label: 'Net Force (15N)', position: { x: 250, y: 100 }, color: 'bg-green-500' }
-  ];
-
-  const handleElementClick = (element: any) => {
-    setSelectedElement(element.id);
-    const explanation = `${element.label}: This represents ${element.id === 'object' ? 'the mass being acted upon by forces' : element.id.includes('force') ? 'a force vector showing magnitude and direction' : 'the resultant force after vector addition'}. In ${conceptName}, this demonstrates how forces interact according to Newton's laws.`;
-    onElementClick(explanation);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg min-h-[400px] relative overflow-hidden">
-        <svg className="w-full h-full absolute inset-0" viewBox="0 0 500 300">
-          {/* Force vectors */}
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
-            </marker>
-          </defs>
-          
-          {/* Applied force arrow */}
-          <line x1="150" y1="200" x2="230" y2="200" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowhead)" />
-          
-          {/* Friction force arrow */}
-          <line x1="350" y1="200" x2="270" y2="200" stroke="#f97316" strokeWidth="3" markerEnd="url(#arrowhead)" />
-          
-          {/* Net force arrow */}
-          <line x1="250" y1="180" x2="250" y2="120" stroke="#22c55e" strokeWidth="4" markerEnd="url(#arrowhead)" />
-          
-          {/* Object */}
-          <rect x="225" y="180" width="50" height="40" fill="#3b82f6" rx="5" />
-          
-          {/* Ground line */}
-          <line x1="0" y1="220" x2="500" y2="220" stroke="#666" strokeWidth="2" />
-        </svg>
-
-        {/* Interactive elements */}
-        {diagramElements.map((element) => (
-          <motion.div
-            key={element.id}
-            className={`absolute w-4 h-4 rounded-full ${element.color} cursor-pointer transform -translate-x-1/2 -translate-y-1/2 ${selectedElement === element.id ? 'ring-4 ring-yellow-300' : ''}`}
-            style={{ left: element.position.x, top: element.position.y }}
-            onClick={() => handleElementClick(element)}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-          />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {diagramElements.map((element) => (
-          <div
-            key={element.id}
-            className={`p-3 rounded-lg border cursor-pointer hover:shadow-md transition-shadow ${selectedElement === element.id ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'}`}
-            onClick={() => handleElementClick(element)}
-          >
-            <div className={`w-3 h-3 rounded-full ${element.color} mb-2`}></div>
-            <p className="text-sm font-medium">{element.label}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// Relationship Graph Component
-const RelationshipGraph: React.FC<{ conceptName: string; onNodeClick: (text: string) => void }> = ({ conceptName, onNodeClick }) => {
-  const nodes = [
-    { id: 'force', label: 'Force', x: 250, y: 150, connections: ['mass', 'acceleration'] },
-    { id: 'mass', label: 'Mass', x: 150, y: 250, connections: ['force'] },
-    { id: 'acceleration', label: 'Acceleration', x: 350, y: 250, connections: ['force', 'velocity'] },
-    { id: 'velocity', label: 'Velocity', x: 450, y: 150, connections: ['acceleration'] },
-    { id: 'momentum', label: 'Momentum', x: 300, y: 50, connections: ['mass', 'velocity'] }
-  ];
-
-  return (
-    <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-lg min-h-[400px] relative">
-      <svg className="w-full h-full absolute inset-0" viewBox="0 0 600 300">
-        {/* Connection lines */}
-        {nodes.map(node => 
-          node.connections.map(connId => {
-            const connNode = nodes.find(n => n.id === connId);
-            if (connNode) {
-              return (
-                <line
-                  key={`${node.id}-${connId}`}
-                  x1={node.x}
-                  y1={node.y}
-                  x2={connNode.x}
-                  y2={connNode.y}
-                  stroke="#94a3b8"
-                  strokeWidth="2"
-                  strokeDasharray="5,5"
-                />
-              );
-            }
-            return null;
-          })
-        )}
-        
-        {/* Nodes */}
-        {nodes.map(node => (
-          <g key={node.id}>
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r="30"
-              fill="#fff"
-              stroke="#3b82f6"
-              strokeWidth="3"
-              className="cursor-pointer hover:fill-blue-50"
-              onClick={() => onNodeClick(`${node.label} is a fundamental concept in ${conceptName}. It's connected to other physics principles and plays a crucial role in understanding motion and forces.`)}
-            />
-            <text
-              x={node.x}
-              y={node.y + 5}
-              textAnchor="middle"
-              className="text-sm font-medium fill-blue-900 pointer-events-none"
-            >
-              {node.label}
-            </text>
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-};
-
-// Real World Examples Component
-const RealWorldExamples: React.FC<{ conceptName: string; onExampleClick: (text: string) => void }> = ({ conceptName, onExampleClick }) => {
-  const examples = [
-    { id: 'car', title: 'Car Safety', image: '🚗', description: 'Airbags and crumple zones' },
-    { id: 'rocket', title: 'Space Travel', image: '🚀', description: 'Rocket propulsion systems' },
-    { id: 'sports', title: 'Sports Physics', image: '⚽', description: 'Ball trajectory and impact' },
-    { id: 'construction', title: 'Building Design', image: '🏗️', description: 'Structural force analysis' }
+const DiagramsTab: React.FC<TabProps> = ({ conceptName, isPlaying, onPlayAudio, onStopAudio, onOpenAITutor }) => {
+  const diagrams = [
+    {
+      id: 'force-diagram',
+      title: 'Force Diagram',
+      description: `Interactive force diagram showing how forces interact in ${conceptName}`,
+      audioContent: `This force diagram illustrates the fundamental principles of ${conceptName}. You can see how different forces are represented by vectors, their magnitude shown by arrow length, and direction indicated by arrow orientation. The resultant force is calculated by vector addition of all individual forces acting on the object.`
+    },
+    {
+      id: 'system-diagram',
+      title: 'System Overview',
+      description: `Complete system representation of ${conceptName}`,
+      audioContent: `This system diagram provides a comprehensive overview of ${conceptName}. It shows all components, their interconnections, and how energy or information flows through the system. Each element plays a crucial role in the overall functionality.`
+    },
+    {
+      id: 'process-diagram',
+      title: 'Process Flow',
+      description: `Step-by-step process visualization for ${conceptName}`,
+      audioContent: `This process flow diagram breaks down ${conceptName} into sequential steps. You can follow the logical progression from input to output, understanding each transformation or operation that occurs along the way.`
+    }
   ];
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {examples.map(example => (
-          <motion.div
-            key={example.id}
-            className="bg-white p-4 rounded-lg border hover:shadow-lg cursor-pointer"
-            onClick={() => onExampleClick(`${example.title}: ${example.description}. This real-world application of ${conceptName} shows how the same principles we study in physics class are used in practical engineering solutions that affect our daily lives.`)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <div className="text-4xl mb-2 text-center">{example.image}</div>
-            <h3 className="font-semibold text-center">{example.title}</h3>
-            <p className="text-sm text-gray-600 text-center">{example.description}</p>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// Comparison Tool Component
-const ComparisonTool: React.FC<{ conceptName: string; onComparisonChange: (text: string) => void }> = ({ conceptName, onComparisonChange }) => {
-  const [mass, setMass] = useState(5);
-  const [force, setForce] = useState(20);
-  
-  const acceleration = force / mass;
-
-  useEffect(() => {
-    onComparisonChange(`With mass ${mass}kg and force ${force}N, the acceleration is ${acceleration.toFixed(2)} m/s². This demonstrates the relationship F = ma in ${conceptName}.`);
-  }, [mass, force, acceleration, conceptName, onComparisonChange]);
-
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-orange-50 to-pink-50 p-6 rounded-lg">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="block text-sm font-medium mb-2">Mass (kg)</label>
-            <input
-              type="range"
-              min="1"
-              max="20"
-              value={mass}
-              onChange={(e) => setMass(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-center mt-1 font-semibold">{mass} kg</div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Force (N)</label>
-            <input
-              type="range"
-              min="5"
-              max="50"
-              value={force}
-              onChange={(e) => setForce(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-center mt-1 font-semibold">{force} N</div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Acceleration (m/s²)</label>
-            <div className="text-center text-2xl font-bold text-blue-600">
-              {acceleration.toFixed(2)}
+      {diagrams.map((diagram) => (
+        <Card key={diagram.id} className="border-2 hover:border-blue-300 transition-colors">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-blue-600" />
+                {diagram.title}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (isPlaying === diagram.id) {
+                      onStopAudio();
+                    } else {
+                      onPlayAudio(diagram.audioContent, diagram.id);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {isPlaying === diagram.id ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {isPlaying === diagram.id ? 'Stop' : 'Play'} Audio
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenAITutor(`diagram-${diagram.id}`)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask AI Tutor
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-lg min-h-[300px] flex items-center justify-center mb-4">
+              <div className="text-center space-y-4">
+                <div className="w-32 h-32 mx-auto bg-blue-200 rounded-full flex items-center justify-center">
+                  <Target className="h-16 w-16 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold">{diagram.title}</h3>
+                <p className="text-gray-600">{diagram.description}</p>
+                {isPlaying === diagram.id && (
+                  <Badge variant="secondary" className="animate-pulse">
+                    <Volume2 className="h-3 w-3 mr-1" />
+                    Audio Playing
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };
 
-// Interactive Lab Component
-const InteractiveLab: React.FC<{ conceptName: string; onExperimentStart: (text: string) => void }> = ({ conceptName, onExperimentStart }) => {
-  const [isExperimentRunning, setIsExperimentRunning] = useState(false);
-  const [results, setResults] = useState<string[]>([]);
+const RelationshipsTab: React.FC<TabProps> = ({ conceptName, isPlaying, onPlayAudio, onStopAudio, onOpenAITutor }) => {
+  const relationships = [
+    {
+      id: 'concept-map',
+      title: 'Concept Relationship Map',
+      description: `Visual network showing how ${conceptName} connects to other concepts`,
+      audioContent: `This concept map demonstrates the interconnected nature of ${conceptName} with related topics. You can see primary connections, secondary relationships, and how understanding this concept helps with learning others. The thickness of connections indicates the strength of relationships.`
+    },
+    {
+      id: 'dependency-graph',
+      title: 'Learning Dependencies',
+      description: `Prerequisites and follow-up concepts for ${conceptName}`,
+      audioContent: `This dependency graph shows what you need to know before learning ${conceptName} and what becomes accessible after mastering it. Following this path ensures a logical learning progression and helps identify knowledge gaps.`
+    }
+  ];
 
-  const startExperiment = () => {
-    setIsExperimentRunning(true);
-    onExperimentStart(`Starting virtual experiment for ${conceptName}. We'll apply different forces to objects of varying masses and observe the resulting accelerations. This hands-on approach helps you understand the mathematical relationships through direct observation.`);
+  return (
+    <div className="space-y-4">
+      {relationships.map((relationship) => (
+        <Card key={relationship.id} className="border-2 hover:border-purple-300 transition-colors">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Network className="h-5 w-5 text-purple-600" />
+                {relationship.title}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (isPlaying === relationship.id) {
+                      onStopAudio();
+                    } else {
+                      onPlayAudio(relationship.audioContent, relationship.id);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {isPlaying === relationship.id ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {isPlaying === relationship.id ? 'Stop' : 'Play'} Audio
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenAITutor(`relationship-${relationship.id}`)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask AI Tutor
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-lg min-h-[300px] flex items-center justify-center mb-4">
+              <div className="text-center space-y-4">
+                <div className="w-32 h-32 mx-auto bg-purple-200 rounded-full flex items-center justify-center">
+                  <Network className="h-16 w-16 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-bold">{relationship.title}</h3>
+                <p className="text-gray-600">{relationship.description}</p>
+                {isPlaying === relationship.id && (
+                  <Badge variant="secondary" className="animate-pulse">
+                    <Volume2 className="h-3 w-3 mr-1" />
+                    Audio Playing
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+const RealWorldTab: React.FC<TabProps> = ({ conceptName, isPlaying, onPlayAudio, onStopAudio, onOpenAITutor }) => {
+  const realWorldExamples = [
+    {
+      id: 'practical-application',
+      title: 'Practical Applications',
+      description: `Real-world uses of ${conceptName} in daily life and industry`,
+      audioContent: `These practical applications show how ${conceptName} is used in everyday life and various industries. From simple household items to complex engineering systems, this concept plays a crucial role in making our modern world function efficiently.`
+    },
+    {
+      id: 'case-studies',
+      title: 'Case Studies',
+      description: `Detailed examples of ${conceptName} in action`,
+      audioContent: `These case studies provide detailed analysis of how ${conceptName} is applied in real scenarios. Each case demonstrates problem-solving approaches, decision-making processes, and outcomes, helping you understand practical implementation.`
+    }
+  ];
+
+  return (
+    <div className="space-y-4">
+      {realWorldExamples.map((example) => (
+        <Card key={example.id} className="border-2 hover:border-green-300 transition-colors">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-green-600" />
+                {example.title}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (isPlaying === example.id) {
+                      onStopAudio();
+                    } else {
+                      onPlayAudio(example.audioContent, example.id);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {isPlaying === example.id ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {isPlaying === example.id ? 'Stop' : 'Play'} Audio
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenAITutor(`realworld-${example.id}`)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask AI Tutor
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-lg min-h-[300px] flex items-center justify-center mb-4">
+              <div className="text-center space-y-4">
+                <div className="w-32 h-32 mx-auto bg-green-200 rounded-full flex items-center justify-center">
+                  <Globe className="h-16 w-16 text-green-600" />
+                </div>
+                <h3 className="text-xl font-bold">{example.title}</h3>
+                <p className="text-gray-600">{example.description}</p>
+                {isPlaying === example.id && (
+                  <Badge variant="secondary" className="animate-pulse">
+                    <Volume2 className="h-3 w-3 mr-1" />
+                    Audio Playing
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+const ComparisonTab: React.FC<TabProps> = ({ conceptName, isPlaying, onPlayAudio, onStopAudio, onOpenAITutor }) => {
+  const comparisons = [
+    {
+      id: 'concept-comparison',
+      title: 'Concept Comparison',
+      description: `Compare ${conceptName} with similar concepts`,
+      audioContent: `This comparison analyzes the similarities and differences between ${conceptName} and related concepts. Understanding these distinctions helps you avoid common misconceptions and apply the right concept in appropriate situations.`
+    },
+    {
+      id: 'approach-comparison',
+      title: 'Solution Approaches',
+      description: `Different methods for applying ${conceptName}`,
+      audioContent: `These different approaches show various ways to apply ${conceptName} in problem-solving. Each method has its advantages and is suitable for specific scenarios. Learning multiple approaches makes you more versatile in tackling problems.`
+    }
+  ];
+
+  return (
+    <div className="space-y-4">
+      {comparisons.map((comparison) => (
+        <Card key={comparison.id} className="border-2 hover:border-orange-300 transition-colors">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-orange-600" />
+                {comparison.title}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (isPlaying === comparison.id) {
+                      onStopAudio();
+                    } else {
+                      onPlayAudio(comparison.audioContent, comparison.id);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {isPlaying === comparison.id ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {isPlaying === comparison.id ? 'Stop' : 'Play'} Audio
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenAITutor(`comparison-${comparison.id}`)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask AI Tutor
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gradient-to-br from-orange-50 to-red-100 p-6 rounded-lg min-h-[300px] flex items-center justify-center mb-4">
+              <div className="text-center space-y-4">
+                <div className="w-32 h-32 mx-auto bg-orange-200 rounded-full flex items-center justify-center">
+                  <BarChart3 className="h-16 w-16 text-orange-600" />
+                </div>
+                <h3 className="text-xl font-bold">{comparison.title}</h3>
+                <p className="text-gray-600">{comparison.description}</p>
+                {isPlaying === comparison.id && (
+                  <Badge variant="secondary" className="animate-pulse">
+                    <Volume2 className="h-3 w-3 mr-1" />
+                    Audio Playing
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+const InteractiveLabTab: React.FC<TabProps> = ({ conceptName, isPlaying, onPlayAudio, onStopAudio, onOpenAITutor }) => {
+  const [experimentRunning, setExperimentRunning] = useState(false);
+  const [labResults, setLabResults] = useState<string[]>([]);
+
+  const labExperiments = [
+    {
+      id: 'virtual-experiment',
+      title: 'Virtual Experiment',
+      description: `Interactive simulation of ${conceptName} principles`,
+      audioContent: `This virtual experiment allows you to manipulate variables and observe how they affect ${conceptName}. You can change parameters in real-time and see immediate results, helping you understand cause-and-effect relationships.`
+    },
+    {
+      id: 'parameter-analysis',
+      title: 'Parameter Analysis',
+      description: `Analyze different parameters affecting ${conceptName}`,
+      audioContent: `This parameter analysis tool lets you explore how different variables influence ${conceptName}. By systematically changing one parameter at a time, you can understand the individual contribution of each factor.`
+    }
+  ];
+
+  const runExperiment = (experimentId: string) => {
+    setExperimentRunning(true);
+    const newResult = `Experiment ${labResults.length + 1}: ${conceptName} analysis completed at ${new Date().toLocaleTimeString()}`;
     
     setTimeout(() => {
-      const newResult = `Experiment ${results.length + 1}: Applied 15N force to 3kg object, resulting in 5 m/s² acceleration.`;
-      setResults(prev => [...prev, newResult]);
-      setIsExperimentRunning(false);
+      setLabResults(prev => [...prev, newResult]);
+      setExperimentRunning(false);
+      
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(`Experiment completed successfully. The results demonstrate key principles of ${conceptName}.`);
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
     }, 3000);
   };
 
   return (
     <div className="space-y-4">
-      <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-lg">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div>
-            <h3 className="font-semibold mb-4">Virtual Lab Equipment</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {['Force Meter', 'Mass Scale', 'Motion Sensor', 'Data Logger'].map((tool, index) => (
-                <div key={index} className="bg-white p-3 rounded-lg border text-center">
-                  <FlaskConical className="h-6 w-6 mx-auto mb-1 text-purple-600" />
-                  <p className="text-xs">{tool}</p>
-                </div>
-              ))}
+      {labExperiments.map((experiment) => (
+        <Card key={experiment.id} className="border-2 hover:border-indigo-300 transition-colors">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FlaskConical className="h-5 w-5 text-indigo-600" />
+                {experiment.title}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (isPlaying === experiment.id) {
+                      onStopAudio();
+                    } else {
+                      onPlayAudio(experiment.audioContent, experiment.id);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {isPlaying === experiment.id ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {isPlaying === experiment.id ? 'Stop' : 'Play'} Audio
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenAITutor(`lab-${experiment.id}`)}
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask AI Tutor
+                </Button>
+              </div>
             </div>
-            
-            <Button
-              onClick={startExperiment}
-              disabled={isExperimentRunning}
-              className="w-full mt-4"
-              variant={isExperimentRunning ? "secondary" : "default"}
-            >
-              {isExperimentRunning ? "Running Experiment..." : "Start New Experiment"}
-            </Button>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold mb-4">Experiment Results</h3>
-            <div className="bg-white p-4 rounded-lg border min-h-[200px]">
-              {results.length === 0 ? (
-                <p className="text-gray-500 text-center">No experiments conducted yet</p>
-              ) : (
-                <div className="space-y-2">
-                  {results.map((result, index) => (
-                    <div key={index} className="text-sm p-2 bg-gray-50 rounded border-l-4 border-purple-400">
-                      {result}
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-100 p-6 rounded-lg min-h-[300px] mb-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Experiment Controls</h4>
+                  <div className="space-y-3">
+                    <div className="bg-white p-3 rounded-lg">
+                      <label className="text-sm font-medium">Parameter A</label>
+                      <input type="range" className="w-full mt-1" min="0" max="100" defaultValue="50" />
                     </div>
-                  ))}
+                    <div className="bg-white p-3 rounded-lg">
+                      <label className="text-sm font-medium">Parameter B</label>
+                      <input type="range" className="w-full mt-1" min="0" max="100" defaultValue="30" />
+                    </div>
+                  </div>
+                  
+                  <Button
+                    onClick={() => runExperiment(experiment.id)}
+                    disabled={experimentRunning}
+                    className="w-full flex items-center gap-2"
+                  >
+                    {experimentRunning ? (
+                      <>
+                        <Settings className="h-4 w-4 animate-spin" />
+                        Running...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4" />
+                        Run Experiment
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Results</h4>
+                  <div className="bg-white p-4 rounded-lg min-h-[200px]">
+                    {labResults.length === 0 ? (
+                      <p className="text-gray-500 text-center">No experiments run yet</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {labResults.map((result, index) => (
+                          <div key={index} className="text-sm p-2 bg-gray-50 rounded">
+                            {result}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {isPlaying === experiment.id && (
+                <div className="mt-4 text-center">
+                  <Badge variant="secondary" className="animate-pulse">
+                    <Volume2 className="h-3 w-3 mr-1" />
+                    Audio Playing
+                  </Badge>
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };
 
-// AI Tutor Panel Component
-const AITutorPanel: React.FC<{
+// AI Tutor Dialog Component
+interface AITutorDialogProps {
   conceptName: string;
-  currentTab: string;
+  diagramType: string;
+  isOpen: boolean;
   onClose: () => void;
-  onAudioExplanation: (text: string) => void;
-}> = ({ conceptName, currentTab, onClose, onAudioExplanation }) => {
-  const [messages, setMessages] = useState([
-    {
-      type: 'ai',
-      content: `Hello! I'm your AI tutor for ${conceptName}. I'm here to help you understand the ${currentTab} visualization. What would you like to know about this concept?`
+}
+
+const AITutorDialog: React.FC<AITutorDialogProps> = ({ conceptName, diagramType, isOpen, onClose }) => {
+  const [messages, setMessages] = useState<Array<{type: 'user' | 'ai', content: string}>>([]);
+  const [currentMessage, setCurrentMessage] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      // Initialize with context-specific greeting
+      const greeting = `Hello! I'm your AI tutor for ${conceptName}. I can help you understand the ${diagramType.replace('-', ' ')} and answer any questions you have about this concept. What would you like to know?`;
+      setMessages([{type: 'ai', content: greeting}]);
     }
-  ]);
-  const [question, setQuestion] = useState('');
+  }, [isOpen, conceptName, diagramType]);
 
-  const handleSendQuestion = () => {
-    if (!question.trim()) return;
+  const sendMessage = () => {
+    if (!currentMessage.trim()) return;
 
-    const userMessage = { type: 'user', content: question };
-    setMessages(prev => [...prev, userMessage]);
-    
+    const userMessage = currentMessage;
+    setMessages(prev => [...prev, {type: 'user', content: userMessage}]);
+    setCurrentMessage('');
+
     // Simulate AI response
     setTimeout(() => {
-      const aiResponse = {
-        type: 'ai',
-        content: `Great question about ${conceptName}! Based on the ${currentTab} visualization, I can explain that this concept demonstrates fundamental physics principles. The visual representation helps you understand how forces interact and affect motion according to Newton's laws.`
-      };
-      setMessages(prev => [...prev, aiResponse]);
-      onAudioExplanation(aiResponse.content);
+      const aiResponse = `That's a great question about ${conceptName}! Let me explain: This concept involves understanding the fundamental principles that govern ${diagramType.replace('-', ' ')}. The key insight is how different elements interact and influence each other. Would you like me to elaborate on any specific aspect?`;
+      setMessages(prev => [...prev, {type: 'ai', content: aiResponse}]);
     }, 1000);
-    
-    setQuestion('');
   };
+
+  if (!isOpen) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-4 right-4 w-96 max-h-96 bg-white rounded-lg shadow-xl border z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
     >
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-blue-600" />
-            <h3 className="font-semibold">AI Tutor</h3>
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 border-b">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Brain className="h-5 w-5 text-blue-600" />
+              AI Tutor - {conceptName}
+            </h3>
+            <Button variant="outline" size="sm" onClick={onClose}>
+              Close
+            </Button>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
         </div>
-      </div>
-      
-      <div className="p-4 max-h-64 overflow-y-auto">
-        {messages.map((msg, index) => (
-          <div key={index} className={`mb-3 ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
-            <div className={`inline-block p-2 rounded-lg max-w-[80%] ${
-              msg.type === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100'
-            }`}>
-              <p className="text-sm">{msg.content}</p>
+
+        <div className="p-4 max-h-96 overflow-y-auto space-y-4">
+          {messages.map((message, index) => (
+            <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[80%] p-3 rounded-lg ${
+                message.type === 'user' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-100 text-gray-800'
+              }`}>
+                {message.content}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-      
-      <div className="p-4 border-t">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Ask about this visualization..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendQuestion()}
-            className="flex-1 px-3 py-2 border rounded-lg text-sm"
-          />
-          <Button size="sm" onClick={handleSendQuestion}>Send</Button>
+          ))}
         </div>
-      </div>
+
+        <div className="p-4 border-t">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+              placeholder="Ask a question about this concept..."
+              className="flex-1 p-2 border rounded-lg"
+            />
+            <Button onClick={sendMessage} className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Send
+            </Button>
+          </div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 };
