@@ -33,7 +33,11 @@ const PostLoginWelcomeBack = () => {
         const loginCount = parsedData.loginCount || 0;
         const hasSeenWelcome = localStorage.getItem('sawWelcomeSlider') === 'true';
         
-        if (loginCount > 1 || hasSeenWelcome) {
+        // Update login count
+        const currentLoginCount = loginCount + 1;
+        localStorage.setItem('login_count', currentLoginCount.toString());
+        
+        if (loginCount > 0 || hasSeenWelcome) {
           setIsReturningUser(true);
           setLastActivity(parsedData.lastActivity || 'working on concept cards');
           setPendingTasks([
