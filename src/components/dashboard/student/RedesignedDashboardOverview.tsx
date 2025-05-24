@@ -4,14 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
 import { UserProfileBase } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
-import { 
-  LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
-  Brain, FileText, Bell, TrendingUp, Target, Check, Clock, Calendar
-} from 'lucide-react';
 
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';
 import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
@@ -22,7 +17,6 @@ import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter'
 import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import StudentKPIDashboard from './StudentKPIDashboard';
 import { MoodType } from '@/types/user/base';
-import { Progress } from '@/components/ui/progress';
 import UpcomingTasks from './UpcomingTasks';
 
 interface RedesignedDashboardOverviewProps {
