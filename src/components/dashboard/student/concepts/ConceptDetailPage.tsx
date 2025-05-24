@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -9,14 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { ConceptCard } from '@/types/user/conceptCard';
 import EnhancedLearnTab from './EnhancedLearnTab';
+import EnhancedDiagramsTab from './EnhancedDiagramsTab';
 import Enhanced3DTab from './Enhanced3DTab';
 import QuickRecallSection from './concept-detail/QuickRecallSection';
 import ConceptHeader from './concept-detail/ConceptHeader';
 import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
-
-// Create new enhanced diagrams tab component
-import EnhancedDiagramsTab from './EnhancedDiagramsTab';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -120,9 +117,9 @@ const ConceptDetailPage = () => {
                     <Eye className="h-4 w-4" />
                     Diagrams
                   </TabsTrigger>
-                  <TabsTrigger value="analysis" className="flex items-center gap-2">
+                  <TabsTrigger value="3d" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    3D Analysis
+                    3D Lab
                   </TabsTrigger>
                   <TabsTrigger value="tools" className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
@@ -145,7 +142,7 @@ const ConceptDetailPage = () => {
                   />
                 </TabsContent>
 
-                <TabsContent value="analysis" className="mt-0">
+                <TabsContent value="3d" className="mt-0">
                   <Enhanced3DTab 
                     conceptName={concept.title}
                     subject={concept.subject}
