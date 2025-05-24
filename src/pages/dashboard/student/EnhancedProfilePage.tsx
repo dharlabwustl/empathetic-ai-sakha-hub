@@ -52,8 +52,12 @@ const EnhancedProfilePage = () => {
   const canCreateBatch = () => {
     if (!userProfile.subscription) return false;
     
+    if (typeof userProfile.subscription === 'string') {
+      return userProfile.subscription.includes('group') || userProfile.subscription.includes('batch');
+    }
+    
     const { planType } = userProfile.subscription;
-    return planType.includes('group') || planType.includes('batch') && !userProfile.batch;
+    return planType?.includes('group') || planType?.includes('batch') && !userProfile.batch;
   };
 
   // Check if the user is a batch leader
@@ -63,7 +67,7 @@ const EnhancedProfilePage = () => {
 
   return (
     <SharedPageLayout
-      title="My Profile"
+      title="Profile & Batch Management"
       subtitle="Manage your personal information, subscription, and batch settings"
       showBackButton
       backButtonUrl="/dashboard/student"
@@ -74,7 +78,7 @@ const EnhancedProfilePage = () => {
             <TabsTrigger value="overview">Profile</TabsTrigger>
             <TabsTrigger value="subscription">Subscription</TabsTrigger>
             <TabsTrigger value="batch">
-              {userProfile.batch ? "Manage Batch" : "Batch Management"}
+              Batch Management
             </TabsTrigger>
             <TabsTrigger value="billing">Billing</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>

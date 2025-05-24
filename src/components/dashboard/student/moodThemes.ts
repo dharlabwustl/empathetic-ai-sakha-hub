@@ -1,9 +1,9 @@
 
 export interface MoodTheme {
   background: string;
-  backgroundColor?: string;
+  backgroundColor: string;
   text: string;
-  textColor?: string;
+  textColor: string;
   accent: string;
   border: string;
 }

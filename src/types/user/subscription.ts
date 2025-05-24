@@ -8,7 +8,8 @@ export enum SubscriptionType {
   PRO_ANNUAL = 'pro_annual',
   GROUP_SMALL = 'group_small',
   GROUP_LARGE = 'group_large',
-  GROUP_ANNUAL = 'group_annual'
+  GROUP_ANNUAL = 'group_annual',
+  ENTERPRISE = 'enterprise'
 }
 
 export interface SubscriptionInfo {
@@ -35,6 +36,38 @@ export interface SubscriptionPlan {
   buttonText?: string;
   maxMembers?: number;
 }
+
+export interface CreditPack {
+  id: string;
+  name: string;
+  credits: number;
+  price: number;
+  description: string;
+}
+
+export const creditPacks: CreditPack[] = [
+  {
+    id: 'pack_10',
+    name: '10 Credits',
+    credits: 10,
+    price: 99,
+    description: 'Perfect for occasional use'
+  },
+  {
+    id: 'pack_50',
+    name: '50 Credits',
+    credits: 50,
+    price: 399,
+    description: 'Best value for regular users'
+  },
+  {
+    id: 'pack_100',
+    name: '100 Credits',
+    credits: 100,
+    price: 699,
+    description: 'For power users'
+  }
+];
 
 export const standardSubscriptionPlans = {
   individual: [

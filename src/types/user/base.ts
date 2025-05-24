@@ -1,4 +1,3 @@
-
 export enum MoodType {
   HAPPY = 'happy',
   FOCUSED = 'focused',
@@ -24,7 +23,8 @@ export enum SubscriptionType {
   PRO_ANNUAL = 'pro_annual',
   GROUP_SMALL = 'group_small',
   GROUP_LARGE = 'group_large',
-  GROUP_ANNUAL = 'group_annual'
+  GROUP_ANNUAL = 'group_annual',
+  ENTERPRISE = 'enterprise'
 }
 
 export enum UserRole {
@@ -108,9 +108,11 @@ export interface UserProfileBase {
   photoURL?: string;
   phoneNumber?: string;
   mobileNumber?: string;
+  phone?: string;
   role: 'student' | 'teacher' | 'admin';
   subscription?: SubscriptionType | {
     planType: string;
+    type?: string;
     startDate?: Date | string;
     expiryDate?: Date | string;
     status?: 'active' | 'expired' | 'cancelled';
@@ -118,6 +120,7 @@ export interface UserProfileBase {
     features?: string[];
     isActive?: boolean;
     endDate?: string;
+    memberLimit?: number;
   };
   goals?: {
     id: string;
@@ -169,6 +172,11 @@ export interface UserProfileBase {
   subjects?: string[];
   paymentMethods?: PaymentMethod[];
   billingHistory?: BillingHistory[];
+  location?: string;
+  grade?: string;
+  gender?: string;
+  batch?: any;
+  isBatchLeader?: boolean;
 }
 
 export type UserProfileType = UserProfileBase;

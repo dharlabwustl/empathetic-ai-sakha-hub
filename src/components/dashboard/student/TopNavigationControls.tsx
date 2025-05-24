@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown } from 'lucide-react';
+import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -53,6 +53,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   const [isMicActive, setIsMicActive] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
+  const [isContinuousListening, setIsContinuousListening] = useState(false);
   
   const handleLogout = async () => {
     await logout();
@@ -79,6 +80,12 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     navigate('/dashboard/student/subscription');
   };
 
+  const handleContinuousListening = () => {
+    setIsContinuousListening(!isContinuousListening);
+    // Here you would implement the continuous listening logic
+    console.log('Continuous listening:', !isContinuousListening);
+  };
+
   // Get current subscription status
   const getCurrentPlan = () => {
     if (!user?.subscription) return 'Free';
@@ -97,11 +104,21 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   
   return (
     <div className="flex items-center justify-between w-full mb-4">
-      {/* Left side - Welcome message */}
+      {/* Left side - Welcome message with subscription plan */}
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Welcome back, {userName || user?.name || 'Student'}!
-        </h1>
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Welcome back, {userName || user?.name || 'Student'}!
+          </h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSubscriptionClick}
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary p-0 h-auto"
+          >
+            Current Plan: {getCurrentPlan()}
+          </Button>
+        </div>
       </div>
 
       {/* Right side - Controls */}
@@ -139,6 +156,32 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Voice Language</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Continuous Listening Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleContinuousListening}
+                className={`relative ${isContinuousListening ? 'bg-green-50 border-green-300' : ''}`}
+              >
+                {isContinuousListening ? (
+                  <Pause className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {isContinuousListening && (
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isContinuousListening ? 'Stop Continuous Listening' : 'Start Continuous Listening'}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -212,26 +255,6 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Current Plan Display */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSubscriptionClick}
-                className="gap-2"
-              >
-                <Crown className="h-4 w-4" />
-                <span className="hidden sm:inline">{getCurrentPlan()}</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>View subscription details</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
         {/* Study Plan Button */}
         <TooltipProvider>
           <Tooltip>
@@ -265,14 +288,11 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate('/profile')}>
-              Profile
+            <DropdownMenuItem onClick={() => navigate('/dashboard/student/profile')}>
+              Profile & Batch Management
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard/student/subscription')}>
               Subscription Plan
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate('/dashboard/student/batch-management')}>
-              Batch Management
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsVoiceAssistantOpen(true)}>
               <Settings className="mr-2 h-4 w-4" />
