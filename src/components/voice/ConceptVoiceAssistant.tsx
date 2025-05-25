@@ -2,13 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, BookOpen, Lightbulb, HelpCircle, Volume2, VolumeX } from "lucide-react";
+import { Mic, MicOff, BookOpen, Lightbulb, HelpCircle, Volume2, VolumeX } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 
 interface ConceptVoiceAssistantProps {
   conceptName?: string;
   conceptSubject?: string;
-  difficulty?: string;
   isEnabled?: boolean;
   userName?: string;
 }
@@ -16,7 +15,6 @@ interface ConceptVoiceAssistantProps {
 const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
   conceptName = "Physics Concept",
   conceptSubject = "Physics",
-  difficulty = "medium",
   isEnabled = true,
   userName = "Student"
 }) => {
@@ -43,46 +41,52 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
-    if (lowerCommand.includes('explain') || lowerCommand.includes('what is')) {
-      speakMessage(`Let me explain ${conceptName}. This is a ${difficulty} level concept in ${conceptSubject}. The key idea is to understand the fundamental principles and how they apply to real-world scenarios. Would you like me to provide specific examples?`);
+    if (lowerCommand.includes('explain') || lowerCommand.includes('what is this')) {
+      speakMessage(`Let me explain ${conceptName} from ${conceptSubject}. This concept is fundamental to understanding the subject. I'll break it down into simple terms and provide examples to help you grasp the core ideas clearly.`);
       return;
     }
     
-    if (lowerCommand.includes('example') || lowerCommand.includes('give me an example')) {
-      speakMessage(`Here's a practical example for ${conceptName}: Think about everyday situations where this concept applies. For instance, when you observe objects in motion, the principles we're studying directly explain what you see.`);
+    if (lowerCommand.includes('example') || lowerCommand.includes('real world')) {
+      speakMessage(`Great question! ${conceptName} has many real-world applications. For instance, you can see this concept in action in everyday situations. Let me give you some practical examples that will help you remember and understand this better.`);
       return;
     }
     
-    if (lowerCommand.includes('tips') || lowerCommand.includes('how to study')) {
-      speakMessage(`Here are study tips for ${conceptName}: First, understand the core concept before memorizing formulas. Second, practice with different problem types. Third, relate it to real-world examples. Finally, teach it to someone else to test your understanding.`);
+    if (lowerCommand.includes('tips') || lowerCommand.includes('study tips') || lowerCommand.includes('how to remember')) {
+      speakMessage(`Here are some effective study tips for mastering ${conceptName}: Create visual diagrams, practice with examples, teach the concept to someone else, use mnemonics for key points, and relate it to concepts you already know. Regular revision and application will strengthen your understanding.`);
       return;
     }
     
-    if (lowerCommand.includes('difficulty') || lowerCommand.includes('hard') || lowerCommand.includes('difficult')) {
-      speakMessage(`This concept is rated as ${difficulty} difficulty. Don't worry if it seems challenging at first. Break it down into smaller parts, practice regularly, and ask for help when needed. Every expert was once a beginner!`);
+    if (lowerCommand.includes('difficult') || lowerCommand.includes('hard to understand') || lowerCommand.includes('confusing')) {
+      speakMessage(`I understand that ${conceptName} can be challenging. Let's break it down step by step. Start with the basic definition, then build up complexity gradually. Don't worry if it takes time - complex concepts require patience and practice to master.`);
       return;
     }
     
     if (lowerCommand.includes('formula') || lowerCommand.includes('equation')) {
-      speakMessage(`The key formulas for ${conceptName} are essential to remember. I recommend understanding the derivation first, then practicing applications. Would you like me to explain any specific formula?`);
+      speakMessage(`The key formulas for ${conceptName} are essential for solving problems. I'll help you understand not just the formula itself, but also when to use it, how to derive it, and common mistakes to avoid. Let's go through them systematically.`);
       return;
     }
     
-    if (lowerCommand.includes('prerequisite') || lowerCommand.includes('what should i know')) {
-      speakMessage(`Before studying ${conceptName}, make sure you understand the foundational concepts in ${conceptSubject}. Review basic principles and mathematical tools you'll need. This will make learning much easier.`);
+    if (lowerCommand.includes('practice') || lowerCommand.includes('problems') || lowerCommand.includes('questions')) {
+      speakMessage(`Practice is crucial for mastering ${conceptName}. Start with basic problems to build confidence, then progress to more complex applications. I recommend solving 5-10 problems daily and focusing on understanding the approach rather than just getting the right answer.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('test') || lowerCommand.includes('exam') || lowerCommand.includes('assessment')) {
+      speakMessage(`For exam preparation on ${conceptName}, focus on understanding core principles, memorizing key formulas, practicing different problem types, and timing yourself. Review common mistakes and ensure you can explain the concept clearly in your own words.`);
       return;
     }
     
     // Default response
-    speakMessage(`I can help you understand ${conceptName}. Ask me to explain the concept, provide examples, give study tips, or discuss the formulas involved.`);
+    speakMessage(`I'm here to help you master ${conceptName} from ${conceptSubject}. You can ask me for explanations, examples, study tips, formulas, practice guidance, or exam preparation strategies. What would you like to know?`);
   };
   
   const suggestions = [
     "Explain this concept",
-    "Give me an example", 
+    "Give me examples",
     "Study tips please",
-    "What formulas are important?",
-    "What should I know first?"
+    "Show me formulas",
+    "Practice problems",
+    "Exam preparation"
   ];
   
   if (!isVoiceSupported || !isEnabled) {
@@ -113,7 +117,7 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
         {expanded ? (
           <div className="space-y-3">
             <div className="text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/50 p-2 rounded">
-              Studying: <strong>{conceptName}</strong>
+              Learning: <strong>{conceptName}</strong>
             </div>
             
             <div className="flex items-center justify-center gap-2">

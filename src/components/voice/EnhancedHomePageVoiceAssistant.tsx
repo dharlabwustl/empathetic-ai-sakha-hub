@@ -1,405 +1,247 @@
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Mic, MicOff, Volume2, VolumeX, Home, Users, Sparkles, Star } from "lucide-react";
+import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 
 interface EnhancedHomePageVoiceAssistantProps {
   language?: string;
+  userName?: string;
+  isEnabled?: boolean;
 }
 
-const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantProps> = ({ 
-  language = 'en-US'
+const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantProps> = ({
+  language = "en-US",
+  userName = "Student",
+  isEnabled = true
 }) => {
+  const [expanded, setExpanded] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const { toast } = useToast();
-  const location = useLocation();
   
-  // Refs for cleanup
-  const recognitionRef = useRef<any>(null);
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const timeoutRef = useRef<number | null>(null);
-  const retryTimeoutRef = useRef<number | null>(null);
-  const lastCommandTimeRef = useRef<number>(0);
+  const {
+    voiceSettings,
+    toggleMute,
+    speakMessage,
+    isVoiceSupported,
+    isSpeaking,
+    isListening,
+    startListening,
+    stopListening,
+    transcript
+  } = useVoiceAnnouncer({ userName, language });
   
-  // Check if current page should have voice assistant
-  const shouldActivate = location.pathname === '/' || 
-                        location.pathname.includes('/signup') ||
-                        location.pathname.includes('/login') ||
-                        location.pathname.includes('/exam-readiness');
-
-  // Cleanup function
-  const cleanup = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+  // Auto-greet when component mounts
+  useEffect(() => {
+    if (!hasGreeted && isVoiceSupported && !voiceSettings.muted) {
+      const timer = setTimeout(() => {
+        const greeting = getWelcomeGreeting();
+        speakMessage(greeting);
+        setHasGreeted(true);
+      }, 2000); // Wait 2 seconds after page load
+      
+      return () => clearTimeout(timer);
     }
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.abort();
-        recognitionRef.current.stop();
-      } catch (error) {
-        // Ignore cleanup errors
-      }
-      recognitionRef.current = null;
+  }, [hasGreeted, isVoiceSupported, voiceSettings.muted, speakMessage]);
+  
+  useEffect(() => {
+    if (transcript) {
+      processVoiceCommand(transcript);
     }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current);
-      retryTimeoutRef.current = null;
-    }
-  };
-
-  // Get contextual greeting based on page
-  const getContextualGreeting = (pathname: string): string => {
+  }, [transcript]);
+  
+  const getWelcomeGreeting = () => {
     const hour = new Date().getHours();
-    const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    let timeGreeting = "";
     
-    if (pathname === '/') {
-      return `${timeGreeting}! Welcome to PREP-zer, the world's first emotionally intelligent exam preparation platform. I'm Sakha AI, your adaptive learning companion. I can help you navigate our features or answer questions about your exam preparation journey. Try saying "Sign up", "Take demo", or "Analyze my readiness".`;
-    } else if (pathname.includes('/signup')) {
-      return `${timeGreeting}! Welcome to PREP-zer signup. I'm Sakha AI, and I can assist you through the registration process. You can use voice commands like "Next", "Continue", or ask me questions anytime.`;
-    } else if (pathname.includes('/login')) {
-      return `${timeGreeting}! Welcome back to PREP-zer. I'm here to help you access your personalized learning dashboard. Say "Demo login" for a quick preview or ask me anything about our features.`;
-    } else if (pathname.includes('/exam-readiness')) {
-      return `${timeGreeting}! Our AI-powered exam readiness analyzer will evaluate your preparation level and create a personalized study plan. I'll guide you through the assessment process.`;
-    }
-    
-    return `${timeGreeting}! Welcome to PREP-zer. I'm Sakha AI, your intelligent exam preparation assistant.`;
-  };
-
-  // Speak with female voice preference and correct pronunciation
-  const speakMessage = (message: string) => {
-    if (isMuted || !('speechSynthesis' in window)) return;
-
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-
-    // Create utterance with correct PREP-zer pronunciation
-    const speech = new SpeechSynthesisUtterance();
-    speech.text = message.replace(/PREPZR/g, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
-    speech.lang = language;
-    speech.rate = 1.0; // Natural speed
-    speech.pitch = 1.15; // Pleasant, confident female tone
-    speech.volume = 0.9;
-
-    // Get available voices and prefer female voices
-    const voices = window.speechSynthesis.getVoices();
-    
-    // Priority list for female voices with pleasant, confident tone
-    const preferredFemaleVoices = [
-      'Google US English Female',
-      'Microsoft Zira Desktop',
-      'Microsoft Zira',
-      'Samantha',
-      'Karen',
-      'Victoria',
-      'Alice',
-      'Emma',
-      'Moira'
-    ];
-
-    // Find best female voice
-    let selectedVoice = null;
-    for (const voiceName of preferredFemaleVoices) {
-      const voice = voices.find(v => 
-        v.name?.toLowerCase().includes(voiceName.toLowerCase())
-      );
-      if (voice) {
-        selectedVoice = voice;
-        break;
-      }
-    }
-
-    // Fallback to any available female voice
-    if (!selectedVoice) {
-      selectedVoice = voices.find(v => 
-        v.name?.toLowerCase().includes('female') && 
-        !v.name?.toLowerCase().includes('male')
-      );
-    }
-
-    // Final fallback to first available voice
-    if (!selectedVoice && voices.length > 0) {
-      selectedVoice = voices[0];
-    }
-
-    if (selectedVoice) {
-      speech.voice = selectedVoice;
-    }
-
-    // Event handlers
-    speech.onstart = () => console.log('Voice greeting started');
-    speech.onend = () => {
-      console.log('Voice greeting completed');
-      // Start listening after greeting with smart delay
-      setTimeout(() => {
-        if (!isMuted && shouldActivate) {
-          startVoiceRecognition();
-        }
-      }, 1000);
-    };
-    speech.onerror = (e) => {
-      console.error('Speech error:', e);
-      // Try to start recognition anyway with smart delay
-      setTimeout(() => {
-        if (!isMuted && shouldActivate) {
-          startVoiceRecognition();
-        }
-      }, 1500);
-    };
-
-    speechRef.current = speech;
-    window.speechSynthesis.speak(speech);
-  };
-
-  // Voice recognition setup with intelligent command handling
-  const startVoiceRecognition = () => {
-    if (!shouldActivate || isMuted || recognitionRef.current) return;
-
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      console.error('Speech recognition not supported');
-      return;
-    }
-
-    try {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = language;
-      
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-        recognitionRef.current = null;
-        
-        // Smart breaks - auto-restart with appropriate delays
-        if (!isMuted && shouldActivate && document.visibilityState === 'visible') {
-          retryTimeoutRef.current = window.setTimeout(() => {
-            startVoiceRecognition();
-          }, 3000); // 3 second break between recognition sessions
-        }
-      };
-      
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        recognitionRef.current = null;
-        
-        // Smart retry based on error type
-        const retryDelay = event.error === 'network' ? 8000 : 
-                          event.error === 'audio' ? 6000 : 5000;
-        
-        if (event.error !== 'aborted' && !isMuted && shouldActivate) {
-          retryTimeoutRef.current = window.setTimeout(() => {
-            startVoiceRecognition();
-          }, retryDelay);
-        }
-      };
-      
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase().trim();
-        console.log('Voice command:', transcript);
-        
-        // Prevent rapid commands
-        const now = Date.now();
-        if (now - lastCommandTimeRef.current < 3000) {
-          return;
-        }
-        lastCommandTimeRef.current = now;
-        
-        // Handle intelligent voice commands
-        handleVoiceCommand(transcript);
-      };
-      
-      recognition.start();
-      recognitionRef.current = recognition;
-      
-    } catch (error) {
-      console.error('Error starting recognition:', error);
-      // Retry with longer delay on error
-      retryTimeoutRef.current = window.setTimeout(() => {
-        startVoiceRecognition();
-      }, 6000);
-    }
-  };
-
-  // Handle intelligent voice commands with smart routing
-  const handleVoiceCommand = (command: string) => {
-    // Navigation commands
-    if (command.includes('sign up') || command.includes('signup') || command.includes('register')) {
-      window.location.href = '/signup';
-      speakMessage('Taking you to sign up page.');
-    } else if (command.includes('login') || command.includes('log in')) {
-      window.location.href = '/login';
-      speakMessage('Taking you to login page.');
-    } else if (command.includes('demo') || command.includes('try demo') || command.includes('take demo')) {
-      window.location.href = '/login';
-      speakMessage('Opening demo access.');
-    } else if (command.includes('home') || command.includes('go home')) {
-      window.location.href = '/';
-      speakMessage('Going to home page.');
-    } else if (command.includes('analyze') || command.includes('readiness') || command.includes('assessment') || command.includes('analyze my readiness')) {
-      // Trigger exam readiness analyzer
-      window.dispatchEvent(new Event('open-exam-analyzer'));
-      speakMessage('Opening your exam readiness analysis.');
-    } else if (command.includes('help') || command.includes('what can you do')) {
-      const helpMessage = `I can help you navigate PREP-zer. Try saying: Sign up, Login, Demo, Analyze readiness, or ask me about our features.`;
-      speakMessage(helpMessage);
-    } else if (command.includes('features') || command.includes('what is prepzr') || command.includes('what is prep-zer')) {
-      const featuresMessage = `PREP-zer is an AI-powered exam preparation platform that adapts to your learning style and emotional state. We provide personalized study plans, concept cards, practice exams, and emotional support for competitive exams like JEE, NEET, UPSC, and CAT.`;
-      speakMessage(featuresMessage);
-    } else if (command.includes('mute') || command.includes('stop') || command.includes('quiet')) {
-      setIsMuted(true);
-      localStorage.setItem('voice_assistant_muted', 'true');
-      cleanup();
-      speakMessage('Voice assistant muted. You can unmute in settings.');
+    if (hour < 12) {
+      timeGreeting = "Good morning";
+    } else if (hour < 17) {
+      timeGreeting = "Good afternoon";
     } else {
-      // Smart response for unrecognized commands
-      const responses = [
-        "I didn't catch that. Try saying 'Sign up', 'Demo', or 'Help' for assistance.",
-        "Please repeat that. You can say commands like 'Login', 'Analyze readiness', or ask about our features.",
-        "Could you try again? Say 'Help' to hear what I can do for you."
-      ];
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      speakMessage(randomResponse);
+      timeGreeting = "Good evening";
     }
+    
+    return `${timeGreeting}! Welcome to PREPZR, your AI-powered exam preparation platform. I'm your intelligent voice assistant, here to guide you through your learning journey. PREPZR transforms how students prepare for competitive exams like NEET with personalized study plans, interactive learning, and comprehensive analytics. You can ask me about our features, sign up for free, check exam readiness, or get started with your preparation. Would you like me to tell you more about what makes PREPZR special?`;
   };
-
-  // Initialize voices separately to ensure they're loaded
-  useEffect(() => {
-    if (window.speechSynthesis) {
-      // Force voice loading
-      window.speechSynthesis.getVoices();
-      
-      // Setup event listener for when voices are loaded
-      if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = () => {
-          console.log("Voices loaded:", window.speechSynthesis.getVoices().length);
-        };
-      }
-    }
-  }, []);
-
-  // Main effect for instant greeting and page changes
-  useEffect(() => {
-    // Better cleanup on page changes
-    cleanup();
-    setHasGreeted(false);
-    setIsListening(false);
-
-    // Check mute preference
-    const mutePref = localStorage.getItem('voice_assistant_muted');
-    if (mutePref === 'true') {
-      setIsMuted(true);
+  
+  const processVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('features') || lowerCommand.includes('what can prepzr do')) {
+      speakMessage(`PREPZR offers amazing features: AI-powered personalized study plans that adapt to your learning style, interactive concept cards with visual explanations, smart flashcards for quick revision, practice exams with detailed analytics, 24/7 AI tutor support, mood tracking for optimal study sessions, and progress monitoring with predictive insights. Everything is designed to make your exam preparation more effective and less stressful.`);
       return;
     }
-
-    // Only activate on valid pages
-    if (!shouldActivate) return;
-
-    // Instant greeting with minimal delay for page loading
-    const initializeVoice = () => {
-      if (window.speechSynthesis && !hasGreeted && !isMuted) {
-        const voices = window.speechSynthesis.getVoices();
-        
-        if (voices.length > 0) {
-          setHasGreeted(true);
-          const greeting = getContextualGreeting(location.pathname);
-          
-          // Very short delay to ensure page has loaded
-          timeoutRef.current = window.setTimeout(() => {
-            speakMessage(greeting);
-            
-            // Show helpful toast
-            toast({
-              title: "Sakha AI Voice Assistant Active",
-              description: "Say 'Help' to hear available commands",
-              duration: 4000,
-            });
-          }, 500); // Just 0.5 second delay for immediate greeting
-        }
-      }
-    };
-
-    // Load voices and initialize
-    if (window.speechSynthesis) {
-      // Force voices to load
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          initializeVoice();
-        } else {
-          // Retry if voices not loaded yet
-          setTimeout(loadVoices, 50);
-        }
-      };
-
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.onvoiceschanged = null;
-        initializeVoice();
-      };
-      
-      // Trigger voice loading
-      loadVoices();
-    }
-
-    // Cleanup on unmount
-    return cleanup;
-  }, [location.pathname, shouldActivate, hasGreeted, isMuted]);
-
-  // Listen for mute/unmute events
-  useEffect(() => {
-    const handleMute = () => {
-      setIsMuted(true);
-      cleanup();
-    };
     
-    const handleUnmute = () => {
-      setIsMuted(false);
-      if (shouldActivate && !hasGreeted) {
-        const greeting = getContextualGreeting(location.pathname);
-        setTimeout(() => speakMessage(greeting), 500);
-      }
-    };
-
-    document.addEventListener('voice-assistant-mute', handleMute);
-    document.addEventListener('voice-assistant-unmute', handleUnmute);
-
-    return () => {
-      document.removeEventListener('voice-assistant-mute', handleMute);
-      document.removeEventListener('voice-assistant-unmute', handleUnmute);
-    };
-  }, [shouldActivate, hasGreeted, location.pathname]);
-
-  // Handle page visibility changes for better cleanup
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        cleanup();
-      } else if (document.visibilityState === 'visible' && shouldActivate && !isMuted) {
-        // Smart restart when page becomes visible
-        setTimeout(() => {
-          if (!recognitionRef.current && hasGreeted) {
-            startVoiceRecognition();
-          }
-        }, 1000);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [shouldActivate, isMuted, hasGreeted]);
-
-  return null; // This component renders no UI
+    if (lowerCommand.includes('sign up') || lowerCommand.includes('register') || lowerCommand.includes('create account')) {
+      speakMessage(`Great! You can sign up for PREPZR absolutely free. Just click the Get Started button on the homepage or navigate to the sign-up page. Registration is quick and easy - just provide your basic details and you'll have access to our comprehensive exam preparation tools. Start your journey to exam success today!`);
+      return;
+    }
+    
+    if (lowerCommand.includes('exam readiness') || lowerCommand.includes('readiness analysis')) {
+      speakMessage(`Our Exam Readiness Analyzer is a powerful tool that evaluates your preparation level across different subjects and topics. It provides personalized insights, identifies knowledge gaps, and suggests improvement strategies. You can access this feature after signing up, and it will help you understand exactly where you stand in your exam preparation journey.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('pricing') || lowerCommand.includes('cost') || lowerCommand.includes('free')) {
+      speakMessage(`PREPZR offers flexible pricing options! You can start completely free with access to basic features. Our premium plans unlock advanced AI tutoring, unlimited practice exams, detailed analytics, and priority support. We believe quality education should be accessible, so we've designed our pricing to be student-friendly.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('neet') || lowerCommand.includes('medical exam')) {
+      speakMessage(`PREPZR specializes in NEET preparation! Our platform is specifically designed for medical entrance exams with comprehensive coverage of Physics, Chemistry, and Biology. We provide NEET-specific study materials, previous year question analysis, subject-wise breakdowns, and targeted practice sessions to maximize your NEET score.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('ai tutor') || lowerCommand.includes('artificial intelligence')) {
+      speakMessage(`Our 24/7 AI Tutor is like having a personal teacher available anytime! It can explain complex concepts, solve problems step by step, provide instant feedback, and adapt to your learning pace. The AI tutor uses advanced machine learning to understand your strengths and weaknesses, providing personalized guidance for optimal learning outcomes.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('study plan') || lowerCommand.includes('personalized plan')) {
+      speakMessage(`PREPZR creates dynamic, personalized study plans based on your goals, current level, available time, and learning preferences. These plans automatically adjust based on your progress, ensuring you're always on the optimal path to success. The AI considers your strengths, weaknesses, and exam timeline to create the most effective study schedule.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('analytics') || lowerCommand.includes('progress tracking')) {
+      speakMessage(`Our advanced analytics provide deep insights into your learning journey. Track your progress across subjects, identify improvement trends, see time allocation patterns, and get predictive insights about your exam readiness. The analytics help you make data-driven decisions to optimize your study strategy.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('demo') || lowerCommand.includes('how does it work')) {
+      speakMessage(`I'd love to show you how PREPZR works! After signing up, you'll complete a quick assessment to personalize your experience. Then you'll get access to your dashboard with today's study plan, concept cards, practice tests, and your AI tutor. Everything is designed to be intuitive and engaging. Would you like to start with a free account?`);
+      return;
+    }
+    
+    if (lowerCommand.includes('help') || lowerCommand.includes('support')) {
+      speakMessage(`I'm here to help! You can ask me about PREPZR features, pricing, exam preparation strategies, or how to get started. Our platform also provides comprehensive support through documentation, tutorials, and direct assistance. What specific information would you like to know about PREPZR?`);
+      return;
+    }
+    
+    // Default response
+    speakMessage(`Welcome to PREPZR! I can help you learn about our AI-powered exam preparation platform. Ask me about our features, pricing, NEET preparation, AI tutoring, study plans, or how to get started. What would you like to know?`);
+  };
+  
+  const suggestions = [
+    "Tell me about PREPZR features",
+    "How do I sign up?",
+    "What is exam readiness analysis?",
+    "NEET preparation support",
+    "Pricing and plans",
+    "How does the AI tutor work?"
+  ];
+  
+  if (!isVoiceSupported || !isEnabled) {
+    return null;
+  }
+  
+  return (
+    <div className="fixed bottom-20 left-6 z-40">
+      <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 shadow-lg`}>
+        <CardHeader className="p-3 pb-0">
+          <CardTitle className="text-sm flex justify-between items-center text-purple-800 dark:text-purple-200">
+            <div className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              <span>PREPZR Assistant</span>
+              {isSpeaking && (
+                <div className="flex gap-1">
+                  <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse"></div>
+                  <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-100"></div>
+                  <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-200"></div>
+                </div>
+              )}
+            </div>
+            {expanded && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setExpanded(false)}
+                className="h-6 w-6 p-0"
+              >
+                ×
+              </Button>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-3">
+          {expanded ? (
+            <div className="space-y-3">
+              <div className="text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-800/50 p-2 rounded">
+                👋 Welcome to PREPZR! Ask me anything about our platform.
+              </div>
+              
+              <div className="flex items-center justify-center gap-2">
+                <Button 
+                  variant={isListening ? "default" : "outline"}
+                  size="sm" 
+                  onClick={isListening ? stopListening : startListening}
+                  className={`${isListening ? 'bg-purple-500 hover:bg-purple-600' : 'border-purple-200'}`}
+                >
+                  {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+                  {isListening ? 'Stop' : 'Start'} Listening
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => toggleMute()}
+                  disabled={isSpeaking}
+                  className="border-purple-200"
+                >
+                  {voiceSettings.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </Button>
+              </div>
+              
+              {transcript && (
+                <div className="bg-purple-100 dark:bg-purple-800/50 p-2 rounded-md text-sm">
+                  <p className="font-semibold text-purple-800 dark:text-purple-200">You said:</p>
+                  <p className="text-purple-700 dark:text-purple-300">{transcript}</p>
+                </div>
+              )}
+              
+              <div>
+                <p className="text-xs text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  Try saying:
+                </p>
+                <div className="grid grid-cols-1 gap-1">
+                  {suggestions.slice(0, 3).map((suggestion, index) => (
+                    <Button 
+                      key={index} 
+                      variant="ghost" 
+                      size="sm"
+                      className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800/50"
+                      onClick={() => processVoiceCommand(suggestion)}
+                    >
+                      "{suggestion}"
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setExpanded(true)}
+                className="w-full text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800/50 flex items-center gap-2"
+              >
+                <Star className="h-4 w-4" />
+                Voice Guide
+                {isSpeaking && (
+                  <div className="flex gap-1 ml-2">
+                    <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse"></div>
+                    <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-100"></div>
+                  </div>
+                )}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
 export default EnhancedHomePageVoiceAssistant;

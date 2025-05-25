@@ -86,11 +86,11 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const handleSwitchExam = () => {
-    console.log('Switch exam clicked');
+    navigate('/dashboard/student/academic');
   };
 
   const handleNewPlan = () => {
-    console.log('New plan clicked');
+    navigate('/dashboard/student/academic');
   };
 
   return (
