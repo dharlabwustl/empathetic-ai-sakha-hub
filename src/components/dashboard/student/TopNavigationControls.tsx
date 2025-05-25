@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause } from 'lucide-react';
+import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause, BookOpen } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -82,11 +82,18 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
   const handleContinuousListening = () => {
     setIsContinuousListening(!isContinuousListening);
-    // Here you would implement the continuous listening logic
     console.log('Continuous listening:', !isContinuousListening);
   };
 
-  // Get current subscription status
+  // Route both Switch Exam and New Plan to academic advisor
+  const handleSwitchExam = () => {
+    navigate('/dashboard/student/academic');
+  };
+
+  const handleNewPlan = () => {
+    navigate('/dashboard/student/academic');
+  };
+
   const getCurrentPlan = () => {
     if (!user?.subscription) return 'Free';
     
@@ -123,6 +130,46 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
       {/* Right side - Controls */}
       <div className="flex items-center space-x-3">
+        {/* Switch Exam Button - Routes to Academic Advisor */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSwitchExam}
+                className="gap-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Switch Exam</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Switch your target exam</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* New Plan Button - Routes to Academic Advisor */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNewPlan}
+                className="gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">New Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Create a new study plan</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         {/* Time Display */}
         <TooltipProvider>
           <Tooltip>

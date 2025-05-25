@@ -20,95 +20,114 @@ import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
+import { VoiceManagerProvider } from '@/components/dashboard/student/voice/UnifiedVoiceManager';
+import ContextAwareVoiceAssistant from '@/components/dashboard/student/voice/ContextAwareVoiceAssistant';
+import FloatingVoiceIcon from '@/components/voice/FloatingVoiceIcon';
+
+interface PageWrapperProps {
+  children: React.ReactNode;
+}
+
+const PageWrapper: React.FC<PageWrapperProps> = ({ children }) => {
+  return (
+    <VoiceManagerProvider>
+      <SidebarLayout>
+        {children}
+        <ContextAwareVoiceAssistant />
+        <FloatingVoiceIcon />
+      </SidebarLayout>
+    </VoiceManagerProvider>
+  );
+};
 
 const StudentRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<StudentDashboard />} />
       <Route path="/today" element={
-        <SidebarLayout>
+        <PageWrapper>
           <TodaysPlanView />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/academic" element={
-        <SidebarLayout>
+        <PageWrapper>
           <AcademicAdvisorView />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/concepts" element={
-        <SidebarLayout>
+        <PageWrapper>
           <ConceptsPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/concepts/card/:conceptId" element={
-        <SidebarLayout>
+        <PageWrapper>
           <ConceptDetailPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/concept/:conceptId" element={
-        <SidebarLayout>
+        <PageWrapper>
           <ConceptDetailPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/concepts/:conceptId" element={
-        <SidebarLayout>
+        <PageWrapper>
           <ConceptDetailPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/concepts/:conceptId/formula-lab" element={
-        <SidebarLayout>
+        <PageWrapper>
           <FormulaLabPageWrapper />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/concept-study/:conceptId" element={
-        <SidebarLayout>
+        <PageWrapper>
           <ConceptStudyPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/flashcards" element={
-        <SidebarLayout>
+        <PageWrapper>
           <FlashcardsPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/flashcards/:id/interactive" element={
-        <SidebarLayout>
+        <PageWrapper>
           <InteractiveFlashcard />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/practice-exam" element={
-        <SidebarLayout>
+        <PageWrapper>
           <PracticeExamsList />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/syllabus" element={
-        <SidebarLayout>
+        <PageWrapper>
           <ExamSyllabusPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/previous-year-analysis" element={
-        <SidebarLayout>
+        <PageWrapper>
           <PreviousYearAnalysisPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/feel-good-corner" element={
-        <SidebarLayout>
+        <PageWrapper>
           <FeelGoodCornerPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/tutor" element={
-        <SidebarLayout>
+        <PageWrapper>
           <TutorView />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/profile" element={
-        <SidebarLayout>
+        <PageWrapper>
           <StudentProfile />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/subscription" element={
-        <SidebarLayout>
+        <PageWrapper>
           <SubscriptionPage />
-        </SidebarLayout>
+        </PageWrapper>
       } />
       <Route path="/loading" element={<DashboardLoading />} />
       <Route path="*" element={<NotFoundPage />} />
