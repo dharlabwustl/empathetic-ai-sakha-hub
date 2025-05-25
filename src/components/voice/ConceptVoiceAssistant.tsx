@@ -4,17 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, Speaker, BookOpen, Brain, Lightbulb } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import { toast } from '@/hooks/use-toast';
 
 interface ConceptVoiceAssistantProps {
-  conceptName?: string;
-  subject?: string;
+  conceptData?: any;
   userName?: string;
   isEnabled?: boolean;
 }
 
 const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
-  conceptName = "Current Concept",
-  subject = "General",
+  conceptData,
   userName = "Student",
   isEnabled = true
 }) => {
@@ -32,6 +31,7 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
     transcript
   } = useVoiceAnnouncer({ userName });
   
+  // Process transcript when it changes
   useEffect(() => {
     if (transcript) {
       processVoiceCommand(transcript);
@@ -42,45 +42,40 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
     const lowerCommand = command.toLowerCase();
     
     if (lowerCommand.includes('explain') || lowerCommand.includes('what is')) {
-      speakMessage(`${conceptName} is a fundamental concept in ${subject}. Let me break it down for you with simple explanations and real-world examples. This concept is important because it forms the foundation for more advanced topics.`);
+      speakMessage(`Let me explain this concept. ${conceptData?.title || 'This concept'} is an important topic in ${conceptData?.subject || 'your studies'}. The key points to understand are the fundamental principles and real-world applications.`);
       return;
     }
     
-    if (lowerCommand.includes('example') || lowerCommand.includes('show me')) {
-      speakMessage(`Here's a practical example of ${conceptName}: Think of it like everyday situations you encounter. I'll provide step-by-step examples to help you understand how this concept applies in real scenarios.`);
+    if (lowerCommand.includes('example') || lowerCommand.includes('give me an example')) {
+      speakMessage(`Here's a practical example: This concept is commonly used in problem-solving scenarios. Try to think of real-world situations where you might apply this knowledge.`);
       return;
     }
     
-    if (lowerCommand.includes('study tip') || lowerCommand.includes('how to remember')) {
-      speakMessage(`Great study tips for ${conceptName}: First, create visual associations. Second, practice with flashcards. Third, teach it to someone else. Use mnemonics and connect it to concepts you already know.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('difficulty') || lowerCommand.includes('hard to understand')) {
-      speakMessage(`Don't worry if ${conceptName} seems challenging! Break it into smaller parts, focus on one aspect at a time, and practice regularly. Remember, every expert was once a beginner.`);
+    if (lowerCommand.includes('study tips') || lowerCommand.includes('how to study')) {
+      speakMessage(`For effective studying, break this concept into smaller parts. Create mind maps, practice with examples, and try teaching it to someone else. Regular revision is key.`);
       return;
     }
     
     if (lowerCommand.includes('formula') || lowerCommand.includes('equation')) {
-      speakMessage(`The key formulas related to ${conceptName} are essential to memorize. I'll help you understand not just what they are, but why they work and when to use them in problem-solving.`);
+      speakMessage(`Let me help you with the formulas. Remember to understand the derivation, not just memorize. Practice substituting different values to see how variables affect the result.`);
       return;
     }
     
-    if (lowerCommand.includes('quiz') || lowerCommand.includes('test me')) {
-      speakMessage(`Ready for a quick quiz on ${conceptName}? I can ask you questions to test your understanding and provide immediate feedback to help reinforce your learning.`);
+    if (lowerCommand.includes('difficulty') || lowerCommand.includes('hard') || lowerCommand.includes('confused')) {
+      speakMessage(`Don't worry if this seems challenging. Break it down step by step. Focus on understanding the basic principles first, then build up to more complex applications.`);
       return;
     }
     
     // Default response
-    speakMessage(`I'm here to help you master ${conceptName} in ${subject}. Ask me to explain concepts, provide examples, give study tips, or quiz you on the material.`);
+    speakMessage("I'm here to help you understand this concept better. You can ask me to explain, give examples, provide study tips, or help with formulas.");
   };
   
   const suggestions = [
     "Explain this concept",
     "Give me an example",
-    "Study tips please",
-    "Test my understanding",
-    "How to remember this?"
+    "How should I study this?",
+    "Help me with the formula",
+    "This seems difficult"
   ];
   
   if (!isVoiceSupported || !isEnabled) {
@@ -92,7 +87,7 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
       <CardHeader className="p-3 pb-0">
         <CardTitle className="text-sm flex justify-between items-center text-blue-800">
           <div className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
+            <BookOpen className="h-4 w-4" />
             <span>Concept Assistant</span>
           </div>
           {expanded && (
@@ -153,6 +148,7 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
                     size="sm"
                     className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-blue-700 hover:bg-blue-100"
                     onClick={() => {
+                      speakMessage(suggestion);
                       processVoiceCommand(suggestion);
                     }}
                   >
@@ -170,8 +166,8 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
               onClick={() => setExpanded(true)}
               className="w-full text-blue-700 hover:bg-blue-100"
             >
-              <BookOpen className="h-4 w-4 mr-2" />
-              Concept Helper
+              <Brain className="h-4 w-4 mr-2" />
+              Ask About Concept
             </Button>
           </div>
         )}

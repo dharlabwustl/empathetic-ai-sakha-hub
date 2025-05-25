@@ -2,19 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, GraduationCap, Star, Target } from "lucide-react";
+import { Mic, MicOff, Speaker, GraduationCap, BookOpen, Calendar } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 
 interface AcademicAdvisorVoiceAssistantProps {
   userName?: string;
-  currentGoal?: string;
   isEnabled?: boolean;
+  userGoals?: any[];
 }
 
 const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps> = ({
   userName = "Student",
-  currentGoal = "Academic Excellence",
-  isEnabled = true
+  isEnabled = true,
+  userGoals = []
 }) => {
   const [expanded, setExpanded] = useState(false);
   
@@ -39,46 +39,51 @@ const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('how to study')) {
-      speakMessage(`For your ${currentGoal}, I recommend a structured approach: Set clear daily goals, use spaced repetition for better retention, take regular breaks, and focus on understanding concepts rather than memorizing. Mix different study methods like reading, practice, and teaching others.`);
+    if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
+      speakMessage("For an effective study plan, balance your weak and strong subjects. Allocate more time to challenging topics while maintaining your strengths. Include regular breaks and revision sessions.");
       return;
     }
     
-    if (lowerCommand.includes('time management') || lowerCommand.includes('schedule')) {
-      speakMessage(`Effective time management is crucial! Create a weekly schedule with dedicated study blocks. Use the Pomodoro technique - 25 minutes focused study, 5 minute breaks. Prioritize difficult subjects when your energy is highest.`);
+    if (lowerCommand.includes('time management') || lowerCommand.includes('organize time')) {
+      speakMessage("Use the Pomodoro technique: 25 minutes focused study, 5 minute break. Schedule your hardest subjects when you're most alert. Track your time to identify improvement areas.");
       return;
     }
     
-    if (lowerCommand.includes('motivation') || lowerCommand.includes('stay focused')) {
-      speakMessage(`Remember why you started this journey! ${currentGoal} is within your reach. Set small, achievable milestones. Celebrate your progress. Surround yourself with positive influences and remember that every expert was once a beginner.`);
+    if (lowerCommand.includes('exam strategy') || lowerCommand.includes('exam preparation')) {
+      speakMessage("Start with a comprehensive syllabus review. Practice previous year papers regularly. Focus on understanding concepts rather than memorization. Create a revision timetable for the final weeks.");
       return;
     }
     
-    if (lowerCommand.includes('exam strategy') || lowerCommand.includes('test taking')) {
-      speakMessage(`Smart exam strategies: Read all questions first to plan your time. Start with questions you know well to build confidence. For difficult questions, eliminate wrong answers first. Always review your answers if time permits.`);
+    if (lowerCommand.includes('weak subjects') || lowerCommand.includes('struggling with')) {
+      speakMessage("Identify specific topics within weak subjects that need attention. Use multiple learning methods: videos, practice problems, group study. Don't hesitate to seek help from teachers or peers.");
       return;
     }
     
-    if (lowerCommand.includes('stress') || lowerCommand.includes('anxiety')) {
-      speakMessage(`It's normal to feel stressed about academics. Practice deep breathing, get adequate sleep, exercise regularly, and maintain a balanced diet. Remember that some stress can be motivating, but too much hinders performance. Talk to someone if you're overwhelmed.`);
+    if (lowerCommand.includes('motivation') || lowerCommand.includes('feeling discouraged')) {
+      speakMessage("Remember your goals and why they matter to you. Celebrate small victories and progress. Surround yourself with positive influences. Take care of your physical and mental health.");
       return;
     }
     
-    if (lowerCommand.includes('goal setting') || lowerCommand.includes('targets')) {
-      speakMessage(`Let's refine your goals for ${currentGoal}! Use SMART goals - Specific, Measurable, Achievable, Relevant, and Time-bound. Break long-term goals into smaller weekly and daily targets. Track your progress regularly.`);
+    if (lowerCommand.includes('study tips') || lowerCommand.includes('how to study better')) {
+      speakMessage("Active learning is key: summarize in your own words, teach concepts to others, create mind maps. Use spaced repetition for better retention. Find your optimal study environment.");
+      return;
+    }
+    
+    if (lowerCommand.includes('goal setting') || lowerCommand.includes('set goals')) {
+      speakMessage("Set SMART goals: Specific, Measurable, Achievable, Relevant, Time-bound. Break long-term goals into smaller milestones. Review and adjust your goals regularly based on progress.");
       return;
     }
     
     // Default response
-    speakMessage(`I'm your academic advisor, here to guide you toward ${currentGoal}! I can help with study planning, time management, motivation, exam strategies, and goal setting. What would you like guidance on?`);
+    speakMessage("I'm here to help with study planning, time management, exam strategies, and academic guidance. What specific area would you like advice on?");
   };
   
   const suggestions = [
-    "Create a study plan",
+    "Help me plan my studies",
     "Time management tips",
-    "Keep me motivated",
     "Exam strategies",
-    "Set better goals"
+    "I'm struggling with subjects",
+    "Need motivation"
   ];
   
   if (!isVoiceSupported || !isEnabled) {
@@ -86,9 +91,9 @@ const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps
   }
   
   return (
-    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-orange-200 bg-orange-50`}>
+    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-green-200 bg-green-50`}>
       <CardHeader className="p-3 pb-0">
-        <CardTitle className="text-sm flex justify-between items-center text-orange-800">
+        <CardTitle className="text-sm flex justify-between items-center text-green-800">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
             <span>Academic Advisor</span>
@@ -113,7 +118,7 @@ const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps
                 variant={isListening ? "default" : "outline"}
                 size="sm" 
                 onClick={isListening ? stopListening : startListening}
-                className={`${isListening ? 'bg-orange-500 hover:bg-orange-600' : 'border-orange-200'}`}
+                className={`${isListening ? 'bg-green-500 hover:bg-green-600' : 'border-green-200'}`}
               >
                 {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
                 {isListening ? 'Stop' : 'Start'} Listening
@@ -124,7 +129,7 @@ const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps
                 size="sm"
                 onClick={() => toggleMute()}
                 disabled={isSpeaking}
-                className="border-orange-200"
+                className="border-green-200"
               >
                 <Speaker className="h-4 w-4 mr-2" />
                 {voiceSettings.muted ? 'Unmute' : 'Mute'}
@@ -132,15 +137,15 @@ const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps
             </div>
             
             {transcript && (
-              <div className="bg-orange-100 p-2 rounded-md text-sm">
-                <p className="font-semibold text-orange-800">You said:</p>
-                <p className="text-orange-700">{transcript}</p>
+              <div className="bg-green-100 p-2 rounded-md text-sm">
+                <p className="font-semibold text-green-800">You said:</p>
+                <p className="text-green-700">{transcript}</p>
               </div>
             )}
             
             <div>
-              <p className="text-xs text-orange-600 mb-2 flex items-center gap-1">
-                <Star className="h-3 w-3" />
+              <p className="text-xs text-green-600 mb-2 flex items-center gap-1">
+                <BookOpen className="h-3 w-3" />
                 Try saying:
               </p>
               <div className="grid grid-cols-1 gap-1">
@@ -149,7 +154,7 @@ const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps
                     key={index} 
                     variant="ghost" 
                     size="sm"
-                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-orange-700 hover:bg-orange-100"
+                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-green-700 hover:bg-green-100"
                     onClick={() => {
                       processVoiceCommand(suggestion);
                     }}
@@ -166,10 +171,10 @@ const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps
               variant="ghost" 
               size="sm" 
               onClick={() => setExpanded(true)}
-              className="w-full text-orange-700 hover:bg-orange-100"
+              className="w-full text-green-700 hover:bg-green-100"
             >
-              <Target className="h-4 w-4 mr-2" />
-              Academic Guide
+              <Calendar className="h-4 w-4 mr-2" />
+              Academic Guidance
             </Button>
           </div>
         )}

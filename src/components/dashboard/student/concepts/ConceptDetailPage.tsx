@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -16,7 +15,6 @@ import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
-import ConceptVoiceAssistant from '@/components/voice/ConceptVoiceAssistant';
 import { useTabProgress } from '@/hooks/useTabProgress';
 
 const ConceptDetailPage = () => {
@@ -168,6 +166,22 @@ const ConceptDetailPage = () => {
                         <p className="text-center text-gray-600 dark:text-gray-400">
                           Interactive visualizations with audio explanations for {concept.title} will be loaded here.
                         </p>
+                        <div className="mt-4 text-center">
+                          <Button 
+                            onClick={() => {
+                              const audioExplanation = `This interactive visualization shows ${concept.title}. Click on different elements to explore the concept in detail.`;
+                              if ('speechSynthesis' in window) {
+                                const utterance = new SpeechSynthesisUtterance(audioExplanation);
+                                utterance.rate = 0.9;
+                                window.speechSynthesis.speak(utterance);
+                              }
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Video className="h-4 w-4" />
+                            Play Audio Explanation
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -178,48 +192,102 @@ const ConceptDetailPage = () => {
                 </TabsContent>
 
                 <TabsContent value="tools" className="mt-0">
-                  <QuickRecallSection conceptName={concept.title} />
+                  <div className="space-y-6">
+                    {/* Quick Recall Test Section */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Brain className="h-5 w-5 text-blue-600" />
+                          Quick Recall Test
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <QuickRecallSection 
+                          conceptId={concept.id}
+                          title={concept.title}
+                          content={concept.content}
+                          onQuizComplete={(score) => {
+                            console.log(`Quiz completed with score: ${score}`);
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Other Learning Tools */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Notes & Annotations
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Create personal notes and annotations for this concept.
+                          </p>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-2"
+                            onClick={() => setActiveTab('notes')}
+                          >
+                            Open Notes
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Calculator className="h-4 w-4" />
+                            Practice Problems
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Solve practice problems related to this concept.
+                          </p>
+                          <Button variant="outline" size="sm" className="mt-2">
+                            Start Practice
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="notes" className="mt-0">
-                  <NotesSection conceptId={conceptId || ''} />
+                  <NotesSection conceptName={concept.title} />
                 </TabsContent>
               </Tabs>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-2">
-            <div className="space-y-6">
-              {/* Concept Voice Assistant */}
-              <ConceptVoiceAssistant 
-                conceptName={concept.title}
-                subject={concept.subject}
-                userName="Student"
-                isEnabled={true}
-              />
-              
-              {/* Progress Meter */}
-              <TabProgressMeter progressData={progressData} />
-              
-              {/* Concept Sidebar */}
-              <ConceptSidebar 
-                difficulty={concept.difficulty}
-                subject={concept.subject}
-                progress={concept.progress}
-                relatedConcepts={[]}
-              />
-              
-              {/* AI Assistant */}
-              <TabAIAssistant 
-                context={`concept: ${concept.title}`}
-                suggestions={[
-                  "Explain this concept simply",
-                  "Give me practice problems",
-                  "Show related topics"
-                ]}
-              />
-            </div>
+          {/* Enhanced Sidebar */}
+          <div className="lg:col-span-2 space-y-6">
+            <TabProgressMeter 
+              tabName="Concepts" 
+              progressData={progressData}
+            />
+            
+            <TabAIAssistant 
+              tabName="Concepts"
+              context={`User is studying ${concept.title} in ${concept.subject}`}
+            />
+            
+            <ConceptSidebar 
+              masteryLevel={concept.masteryLevel || 65}
+              relatedConcepts={[
+                { id: '1', title: 'Velocity and Acceleration', masteryLevel: 78 },
+                { id: '2', title: 'Newton\'s First Law', masteryLevel: 85 },
+                { id: '3', title: 'Free Body Diagrams', masteryLevel: 92 }
+              ]}
+              examReady={concept.examReady || false}
+              onRelatedConceptClick={(conceptId) => {
+                navigate(`/dashboard/student/concepts/${conceptId}`);
+              }}
+            />
           </div>
         </div>
       </div>
