@@ -8,10 +8,12 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import UnifiedVoiceAssistant from "@/components/voice/UnifiedVoiceAssistant";
+import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
+import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
+import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   
@@ -41,6 +43,18 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // Voice announcer hook
+  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
+    userName: userProfile?.name,
+    initialSettings: {
+      enabled: true,
+      muted: false,
+      language: 'en-IN',
+      pitch: 1.1, // Higher pitch for female voice
+      rate: 0.95  // Slightly faster for more energy
+    }
+  });
+
   // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
 
@@ -67,28 +81,39 @@ const StudentDashboard = () => {
 
     // Ensure profile image is available
     if (userProfile && userProfile.avatar) {
+      // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
-  }, [location, userProfile]);
+
+    // Auto-start voice greeting after 3 seconds
+    if (userProfile?.name) {
+      const timer = setTimeout(() => {
+        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
+        speakMessage(greeting);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location, userProfile, speakMessage, currentMood]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
     if (!currentMood) {
-      setCurrentMood(MoodType.MOTIVATED);
+      setCurrentMood(MoodType.Motivated);
       const userData = localStorage.getItem("userData");
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.MOTIVATED;
+          parsedData.mood = MoodType.Motivated;
           localStorage.setItem("userData", JSON.stringify(parsedData));
         } catch (err) {
           console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
         }
       } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
       }
     }
   };
@@ -144,21 +169,20 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Check if user is first time
-  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true' || 
-                         !userProfile.loginCount || userProfile.loginCount <= 1;
+  // Force welcome tour to never show
+  const modifiedShowWelcomeTour = false;
 
   return (
     <>
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true}
+        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false}
+        showWelcomeTour={modifiedShowWelcomeTour}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -175,13 +199,8 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Unified Voice Assistant that handles all dashboard messaging */}
-      <UnifiedVoiceAssistant
-        userName={userProfile.name}
-        language="en-US"
-        isFirstTimeUser={isFirstTimeUser}
-        userMood={currentMood?.toString()}
-      />
+      {/* Add the floating voice assistant */}
+      <FloatingVoiceAssistant userName={userProfile.name} />
     </>
   );
 };

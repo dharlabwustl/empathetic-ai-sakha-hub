@@ -85,13 +85,14 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     console.log('Continuous listening:', !isContinuousListening);
   };
 
-  // Route to academic advisor page for both buttons
   const handleSwitchExam = () => {
-    navigate('/dashboard/student/academic-advisor');
+    // Handle exam switching logic
+    console.log('Switch exam clicked');
   };
 
   const handleNewPlan = () => {
-    navigate('/dashboard/student/academic-advisor');
+    // Handle new plan creation
+    console.log('New plan clicked');
   };
 
   // Get current subscription status
@@ -131,7 +132,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
       {/* Right side - Controls */}
       <div className="flex items-center space-x-3">
-        {/* Switch Exam Button - Routes to Academic Advisor */}
+        {/* Switch Exam Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -151,7 +152,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* New Plan Button - Routes to Academic Advisor */}
+        {/* New Plan Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -204,6 +205,101 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Voice Language</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Continuous Listening Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleContinuousListening}
+                className={`relative ${isContinuousListening ? 'bg-green-50 border-green-300' : ''}`}
+              >
+                {isContinuousListening ? (
+                  <Pause className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {isContinuousListening && (
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isContinuousListening ? 'Stop Continuous Listening' : 'Start Continuous Listening'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Microphone Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleMicToggle}
+                className={`relative ${isMicActive ? 'bg-green-50 border-green-300' : ''}`}
+              >
+                {isMicActive ? (
+                  <Mic className="h-4 w-4 text-green-600" />
+                ) : (
+                  <MicOff className="h-4 w-4" />
+                )}
+                {isMicActive && (
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isMicActive ? 'Microphone Active' : 'Activate Microphone'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Mute Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleMuteToggle}
+                className={isMuted ? 'bg-red-50 border-red-300' : ''}
+              >
+                {isMuted ? (
+                  <VolumeX className="h-4 w-4 text-red-600" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isMuted ? 'Unmute Voice' : 'Mute Voice'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Voice Assistant Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleVoiceAssistant}
+                className="relative"
+              >
+                <Volume2 className="h-4 w-4" />
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Voice Assistant</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
