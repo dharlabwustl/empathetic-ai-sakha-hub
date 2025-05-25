@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause } from 'lucide-react';
+import { Calendar, Volume2, Clock, Globe, Settings } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -50,10 +50,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
-  const [isMicActive, setIsMicActive] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
-  const [isContinuousListening, setIsContinuousListening] = useState(false);
   
   const handleLogout = async () => {
     await logout();
@@ -64,40 +61,13 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     setIsVoiceAssistantOpen(true);
   };
 
-  const handleMicToggle = () => {
-    setIsMicActive(!isMicActive);
-  };
-
-  const handleMuteToggle = () => {
-    setIsMuted(!isMuted);
-  };
-
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
   };
 
-  const handleSubscriptionClick = () => {
-    navigate('/dashboard/student/subscription');
-  };
-
-  const handleContinuousListening = () => {
-    setIsContinuousListening(!isContinuousListening);
-    console.log('Continuous listening:', !isContinuousListening);
-  };
-
   const getCurrentPlan = () => {
-    if (!user?.subscription) return 'Free';
-    
-    if (typeof user.subscription === 'string') {
-      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
-             user.subscription === 'pro_annual' ? 'Pro Annual' :
-             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
-    }
-    
-    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
-           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
-           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
-           (user.subscription.planType || 'Free').slice(1);
+    // Since user.subscription doesn't exist, we'll use a default
+    return 'Free Plan';
   };
   
   return (
@@ -111,7 +81,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleSubscriptionClick}
+            onClick={() => navigate('/dashboard/student/subscription')}
             className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary p-0 h-auto"
           >
             Current Plan: {getCurrentPlan()}

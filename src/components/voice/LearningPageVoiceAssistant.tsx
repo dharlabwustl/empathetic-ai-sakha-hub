@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
 
 interface LearningPageVoiceAssistantProps {
   userName?: string;
-  context?: string;
+  context?: 'concepts' | 'flashcards' | 'practice-exam' | 'formula-lab' | 'academic-advisor';
   pageType?: 'concepts' | 'flashcards' | 'practice-exam' | 'formula-lab' | 'academic-advisor';
 }
 
@@ -52,11 +52,13 @@ const LearningPageVoiceAssistant: React.FC<LearningPageVoiceAssistantProps> = ({
       speech.pitch = 1.1;
       speech.volume = 0.8;
 
-      // Try to find a good voice
+      // Use consistent female voice
       const voices = window.speechSynthesis.getVoices();
       const femaleVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('female') || 
-        (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
+        voice.name.includes('Female') || 
+        voice.name.includes('Zira') ||
+        voice.name.includes('Samantha') ||
+        (!voice.name.includes('Male') && voice.lang.includes('en'))
       );
       
       if (femaleVoice) {
@@ -102,7 +104,7 @@ const LearningPageVoiceAssistant: React.FC<LearningPageVoiceAssistantProps> = ({
         onClose={() => setIsAssistantOpen(false)}
         userName={userName}
         language="en-US"
-        context="learning"
+        context={pageType}
       />
     </>
   );

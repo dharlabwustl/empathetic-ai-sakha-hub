@@ -105,10 +105,11 @@ const Index = () => {
       
       <Footer />
       
-      {/* Floating Voice Assistant Button */}
+      {/* Enhanced Floating Voice Assistant Button with hands-free capability */}
       <FloatingVoiceButton 
         userName="Visitor"
         language="en-US"
+        context="homepage"
       />
     </div>
   );

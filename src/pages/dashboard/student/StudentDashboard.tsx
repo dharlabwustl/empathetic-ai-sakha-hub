@@ -11,7 +11,7 @@ import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
@@ -68,7 +68,6 @@ const StudentDashboard = () => {
 
     // Ensure profile image is available
     if (userProfile && userProfile.avatar) {
-      // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
   }, [location, userProfile]);
@@ -154,7 +153,7 @@ const StudentDashboard = () => {
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+        hideTabsNav={true}
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
@@ -176,10 +175,11 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Unified floating voice assistant */}
+      {/* Enhanced unified floating voice assistant */}
       <FloatingVoiceButton 
         userName={userProfile.name}
         language="en-US"
+        context="dashboard"
       />
     </>
   );
