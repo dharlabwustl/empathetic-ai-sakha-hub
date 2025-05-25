@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -15,6 +16,7 @@ import ConceptSidebar from './concept-detail/ConceptSidebar';
 import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
+import ConceptVoiceAssistant from './ConceptVoiceAssistant';
 import { useTabProgress } from '@/hooks/useTabProgress';
 
 const ConceptDetailPage = () => {
@@ -269,6 +271,14 @@ const ConceptDetailPage = () => {
             <TabProgressMeter 
               tabName="Concepts" 
               progressData={progressData}
+            />
+            
+            <ConceptVoiceAssistant
+              conceptName={concept.title}
+              conceptSubject={concept.subject}
+              conceptTopic={concept.topic}
+              masteryLevel={concept.masteryLevel || 65}
+              isEnabled={true}
             />
             
             <TabAIAssistant 
