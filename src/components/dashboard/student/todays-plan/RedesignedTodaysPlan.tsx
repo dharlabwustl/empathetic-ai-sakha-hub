@@ -25,10 +25,7 @@ const RedesignedTodaysPlan: React.FC = () => {
     loading,
     error,
     planData,
-    refreshData,
-    markTaskCompleted,
-    addBookmark,
-    addNote
+    refreshData
   } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
   
   if (loading) {
@@ -68,7 +65,6 @@ const RedesignedTodaysPlan: React.FC = () => {
         navigate('/dashboard/student/practice-exam');
         break;
       case 'break':
-        // Could implement a break timer or motivational message
         console.log('Take a break suggestion clicked');
         break;
       case 'bonus':
@@ -98,7 +94,7 @@ const RedesignedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
         
-        {/* New enhanced today's plan view with progress meter and enhanced task breakdown */}
+        {/* Enhanced today's plan view with refactored components */}
         <NewTodaysPlanView 
           planData={planData}
           onConceptClick={handleConceptClick}
