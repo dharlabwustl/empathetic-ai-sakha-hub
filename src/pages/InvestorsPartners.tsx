@@ -14,15 +14,18 @@ const InvestorsPartners = () => {
       name: 'NVIDIA Inception Program',
       type: 'Strategic Technology Partner',
       logo: '/lovable-uploads/c13c9764-a94b-443a-9e17-418ecca7ef44.png',
-      description: 'Member of NVIDIA Inception Program, gaining access to cutting-edge developer resources, exclusive training programs, and NVIDIA hardware to accelerate our AI strategies.',
+      description: 'PREPZR is proud to be a member of the prestigious NVIDIA Inception Program, joining an elite community of AI-driven startups that are transforming industries worldwide. This partnership empowers us with cutting-edge resources and exclusive access to accelerate our AI-powered educational platform.',
       benefits: [
-        'Access to latest developer resources and training',
-        'Exclusive NVIDIA hardware for AI development',
-        'Technical mentorship and support',
-        'Early access to new technologies'
+        'Access to latest developer resources and training programs',
+        'Exclusive NVIDIA hardware to accelerate our AI strategies',
+        'Technical mentorship and support from NVIDIA experts',
+        'Early access to new technologies and development tools',
+        'Networking opportunities with industry leaders',
+        'Marketing and go-to-market support'
       ],
       status: 'Active',
-      joinedDate: '2024'
+      joinedDate: '2024',
+      story: 'Our journey with NVIDIA began when we recognized the transformative potential of AI in education. As we developed our personalized learning algorithms, we needed powerful computing resources and expertise to bring our vision to life. The NVIDIA Inception Program provided us with the perfect platform to scale our AI capabilities and connect with like-minded innovators in the startup ecosystem.'
     }
   ];
 
@@ -55,9 +58,10 @@ const InvestorsPartners = () => {
 
   const upcomingOpportunities = [
     'Series A funding round opening Q2 2025',
-    'Strategic partnerships with educational institutions',
+    'Strategic partnerships with leading educational institutions',
     'International market expansion opportunities',
-    'Technology licensing and white-label solutions'
+    'Technology licensing and white-label solutions',
+    'Corporate training and enterprise solutions'
   ];
 
   return (
@@ -140,11 +144,11 @@ const InvestorsPartners = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, delay: index * 0.1 }}
                 >
-                  <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+                  <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
                     <CardContent className="p-8">
                       <div className="flex flex-col lg:flex-row items-start gap-8">
                         <div className="flex-shrink-0">
-                          <div className="w-32 h-20 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center p-4">
+                          <div className="w-40 h-24 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-xl flex items-center justify-center p-6 shadow-lg">
                             <img 
                               src={partner.logo} 
                               alt={`${partner.name} logo`}
@@ -154,30 +158,37 @@ const InvestorsPartners = () => {
                         </div>
                         
                         <div className="flex-1">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-                            <h3 className="text-2xl font-bold">{partner.name}</h3>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+                            <h3 className="text-3xl font-bold">{partner.name}</h3>
                             <div className="flex gap-2">
-                              <Badge variant="secondary">{partner.type}</Badge>
+                              <Badge variant="secondary" className="text-sm">{partner.type}</Badge>
                               <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                                 {partner.status}
                               </Badge>
+                              <Badge variant="outline">Since {partner.joinedDate}</Badge>
                             </div>
                           </div>
                           
-                          <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                            {partner.description}
-                          </p>
+                          <div className="mb-6">
+                            <h4 className="font-semibold mb-3 text-lg">Our Partnership Story</h4>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+                              {partner.story}
+                            </p>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                              {partner.description}
+                            </p>
+                          </div>
                           
                           <div>
-                            <h4 className="font-semibold mb-3 flex items-center gap-2">
-                              <Star className="h-4 w-4 text-yellow-500" />
-                              Partnership Benefits
+                            <h4 className="font-semibold mb-4 flex items-center gap-2 text-lg">
+                              <Star className="h-5 w-5 text-yellow-500" />
+                              Partnership Benefits & Access
                             </h4>
-                            <div className="grid sm:grid-cols-2 gap-2">
+                            <div className="grid sm:grid-cols-2 gap-3">
                               {partner.benefits.map((benefit, benefitIndex) => (
-                                <div key={benefitIndex} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                                  {benefit}
+                                <div key={benefitIndex} className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                  <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                                  <span>{benefit}</span>
                                 </div>
                               ))}
                             </div>
@@ -189,6 +200,28 @@ const InvestorsPartners = () => {
                 </motion.div>
               ))}
             </div>
+
+            {/* Future Partnerships */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="mt-12 text-center"
+            >
+              <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                <CardContent className="p-8">
+                  <div className="text-gray-500 dark:text-gray-400 mb-4">
+                    <Rocket className="h-12 w-12 mx-auto mb-3" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">More Partnerships Coming Soon</h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    We're actively building relationships with leading technology companies, 
+                    educational institutions, and industry experts to expand our ecosystem.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </section>
 
@@ -226,7 +259,7 @@ const InvestorsPartners = () => {
                       </li>
                       <li className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 bg-white rounded-full mt-2"></div>
-                        Strong partnerships with technology leaders
+                        Strong partnerships with technology leaders like NVIDIA
                       </li>
                       <li className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 bg-white rounded-full mt-2"></div>
@@ -287,7 +320,7 @@ const InvestorsPartners = () => {
                   { title: 'Technology Partners', description: 'Collaborate on cutting-edge educational innovations' },
                   { title: 'Content Partners', description: 'Expand our content library with your expertise' }
                 ].map((type, index) => (
-                  <Card key={index} className="border-0 shadow-lg">
+                  <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardContent className="p-6 text-center">
                       <h3 className="font-semibold mb-2">{type.title}</h3>
                       <p className="text-gray-600 dark:text-gray-300 text-sm">{type.description}</p>
