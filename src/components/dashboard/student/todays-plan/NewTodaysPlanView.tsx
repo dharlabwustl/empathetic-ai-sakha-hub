@@ -1,35 +1,37 @@
 
 import React from 'react';
+import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
+import SmartSuggestionsSection from './SmartSuggestionsSection';
 import { TodaysPlanData } from '@/types/student/todaysPlan';
-import TodaysPlanProgressMeter from './TodaysPlanProgressMeter';
-import TasksList from './TasksList';
-import BacklogSection from './BacklogSection';
-import SubjectTasksBreakdown from './SubjectTasksBreakdown';
 
 interface NewTodaysPlanViewProps {
   planData: TodaysPlanData | null;
   onConceptClick: (conceptId: string) => void;
+  onSuggestionAction: (action: string) => void;
   isMobile?: boolean;
 }
 
 const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({ 
   planData, 
-  onConceptClick, 
+  onConceptClick,
+  onSuggestionAction,
   isMobile = false 
 }) => {
   return (
     <div className="space-y-6">
-      {/* Progress meter at the top */}
-      <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
+      {/* Smart suggestions section */}
+      <SmartSuggestionsSection 
+        planData={planData}
+        onActionClick={onSuggestionAction}
+        isMobile={isMobile}
+      />
       
-      {/* Tasks list with premium styling */}
-      <TasksList planData={planData} onConceptClick={onConceptClick} />
-      
-      {/* Backlog section */}
-      <BacklogSection planData={planData} />
-      
-      {/* Subject breakdown */}
-      <SubjectTasksBreakdown />
+      {/* Enhanced task breakdown component */}
+      <EnhancedTaskBreakdown 
+        planData={planData}
+        onConceptClick={onConceptClick}
+        isMobile={isMobile}
+      />
     </div>
   );
 };

@@ -16,6 +16,7 @@ import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
+import ConceptVoiceAssistant from './concept-detail/ConceptVoiceAssistant';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -291,6 +292,15 @@ const ConceptDetailPage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Voice Assistant for Concept Detail */}
+      <ConceptVoiceAssistant 
+        conceptName={concept.title}
+        conceptContent={concept.content}
+        currentTab={activeTab}
+        userName={concept.title} // or get from user context
+        isEnabled={true}
+      />
     </div>
   );
 };

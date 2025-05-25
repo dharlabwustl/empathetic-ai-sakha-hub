@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import SmartSuggestionsSection from './SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -87,17 +86,11 @@ const RedesignedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Smart suggestions section */}
-        <SmartSuggestionsSection 
-          planData={planData}
-          onActionClick={handleSuggestionAction}
-          isMobile={isMobile}
-        />
-        
-        {/* Enhanced today's plan view with refactored components */}
+        {/* Enhanced today's plan view with all components */}
         <NewTodaysPlanView 
           planData={planData}
           onConceptClick={handleConceptClick}
+          onSuggestionAction={handleSuggestionAction}
           isMobile={isMobile}
         />
         
