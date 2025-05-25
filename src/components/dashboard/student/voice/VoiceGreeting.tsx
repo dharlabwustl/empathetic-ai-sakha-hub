@@ -22,7 +22,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       muted: false,
       language: language === "en" ? 'en-IN' : language,
       pitch: 1.1,
-      rate: 0.9
+      rate: 0.95
     }
   });
 
@@ -32,7 +32,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         const greeting = getContextualGreeting(isFirstTimeUser, userName);
         speakMessage(greeting);
         setHasGreeted(true);
-      }, 2500);
+      }, 3000);
       
       return () => clearTimeout(timer);
     }
@@ -42,27 +42,23 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     if (isFirstTime) {
       return `Congratulations ${name}! Welcome to PREPZR - your AI-powered exam preparation companion. 
 
-I'm Sakha AI, and I'm here to guide you through your journey to exam success. Let me introduce you to our comprehensive features that will revolutionize your study experience.
+I'm Sakha AI, and I'm here to guide you through your journey to exam success. Let me introduce you to our powerful features:
 
-Your Dashboard Overview displays your complete progress tracking and exam readiness score with detailed analytics. The Academic Advisor creates personalized study plans, provides strategic guidance, and helps you optimize your preparation timeline.
+Your Dashboard Overview shows your progress and exam readiness score. The Academic Advisor helps create personalized study plans and provides strategic guidance. Today's Plan gives you daily tasks optimized for your learning pace.
 
-Today's Plan section gives you daily tasks intelligently optimized for your learning pace and preferences. Our Concept Cards offer detailed explanations with practical examples and memory techniques.
+Our Concept Cards offer detailed explanations with examples. Smart Flashcards use spaced repetition for better retention. Practice Exams simulate real test conditions with detailed analytics.
 
-Smart Flashcards use spaced repetition algorithms for better retention and long-term memory formation. Practice Exams simulate real test conditions with comprehensive analytics and performance insights.
+The Formula Section helps you master mathematical concepts with memory techniques. I'm available 24/7 to assist with your studies and answer questions.
 
-The Formula Section helps you master mathematical concepts with proven memory techniques and step-by-step breakdowns. I'm available 24/7 to assist with your studies, answer questions, and provide personalized guidance.
-
-Would you like me to show you around the dashboard features or help you create your first personalized study plan? I'm here to ensure your exam preparation success!`;
+Would you like me to show you around the dashboard features or help you create your first study plan?`;
     } else {
       return `Welcome back, ${name}! I'm Sakha AI, ready to help you excel in your studies today.
 
-Let me quickly update you on your study progress and pending tasks. You have several items on your today's plan that require attention based on your learning schedule. Your exam readiness score has been updated reflecting your recent performance and progress.
+Let me quickly remind you about your pending tasks and study progress. You have several items on your today's plan that need attention. Your exam readiness score has been updated based on your recent performance.
 
-Don't forget to check your daily tasks - they're intelligently optimized based on your learning patterns and study history. Your backlog items need attention to keep you on track with your preparation timeline.
+Don't forget to check your daily tasks - they're optimized based on your learning patterns. If you have any questions about concepts, need help with practice problems, or want guidance on your study strategy, just ask me.
 
-If you have any questions about concepts, need help with practice problems, want guidance on your study strategy, or require assistance with any academic topics, just ask me.
-
-I'm here to support your preparation journey, track your progress, and help you achieve your exam goals efficiently. What would you like to work on today? Let's make it a productive study session!`;
+I'm here to support your preparation journey and help you achieve your exam goals. What would you like to work on today?`;
     }
   };
 
