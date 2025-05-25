@@ -16,6 +16,8 @@ import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
+import ConceptDetailVoiceAssistant from './ConceptDetailVoiceAssistant';
+import FormulaPracticeVoiceAssistant from './FormulaPracticeVoiceAssistant';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -291,6 +293,25 @@ const ConceptDetailPage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Context-aware voice assistant based on active tab */}
+      {activeTab === 'tools' && (
+        <FormulaPracticeVoiceAssistant 
+          formulaName={concept.title}
+          subject={concept.subject}
+          difficulty={concept.difficulty}
+          isEnabled={true}
+        />
+      )}
+      
+      {(activeTab === 'learn' || activeTab === 'interactive' || activeTab === '3d') && (
+        <ConceptDetailVoiceAssistant 
+          conceptName={concept.title}
+          subject={concept.subject}
+          difficulty={concept.difficulty}
+          isEnabled={true}
+        />
+      )}
     </div>
   );
 };
