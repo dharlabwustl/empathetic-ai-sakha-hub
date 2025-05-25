@@ -14,8 +14,6 @@ export interface StudyPlanSubject {
   name: string;
   color?: string;
   hoursPerWeek: number;
-  totalHours: number;
-  completedHours: number;
   priority: 'high' | 'medium' | 'low';
   proficiency: 'weak' | 'medium' | 'strong';
   completed: boolean;
@@ -59,4 +57,5 @@ export interface NewStudyPlan {
   status?: 'active' | 'completed' | 'archived' | 'pending';
 }
 
+// Export types to be used in other files
 export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };
