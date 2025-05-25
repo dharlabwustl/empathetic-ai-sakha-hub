@@ -5,16 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Users, Search, Filter, UserPlus, MoreHorizontal, 
   Calendar, Target, TrendingUp, Activity, Mail, Phone 
 } from 'lucide-react';
+import OnboardingDataViewer from './OnboardingDataViewer';
 
 const StudentManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [showOnboardingData, setShowOnboardingData] = useState(false);
 
-  // Mock student data
+  // Enhanced mock student data with onboarding information
   const students = [
     {
       id: '1',
@@ -28,11 +32,33 @@ const StudentManagement: React.FC = () => {
       studyStreak: 15,
       lastActive: '2 hours ago',
       subscription: 'Pro',
-      mood: 'motivated'
+      mood: 'motivated',
+      onboardingData: {
+        role: 'Student',
+        examGoal: 'NEET 2025',
+        age: 17,
+        grade: '12th',
+        location: 'Mumbai',
+        institute: 'ABC Junior College',
+        personalityType: 'Analytical',
+        mood: 'motivated',
+        learningStyle: 'visual',
+        dailyStudyHours: 8,
+        preferredStudyTime: 'morning',
+        studyPace: 'moderate',
+        studyEnvironment: 'quiet',
+        interests: ['Biology', 'Chemistry', 'Physics'],
+        weakSubjects: ['Physics'],
+        preferredSubjects: ['Biology', 'Chemistry'],
+        sleepSchedule: '10 PM - 6 AM',
+        focusHours: 4,
+        stressManagement: 'meditation',
+        breakRoutine: 'short walks'
+      }
     },
     {
       id: '2',
-      name: 'Priya Sharma',
+      name: 'Priya Patel',
       email: 'priya@example.com',
       phone: '+91 9876543211',
       examGoal: 'JEE Main 2025',
@@ -42,9 +68,30 @@ const StudentManagement: React.FC = () => {
       studyStreak: 22,
       lastActive: '1 hour ago',
       subscription: 'Premium',
-      mood: 'confident'
-    },
-    // Add more mock students...
+      mood: 'confident',
+      onboardingData: {
+        role: 'Student',
+        examGoal: 'JEE Main 2025',
+        age: 18,
+        grade: '12th',
+        location: 'Delhi',
+        institute: 'Delhi Public School',
+        personalityType: 'Creative',
+        mood: 'confident',
+        learningStyle: 'kinesthetic',
+        dailyStudyHours: 10,
+        preferredStudyTime: 'evening',
+        studyPace: 'fast',
+        studyEnvironment: 'music',
+        interests: ['Mathematics', 'Physics', 'Chemistry'],
+        weakSubjects: ['Chemistry'],
+        preferredSubjects: ['Mathematics', 'Physics'],
+        sleepSchedule: '11 PM - 7 AM',
+        focusHours: 5,
+        stressManagement: 'exercise',
+        breakRoutine: 'listening to music'
+      }
+    }
   ];
 
   const onboardingData = [
@@ -73,6 +120,11 @@ const StudentManagement: React.FC = () => {
       percentage: 83.3
     }
   ];
+
+  const handleViewOnboardingData = (student: any) => {
+    setSelectedStudent(student);
+    setShowOnboardingData(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -232,9 +284,18 @@ const StudentManagement: React.FC = () => {
                           {student.lastActive}
                         </td>
                         <td className="p-4">
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleViewOnboardingData(student)}
+                            >
+                              View Onboarding
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -295,6 +356,16 @@ const StudentManagement: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Onboarding Data Dialog */}
+      <Dialog open={showOnboardingData} onOpenChange={setShowOnboardingData}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Onboarding Data - {selectedStudent?.name}</DialogTitle>
+          </DialogHeader>
+          {selectedStudent && <OnboardingDataViewer studentData={selectedStudent} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

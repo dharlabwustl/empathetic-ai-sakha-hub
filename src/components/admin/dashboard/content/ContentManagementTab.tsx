@@ -1,13 +1,8 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  FileText,
-  Book,
-  FileSpreadsheet,
-  GraduationCap
-} from "lucide-react";
 import { ContentType } from "@/types/content";
 import ContentManagementHeader from "@/components/admin/dashboard/content/ContentManagementHeader";
 import ContentSummaryCards from "@/components/admin/dashboard/content/ContentSummaryCards";
@@ -152,14 +147,26 @@ const ContentManagementTab = () => {
           <ContentSummaryCards handleManageContent={handleManageContent} />
 
           <Tabs defaultValue="queue" value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="mb-4 grid w-full grid-cols-3 gap-2">
+            <TabsList className="mb-4 grid w-full grid-cols-4 gap-2">
               <TabsTrigger value="queue">Approval Queue</TabsTrigger>
+              <TabsTrigger value="upload">Upload & Generate</TabsTrigger>
               <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
               <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
             </TabsList>
 
             <TabsContent value="queue">
               <TabContentApprovalQueue handleContentAction={handleContentAction} />
+            </TabsContent>
+
+            <TabsContent value="upload">
+              <ContentUploader
+                handleFileSelect={handleFileSelect}
+                handleUpload={handleUpload}
+                selectedFile={selectedFile}
+                onFileRemove={handleFileRemove}
+                uploading={uploading}
+                uploadProgress={uploadProgress}
+              />
             </TabsContent>
 
             <TabsContent value="studyMaterials">
