@@ -46,17 +46,23 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
     if (isFirstTime) {
       return `Welcome to PREPZR! I'm Sakha AI, your intelligent exam preparation companion. Congratulations on taking the first step towards exam success! 
 
-PREPZR is a comprehensive AI-powered platform designed to revolutionize how you prepare for competitive exams. We offer personalized study plans, adaptive learning, 24/7 AI tutoring, and smart analytics to maximize your performance.
+PREPZR is a revolutionary AI-powered platform designed to transform how you prepare for competitive exams. We combine cutting-edge artificial intelligence with proven learning methodologies to give you the ultimate competitive advantage.
 
-Our key features include: personalized daily study plans that adapt to your pace, concept cards with detailed explanations, smart flashcards with spaced repetition, practice exams with detailed analytics, an academic advisor for guidance, and formula practice with memory techniques.
+Our comprehensive features include: personalized daily study plans that adapt to your unique learning pace and style, concept cards with detailed explanations and practical examples, smart flashcards using spaced repetition for maximum retention, practice exams with real-time analytics and performance insights, 24/7 AI tutoring for instant help, and academic advisor guidance for strategic planning.
 
-Take a moment to explore our platform. Would you like me to guide you through our exam readiness analyzer or help you sign up to unlock the full potential of AI-powered exam preparation?`;
+What makes PREPZR special is our intelligent assessment system that continuously evaluates your progress and adjusts your study plan accordingly. Our exam readiness analyzer provides accurate preparation level assessment across all subjects.
+
+Take a moment to explore our platform features. Would you like me to guide you through our exam readiness analyzer to assess your current preparation level, or help you sign up to unlock the full potential of AI-powered exam preparation? I'm here to make your exam success journey efficient and effective!`;
     } else {
-      return `Welcome back to PREPZR! I'm Sakha AI, ready to help you excel in your exam preparation. 
+      return `Welcome back to PREPZR! I'm Sakha AI, your dedicated exam preparation assistant ready to help you excel. 
 
-PREPZR combines cutting-edge AI technology with proven learning methodologies to give you the competitive edge. Our platform features personalized study plans, intelligent concept learning, adaptive flashcards, comprehensive practice exams, and real-time progress tracking.
+PREPZR harnesses advanced AI technology combined with proven educational methodologies to maximize your exam performance. Our platform offers personalized study plans, intelligent concept learning, adaptive flashcards, comprehensive practice exams, and real-time progress tracking.
 
-Explore our exam readiness analyzer to assess your current preparation level, or sign up to access our full suite of AI-powered study tools. I'm here to assist you every step of the way towards exam success!`;
+Our smart analytics continuously monitor your learning patterns and adjust recommendations to ensure optimal preparation efficiency. The exam readiness analyzer provides detailed insights into your preparation level across all subjects.
+
+Explore our exam readiness analyzer to get an instant assessment of your current preparation status, or sign up to access our complete suite of AI-powered study tools including personalized study plans, 24/7 AI tutoring, and advanced progress analytics.
+
+I'm here to assist you every step of the way towards exam success. Let's achieve your academic goals together with the power of intelligent preparation!`;
     }
   };
   
@@ -75,30 +81,30 @@ Explore our exam readiness analyzer to assess your current preparation level, or
     }
     
     if (lowerCommand.includes('features') || lowerCommand.includes('what can you do')) {
-      speakMessage(`PREPZR offers amazing features: personalized study plans that adapt to your learning style, concept cards with detailed explanations, smart flashcards using spaced repetition, practice exams with analytics, 24/7 AI tutoring, and academic advisor guidance. Would you like to explore any specific feature?`);
+      speakMessage(`PREPZR offers revolutionary features: personalized study plans that adapt to your learning style, concept cards with comprehensive explanations, smart flashcards using spaced repetition, practice exams with detailed analytics, 24/7 AI tutoring for instant help, and academic advisor guidance for strategic planning. Would you like to explore any specific feature?`);
       return;
     }
     
     if (lowerCommand.includes('exam readiness') || lowerCommand.includes('readiness')) {
-      speakMessage(`Our exam readiness analyzer evaluates your preparation level across all subjects using AI algorithms. It provides a comprehensive score and identifies areas for improvement. Would you like to try it now?`);
+      speakMessage(`Our exam readiness analyzer uses advanced AI algorithms to evaluate your preparation level across all subjects. It provides a comprehensive score and identifies specific areas for improvement with actionable recommendations. Would you like to try it now?`);
       // Trigger exam readiness analyzer
       window.dispatchEvent(new Event('open-exam-analyzer'));
       return;
     }
     
     if (lowerCommand.includes('sign up') || lowerCommand.includes('register')) {
-      speakMessage(`Excellent choice! Signing up unlocks personalized study plans, progress tracking, unlimited practice tests, and 24/7 AI tutoring. Let me direct you to our registration page.`);
+      speakMessage(`Excellent choice! Signing up unlocks personalized study plans, comprehensive progress tracking, unlimited practice tests, 24/7 AI tutoring, and strategic academic advisor guidance. Let me direct you to our registration page.`);
       window.location.href = '/auth/signup';
       return;
     }
     
     if (lowerCommand.includes('study plan') || lowerCommand.includes('plan')) {
-      speakMessage(`Our AI creates personalized study plans based on your exam date, available time, strengths, and weaknesses. The plan adapts as you progress, ensuring optimal learning efficiency. Sign up to get your customized plan!`);
+      speakMessage(`Our AI creates highly personalized study plans based on your exam date, available time, current strengths, and areas for improvement. The plan continuously adapts as you progress, ensuring optimal learning efficiency and exam readiness. Sign up to get your customized intelligent study plan!`);
       return;
     }
     
     // Default response
-    speakMessage(`I'm Sakha AI, your exam preparation assistant. I can help you explore PREPZR's features, analyze your exam readiness, or guide you through our AI-powered study tools. What would you like to know?`);
+    speakMessage(`I'm Sakha AI, your comprehensive exam preparation assistant. I can help you explore PREPZR's advanced features, analyze your exam readiness, guide you through our AI-powered study tools, or assist with any preparation questions. What would you like to know?`);
   };
   
   const suggestions = [

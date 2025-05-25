@@ -12,12 +12,14 @@ export interface FlashcardTask {
   id: string;
   title: string;
   status: 'pending' | 'completed' | 'in-progress';
+  difficulty?: string;
 }
 
 export interface PracticeExamTask {
   id: string;
   title: string;
   status: 'pending' | 'completed' | 'in-progress';
+  difficulty?: string;
 }
 
 export interface TaskProgress {

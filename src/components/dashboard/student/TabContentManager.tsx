@@ -83,7 +83,7 @@ const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile
               totalTasks: 8,
               completedTasks: 3,
               concepts: [
-                { id: '1', title: "Newton's Laws", status: 'pending', difficulty: 'medium' }
+                { id: '1', title: "Newton's Laws", status: 'pending', difficulty: 'medium', subject: 'Physics', duration: 30 }
               ],
               flashcards: [
                 { id: '1', title: "Physics Formulas", status: 'pending', difficulty: 'easy' }
@@ -92,7 +92,13 @@ const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile
                 { id: '1', title: "Mock Test 1", status: 'pending', difficulty: 'hard' }
               ],
               streak: 5,
-              timeAllocation: { total: 120 },
+              timeAllocation: { 
+                concepts: 60,
+                flashcards: 30,
+                practiceExams: 45,
+                revision: 15,
+                total: 150
+              },
               backlogTasks: []
             }}
             userName={userProfile.name}
