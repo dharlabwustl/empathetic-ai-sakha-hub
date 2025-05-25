@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -139,6 +138,23 @@ const SurroundingInfluencesSection: React.FC<SurroundingInfluencesSectionProps> 
         ...Object.values(influences.personal)
       ]
     : Object.values(influences[selectedCategory as keyof typeof influences]);
+
+  const getQualityBadge = (quality: string) => {
+    const colors = {
+      optimal: 'bg-green-100 text-green-800 border-green-300',
+      good: 'bg-blue-100 text-blue-800 border-blue-300', 
+      poor: 'bg-red-100 text-red-800 border-red-300'
+    };
+    
+    return (
+      <Badge 
+        variant="outline" 
+        className={`${colors[quality as keyof typeof colors]} text-xs px-2 py-1`}
+      >
+        {quality}
+      </Badge>
+    );
+  };
 
   return (
     <motion.div
