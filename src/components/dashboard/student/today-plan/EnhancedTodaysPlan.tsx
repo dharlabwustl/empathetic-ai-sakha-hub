@@ -1,19 +1,17 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import SmartSuggestionsSection from './SmartSuggestionsSection';
-import TodaysPlanProgressMeter from './TodaysPlanProgressMeter';
+import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import LearningPageVoiceAssistant from '@/components/voice/LearningPageVoiceAssistant';
+import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -91,17 +89,14 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
-        {/* Progress meter at the top */}
-        <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
-        
-        {/* Smart suggestions section below progress */}
+        {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
           isMobile={isMobile}
         />
         
-        {/* Enhanced task breakdown with premium styling */}
+        {/* Enhanced task breakdown with premium styling - keep existing design */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
@@ -109,10 +104,10 @@ const EnhancedTodaysPlan: React.FC = () => {
         />
       </div>
       
-      {/* Learning page voice assistant for study support */}
-      <LearningPageVoiceAssistant 
-        userName={userProfile?.name}
-        pageType="today-plan"
+      {/* Voice assistant for learning support */}
+      <FloatingVoiceButton 
+        userName={planData?.userName || userProfile?.name}
+        language="en-US"
       />
     </SharedPageLayout>
   );

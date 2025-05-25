@@ -4,7 +4,6 @@ import { Volume2, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
 import UnifiedVoiceAssistant from './UnifiedVoiceAssistant';
-import VoiceGreetingSystem from './VoiceGreetingSystem';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface FloatingVoiceButtonProps {
@@ -17,7 +16,7 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
   language = 'en-US'
 }) => {
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  const [showGreetingSystem, setShowGreetingSystem] = useState(true);
+  const [hasPlayedGreeting, setHasPlayedGreeting] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -31,11 +30,56 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
     return 'homepage';
   };
 
+  // Auto-play intelligent greeting on page load
+  useEffect(() => {
+    const context = getContext();
+    const hasSeenGreeting = sessionStorage.getItem(`voice_greeting_${context}`);
+    
+    if (!hasSeenGreeting && !hasPlayedGreeting) {
+      const timer = setTimeout(() => {
+        playContextualGreeting(context);
+        sessionStorage.setItem(`voice_greeting_${context}`, 'true');
+        setHasPlayedGreeting(true);
+      }, 2000); // Wait 2 seconds after page load
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname, hasPlayedGreeting]);
+
+  const playContextualGreeting = (context: string) => {
+    if ('speechSynthesis' in window) {
+      const messages = {
+        homepage: `Welcome to PREPZR! I'm Sakha AI, your intelligent study companion. PREPZR is India's first emotionally aware exam preparation platform. We offer personalized learning paths, adaptive study plans, and advanced AI tutoring. Click the voice button to explore our features, start your free trial, or analyze your exam readiness!`,
+        dashboard: `Welcome back ${userName}! I'm here to help you navigate your dashboard and optimize your study sessions. I can guide you through your study plan, concept cards, practice exams, and more. Let me know how I can assist you today!`,
+        learning: `Hello ${userName}! I'm here to support your learning journey. I can help explain concepts, create flashcards, or answer any study-related questions. What would you like to explore?`
+      };
+
+      const speech = new SpeechSynthesisUtterance(messages[context] || messages.homepage);
+      speech.lang = language;
+      speech.rate = 0.9;
+      speech.pitch = 1.1;
+      speech.volume = 0.8;
+
+      // Try to find a good voice
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('female') || 
+        (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
+      );
+      
+      if (femaleVoice) {
+        speech.voice = femaleVoice;
+      }
+
+      window.speechSynthesis.speak(speech);
+    }
+  };
+
   const handleNavigationCommand = (route: string) => {
     navigate(route);
   };
 
-  // Don't show on auth pages or admin pages
+  // Don't show on auth pages
   if (location.pathname.includes('/login') || 
       location.pathname.includes('/signup') || 
       location.pathname.includes('/admin')) {
@@ -44,16 +88,6 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
 
   return (
     <>
-      {/* Voice Greeting System - handles automatic greetings */}
-      {showGreetingSystem && (
-        <VoiceGreetingSystem
-          userName={userName}
-          language={language}
-          onGreetingComplete={() => setShowGreetingSystem(false)}
-        />
-      )}
-
-      {/* Floating Voice Button */}
       <motion.div
         className="fixed bottom-6 right-6 z-50"
         initial={{ scale: 0, opacity: 0 }}

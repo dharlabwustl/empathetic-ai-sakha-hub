@@ -9,7 +9,7 @@ import { useLocation } from 'react-router-dom';
 interface LearningPageVoiceAssistantProps {
   userName?: string;
   context?: string;
-  pageType?: 'concepts' | 'flashcards' | 'practice-exam' | 'formula-lab' | 'academic-advisor' | 'today-plan';
+  pageType?: 'concepts' | 'flashcards' | 'practice-exam' | 'formula-lab' | 'academic-advisor';
 }
 
 const LearningPageVoiceAssistant: React.FC<LearningPageVoiceAssistantProps> = ({
@@ -39,12 +39,11 @@ const LearningPageVoiceAssistant: React.FC<LearningPageVoiceAssistantProps> = ({
   const playLearningGreeting = () => {
     if ('speechSynthesis' in window) {
       const greetings = {
-        concepts: `Welcome to Concept Cards, ${userName}! I'm Sakha AI, here to help you master complex topics through interactive learning. You can ask me to explain any concept, create custom study notes, or guide you through the learning process.`,
-        flashcards: `Hello ${userName}! Ready for smart revision with flashcards? I'm Sakha AI, and I can help you optimize your learning with spaced repetition, explain difficult topics, or create new flashcards based on your weak areas.`,
-        'practice-exam': `Hi ${userName}! Time to test your knowledge with practice exams. I'm Sakha AI, and I can help you understand questions, explain detailed solutions, analyze your performance, and suggest improvement strategies.`,
-        'formula-lab': `Welcome to the Formula Lab, ${userName}! I'm Sakha AI, here to help you explore interactive formulas, understand derivations step by step, and solve practice problems with detailed explanations.`,
-        'academic-advisor': `Hello ${userName}! I'm Sakha AI, your personal academic advisor. I can help you plan your studies, track progress, analyze weak areas, and provide personalized recommendations for exam success.`,
-        'today-plan': `Welcome to Today's Plan, ${userName}! I'm Sakha AI, here to guide you through your personalized daily study schedule. I can explain tasks, help prioritize activities, and provide study assistance throughout your session.`
+        concepts: `Welcome to the Concept Cards, ${userName}! I'm here to help you understand complex topics through interactive learning. Ask me to explain any concept or create custom flashcards.`,
+        flashcards: `Hello ${userName}! Ready for some quick revision with flashcards? I can help you create new cards, explain difficult topics, or suggest optimal study techniques.`,
+        'practice-exam': `Hi ${userName}! Time to test your knowledge with practice exams. I can help you understand questions, explain answers, or suggest areas for improvement based on your performance.`,
+        'formula-lab': `Welcome to the Formula Lab, ${userName}! I'll help you explore interactive formulas, understand derivations, and solve practice problems step by step.`,
+        'academic-advisor': `Hello ${userName}! I'm your AI academic advisor. I can help you plan your studies, track progress, and provide personalized recommendations for exam success.`
       };
 
       const speech = new SpeechSynthesisUtterance(greetings[pageType] || greetings.concepts);
