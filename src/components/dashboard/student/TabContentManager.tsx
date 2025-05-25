@@ -12,35 +12,8 @@ import WelcomeTourReminderBanner from './WelcomeTourReminderBanner';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TabAIAssistant from './ai-assistant/TabAIAssistant';
 import TabProgressMeter from './progress/TabProgressMeter';
+import RedesignedTodaysPlan from './today-plan/RedesignedTodaysPlan';
 import { useTabProgress } from '@/hooks/useTabProgress';
-
-interface RedesignedTodaysPlanProps {
-  userProfile: UserProfileBase;
-}
-
-const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile }) => {
-  const { getTabProgress } = useTabProgress();
-  const progressData = getTabProgress('today');
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <h2 className="text-2xl font-bold mb-4">Today's Plan for {userProfile.name}</h2>
-          <p className="text-muted-foreground mb-6">Your personalized study schedule is ready!</p>
-        </div>
-        <div className="space-y-4">
-          <TabProgressMeter 
-            tabName="Today's Plan" 
-            progressData={progressData}
-            showDetailed={false}
-          />
-          <TabAIAssistant tabName="Today's Plan" isMinimized />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 interface TabContentGeneratorProps {
   userProfile: UserProfileBase;
@@ -121,7 +94,7 @@ export const generateTabContents = ({
       </>
     )),
     
-    "today": <RedesignedTodaysPlan userProfile={userProfile} />,
+    "today": <RedesignedTodaysPlan />,
     
     "academic": createTabContent("Academic", <AcademicAdvisorView />),
     
