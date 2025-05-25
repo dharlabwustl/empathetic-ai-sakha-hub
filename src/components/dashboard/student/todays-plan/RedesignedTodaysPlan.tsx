@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -92,7 +93,7 @@ const RedesignedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Single consolidated header with progress */}
+        {/* Single unified header with consolidated progress */}
         <TodaysPlanHeader planData={planData} isMobile={isMobile} />
         
         {/* Smart suggestions section */}
@@ -102,7 +103,7 @@ const RedesignedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
         
-        {/* Rest of the content without duplicate progress sections */}
+        {/* Task breakdown section */}
         <div className="space-y-6">
           <NewTodaysPlanView 
             planData={planData}
