@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ChevronRight } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Heart, Globe } from 'lucide-react';
 
 interface WelcomeDashboardPromptProps {
   userName: string;
@@ -84,6 +84,22 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
                 <h4 className="font-medium">Real-Time Progress Tracking</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Watch your exam readiness score improve as you complete daily tasks.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Updated sustainability message */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border border-green-100 dark:border-green-800/30 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
+                <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h4 className="font-medium text-green-700 dark:text-green-300">Support UN Education Sustainability Goals</h4>
+                <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+                  We contribute 5% of our revenue to provide unprivileged students access to our platform, 
+                  supporting UN Sustainable Development Goal 4 for quality education.
                 </p>
               </div>
             </div>

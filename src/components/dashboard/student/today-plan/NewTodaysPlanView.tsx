@@ -1,7 +1,7 @@
 
 import React from 'react';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
+import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 import { TodaysPlanData } from '@/types/student/todaysPlan';
 
 interface NewTodaysPlanViewProps {
@@ -17,18 +17,14 @@ const NewTodaysPlanView: React.FC<NewTodaysPlanViewProps> = ({
 }) => {
   return (
     <div className="space-y-6">
+      {/* Progress meter at the top */}
+      <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
+      
       {/* Enhanced task breakdown component */}
       <EnhancedTaskBreakdown 
         planData={planData}
         onConceptClick={onConceptClick}
         isMobile={isMobile}
-      />
-      
-      {/* Voice assistant for today's plan */}
-      <TodaysPlanVoiceAssistant 
-        planData={planData}
-        userName={planData?.userName}
-        isEnabled={true}
       />
     </div>
   );

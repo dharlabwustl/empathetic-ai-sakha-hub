@@ -6,14 +6,13 @@ import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 import SmartSuggestionsSection from './SmartSuggestionsSection';
-import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import TodaysPlanProgressMeter from './TodaysPlanProgressMeter';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
+import NewTodaysPlanView from '../today-plan/NewTodaysPlanView';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -92,9 +91,6 @@ const RedesignedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Progress meter at the top */}
-        <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
-        
         {/* Smart suggestions section */}
         <SmartSuggestionsSection 
           planData={planData}
@@ -102,8 +98,8 @@ const RedesignedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
         
-        {/* Enhanced task breakdown */}
-        <EnhancedTaskBreakdown 
+        {/* New enhanced today's plan view with progress meter and enhanced task breakdown */}
+        <NewTodaysPlanView 
           planData={planData}
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
