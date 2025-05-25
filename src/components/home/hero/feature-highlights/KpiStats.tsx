@@ -81,7 +81,7 @@ const KpiStats = () => {
             {
               icon: <Clock className="h-8 w-8 text-orange-500" />,
               value: dashboardStats.averageTimeSavedPerWeek ? 
-                Math.round(dashboardStats.averageTimeSavedPerWeek * 10) + '%' : 
+                dashboardStats.averageTimeSavedPerWeek * 10 + '%' : 
                 '35%',
               label: 'Time Saved',
               description: 'Study more efficiently with AI'
@@ -97,8 +97,8 @@ const KpiStats = () => {
             {
               icon: <CheckSquare className="h-8 w-8 text-indigo-500" />,
               value: dashboardStats.totalStudyPlans ? 
-                Math.round(dashboardStats.totalStudyPlans / 500) + 'K+' : 
-                '24K+',
+                Math.round(dashboardStats.totalStudyPlans / 500) + '+' : 
+                '24+',
               label: 'Dynamic Plans',
               description: 'Personalized study plans delivered'
             }

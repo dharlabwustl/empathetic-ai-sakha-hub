@@ -11,9 +11,8 @@ import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import TodaysPlanProgressMeter from './TodaysPlanProgressMeter';
-import PremiumTaskBreakdown from './PremiumTaskBreakdown';
 import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
+import NewTodaysPlanView from '../today-plan/NewTodaysPlanView';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -69,6 +68,7 @@ const RedesignedTodaysPlan: React.FC = () => {
         navigate('/dashboard/student/practice-exam');
         break;
       case 'break':
+        // Could implement a break timer or motivational message
         console.log('Take a break suggestion clicked');
         break;
       case 'bonus':
@@ -91,9 +91,6 @@ const RedesignedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Progress meter at the top */}
-        <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
-        
         {/* Smart suggestions section */}
         <SmartSuggestionsSection 
           planData={planData}
@@ -101,11 +98,10 @@ const RedesignedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
         
-        {/* Premium task breakdown */}
-        <PremiumTaskBreakdown 
+        {/* New enhanced today's plan view with progress meter and enhanced task breakdown */}
+        <NewTodaysPlanView 
           planData={planData}
           onConceptClick={handleConceptClick}
-          onTaskComplete={markTaskCompleted}
           isMobile={isMobile}
         />
         
