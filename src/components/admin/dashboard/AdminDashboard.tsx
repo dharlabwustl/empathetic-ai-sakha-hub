@@ -29,6 +29,7 @@ import ExamReadiness from './modules/ExamReadiness';
 import SystemLogs from './modules/SystemLogs';
 import SecurityCenter from './modules/SecurityCenter';
 import ContentManagementTab from './ContentManagementTab';
+import SettingsModule from './modules/SettingsModule';
 
 const AdminDashboard: React.FC = () => {
   const { adminUser, adminLogout } = useAdminAuth();
@@ -57,7 +58,8 @@ const AdminDashboard: React.FC = () => {
     { id: "influence", label: "Surrounding Influence", icon: Globe, component: SurroundingInfluence },
     { id: "readiness", label: "Exam Readiness", icon: Award, component: ExamReadiness },
     { id: "logs", label: "System Logs", icon: Activity, component: SystemLogs },
-    { id: "security", label: "Security", icon: Shield, component: SecurityCenter }
+    { id: "security", label: "Security", icon: Shield, component: SecurityCenter },
+    { id: "settings", label: "Settings", icon: Settings, component: SettingsModule }
   ];
 
   const ActiveComponent = adminModules.find(module => module.id === activeTab)?.component || SystemOverview;
@@ -73,7 +75,7 @@ const AdminDashboard: React.FC = () => {
           </div>
           
           <nav className="mt-6">
-            <div className="px-3 space-y-1">
+            <div className="px-3 space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto">
               {adminModules.map((module) => {
                 const Icon = module.icon;
                 return (
