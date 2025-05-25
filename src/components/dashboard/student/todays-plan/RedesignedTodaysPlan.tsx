@@ -1,11 +1,11 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import PlanHeader from './PlanHeader';
+import TodaysPlanHeader from './TodaysPlanHeader';
+import SmartSuggestionsSection from './SmartSuggestionsSection';
 import NewTodaysPlanView from './NewTodaysPlanView';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
@@ -50,12 +50,34 @@ const RedesignedTodaysPlan: React.FC = () => {
     );
   }
 
-  console.log("RedesignedTodaysPlan - Loaded plan data:", planData?.conceptCards?.length || 0, "concept cards");
-
   // Handle concept click to navigate to concept study page
   const handleConceptClick = (conceptId: string) => {
     console.log("Navigating to concept detail page:", conceptId);
     navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
+  // Handle smart suggestion actions
+  const handleSuggestionAction = (action: string) => {
+    switch (action) {
+      case 'concepts':
+        navigate('/dashboard/student/concepts');
+        break;
+      case 'flashcards':
+        navigate('/dashboard/student/flashcards');
+        break;
+      case 'practice-exam':
+        navigate('/dashboard/student/practice-exam');
+        break;
+      case 'break':
+        // Could implement a break timer or motivational message
+        console.log('Take a break suggestion clicked');
+        break;
+      case 'bonus':
+        navigate('/dashboard/student/feel-good-corner');
+        break;
+      default:
+        console.log('Suggestion action:', action);
+    }
   };
 
   return (
@@ -69,19 +91,25 @@ const RedesignedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className={`space-y-4 sm:space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        <PlanHeader 
-          planData={planData} 
-          activeView={activeView}
-          setActiveView={setActiveView}
+      <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
+        {/* Single consolidated header with progress */}
+        <TodaysPlanHeader planData={planData} isMobile={isMobile} />
+        
+        {/* Smart suggestions section */}
+        <SmartSuggestionsSection 
+          planData={planData}
+          onActionClick={handleSuggestionAction}
           isMobile={isMobile}
         />
         
-        <NewTodaysPlanView 
-          planData={planData}
-          onConceptClick={handleConceptClick}
-          isMobile={isMobile}
-        />
+        {/* Rest of the content without duplicate progress sections */}
+        <div className="space-y-6">
+          <NewTodaysPlanView 
+            planData={planData}
+            onConceptClick={handleConceptClick}
+            isMobile={isMobile}
+          />
+        </div>
       </div>
     </SharedPageLayout>
   );
