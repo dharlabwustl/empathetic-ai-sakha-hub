@@ -13,7 +13,6 @@ import {
 // Import all admin modules
 import SystemOverview from './modules/SystemOverview';
 import StudentManagement from './modules/StudentManagement';
-import ContentManagement from './modules/ContentManagement';
 import AIModelsManagement from './modules/AIModelsManagement';
 import StudyPlanManagement from './modules/StudyPlanManagement';
 import ExamManagement from './modules/ExamManagement';
@@ -29,6 +28,7 @@ import SurroundingInfluence from './modules/SurroundingInfluence';
 import ExamReadiness from './modules/ExamReadiness';
 import SystemLogs from './modules/SystemLogs';
 import SecurityCenter from './modules/SecurityCenter';
+import ContentManagementTab from './ContentManagementTab';
 
 const AdminDashboard: React.FC = () => {
   const { adminUser, adminLogout } = useAdminAuth();
@@ -42,7 +42,7 @@ const AdminDashboard: React.FC = () => {
   const adminModules = [
     { id: "overview", label: "System Overview", icon: BarChart3, component: SystemOverview },
     { id: "students", label: "Student Management", icon: Users, component: StudentManagement },
-    { id: "content", label: "Content Management", icon: BookOpen, component: ContentManagement },
+    { id: "content", label: "Content Management", icon: BookOpen, component: ContentManagementTab },
     { id: "ai-models", label: "AI Models", icon: Brain, component: AIModelsManagement },
     { id: "study-plans", label: "Study Plans", icon: Calendar, component: StudyPlanManagement },
     { id: "exams", label: "Exam Management", icon: FileText, component: ExamManagement },

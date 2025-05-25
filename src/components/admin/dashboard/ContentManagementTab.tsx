@@ -3,31 +3,32 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  FileText,
-  Book,
-  FileSpreadsheet,
-  GraduationCap
-} from "lucide-react";
 import { ContentType } from "@/types/content";
-
-// Import the new component files
-import ContentManagementHeader from "./content/ContentManagementHeader";
-import ContentSummaryCards from "./content/ContentSummaryCards";
-import TabContentApprovalQueue from "./content/TabContentApprovalQueue";
-import TabContentStudyMaterials from "./content/TabContentStudyMaterials";
-import TabContentPrompts from "./content/TabContentPrompts";
+import ContentManagementHeader from "@/components/admin/dashboard/content/ContentManagementHeader";
+import ContentSummaryCards from "@/components/admin/dashboard/content/ContentSummaryCards";
+import TabContentApprovalQueue from "@/components/admin/dashboard/content/TabContentApprovalQueue";
+import TabContentStudyMaterials from "@/components/admin/dashboard/content/TabContentStudyMaterials";
+import TabContentPrompts from "@/components/admin/dashboard/content/TabContentPrompts";
+import ContentUploader from "@/components/admin/dashboard/content/ContentUploader";
+import { useContentManagement } from "@/hooks/admin/useContentManagement";
 
 const ContentManagementTab = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("queue");
+  const [activeTab, setActiveTab] = useState("upload");
+  const [showUploader, setShowUploader] = useState(false);
   
-  const handleUpload = () => {
-    toast({
-      title: "Upload Content",
-      description: "Upload panel opened for content files",
-      variant: "default"
-    });
+  const {
+    uploading,
+    uploadProgress,
+    selectedFile,
+    handleFileSelect,
+    handleFileRemove,
+    handleUpload,
+  } = useContentManagement();
+  
+  const handleUploadClick = () => {
+    setShowUploader(true);
+    setActiveTab("upload");
   };
   
   const handleCreateContent = () => {
@@ -69,7 +70,6 @@ const ContentManagementTab = () => {
       variant: "default"
     });
     
-    // Simulate testing process
     setTimeout(() => {
       toast({
         title: "Test Complete",
@@ -117,7 +117,6 @@ const ContentManagementTab = () => {
     });
   };
 
-  // This function converts string to ContentType to fix the type mismatch
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
@@ -125,7 +124,7 @@ const ContentManagementTab = () => {
   return (
     <div className="space-y-6">
       <ContentManagementHeader 
-        handleUpload={handleUpload}
+        handleUpload={handleUploadClick}
         handleCreateContent={handleCreateContent}
         handleTagManagement={handleTagManagement}
         handlePromptTuning={handlePromptTuning}
@@ -136,27 +135,36 @@ const ContentManagementTab = () => {
         <CardContent className="pt-6">
           <ContentSummaryCards handleManageContent={handleManageContent} />
 
-          <Tabs defaultValue="queue" value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="mb-4 grid w-full grid-cols-3 gap-2">
+          <Tabs defaultValue="upload" value={activeTab} onValueChange={handleTabChange}>
+            <TabsList className="mb-4 grid w-full grid-cols-4 gap-2">
+              <TabsTrigger value="upload">Upload & Generate</TabsTrigger>
               <TabsTrigger value="queue">Approval Queue</TabsTrigger>
               <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
               <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
             </TabsList>
 
-            {/* Approval Queue Tab */}
+            <TabsContent value="upload">
+              <ContentUploader
+                handleFileSelect={handleFileSelect}
+                handleUpload={handleUpload}
+                selectedFile={selectedFile}
+                onFileRemove={handleFileRemove}
+                uploading={uploading}
+                uploadProgress={uploadProgress}
+              />
+            </TabsContent>
+
             <TabsContent value="queue">
               <TabContentApprovalQueue handleContentAction={handleContentAction} />
             </TabsContent>
 
-            {/* Study Materials Tab */}
             <TabsContent value="studyMaterials">
               <TabContentStudyMaterials 
-                handleUpload={handleUpload} 
+                handleUpload={handleUploadClick} 
                 handleContentAction={handleContentAction} 
               />
             </TabsContent>
 
-            {/* GPT Prompt Tuner Tab */}
             <TabsContent value="prompts">
               <TabContentPrompts 
                 handleEditPrompt={handleEditPrompt}
