@@ -16,7 +16,7 @@ import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import KpiStats from '@/components/home/hero/feature-highlights/KpiStats';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
+import HomePageVoiceIcon from '@/components/voice/HomePageVoiceIcon';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 
@@ -106,8 +106,8 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced intelligent voice assistant for homepage with proper greeting */}
-      <EnhancedHomePageVoiceAssistant 
+      {/* Voice Assistant Icon with Settings Panel */}
+      <HomePageVoiceIcon 
         language="en-US" 
         isFirstTimeUser={isFirstTimeUser}
       />

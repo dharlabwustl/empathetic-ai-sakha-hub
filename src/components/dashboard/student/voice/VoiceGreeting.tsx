@@ -20,14 +20,15 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     initialSettings: {
       enabled: true,
       muted: false,
-      language: language === "en" ? 'en-IN' : language,
-      pitch: 1.1,
-      rate: 0.95
+      language: language === "en" ? 'en-US' : language,
+      pitch: 1.0,
+      rate: 0.9,
+      volume: 0.8
     }
   });
 
   useEffect(() => {
-    if (!hasGreeted && voiceSettings.enabled) {
+    if (!hasGreeted && voiceSettings.enabled && !voiceSettings.muted) {
       const timer = setTimeout(() => {
         const greeting = getContextualGreeting(isFirstTimeUser, userName);
         speakMessage(greeting);
@@ -36,11 +37,13 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [hasGreeted, voiceSettings.enabled, speakMessage, isFirstTimeUser, userName]);
+  }, [hasGreeted, voiceSettings.enabled, voiceSettings.muted, speakMessage, isFirstTimeUser, userName]);
 
   const getContextualGreeting = (isFirstTime: boolean, name: string) => {
+    const prepzrPronunciation = "PREP ZAR";
+    
     if (isFirstTime) {
-      return `Congratulations ${name}! Welcome to PREPZR - your AI-powered exam preparation companion. 
+      return `Congratulations ${name}! Welcome to ${prepzrPronunciation} - your AI-powered exam preparation companion. 
 
 I'm Sakha AI, and I'm here to guide you through your journey to exam success. Let me introduce you to our powerful features:
 
