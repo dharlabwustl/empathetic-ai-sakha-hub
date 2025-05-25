@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,12 +76,13 @@ const StudentManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="students">Student List</TabsTrigger>
-          <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
+          <TabsTrigger value="onboarding">Onboarding Data</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="journey">User Journey</TabsTrigger>
+          <TabsTrigger value="behavior">AI Behavior</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -246,31 +246,7 @@ const StudentManagement: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="onboarding" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Onboarding Journey Analytics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {onboardingData.map((step, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{step.step}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {step.completed}/{step.total} ({step.percentage.toFixed(1)}%)
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${step.percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <OnboardingDataViewer />
         </TabsContent>
 
         <TabsContent value="analytics">

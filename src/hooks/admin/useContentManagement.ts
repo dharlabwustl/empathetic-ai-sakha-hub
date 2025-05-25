@@ -1,139 +1,100 @@
 
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { ContentType, ContentFile, ContentManagementHookReturn } from "@/types/content";
+import { useState, useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { ContentFile } from '@/types/content';
 
-export const useContentManagement = (): ContentManagementHookReturn => {
-  const { toast } = useToast();
+export const useContentManagement = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [currentTab, setCurrentTab] = useState<ContentType>("study-material");
-  const [searchTerm, setSearchTerm] = useState("");
-  
-  // Ensure the sample data strictly follows ContentType
-  const [uploadedFiles, setUploadedFiles] = useState<ContentFile[]>([
-    {
-      id: "file1",
-      name: "NEET Biology Notes.pdf",
-      type: "study-material",
-      subject: "Biology",
-      examType: "NEET",
-      uploadDate: "2025-03-31",
-      size: "4.2 MB",
-      tags: ["notes", "biology", "neet"]
-    },
-    {
-      id: "file2",
-      name: "JEE Advanced Physics Formula Sheet.pdf",
-      type: "syllabus",
-      subject: "Physics",
-      examType: "JEE Advanced",
-      uploadDate: "2025-03-29",
-      size: "2.1 MB",
-      tags: ["formulas", "physics", "jee"]
-    },
-    {
-      id: "file3",
-      name: "CAT Quantitative Aptitude Question Bank.pdf",
-      type: "practice",
-      subject: "Mathematics",
-      examType: "CAT",
-      uploadDate: "2025-03-25",
-      size: "8.7 MB",
-      tags: ["questions", "mathematics", "cat"]
-    },
-    {
-      id: "file4",
-      name: "UPSC Previous Year Papers (2024).pdf",
-      type: "exam-material",
-      subject: "General Studies",
-      examType: "UPSC",
-      uploadDate: "2025-03-20",
-      size: "12.4 MB",
-      tags: ["previous-papers", "upsc"]
-    }
-  ]);
+  const [uploadedFiles, setUploadedFiles] = useState<ContentFile[]>([]);
+  const { toast } = useToast();
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (100MB limit)
+      if (file.size > 100 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please select a file smaller than 100MB",
+          variant: "destructive"
+        });
+        return;
+      }
+      setSelectedFile(file);
     }
-  };
+  }, [toast]);
 
-  const handleFileRemove = () => {
-    const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
+  const handleFileRemove = useCallback(() => {
     setSelectedFile(null);
-  };
+  }, []);
 
-  const handleUpload = () => {
-    if (!selectedFile) {
-      toast({
-        title: "No file selected",
-        description: "Please select a file to upload.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleUpload = useCallback(async () => {
+    if (!selectedFile) return;
 
     setUploading(true);
     setUploadProgress(0);
 
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setUploading(false);
-          
-          // Ensure we create a new file with the correct ContentType
-          const newFile: ContentFile = {
-            id: `file${uploadedFiles.length + 1}`,
-            name: selectedFile.name,
-            type: currentTab,
-            subject: "Subject",
-            examType: "Exam Type",
-            uploadDate: new Date().toISOString().split('T')[0],
-            size: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
-            tags: ["new"]
-          };
-          
-          setUploadedFiles(prev => [newFile, ...prev]);
-          setSelectedFile(null);
-          
-          toast({
-            title: "File uploaded successfully",
-            description: `${selectedFile.name} has been uploaded.`,
-          });
-          
-          return 0;
-        }
-        return prev + 10;
-      });
-    }, 300);
-  };
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 300);
 
-  const filteredFiles = uploadedFiles.filter(file => 
-    (currentTab === "all" || file.type === currentTab) && 
-    (file.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-     file.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     file.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
-  );
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Complete upload
+      setUploadProgress(100);
+      
+      // Add to uploaded files
+      const newFile: ContentFile = {
+        id: Date.now().toString(),
+        name: selectedFile.name,
+        type: 'study-material',
+        subject: 'Physics', // This would come from form
+        examType: 'IIT-JEE',
+        uploadDate: new Date().toISOString(),
+        size: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
+        tags: ['uploaded']
+      };
+
+      setUploadedFiles(prev => [newFile, ...prev]);
+      
+      toast({
+        title: "Upload Successful",
+        description: `${selectedFile.name} has been processed and added to the content library`,
+      });
+
+      // Reset form
+      setSelectedFile(null);
+      setUploadProgress(0);
+      
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your file. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  }, [selectedFile, toast]);
 
   return {
     uploading,
     uploadProgress,
     selectedFile,
     uploadedFiles,
-    searchTerm,
-    currentTab,
-    filteredFiles,
     handleFileSelect,
     handleFileRemove,
     handleUpload,
-    setSearchTerm,
-    setCurrentTab
   };
 };
