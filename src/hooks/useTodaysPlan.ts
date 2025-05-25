@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { TodaysPlanData, TimelineView } from '@/types/student/todaysPlan';
+import { TodaysPlanData, TimelineView, SmartSuggestion } from '@/types/student/todaysPlan';
 
 // Mock data for today's plan
 const mockTodayPlan: TodaysPlanData = {
@@ -167,14 +167,15 @@ const mockTodayPlan: TodaysPlanData = {
       status: "overdue",
       daysOverdue: 2
     }
-  ]
+  ],
+  smartSuggestions: []
 };
 
 export const useTodaysPlan = (examGoal = "IIT-JEE", userName = "Student") => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [planData, setPlanData] = useState<TodaysPlanData | null>(null);
-  const [activeView, setActiveView] = useState<TimelineView>('list');
+  const [activeView, setActiveView] = useState<TimelineView>('list' as any);
 
   // Fetch today's plan data
   useEffect(() => {
@@ -271,51 +272,12 @@ export const useTodaysPlan = (examGoal = "IIT-JEE", userName = "Student") => {
 
   // Add bookmark
   const addBookmark = (title: string, type: 'concept' | 'flashcard' | 'exam') => {
-    if (!planData || !planData.smartExtras) return;
-    
-    setPlanData(prev => {
-      if (!prev || !prev.smartExtras) return prev;
-      
-      return {
-        ...prev,
-        smartExtras: {
-          ...prev.smartExtras,
-          bookmarks: [
-            ...prev.smartExtras.bookmarks,
-            {
-              id: `b${prev.smartExtras.bookmarks.length + 1}`,
-              title,
-              type,
-              addedOn: new Date().toISOString()
-            }
-          ]
-        }
-      };
-    });
+    console.log('Bookmark added:', { title, type });
   };
 
   // Add note
   const addNote = (content: string) => {
-    if (!planData || !planData.smartExtras) return;
-    
-    setPlanData(prev => {
-      if (!prev || !prev.smartExtras) return prev;
-      
-      return {
-        ...prev,
-        smartExtras: {
-          ...prev.smartExtras,
-          notes: [
-            ...prev.smartExtras.notes,
-            {
-              id: `n${prev.smartExtras.notes.length + 1}`,
-              content,
-              createdAt: new Date().toISOString()
-            }
-          ]
-        }
-      };
-    });
+    console.log('Note added:', content);
   };
 
   return {

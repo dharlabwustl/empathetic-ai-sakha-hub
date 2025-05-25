@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 import TodaysPlanHeader from './TodaysPlanHeader';
 import SmartSuggestionsSection from './SmartSuggestionsSection';
-import NewTodaysPlanView from './NewTodaysPlanView';
+import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -24,8 +25,6 @@ const RedesignedTodaysPlan: React.FC = () => {
     loading,
     error,
     planData,
-    activeView,
-    setActiveView,
     refreshData,
     markTaskCompleted,
     addBookmark,
@@ -92,7 +91,7 @@ const RedesignedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Single consolidated header with progress */}
+        {/* Progress header with meter */}
         <TodaysPlanHeader planData={planData} isMobile={isMobile} />
         
         {/* Smart suggestions section */}
@@ -102,14 +101,12 @@ const RedesignedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
         
-        {/* Rest of the content without duplicate progress sections */}
-        <div className="space-y-6">
-          <NewTodaysPlanView 
-            planData={planData}
-            onConceptClick={handleConceptClick}
-            isMobile={isMobile}
-          />
-        </div>
+        {/* Enhanced task breakdown */}
+        <EnhancedTaskBreakdown 
+          planData={planData}
+          onConceptClick={handleConceptClick}
+          isMobile={isMobile}
+        />
       </div>
     </SharedPageLayout>
   );
