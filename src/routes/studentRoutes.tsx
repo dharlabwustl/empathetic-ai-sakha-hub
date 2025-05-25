@@ -21,7 +21,7 @@ import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
 import { VoiceManagerProvider } from '@/components/dashboard/student/voice/UnifiedVoiceManager';
-import ContextAwareVoiceAssistant from '@/components/dashboard/student/voice/ContextAwareVoiceAssistant';
+import PageSpecificVoiceAssistant from '@/components/dashboard/student/voice/PageSpecificVoiceAssistant';
 import FloatingVoiceIcon from '@/components/voice/FloatingVoiceIcon';
 
 interface PageWrapperProps {
@@ -33,7 +33,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children }) => {
     <VoiceManagerProvider>
       <SidebarLayout>
         {children}
-        <ContextAwareVoiceAssistant />
+        <PageSpecificVoiceAssistant />
         <FloatingVoiceIcon />
       </SidebarLayout>
     </VoiceManagerProvider>
