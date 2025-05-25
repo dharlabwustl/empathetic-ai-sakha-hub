@@ -1,101 +1,283 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Calculator, Variable, Lightbulb } from 'lucide-react';
-
-interface FormulaVariable {
-  symbol: string;
-  name: string;
-  unit: string;
-}
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { FlaskConical, RotateCw, Calculator, Sliders, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface FormulaTabContentProps {
-  formulaTitle?: string;
-  formulaExpression?: string;
-  variables?: FormulaVariable[];
+  conceptName?: string;
 }
 
-const FormulaTabContent: React.FC<FormulaTabContentProps> = ({
-  formulaTitle = "Ohm's Law",
-  formulaExpression = "V = I × R",
-  variables = [
-    { symbol: 'V', name: 'Voltage', unit: 'Volts (V)' },
-    { symbol: 'I', name: 'Current', unit: 'Amperes (A)' },
-    { symbol: 'R', name: 'Resistance', unit: 'Ohms (Ω)' }
-  ]
-}) => {
-  const [inputValues, setInputValues] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<string>('');
+const FormulaTabContent: React.FC<FormulaTabContentProps> = ({ conceptName = "Newton's Second Law" }) => {
+  const navigate = useNavigate();
+  
+  // Default formula data based on the concept
+  const formula = "F = m × a";
+  const variables = [
+    { symbol: "F", name: "Force", unit: "Newtons (N)" },
+    { symbol: "m", name: "Mass", unit: "kilograms (kg)" },
+    { symbol: "a", name: "Acceleration", unit: "m/s²" }
+  ];
 
-  const handleCalculate = () => {
-    // Simple calculation logic for demo
-    const v = parseFloat(inputValues['V'] || '0');
-    const i = parseFloat(inputValues['I'] || '0');
-    const r = parseFloat(inputValues['R'] || '0');
-
-    if (i && r && !v) {
-      setResult(`V = ${(i * r).toFixed(2)} V`);
-    } else if (v && r && !i) {
-      setResult(`I = ${(v / r).toFixed(2)} A`);
-    } else if (v && i && !r) {
-      setResult(`R = ${(v / i).toFixed(2)} Ω`);
-    } else {
-      setResult('Please fill in exactly two values to solve for the third');
+  const initialValues = variables.reduce((acc, variable) => {
+    acc[variable.symbol] = '';
+    return acc;
+  }, {} as Record<string, string>);
+  
+  const [values, setValues] = useState<Record<string, string>>(initialValues);
+  const [result, setResult] = useState<string | null>(null);
+  const [solveFor, setSolveFor] = useState<string>(variables[0].symbol);
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState<boolean>(false);
+  
+  const handleInputChange = (symbol: string, value: string) => {
+    setValues({
+      ...values,
+      [symbol]: value
+    });
+    setResult(null);
+  };
+  
+  const handleReset = () => {
+    setValues(initialValues);
+    setResult(null);
+  };
+  
+  const handleSolve = () => {
+    try {
+      const F = solveFor === 'F' ? null : parseFloat(values['F']);
+      const m = solveFor === 'm' ? null : parseFloat(values['m']);
+      const a = solveFor === 'a' ? null : parseFloat(values['a']);
+      
+      let calculatedValue: number | null = null;
+      let unit = '';
+      
+      if (solveFor === 'F') {
+        calculatedValue = m !== null && a !== null ? m * a : null;
+        unit = 'Newtons (N)';
+      } else if (solveFor === 'm') {
+        calculatedValue = F !== null && a !== null && a !== 0 ? F / a : null;
+        unit = 'kilograms (kg)';
+      } else if (solveFor === 'a') {
+        calculatedValue = F !== null && m !== null && m !== 0 ? F / m : null;
+        unit = 'm/s²';
+      }
+      
+      if (calculatedValue !== null) {
+        setResult(`${solveFor} = ${calculatedValue.toFixed(2)} ${unit}`);
+      } else {
+        setResult('Please enter values for all required fields');
+      }
+    } catch (error) {
+      setResult('Error calculating result. Check your inputs.');
     }
   };
+  
+  const toggleAdvancedSettings = () => {
+    setShowAdvancedSettings(!showAdvancedSettings);
+  };
 
+  const handleFormulaLab = () => {
+    // Navigate to formula lab for advanced practice
+    navigate(`/dashboard/student/concepts/${encodeURIComponent(conceptName)}/formula-lab`);
+  };
+  
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-blue-600" />
-            {formulaTitle}
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-semibold">Interactive Formula Analysis</h2>
+        <div className="text-sm text-muted-foreground">
+          Experiment with formulas and visualize relationships
+        </div>
+      </div>
+
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <FlaskConical className="h-5 w-5 text-indigo-600" />
+            Formula Explorer
           </CardTitle>
+          <CardDescription>
+            Understand how {conceptName} works by manipulating variables
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center mb-6">
-            <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {formulaExpression}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium">Solve for:</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {variables.map(variable => (
+                    <Button
+                      key={variable.symbol}
+                      variant={solveFor === variable.symbol ? "default" : "outline"}
+                      onClick={() => {
+                        setSolveFor(variable.symbol);
+                        setResult(null);
+                      }}
+                    >
+                      {variable.symbol}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {variables.filter(v => v.symbol !== solveFor).map(variable => (
+                  <div key={variable.symbol} className="space-y-2">
+                    <Label htmlFor={`input-${variable.symbol}`} className="text-sm font-medium">
+                      {variable.name} ({variable.symbol}) [{variable.unit}]
+                    </Label>
+                    <Input 
+                      id={`input-${variable.symbol}`}
+                      type="number"
+                      placeholder={`Enter ${variable.name}`}
+                      value={values[variable.symbol]}
+                      onChange={(e) => handleInputChange(variable.symbol, e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-3 pt-2">
+                <div className="flex gap-2">
+                  <Button className="flex-1" onClick={handleSolve}>
+                    <Calculator className="h-4 w-4 mr-2" />
+                    Calculate
+                  </Button>
+                  <Button variant="outline" onClick={handleReset}>
+                    <RotateCw className="h-4 w-4 mr-2" />
+                    Reset
+                  </Button>
+                </div>
+                
+                <Button 
+                  variant="ghost" 
+                  className="text-sm flex items-center justify-center"
+                  onClick={toggleAdvancedSettings}
+                >
+                  <Sliders className="h-3.5 w-3.5 mr-2" />
+                  Advanced Settings
+                  {showAdvancedSettings ? (
+                    <ChevronUp className="h-3.5 w-3.5 ml-2" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 ml-2" />
+                  )}
+                </Button>
+                
+                {showAdvancedSettings && (
+                  <div className="border rounded-md p-3 space-y-3 mt-2 bg-slate-50 dark:bg-slate-900">
+                    <div className="text-sm font-medium mb-2">Precision Settings</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label htmlFor="decimal-places" className="text-xs">Decimal Places</Label>
+                        <Input id="decimal-places" type="number" defaultValue="2" min="0" max="10" className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <Label htmlFor="unit-system" className="text-xs">Unit System</Label>
+                        <select id="unit-system" className="w-full h-8 text-sm rounded-md border border-input bg-background px-3">
+                          <option value="metric">Metric (SI)</option>
+                          <option value="imperial">Imperial</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <div className="text-center w-full">
+                <h3 className="text-lg font-medium mb-3">Formula Representation</h3>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 p-6 rounded-lg border border-blue-100 dark:border-blue-900/50 shadow-sm">
+                  <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{formula}</p>
+                </div>
+                
+                <div className="mt-4 text-sm text-muted-foreground">
+                  <p className="mb-2">
+                    {conceptName === "Newton's Second Law" && 
+                      "Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting upon it and inversely proportional to its mass."}
+                  </p>
+                  <p>
+                    {conceptName === "Newton's Second Law" && 
+                      "This equation is fundamental to classical mechanics and governs the motion of objects with constant mass."}
+                  </p>
+                </div>
+              </div>
+              
+              {result && (
+                <div className="w-full mt-2">
+                  <h3 className="text-lg font-medium mb-2 text-center">Result</h3>
+                  <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/40 dark:to-green-950/40 border border-emerald-200 dark:border-emerald-900/50 p-6 rounded-lg text-center shadow-sm">
+                    <p className="text-2xl font-semibold text-emerald-700 dark:text-emerald-400">{result}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {variables.map((variable) => (
-              <div key={variable.symbol} className="space-y-2">
-                <label className="font-medium flex items-center gap-2">
-                  <Variable className="h-4 w-4" />
-                  {variable.symbol} - {variable.name}
-                </label>
-                <Input
-                  type="number"
-                  placeholder={`Enter ${variable.name}`}
-                  value={inputValues[variable.symbol] || ''}
-                  onChange={(e) => setInputValues(prev => ({
-                    ...prev,
-                    [variable.symbol]: e.target.value
-                  }))}
-                />
-                <p className="text-xs text-gray-500">{variable.unit}</p>
-              </div>
-            ))}
+          
+          {/* Advanced Formula Lab Button */}
+          <div className="mt-6 text-center">
+            <Button 
+              onClick={handleFormulaLab}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Open Advanced Formula Lab
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">
+              Practice more complex problems and explore advanced formula relationships
+            </p>
           </div>
+        </CardContent>
+      </Card>
 
-          <Button onClick={handleCalculate} className="w-full mb-4">
-            Calculate
-          </Button>
-
-          {result && (
-            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="h-5 w-5 text-green-600" />
-                <span className="font-medium">Result:</span>
-              </div>
-              <p className="text-lg font-bold text-green-700 dark:text-green-300">{result}</p>
+      {/* Data Visualization Section */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Data Visualization</CardTitle>
+          <CardDescription>
+            See how variables relate to each other in {conceptName}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="aspect-[2/1] bg-slate-50 dark:bg-slate-900 rounded-lg p-4 flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-muted-foreground mb-2">Interactive graph visualization</p>
+              <p className="text-xs text-muted-foreground">Displays relationship between force, mass, and acceleration</p>
             </div>
-          )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Real-world Applications */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Real-world Examples</CardTitle>
+          <CardDescription>
+            Applications of {conceptName} in everyday scenarios
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+              <h3 className="font-medium mb-2">Rocket Propulsion</h3>
+              <p className="text-sm text-muted-foreground">
+                The thrust (force) of a rocket engine accelerates the rocket in the opposite direction,
+                demonstrating Newton's Second Law in action.
+              </p>
+            </div>
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+              <h3 className="font-medium mb-2">Vehicle Braking</h3>
+              <p className="text-sm text-muted-foreground">
+                When a vehicle brakes, the deceleration (negative acceleration) is directly related to
+                the braking force and the mass of the vehicle.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -1,220 +1,196 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Mic, MicOff, Volume2, VolumeX, Calendar, Clock, Target } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Mic, MicOff, Speaker, Calendar, CheckCircle, Clock } from "lucide-react";
+import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import { TodaysPlanData } from '@/types/student/todaysPlan';
 
 interface TodaysPlanVoiceAssistantProps {
-  planData: any;
+  planData?: TodaysPlanData | null;
   userName?: string;
-  isEnabled: boolean;
+  isEnabled?: boolean;
 }
 
 const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
   planData,
   userName = "Student",
-  isEnabled
+  isEnabled = true
 }) => {
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState('');
-
-  const speak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      setIsSpeaking(true);
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.lang = 'en-US';
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
-      
-      speechSynthesis.speak(utterance);
+  const [expanded, setExpanded] = useState(false);
+  
+  const {
+    voiceSettings,
+    toggleMute,
+    speakMessage,
+    isVoiceSupported,
+    isSpeaking,
+    isListening,
+    startListening,
+    stopListening,
+    transcript
+  } = useVoiceAnnouncer({ userName });
+  
+  useEffect(() => {
+    if (transcript) {
+      processVoiceCommand(transcript);
     }
-  };
-
-  const startListening = () => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-      
-      recognition.onstart = () => {
-        setIsListening(true);
-        setCurrentMessage('Listening...');
-      };
-      
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        handleVoiceCommand(transcript);
-      };
-      
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        setCurrentMessage('Sorry, I couldn\'t hear you clearly.');
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognition.start();
-    }
-  };
-
-  const handleVoiceCommand = (command: string) => {
-    setCurrentMessage(`You said: "${command}"`);
+  }, [transcript]);
+  
+  const processVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase();
     
-    let response = '';
-    
-    if (command.includes('progress') || command.includes('how am i doing')) {
-      const progress = planData?.overallProgress || 35;
-      response = `You're doing great, ${userName}! You've completed ${progress}% of today's plan. Keep up the excellent work!`;
-    } else if (command.includes('next task') || command.includes('what should i do')) {
-      response = `Your next recommended task is to review Newton's Laws of Motion. It should take about 30 minutes. Would you like me to help you get started?`;
-    } else if (command.includes('time') || command.includes('schedule')) {
-      response = `You've spent 45 minutes studying today. Your target is 3 hours, so you have 2 hours and 15 minutes remaining. You're on track!`;
-    } else if (command.includes('break') || command.includes('tired')) {
-      response = `It sounds like you need a break! You've been studying hard. Try taking a 10-minute break, maybe do some stretching or grab a healthy snack.`;
-    } else if (command.includes('help') || command.includes('stuck')) {
-      response = `I'm here to help! You can ask me about your progress, next tasks, study tips, or if you need motivation. What specific area would you like help with?`;
-    } else if (command.includes('motivation') || command.includes('encourage')) {
-      response = `You're doing amazing, ${userName}! Remember, every concept you master brings you closer to your goals. Your consistency is your superpower!`;
-    } else {
-      response = `I understand you're asking about "${command}". I can help you with your study progress, next tasks, scheduling, or provide motivation. What would you like to know?`;
+    if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
+      const completedTasks = planData?.completedTasks || 0;
+      const totalTasks = planData?.totalTasks || 0;
+      const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      
+      speakMessage(`You've completed ${completedTasks} out of ${totalTasks} tasks today. That's ${percentage}% progress. ${percentage >= 70 ? 'Excellent work!' : percentage >= 50 ? 'Good progress, keep going!' : 'You can do this, stay focused!'}`);
+      return;
     }
     
-    speak(response);
-  };
-
-  const getTodaysSummary = () => {
-    const completedTasks = planData?.completedTasks || 3;
-    const totalTasks = planData?.totalTasks || 8;
-    const timeSpent = planData?.timeSpent || 45;
-    
-    return `Good to see you, ${userName}! Today you've completed ${completedTasks} out of ${totalTasks} tasks and studied for ${timeSpent} minutes. You're making excellent progress!`;
-  };
-
-  const quickActions = [
-    {
-      label: 'Progress Update',
-      action: () => speak(getTodaysSummary())
-    },
-    {
-      label: 'Next Task',
-      action: () => speak('Your next task is to review Newton\'s Laws of Motion. It\'s a medium difficulty concept that should take about 30 minutes.')
-    },
-    {
-      label: 'Motivation',
-      action: () => speak(`You're doing fantastic, ${userName}! Your dedication to learning is inspiring. Remember, every small step counts towards your big goals!`)
-    },
-    {
-      label: 'Study Tips',
-      action: () => speak('Here\'s a study tip: Use the Feynman Technique! Try explaining the concept you just learned in simple terms as if teaching a friend. This helps identify gaps in understanding.')
+    if (lowerCommand.includes('what tasks') || lowerCommand.includes('what should i do')) {
+      const pendingConcepts = planData?.concepts?.filter(c => c.status === 'pending')?.length || 0;
+      const pendingFlashcards = planData?.flashcards?.filter(f => f.status === 'pending')?.length || 0;
+      const pendingExams = planData?.practiceExams?.filter(p => p.status === 'pending')?.length || 0;
+      
+      speakMessage(`You have ${pendingConcepts} concepts to study, ${pendingFlashcards} flashcard sets to review, and ${pendingExams} practice exams pending. I recommend starting with concepts first.`);
+      return;
     }
+    
+    if (lowerCommand.includes('backlog') || lowerCommand.includes('overdue')) {
+      const backlogCount = planData?.backlogTasks?.length || 0;
+      if (backlogCount > 0) {
+        speakMessage(`You have ${backlogCount} overdue tasks in your backlog. Consider tackling these first to catch up on your studies.`);
+      } else {
+        speakMessage("Great! You don't have any overdue tasks. You're staying on track with your studies.");
+      }
+      return;
+    }
+    
+    if (lowerCommand.includes('time') || lowerCommand.includes('how long')) {
+      const totalTime = planData?.timeAllocation?.total || 0;
+      speakMessage(`Your total study time planned for today is ${totalTime} minutes. Remember to take breaks between study sessions for better retention.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('streak') || lowerCommand.includes('consecutive days')) {
+      const streak = planData?.streak || 0;
+      speakMessage(`You're on a ${streak} day study streak! ${streak >= 7 ? 'Amazing consistency!' : streak >= 3 ? 'Keep it up!' : 'Great start, build on this momentum!'}`);
+      return;
+    }
+    
+    if (lowerCommand.includes('suggestions') || lowerCommand.includes('what do you recommend')) {
+      speakMessage("Based on your progress, I suggest focusing on pending concepts first, then reviewing flashcards, and finishing with practice exams. Take short breaks between different types of activities.");
+      return;
+    }
+    
+    // Default response
+    speakMessage("I can help you track your progress, manage tasks, handle backlogs, and provide study recommendations for today's plan.");
+  };
+  
+  const suggestions = [
+    "How am I doing today?",
+    "What tasks should I do?",
+    "Check my backlog",
+    "What do you recommend?",
+    "How's my streak?"
   ];
-
+  
+  if (!isVoiceSupported || !isEnabled) {
+    return null;
+  }
+  
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="mb-6"
-    >
-      <Card className="bg-gradient-to-br from-purple-50/80 to-blue-50/80 dark:from-purple-950/30 dark:to-blue-950/30 border-2 border-purple-100 dark:border-purple-900/30">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-400">
-                  Today's Plan Assistant
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  AI-powered study companion for your daily goals
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              {isExpanded ? 'Collapse' : 'Expand'}
-            </Button>
+    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-indigo-200 bg-indigo-50`}>
+      <CardHeader className="p-3 pb-0">
+        <CardTitle className="text-sm flex justify-between items-center text-indigo-800">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span>Today's Plan Assistant</span>
           </div>
-
-          <div className="flex gap-2 mb-4">
-            <Button
-              onClick={startListening}
-              disabled={isListening || isSpeaking || !isEnabled}
-              className={`flex items-center gap-2 ${
-                isListening 
-                  ? 'bg-red-500 hover:bg-red-600' 
-                  : 'bg-purple-500 hover:bg-purple-600'
-              }`}
+          {expanded && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setExpanded(false)}
+              className="h-6 w-6 p-0"
             >
-              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-              {isListening ? 'Listening...' : 'Ask Assistant'}
+              ×
             </Button>
-            
-            <Button
-              variant="outline"
-              onClick={() => speak(getTodaysSummary())}
-              disabled={isSpeaking}
-              className="flex items-center gap-2"
-            >
-              {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-              Today's Summary
-            </Button>
-          </div>
-
-          {currentMessage && (
-            <div className="mb-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg">
-              <p className="text-sm text-gray-700 dark:text-gray-300">{currentMessage}</p>
-            </div>
           )}
-
-          <AnimatePresence>
-            {isExpanded && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-3"
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-3">
+        {expanded ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-center gap-2">
+              <Button 
+                variant={isListening ? "default" : "outline"}
+                size="sm" 
+                onClick={isListening ? stopListening : startListening}
+                className={`${isListening ? 'bg-indigo-500 hover:bg-indigo-600' : 'border-indigo-200'}`}
               >
-                <h4 className="font-medium text-gray-700 dark:text-gray-300">Quick Actions:</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {quickActions.map((action, idx) => (
-                    <Button
-                      key={idx}
-                      variant="outline"
-                      size="sm"
-                      onClick={action.action}
-                      disabled={isSpeaking}
-                      className="text-left justify-start"
-                    >
-                      {action.label}
-                    </Button>
-                  ))}
-                </div>
-              </motion.div>
+                {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+                {isListening ? 'Stop' : 'Start'} Listening
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toggleMute()}
+                disabled={isSpeaking}
+                className="border-indigo-200"
+              >
+                <Speaker className="h-4 w-4 mr-2" />
+                {voiceSettings.muted ? 'Unmute' : 'Mute'}
+              </Button>
+            </div>
+            
+            {transcript && (
+              <div className="bg-indigo-100 p-2 rounded-md text-sm">
+                <p className="font-semibold text-indigo-800">You said:</p>
+                <p className="text-indigo-700">{transcript}</p>
+              </div>
             )}
-          </AnimatePresence>
-        </CardContent>
-      </Card>
-    </motion.div>
+            
+            <div>
+              <p className="text-xs text-indigo-600 mb-2 flex items-center gap-1">
+                <CheckCircle className="h-3 w-3" />
+                Try saying:
+              </p>
+              <div className="grid grid-cols-1 gap-1">
+                {suggestions.slice(0, 3).map((suggestion, index) => (
+                  <Button 
+                    key={index} 
+                    variant="ghost" 
+                    size="sm"
+                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-indigo-700 hover:bg-indigo-100"
+                    onClick={() => {
+                      processVoiceCommand(suggestion);
+                    }}
+                  >
+                    "{suggestion}"
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setExpanded(true)}
+              className="w-full text-indigo-700 hover:bg-indigo-100"
+            >
+              <Clock className="h-4 w-4 mr-2" />
+              Plan Assistant
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

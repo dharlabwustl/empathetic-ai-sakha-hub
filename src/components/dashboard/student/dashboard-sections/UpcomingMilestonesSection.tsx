@@ -1,88 +1,78 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Target, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Calendar, CheckCircle2, BarChart, Award } from 'lucide-react';
+import { Milestone } from '@/types/student/dashboard';
 
-interface Milestone {
-  id: string;
-  title: string;
-  date: string;
-  type: 'exam' | 'assignment' | 'test';
-  priority: 'high' | 'medium' | 'low';
-  status: 'upcoming' | 'completed' | 'overdue';
+export interface UpcomingMilestonesSectionProps {
+  milestones: Milestone[];
 }
 
-const UpcomingMilestonesSection = () => {
-  const milestones: Milestone[] = [
-    {
-      id: '1',
-      title: 'Physics Mock Test',
-      date: '2024-01-15',
-      type: 'test',
-      priority: 'high',
-      status: 'upcoming'
-    },
-    {
-      id: '2',
-      title: 'Chemistry Assignment',
-      date: '2024-01-20',
-      type: 'assignment',
-      priority: 'medium',
-      status: 'upcoming'
-    },
-    {
-      id: '3',
-      title: 'NEET Mock Exam',
-      date: '2024-01-25',
-      type: 'exam',
-      priority: 'high',
-      status: 'upcoming'
-    }
-  ];
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-700 border-red-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'low':
-        return 'bg-green-100 text-green-700 border-green-200';
+const UpcomingMilestonesSection: React.FC<UpcomingMilestonesSectionProps> = ({ milestones }) => {
+  // Get the icon for each milestone type
+  const getMilestoneIcon = (type: string) => {
+    switch (type) {
+      case 'weekly-target':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'practice-exam':
+        return <BarChart className="h-4 w-4 text-blue-500" />;
+      case 'performance-check':
+        return <Award className="h-4 w-4 text-amber-500" />;
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return <Calendar className="h-4 w-4 text-violet-500" />;
     }
   };
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-purple-600" />
-          Upcoming Milestones
-        </CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div className="flex items-center">
+          <Calendar className="mr-2 h-5 w-5 text-violet-500" />
+          <CardTitle className="text-lg font-medium">Upcoming Milestones</CardTitle>
+        </div>
+        <Button variant="ghost" size="sm" className="text-violet-500 hover:text-violet-600">
+          View All
+        </Button>
       </CardHeader>
+      
       <CardContent>
+        <div className="text-sm text-muted-foreground mb-4">
+          Track your progress towards these important milestones
+        </div>
+        
         <div className="space-y-3">
-          {milestones.map((milestone) => (
-            <div key={milestone.id} className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Target className="h-4 w-4 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="font-medium">{milestone.title}</h4>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Clock className="h-3 w-3" />
-                    {milestone.date}
-                  </div>
-                </div>
+          {milestones.map(milestone => (
+            <div 
+              key={milestone.id}
+              className="p-3 border rounded-lg bg-gradient-to-r from-blue-50/50 to-white dark:from-blue-900/10 dark:to-gray-800/50"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                {getMilestoneIcon(milestone.type)}
+                <div className="font-medium">{milestone.title}</div>
               </div>
-              <Badge className={getPriorityColor(milestone.priority)}>
-                {milestone.priority}
-              </Badge>
+              
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                {milestone.description}
+              </p>
+              
+              <div className="flex items-center justify-between text-xs">
+                <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full px-2 py-0.5">
+                  Due: {milestone.date}
+                </span>
+                
+                <Button size="sm" className="h-7 text-xs">
+                  {milestone.completed ? "Completed" : "View Details"}
+                </Button>
+              </div>
             </div>
           ))}
+          
+          {milestones.length === 0 && (
+            <div className="text-center py-6 text-muted-foreground">
+              No upcoming milestones
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
