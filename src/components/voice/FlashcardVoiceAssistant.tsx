@@ -2,25 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, Brain, Target, RotateCcw } from "lucide-react";
+import { Mic, MicOff, Brain, Target, TrendingUp, Volume2, VolumeX } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 
 interface FlashcardVoiceAssistantProps {
-  flashcardData?: any;
-  userName?: string;
+  deckName?: string;
+  cardsRemaining?: number;
+  accuracy?: number;
   isEnabled?: boolean;
-  onNext?: () => void;
-  onPrevious?: () => void;
-  onFlip?: () => void;
+  userName?: string;
 }
 
 const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
-  flashcardData,
-  userName = "Student",
+  deckName = "Physics Formulas",
+  cardsRemaining = 8,
+  accuracy = 75,
   isEnabled = true,
-  onNext,
-  onPrevious,
-  onFlip
+  userName = "Student"
 }) => {
   const [expanded, setExpanded] = useState(false);
   
@@ -45,49 +43,46 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
-    if (lowerCommand.includes('next') || lowerCommand.includes('skip')) {
-      speakMessage("Moving to the next flashcard.");
-      onNext?.();
-      return;
-    }
-    
-    if (lowerCommand.includes('previous') || lowerCommand.includes('back')) {
-      speakMessage("Going back to the previous flashcard.");
-      onPrevious?.();
-      return;
-    }
-    
-    if (lowerCommand.includes('flip') || lowerCommand.includes('show answer') || lowerCommand.includes('reveal')) {
-      speakMessage("Flipping the card to show the answer.");
-      onFlip?.();
-      return;
-    }
-    
     if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
-      speakMessage("You're making great progress with your flashcard review. Keep practicing to strengthen your memory.");
+      speakMessage(`You're doing great with ${deckName}! Your current accuracy is ${accuracy}%. You have ${cardsRemaining} cards remaining in this session. ${accuracy >= 80 ? 'Excellent work!' : accuracy >= 60 ? 'Good progress, keep it up!' : 'Keep practicing, you\'re improving!'}`);
       return;
     }
     
-    if (lowerCommand.includes('study tips') || lowerCommand.includes('help')) {
-      speakMessage("For effective flashcard study, try to recall the answer before flipping. Review difficult cards more frequently, and space out your practice sessions.");
+    if (lowerCommand.includes('tips') || lowerCommand.includes('study better')) {
+      speakMessage(`Here are flashcard study tips: Use spaced repetition - review cards at increasing intervals. Focus more on cards you get wrong. Try to understand concepts, not just memorize. Use mnemonics for difficult formulas. Practice regularly for best results.`);
       return;
     }
     
-    if (lowerCommand.includes('difficult') || lowerCommand.includes('hard')) {
-      speakMessage("Mark this card for extra review. Don't worry, challenging concepts become easier with repeated practice.");
+    if (lowerCommand.includes('difficult') || lowerCommand.includes('hard cards')) {
+      speakMessage(`For difficult cards, try breaking them into smaller parts. Create mental associations or stories. Practice the hard ones more frequently. Don't worry if you get them wrong initially - that's how you learn!`);
+      return;
+    }
+    
+    if (lowerCommand.includes('next') || lowerCommand.includes('continue')) {
+      speakMessage(`Ready for the next card! Take your time to think through the answer. Remember, it's better to understand than to rush. You've got this!`);
+      return;
+    }
+    
+    if (lowerCommand.includes('break') || lowerCommand.includes('rest')) {
+      speakMessage(`Good idea to take a break! Your brain needs time to process information. A 5-10 minute break can actually improve your retention. Come back refreshed!`);
+      return;
+    }
+    
+    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage')) {
+      speakMessage(`You're making excellent progress! Every card you review builds your knowledge. Remember, even experts were beginners once. Your dedication to studying will pay off. Keep going, ${userName}!`);
       return;
     }
     
     // Default response
-    speakMessage("I can help you navigate flashcards. Say 'next', 'previous', 'flip', or ask for study tips.");
+    speakMessage(`I'm here to help with your flashcard review of ${deckName}. Ask about your progress, study tips, or just say 'next' when you're ready to continue!`);
   };
   
   const suggestions = [
-    "Next card",
-    "Flip card",
     "How am I doing?",
-    "Study tips",
-    "This is difficult"
+    "Give me study tips",
+    "Help with difficult cards",
+    "I need motivation",
+    "Should I take a break?"
   ];
   
   if (!isVoiceSupported || !isEnabled) {
@@ -95,9 +90,9 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
   }
   
   return (
-    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-purple-200 bg-purple-50`}>
+    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-purple-200 bg-purple-50 dark:bg-purple-900/20`}>
       <CardHeader className="p-3 pb-0">
-        <CardTitle className="text-sm flex justify-between items-center text-purple-800">
+        <CardTitle className="text-sm flex justify-between items-center text-purple-800 dark:text-purple-200">
           <div className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
             <span>Flashcard Assistant</span>
@@ -117,6 +112,19 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
       <CardContent className="p-3">
         {expanded ? (
           <div className="space-y-3">
+            <div className="text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-800/50 p-2 rounded">
+              <div className="flex justify-between">
+                <span>Deck: <strong>{deckName}</strong></span>
+                <span>{cardsRemaining} left</span>
+              </div>
+              <div className="flex justify-between mt-1">
+                <span>Accuracy: {accuracy}%</span>
+                <span className={accuracy >= 75 ? 'text-green-600' : 'text-yellow-600'}>
+                  {accuracy >= 75 ? '🎯' : '📈'}
+                </span>
+              </div>
+            </div>
+            
             <div className="flex items-center justify-center gap-2">
               <Button 
                 variant={isListening ? "default" : "outline"}
@@ -135,20 +143,19 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
                 disabled={isSpeaking}
                 className="border-purple-200"
               >
-                <Speaker className="h-4 w-4 mr-2" />
-                {voiceSettings.muted ? 'Unmute' : 'Mute'}
+                {voiceSettings.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </Button>
             </div>
             
             {transcript && (
-              <div className="bg-purple-100 p-2 rounded-md text-sm">
-                <p className="font-semibold text-purple-800">You said:</p>
-                <p className="text-purple-700">{transcript}</p>
+              <div className="bg-purple-100 dark:bg-purple-800/50 p-2 rounded-md text-sm">
+                <p className="font-semibold text-purple-800 dark:text-purple-200">You said:</p>
+                <p className="text-purple-700 dark:text-purple-300">{transcript}</p>
               </div>
             )}
             
             <div>
-              <p className="text-xs text-purple-600 mb-2 flex items-center gap-1">
+              <p className="text-xs text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-1">
                 <Target className="h-3 w-3" />
                 Try saying:
               </p>
@@ -158,10 +165,8 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
                     key={index} 
                     variant="ghost" 
                     size="sm"
-                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-purple-700 hover:bg-purple-100"
-                    onClick={() => {
-                      processVoiceCommand(suggestion);
-                    }}
+                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800/50"
+                    onClick={() => processVoiceCommand(suggestion)}
                   >
                     "{suggestion}"
                   </Button>
@@ -175,10 +180,10 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={() => setExpanded(true)}
-              className="w-full text-purple-700 hover:bg-purple-100"
+              className="w-full text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800/50"
             >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Flashcard Help
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Study Guide
             </Button>
           </div>
         )}

@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause } from 'lucide-react';
+import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause, RefreshCw, Plus } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -82,8 +82,17 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
   const handleContinuousListening = () => {
     setIsContinuousListening(!isContinuousListening);
-    // Here you would implement the continuous listening logic
     console.log('Continuous listening:', !isContinuousListening);
+  };
+
+  const handleSwitchExam = () => {
+    // Handle exam switching logic
+    console.log('Switch exam clicked');
+  };
+
+  const handleNewPlan = () => {
+    // Handle new plan creation
+    console.log('New plan clicked');
   };
 
   // Get current subscription status
@@ -123,6 +132,46 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
       {/* Right side - Controls */}
       <div className="flex items-center space-x-3">
+        {/* Switch Exam Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSwitchExam}
+                className="gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-blue-200"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span className="hidden sm:inline">Switch Exam</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Switch to a different exam preparation</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* New Plan Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNewPlan}
+                className="gap-2 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-green-200"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">New Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Create a new study plan</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         {/* Time Display */}
         <TooltipProvider>
           <Tooltip>

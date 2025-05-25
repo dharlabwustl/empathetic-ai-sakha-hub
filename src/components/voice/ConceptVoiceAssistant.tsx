@@ -2,20 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, BookOpen, Brain, Lightbulb } from "lucide-react";
+import { Mic, MicOff, Speaker, BookOpen, Lightbulb, HelpCircle, Volume2, VolumeX } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
-import { toast } from '@/hooks/use-toast';
 
 interface ConceptVoiceAssistantProps {
-  conceptData?: any;
-  userName?: string;
+  conceptName?: string;
+  conceptSubject?: string;
+  difficulty?: string;
   isEnabled?: boolean;
+  userName?: string;
 }
 
 const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
-  conceptData,
-  userName = "Student",
-  isEnabled = true
+  conceptName = "Physics Concept",
+  conceptSubject = "Physics",
+  difficulty = "medium",
+  isEnabled = true,
+  userName = "Student"
 }) => {
   const [expanded, setExpanded] = useState(false);
   
@@ -31,7 +34,6 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
     transcript
   } = useVoiceAnnouncer({ userName });
   
-  // Process transcript when it changes
   useEffect(() => {
     if (transcript) {
       processVoiceCommand(transcript);
@@ -42,40 +44,45 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
     const lowerCommand = command.toLowerCase();
     
     if (lowerCommand.includes('explain') || lowerCommand.includes('what is')) {
-      speakMessage(`Let me explain this concept. ${conceptData?.title || 'This concept'} is an important topic in ${conceptData?.subject || 'your studies'}. The key points to understand are the fundamental principles and real-world applications.`);
+      speakMessage(`Let me explain ${conceptName}. This is a ${difficulty} level concept in ${conceptSubject}. The key idea is to understand the fundamental principles and how they apply to real-world scenarios. Would you like me to provide specific examples?`);
       return;
     }
     
     if (lowerCommand.includes('example') || lowerCommand.includes('give me an example')) {
-      speakMessage(`Here's a practical example: This concept is commonly used in problem-solving scenarios. Try to think of real-world situations where you might apply this knowledge.`);
+      speakMessage(`Here's a practical example for ${conceptName}: Think about everyday situations where this concept applies. For instance, when you observe objects in motion, the principles we're studying directly explain what you see.`);
       return;
     }
     
-    if (lowerCommand.includes('study tips') || lowerCommand.includes('how to study')) {
-      speakMessage(`For effective studying, break this concept into smaller parts. Create mind maps, practice with examples, and try teaching it to someone else. Regular revision is key.`);
+    if (lowerCommand.includes('tips') || lowerCommand.includes('how to study')) {
+      speakMessage(`Here are study tips for ${conceptName}: First, understand the core concept before memorizing formulas. Second, practice with different problem types. Third, relate it to real-world examples. Finally, teach it to someone else to test your understanding.`);
+      return;
+    }
+    
+    if (lowerCommand.includes('difficulty') || lowerCommand.includes('hard') || lowerCommand.includes('difficult')) {
+      speakMessage(`This concept is rated as ${difficulty} difficulty. Don't worry if it seems challenging at first. Break it down into smaller parts, practice regularly, and ask for help when needed. Every expert was once a beginner!`);
       return;
     }
     
     if (lowerCommand.includes('formula') || lowerCommand.includes('equation')) {
-      speakMessage(`Let me help you with the formulas. Remember to understand the derivation, not just memorize. Practice substituting different values to see how variables affect the result.`);
+      speakMessage(`The key formulas for ${conceptName} are essential to remember. I recommend understanding the derivation first, then practicing applications. Would you like me to explain any specific formula?`);
       return;
     }
     
-    if (lowerCommand.includes('difficulty') || lowerCommand.includes('hard') || lowerCommand.includes('confused')) {
-      speakMessage(`Don't worry if this seems challenging. Break it down step by step. Focus on understanding the basic principles first, then build up to more complex applications.`);
+    if (lowerCommand.includes('prerequisite') || lowerCommand.includes('what should i know')) {
+      speakMessage(`Before studying ${conceptName}, make sure you understand the foundational concepts in ${conceptSubject}. Review basic principles and mathematical tools you'll need. This will make learning much easier.`);
       return;
     }
     
     // Default response
-    speakMessage("I'm here to help you understand this concept better. You can ask me to explain, give examples, provide study tips, or help with formulas.");
+    speakMessage(`I can help you understand ${conceptName}. Ask me to explain the concept, provide examples, give study tips, or discuss the formulas involved.`);
   };
   
   const suggestions = [
     "Explain this concept",
-    "Give me an example",
-    "How should I study this?",
-    "Help me with the formula",
-    "This seems difficult"
+    "Give me an example", 
+    "Study tips please",
+    "What formulas are important?",
+    "What should I know first?"
   ];
   
   if (!isVoiceSupported || !isEnabled) {
@@ -83,9 +90,9 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
   }
   
   return (
-    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-blue-200 bg-blue-50`}>
+    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-blue-200 bg-blue-50 dark:bg-blue-900/20`}>
       <CardHeader className="p-3 pb-0">
-        <CardTitle className="text-sm flex justify-between items-center text-blue-800">
+        <CardTitle className="text-sm flex justify-between items-center text-blue-800 dark:text-blue-200">
           <div className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
             <span>Concept Assistant</span>
@@ -105,6 +112,10 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
       <CardContent className="p-3">
         {expanded ? (
           <div className="space-y-3">
+            <div className="text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/50 p-2 rounded">
+              Studying: <strong>{conceptName}</strong>
+            </div>
+            
             <div className="flex items-center justify-center gap-2">
               <Button 
                 variant={isListening ? "default" : "outline"}
@@ -123,20 +134,19 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
                 disabled={isSpeaking}
                 className="border-blue-200"
               >
-                <Speaker className="h-4 w-4 mr-2" />
-                {voiceSettings.muted ? 'Unmute' : 'Mute'}
+                {voiceSettings.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </Button>
             </div>
             
             {transcript && (
-              <div className="bg-blue-100 p-2 rounded-md text-sm">
-                <p className="font-semibold text-blue-800">You said:</p>
-                <p className="text-blue-700">{transcript}</p>
+              <div className="bg-blue-100 dark:bg-blue-800/50 p-2 rounded-md text-sm">
+                <p className="font-semibold text-blue-800 dark:text-blue-200">You said:</p>
+                <p className="text-blue-700 dark:text-blue-300">{transcript}</p>
               </div>
             )}
             
             <div>
-              <p className="text-xs text-blue-600 mb-2 flex items-center gap-1">
+              <p className="text-xs text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-1">
                 <Lightbulb className="h-3 w-3" />
                 Try saying:
               </p>
@@ -146,11 +156,8 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
                     key={index} 
                     variant="ghost" 
                     size="sm"
-                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-blue-700 hover:bg-blue-100"
-                    onClick={() => {
-                      speakMessage(suggestion);
-                      processVoiceCommand(suggestion);
-                    }}
+                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800/50"
+                    onClick={() => processVoiceCommand(suggestion)}
                   >
                     "{suggestion}"
                   </Button>
@@ -164,10 +171,10 @@ const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={() => setExpanded(true)}
-              className="w-full text-blue-700 hover:bg-blue-100"
+              className="w-full text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800/50"
             >
-              <Brain className="h-4 w-4 mr-2" />
-              Ask About Concept
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Concept Help
             </Button>
           </div>
         )}
