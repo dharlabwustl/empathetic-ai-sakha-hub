@@ -15,7 +15,6 @@ import { useContentManagement } from "@/hooks/admin/useContentManagement";
 const ContentManagementTab = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("upload");
-  const [showUploader, setShowUploader] = useState(true);
   
   const {
     uploading,
@@ -27,7 +26,6 @@ const ContentManagementTab = () => {
   } = useContentManagement();
   
   const handleUploadClick = () => {
-    setShowUploader(true);
     setActiveTab("upload");
   };
   
