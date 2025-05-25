@@ -66,7 +66,7 @@ const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white dark:bg-gray-800 shadow-lg min-h-screen overflow-y-auto">
+        <div className="w-64 bg-white dark:bg-gray-800 shadow-lg min-h-screen">
           <div className="p-6 border-b">
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">PREPZR Admin</h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">Comprehensive Dashboard</p>
