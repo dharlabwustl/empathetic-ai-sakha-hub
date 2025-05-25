@@ -1,368 +1,225 @@
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Volume2, Settings, X, Mic, MicOff, VolumeX } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface HomePageVoiceAssistantProps {
   language?: string;
+  onNavigationCommand?: (route: string) => void;
 }
 
-const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({ 
-  language = 'en-US'
+const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
+  language = 'en-US',
+  onNavigationCommand
 }) => {
-  const [greetingPlayed, setGreetingPlayed] = useState(false);
-  const [audioMuted, setAudioMuted] = useState(false);
-  const { toast } = useToast();
-  const location = useLocation();
-  const navigate = useNavigate();
-  
-  // Refs for better control of timers and recognition
-  const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<number | null>(null);
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const lastCommandTimeRef = useRef<number>(0);
-  
-  // Check if the current location is appropriate for voice greeting
-  const shouldPlayGreeting = location.pathname === '/' || 
-                            location.pathname.includes('/signup') ||
-                            location.pathname.includes('/welcome') ||
-                            location.pathname.includes('/free-trial') ||
-                            location.pathname.includes('/exam-readiness');
-  
-  // Get concise, context-aware message based on page
-  const getContextMessage = (path: string, lang: string) => {
-    if (path === '/') {
-      return "Welcome to Prepzer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state. How can I assist you today?";
-    } else if (path.includes('/signup')) {
-      return "Welcome to Prepzer signup! I'm Sakha AI. You can use voice commands to fill in the form. Click on any field and then use the microphone button to speak. Would you like assistance with signing up?";
-    } else if (path.includes('/free-trial')) {
-      return "Welcome to your free trial of Prepzer's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs.";
-    } else if (path.includes('/exam-readiness')) {
-      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style.";
-    }
-    
-    return "Welcome to Prepzer. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
-  };
-  
-  // Cleanup function to ensure proper resource management
-  const cleanupVoiceResources = () => {
-    // Stop speech synthesis
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    
-    // Clear any pending timeouts
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    
-    // Stop and cleanup speech recognition
-    if (recognitionRef.current) {
-      try {
-        // Remove all event handlers before stopping
-        if (recognitionRef.current.onresult) recognitionRef.current.onresult = null;
-        if (recognitionRef.current.onerror) recognitionRef.current.onerror = null;
-        if (recognitionRef.current.onend) recognitionRef.current.onend = null;
-        if (recognitionRef.current.onstart) recognitionRef.current.onstart = null;
-        
-        recognitionRef.current.abort();
-        recognitionRef.current.stop();
-      } catch (error) {
-        // Ignore errors during cleanup
-      } finally {
-        recognitionRef.current = null;
-      }
+  const [showSettings, setShowSettings] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(80);
+  const [speed, setSpeed] = useState(50);
+  const [pitch, setPitch] = useState(50);
+  const [voiceType, setVoiceType] = useState('female');
+  const [selectedLanguage, setSelectedLanguage] = useState(language);
+
+  const handleToggleListening = () => {
+    setIsListening(!isListening);
+    if (!isListening) {
+      // Start listening logic here
+      console.log('Starting voice recognition...');
+    } else {
+      // Stop listening logic here
+      console.log('Stopping voice recognition...');
     }
   };
-  
-  // Stop speech when route changes
-  useEffect(() => {
-    cleanupVoiceResources();
-    
-    // Restart with delay to prevent overlapping speech/recognition
-    const restartTimer = setTimeout(() => {
-      if (shouldPlayGreeting && !audioMuted) {
-        setupVoiceGreeting();
-      }
-    }, 1000);
-    
-    return () => {
-      clearTimeout(restartTimer);
-      cleanupVoiceResources();
-    };
-  }, [location.pathname]);
-  
-  // Setup voice recognition with improved error handling
-  const setupVoiceRecognition = () => {
-    // Don't setup if already listening or muted
-    if (recognitionRef.current || audioMuted || !shouldPlayGreeting) {
-      return;
-    }
-    
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      console.error("Speech recognition not supported in this browser");
-      return;
-    }
-    
-    try {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
-      
-      recognitionInstance.continuous = false;
-      recognitionInstance.interimResults = false;
-      recognitionInstance.lang = language;
-      
-      recognitionInstance.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        console.log("Voice command recognized:", transcript);
-        
-        // Prevent rapid fire commands
-        const now = Date.now();
-        if (now - lastCommandTimeRef.current < 2000) {
-          return;
-        }
-        lastCommandTimeRef.current = now;
-        
-        // Handle page navigation commands
-        if (transcript.includes('signup') || transcript.includes('sign up')) {
-          navigate('/signup');
-        } else if (transcript.includes('login') || transcript.includes('log in')) {
-          navigate('/login');
-        } else if (transcript.includes('home') || transcript.includes('go home')) {
-          navigate('/');
-        } else if (transcript.includes('demo')) {
-          navigate('/login');
-          setTimeout(() => {
-            const demoButton = document.querySelector('button[role="demo-login"]');
-            if (demoButton) demoButton.click();
-          }, 1000);
-        } else if (transcript.includes('analyze') || transcript.includes('readiness')) {
-          // Trigger the exam readiness analyzer
-          window.dispatchEvent(new Event('open-exam-analyzer'));
-        }
-      };
-      
-      recognitionInstance.onend = () => {
-        // Only restart after a delay if we're still on a page that should use voice
-        if (shouldPlayGreeting && !audioMuted && document.visibilityState === 'visible') {
-          // Use timeout to prevent immediate restart
-          timeoutRef.current = window.setTimeout(() => {
-            if (recognitionRef.current) {
-              try {
-                recognitionRef.current = null;
-                setupVoiceRecognition();
-              } catch (error) {
-                console.error("Error restarting recognition:", error);
-              }
-            } else {
-              setupVoiceRecognition();
-            }
-          }, 3000); // Longer delay to prevent excessive CPU usage
-        }
-      };
-      
-      recognitionInstance.onerror = (event) => {
-        console.error("Speech recognition error", event.error);
-        
-        // Don't restart immediately after network or audio errors
-        const restartDelay = (event.error === 'network' || event.error === 'audio') ? 5000 : 3000;
-        
-        // Only restart if we should still be listening
-        if (shouldPlayGreeting && !audioMuted && document.visibilityState === 'visible') {
-          timeoutRef.current = window.setTimeout(() => {
-            recognitionRef.current = null;
-            setupVoiceRecognition();
-          }, restartDelay);
-        }
-      };
-      
-      // Start recognition
-      try {
-        recognitionInstance.start();
-        recognitionRef.current = recognitionInstance;
-      } catch (error) {
-        console.error("Failed to start speech recognition:", error);
-        // Try again after a delay
-        timeoutRef.current = window.setTimeout(() => {
-          recognitionRef.current = null;
-          setupVoiceRecognition();
-        }, 5000);
-      }
-    } catch (error) {
-      console.error("Error setting up recognition:", error);
-    }
+
+  const handleToggleMute = () => {
+    setIsMuted(!isMuted);
   };
-  
-  // Setup voice greeting with better error handling
-  const setupVoiceGreeting = () => {
-    // Skip if already played, muted, or on wrong page
-    if (greetingPlayed || audioMuted || !shouldPlayGreeting || !('speechSynthesis' in window)) {
-      return;
-    }
-    
-    try {
-      const message = getContextMessage(location.pathname, language);
-      
-      // Create speech synthesis utterance
+
+  const speakMessage = (message: string) => {
+    if (!isMuted && 'speechSynthesis' in window) {
       const speech = new SpeechSynthesisUtterance();
+      speech.text = message.replace(/PREPZR/gi, 'PREP-zer');
+      speech.lang = selectedLanguage;
+      speech.volume = volume / 100;
+      speech.rate = 0.85 + (speed / 100);
+      speech.pitch = 0.75 + (pitch / 100) * 0.5;
       
-      // Set correct text - using "Prepzer" as a single word
-      speech.text = message;
-      speech.lang = language;
-      speech.rate = 0.98; // Normal rate for clarity
-      speech.pitch = 1.05; // Slightly higher for a more vibrant tone
-      speech.volume = 0.9;
-      
-      // Get available voices
       const voices = window.speechSynthesis.getVoices();
-      
-      // Try to find a clear, vibrant voice - preferring Indian English voices for en-IN
-      const preferredVoiceNames = language === 'en-IN' 
-        ? ['Google India', 'Microsoft Kajal', 'en-IN', 'English India', 'India']
-        : ['Google US English Female', 'Microsoft Zira', 'Samantha', 'Alex', 'en-US', 'en-GB'];
-      
-      // Try to find a preferred voice
-      let selectedVoice = null;
-      for (const name of preferredVoiceNames) {
-        const voice = voices.find(v => 
-          v.name?.toLowerCase().includes(name.toLowerCase()) || 
-          v.lang?.toLowerCase().includes(name.toLowerCase())
-        );
-        if (voice) {
-          selectedVoice = voice;
-          break;
+      const preferredVoices = voices.filter(voice => {
+        if (voiceType === "female") {
+          return voice.name.toLowerCase().includes("female") || 
+                !voice.name.toLowerCase().includes("male");
+        } else {
+          return voice.name.toLowerCase().includes("male");
         }
-      }
-      
-      // If still no voice selected, use any available voice
-      if (!selectedVoice && voices.length > 0) {
-        selectedVoice = voices[0];
-      }
-      
-      // Set the selected voice if found
-      if (selectedVoice) {
-        speech.voice = selectedVoice;
-      }
-      
-      // Handle events
-      speech.onstart = () => console.log("Voice greeting started");
-      speech.onend = () => {
-        setGreetingPlayed(true);
-        console.log("Voice greeting completed");
-        
-        // Start voice recognition after greeting ends
-        setTimeout(() => {
-          if (!audioMuted) {
-            setupVoiceRecognition();
-          }
-        }, 500);
-        
-        // Dispatch an event that voice greeting has completed
-        document.dispatchEvent(new CustomEvent('voice-greeting-completed'));
-      };
-      speech.onerror = (e) => {
-        console.error("Speech synthesis error", e);
-        setGreetingPlayed(true);
-        
-        // Try to start recognition anyway after an error
-        setTimeout(() => {
-          if (!audioMuted) {
-            setupVoiceRecognition();
-          }
-        }, 500);
-      };
-      
-      // Store speech object in ref to be able to cancel it when needed
-      speechRef.current = speech;
-      
-      // Speak the message
-      window.speechSynthesis.speak(speech);
-      
-      // Show toast notification with available commands
-      toast({
-        title: "Sakha AI Voice Assistant",
-        description: "Try commands like 'Sign up', 'Login', 'Go home', or 'Analyze readiness'",
-        duration: 5000,
       });
-    } catch (error) {
-      console.error("Error playing greeting:", error);
-      setGreetingPlayed(true);
       
-      // Try to start recognition anyway after an error
-      setTimeout(() => {
-        if (!audioMuted) {
-          setupVoiceRecognition();
-        }
-      }, 500);
+      if (preferredVoices.length > 0) {
+        speech.voice = preferredVoices[0];
+      }
+      
+      window.speechSynthesis.speak(speech);
     }
   };
-  
-  // Listen for custom events to mute/unmute
-  useEffect(() => {
-    const handleMuteEvent = () => {
-      setAudioMuted(true);
-      localStorage.setItem('voice_assistant_muted', 'true');
-      cleanupVoiceResources();
-    };
-    
-    const handleUnmuteEvent = () => {
-      setAudioMuted(false);
-      localStorage.setItem('voice_assistant_muted', 'false');
-      
-      // Restart voice systems after unmuting
-      setTimeout(() => {
-        if (!greetingPlayed) {
-          setupVoiceGreeting();
-        } else {
-          setupVoiceRecognition();
-        }
-      }, 500);
-    };
-    
-    // Also listen for page visibility changes
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        // Stop speech when tab is not visible
-        cleanupVoiceResources();
-      } else if (document.visibilityState === 'visible' && !audioMuted) {
-        // Restart when coming back to visible tab
-        setTimeout(() => {
-          if (!greetingPlayed) {
-            setupVoiceGreeting();
-          } else {
-            setupVoiceRecognition();
-          }
-        }, 1000);
-      }
-    };
-    
-    // Load mute preference
-    const muteSetting = localStorage.getItem('voice_assistant_muted');
-    if (muteSetting === 'true') {
-      setAudioMuted(true);
-    } else if (!audioMuted && shouldPlayGreeting && !greetingPlayed) {
-      // Initial setup if not muted
-      const initialSetupTimer = setTimeout(() => {
-        setupVoiceGreeting();
-      }, 2000);
-      
-      return () => clearTimeout(initialSetupTimer);
-    }
-    
-    document.addEventListener('voice-assistant-mute', handleMuteEvent);
-    document.addEventListener('voice-assistant-unmute', handleUnmuteEvent);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('voice-assistant-mute', handleMuteEvent);
-      document.removeEventListener('voice-assistant-unmute', handleUnmuteEvent);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      cleanupVoiceResources();
-    };
-  }, [greetingPlayed, shouldPlayGreeting, audioMuted]);
-  
-  return null; // This component doesn't render any UI
+
+  return (
+    <>
+      {/* Floating Voice Assistant Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Button
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl"
+            onClick={() => setShowSettings(true)}
+          >
+            <Volume2 className="h-6 w-6 mr-2" />
+            <span className="font-medium">Voice Assistant</span>
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md"
+          >
+            <Card className="bg-white dark:bg-gray-900">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Voice Assistant Settings</CardTitle>
+                <Button variant="ghost" size="icon" onClick={() => setShowSettings(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Voice Controls */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant={isListening ? "destructive" : "outline"}
+                    onClick={handleToggleListening}
+                    className="w-full"
+                  >
+                    {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+                    {isListening ? 'Stop' : 'Listen'}
+                  </Button>
+                  
+                  <Button
+                    variant={isMuted ? "destructive" : "outline"}
+                    onClick={handleToggleMute}
+                    className="w-full"
+                  >
+                    {isMuted ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                    {isMuted ? 'Unmute' : 'Mute'}
+                  </Button>
+                </div>
+
+                {/* Language Selection */}
+                <div className="space-y-2">
+                  <Label>Language</Label>
+                  <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en-US">English (US)</SelectItem>
+                      <SelectItem value="en-GB">English (UK)</SelectItem>
+                      <SelectItem value="hi-IN">Hindi</SelectItem>
+                      <SelectItem value="es-ES">Spanish</SelectItem>
+                      <SelectItem value="fr-FR">French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Voice Type */}
+                <div className="space-y-2">
+                  <Label>Voice Type</Label>
+                  <div className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        checked={voiceType === "female"}
+                        onCheckedChange={() => setVoiceType("female")}
+                      />
+                      <Label>Female</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        checked={voiceType === "male"}
+                        onCheckedChange={() => setVoiceType("male")}
+                      />
+                      <Label>Male</Label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Volume Control */}
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Volume</Label>
+                    <span className="text-sm text-muted-foreground">{volume}%</span>
+                  </div>
+                  <Slider 
+                    value={[volume]}
+                    onValueChange={(values) => setVolume(values[0])}
+                    max={100}
+                    step={1}
+                  />
+                </div>
+
+                {/* Speed Control */}
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Speaking Speed</Label>
+                    <span className="text-sm text-muted-foreground">{speed}%</span>
+                  </div>
+                  <Slider 
+                    value={[speed]}
+                    onValueChange={(values) => setSpeed(values[0])}
+                    max={100}
+                    step={1}
+                  />
+                </div>
+
+                {/* Pitch Control */}
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Voice Pitch</Label>
+                    <span className="text-sm text-muted-foreground">{pitch}%</span>
+                  </div>
+                  <Slider 
+                    value={[pitch]}
+                    onValueChange={(values) => setPitch(values[0])}
+                    max={100}
+                    step={1}
+                  />
+                </div>
+
+                {/* Test Voice */}
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => speakMessage("Hello! I'm Sakha AI, your voice assistant for PREP-zer. How can I help you today?")}
+                >
+                  Test Voice
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default HomePageVoiceAssistant;
