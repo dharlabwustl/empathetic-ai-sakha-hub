@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,41 @@ export interface UpcomingMilestonesSectionProps {
   milestones: Milestone[];
 }
 
-const UpcomingMilestonesSection: React.FC<UpcomingMilestonesSectionProps> = ({ milestones }) => {
+const UpcomingMilestonesSection: React.FC<UpcomingMilestonesSectionProps> = ({ 
+  milestones = [] 
+}) => {
+  const defaultMilestones: Milestone[] = [
+    {
+      id: '1',
+      title: 'Complete Physics Module 1',
+      description: 'Finish all concept cards and practice tests for Mechanics',
+      dueDate: '2024-12-30',
+      progress: 75,
+      type: 'study',
+      priority: 'high'
+    },
+    {
+      id: '2',
+      title: 'Chemistry Mock Test',
+      description: 'Take the comprehensive Organic Chemistry assessment',
+      dueDate: '2024-12-28',
+      progress: 0,
+      type: 'exam',
+      priority: 'medium'
+    },
+    {
+      id: '3',
+      title: 'Mathematics Practice',
+      description: 'Complete 50 calculus problems from the practice bank',
+      dueDate: '2025-01-02',
+      progress: 30,
+      type: 'practice',
+      priority: 'medium'
+    }
+  ];
+
+  const displayMilestones = milestones.length > 0 ? milestones : defaultMilestones;
+
   // Get the icon for each milestone type
   const getMilestoneIcon = (type: string) => {
     switch (type) {
@@ -42,7 +75,7 @@ const UpcomingMilestonesSection: React.FC<UpcomingMilestonesSectionProps> = ({ m
         </div>
         
         <div className="space-y-3">
-          {milestones.map(milestone => (
+          {displayMilestones.map(milestone => (
             <div 
               key={milestone.id}
               className="p-3 border rounded-lg bg-gradient-to-r from-blue-50/50 to-white dark:from-blue-900/10 dark:to-gray-800/50"
@@ -68,7 +101,7 @@ const UpcomingMilestonesSection: React.FC<UpcomingMilestonesSectionProps> = ({ m
             </div>
           ))}
           
-          {milestones.length === 0 && (
+          {displayMilestones.length === 0 && (
             <div className="text-center py-6 text-muted-foreground">
               No upcoming milestones
             </div>

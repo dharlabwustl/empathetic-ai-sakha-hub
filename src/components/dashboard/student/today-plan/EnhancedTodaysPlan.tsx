@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
+import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -107,14 +107,14 @@ const EnhancedTodaysPlan: React.FC = () => {
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
-        
-        {/* Voice assistant for today's plan */}
-        <TodaysPlanVoiceAssistant 
-          planData={planData}
-          userName={planData?.userName}
-          isEnabled={true}
-        />
       </div>
+      
+      {/* Page-specific Voice Assistant */}
+      <UnifiedVoiceAssistant 
+        userName={planData?.userName || userProfile?.name}
+        isHomePage={false}
+        onNavigationCommand={(route) => navigate(route)}
+      />
     </SharedPageLayout>
   );
 };
