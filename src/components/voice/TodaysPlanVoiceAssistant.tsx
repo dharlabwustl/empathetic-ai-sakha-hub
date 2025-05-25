@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, Calendar, CheckCircle, Clock } from "lucide-react";
+import { Mic, MicOff, Speaker, Calendar, Target, RotateCcw } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
-import { TodaysPlanData } from '@/types/student/todaysPlan';
 
 interface TodaysPlanVoiceAssistantProps {
-  planData?: TodaysPlanData | null;
+  planData?: any;
   userName?: string;
   isEnabled?: boolean;
 }
@@ -40,61 +39,61 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
+    if (lowerCommand.includes('what should i study') || lowerCommand.includes('what\'s next')) {
+      const nextTask = planData?.concepts?.[0] || planData?.flashcards?.[0] || planData?.practiceExams?.[0];
+      if (nextTask) {
+        speakMessage(`Your next task is ${nextTask.title}. It should take about ${nextTask.duration} minutes to complete.`);
+      } else {
+        speakMessage("Great job! You've completed all your tasks for today. Consider reviewing some concepts or taking a break.");
+      }
+      return;
+    }
+    
     if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
+      const totalTasks = (planData?.concepts?.length || 0) + (planData?.flashcards?.length || 0) + (planData?.practiceExams?.length || 0);
       const completedTasks = planData?.completedTasks || 0;
-      const totalTasks = planData?.totalTasks || 0;
-      const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
       
-      speakMessage(`You've completed ${completedTasks} out of ${totalTasks} tasks today. That's ${percentage}% progress. ${percentage >= 70 ? 'Excellent work!' : percentage >= 50 ? 'Good progress, keep going!' : 'You can do this, stay focused!'}`);
+      speakMessage(`You've completed ${completedTasks} out of ${totalTasks} tasks today. That's ${progressPercent}% progress. Keep up the great work!`);
       return;
     }
     
-    if (lowerCommand.includes('what tasks') || lowerCommand.includes('what should i do')) {
-      const pendingConcepts = planData?.concepts?.filter(c => c.status === 'pending')?.length || 0;
-      const pendingFlashcards = planData?.flashcards?.filter(f => f.status === 'pending')?.length || 0;
-      const pendingExams = planData?.practiceExams?.filter(p => p.status === 'pending')?.length || 0;
-      
-      speakMessage(`You have ${pendingConcepts} concepts to study, ${pendingFlashcards} flashcard sets to review, and ${pendingExams} practice exams pending. I recommend starting with concepts first.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('backlog') || lowerCommand.includes('overdue')) {
+    if (lowerCommand.includes('backlog') || lowerCommand.includes('pending tasks')) {
       const backlogCount = planData?.backlogTasks?.length || 0;
       if (backlogCount > 0) {
-        speakMessage(`You have ${backlogCount} overdue tasks in your backlog. Consider tackling these first to catch up on your studies.`);
+        speakMessage(`You have ${backlogCount} tasks in your backlog. I recommend tackling the oldest ones first to stay on track.`);
       } else {
-        speakMessage("Great! You don't have any overdue tasks. You're staying on track with your studies.");
+        speakMessage("Excellent! You have no pending tasks in your backlog. You're staying on top of your studies.");
       }
       return;
     }
     
     if (lowerCommand.includes('time') || lowerCommand.includes('how long')) {
-      const totalTime = planData?.timeAllocation?.total || 0;
-      speakMessage(`Your total study time planned for today is ${totalTime} minutes. Remember to take breaks between study sessions for better retention.`);
+      const totalTime = planData?.totalTime || planData?.estimatedTime || 0;
+      speakMessage(`Your study plan for today is estimated to take ${totalTime} minutes. Remember to take breaks every 25-30 minutes.`);
       return;
     }
     
-    if (lowerCommand.includes('streak') || lowerCommand.includes('consecutive days')) {
-      const streak = planData?.streak || 0;
-      speakMessage(`You're on a ${streak} day study streak! ${streak >= 7 ? 'Amazing consistency!' : streak >= 3 ? 'Keep it up!' : 'Great start, build on this momentum!'}`);
+    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage me')) {
+      speakMessage("You're doing amazing! Every concept you master brings you closer to your goals. Stay focused, take breaks when needed, and remember that consistent effort leads to success.");
       return;
     }
     
-    if (lowerCommand.includes('suggestions') || lowerCommand.includes('what do you recommend')) {
-      speakMessage("Based on your progress, I suggest focusing on pending concepts first, then reviewing flashcards, and finishing with practice exams. Take short breaks between different types of activities.");
+    if (lowerCommand.includes('break') || lowerCommand.includes('rest')) {
+      speakMessage("Taking breaks is crucial for effective learning. Try the Pomodoro technique: 25 minutes of study followed by a 5-minute break. Your brain will thank you!");
       return;
     }
     
     // Default response
-    speakMessage("I can help you track your progress, manage tasks, handle backlogs, and provide study recommendations for today's plan.");
+    speakMessage("I can help you with your study plan, check your progress, manage your backlog, or provide motivation. What would you like to know?");
   };
   
   const suggestions = [
-    "How am I doing today?",
-    "What tasks should I do?",
+    "What should I study next?",
+    "How am I doing?",
     "Check my backlog",
-    "What do you recommend?",
-    "How's my streak?"
+    "How much time left?",
+    "Motivate me"
   ];
   
   if (!isVoiceSupported || !isEnabled) {
@@ -107,7 +106,7 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
         <CardTitle className="text-sm flex justify-between items-center text-indigo-800">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            <span>Today's Plan Assistant</span>
+            <span>Plan Assistant</span>
           </div>
           {expanded && (
             <Button 
@@ -156,7 +155,7 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
             
             <div>
               <p className="text-xs text-indigo-600 mb-2 flex items-center gap-1">
-                <CheckCircle className="h-3 w-3" />
+                <Target className="h-3 w-3" />
                 Try saying:
               </p>
               <div className="grid grid-cols-1 gap-1">
@@ -184,7 +183,7 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
               onClick={() => setExpanded(true)}
               className="w-full text-indigo-700 hover:bg-indigo-100"
             >
-              <Clock className="h-4 w-4 mr-2" />
+              <RotateCcw className="h-4 w-4 mr-2" />
               Plan Assistant
             </Button>
           </div>
