@@ -1,243 +1,325 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  GraduationCap, 
-  Target, 
-  BookOpen, 
-  Calendar, 
-  TrendingUp, 
-  Award,
-  Clock,
-  Brain,
-  Star,
-  CheckCircle
-} from 'lucide-react';
-import AcademicAdvisorVoiceAssistant from '@/components/voice/AcademicAdvisorVoiceAssistant';
+import { Calendar, ArrowRight, BookMarked, Clock, Settings, FileText, Plus } from "lucide-react";
+import { StudyPlan } from "@/types/studyPlan";
+import { Motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import BackButton from "@/components/dashboard/student/BackButton";
 
-const AcademicAdvisorView = () => {
-  const currentGoal = "NEET 2024";
-  const academicLevel = "Class 12";
-  const userName = "Student";
-
-  const studyPlanData = {
-    currentStreak: 12,
-    weeklyTarget: 35,
-    weeklyProgress: 28,
+// Mock study plans
+const mockStudyPlans: StudyPlan[] = [
+  {
+    id: "1",
+    title: "NEET 2023 Complete Preparation",
+    description: "Comprehensive study plan for NEET 2023 covering Physics, Chemistry and Biology",
     subjects: [
-      { name: 'Physics', progress: 78, target: 85, color: 'blue' },
-      { name: 'Chemistry', progress: 65, target: 80, color: 'green' },
-      { name: 'Biology', progress: 82, target: 90, color: 'purple' }
+      {
+        id: "101",
+        name: "Physics",
+        progressPercent: 45,
+        color: "bg-blue-500"
+      },
+      {
+        id: "102",
+        name: "Chemistry",
+        progressPercent: 60,
+        color: "bg-green-500"
+      },
+      {
+        id: "103",
+        name: "Biology",
+        progressPercent: 75,
+        color: "bg-purple-500"
+      }
     ],
-    upcomingMilestones: [
-      { title: 'Mock Test 3', date: '2024-01-15', type: 'exam' },
-      { title: 'Physics Revision', date: '2024-01-18', type: 'revision' },
-      { title: 'Biology Assessment', date: '2024-01-22', type: 'test' }
-    ]
+    startDate: "2023-01-15",
+    endDate: "2023-12-15",
+    status: "active",
+    progressPercent: 60,
+    createdAt: "2023-01-10"
+  },
+  {
+    id: "2",
+    title: "Physics Revision Plan",
+    description: "Focused revision plan for Physics topics in NEET",
+    subjects: [
+      {
+        id: "201",
+        name: "Mechanics",
+        progressPercent: 80,
+        color: "bg-amber-500"
+      },
+      {
+        id: "202",
+        name: "Electromagnetism",
+        progressPercent: 50,
+        color: "bg-rose-500"
+      },
+      {
+        id: "203",
+        name: "Modern Physics",
+        progressPercent: 30,
+        color: "bg-cyan-500"
+      }
+    ],
+    startDate: "2023-05-01",
+    endDate: "2023-07-15",
+    status: "active",
+    progressPercent: 55,
+    createdAt: "2023-04-25"
+  },
+  {
+    id: "3",
+    title: "Last Month Biology Sprint",
+    description: "Quick revision of key Biology topics before exam",
+    subjects: [
+      {
+        id: "301",
+        name: "Human Physiology",
+        progressPercent: 100,
+        color: "bg-pink-500"
+      },
+      {
+        id: "302",
+        name: "Genetics",
+        progressPercent: 85,
+        color: "bg-emerald-500"
+      },
+      {
+        id: "303",
+        name: "Ecology",
+        progressPercent: 60,
+        color: "bg-violet-500"
+      }
+    ],
+    startDate: "2023-10-01",
+    endDate: "2023-10-30",
+    status: "completed",
+    progressPercent: 85,
+    completedAt: "2023-10-28",
+    createdAt: "2023-09-25"
+  }
+];
+
+const AcademicAdvisorView: React.FC = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("active-plans");
+  
+  const activePlans = mockStudyPlans.filter(plan => plan.status === "active");
+  const completedPlans = mockStudyPlans.filter(plan => plan.status === "completed");
+
+  const handleCreatePlan = () => {
+    navigate("/dashboard/student/academic/create-plan");
+  };
+
+  const handleViewPlan = (planId: string) => {
+    navigate(`/dashboard/student/academic/plan/${planId}`);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex items-center justify-between">
+    <div className="container py-6">
+      {/* Add Back Button */}
+      <BackButton to="/dashboard/student" />
+      
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Academic Advisor</h1>
-          <p className="text-gray-600 dark:text-gray-400">Your personalized academic guidance and planning</p>
+          <h1 className="text-3xl font-bold">Academic Advisor</h1>
+          <p className="text-muted-foreground">Manage and track your study plans</p>
         </div>
-        <Badge variant="outline" className="px-3 py-1">
-          <GraduationCap className="h-4 w-4 mr-2" />
-          {currentGoal}
-        </Badge>
+        
+        <Button onClick={handleCreatePlan} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Create New Plan
+        </Button>
       </div>
 
-      {/* Voice Assistant */}
-      <div className="flex justify-end">
-        <AcademicAdvisorVoiceAssistant 
-          currentGoal={currentGoal}
-          academicLevel={academicLevel}
-          userName={userName}
-          isEnabled={true}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Study Progress Overview */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Weekly Progress */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-600" />
-                Weekly Study Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">This Week</span>
-                  <span className="text-sm text-gray-600">{studyPlanData.weeklyProgress}/{studyPlanData.weeklyTarget} hours</span>
-                </div>
-                <Progress value={(studyPlanData.weeklyProgress / studyPlanData.weeklyTarget) * 100} className="h-3" />
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>80% Complete</span>
-                  <span>7 hours remaining</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Subject-wise Performance */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-green-600" />
-                Subject Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {studyPlanData.subjects.map((subject, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">{subject.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">{subject.progress}%</span>
-                        <Badge variant="outline" size="sm">Target: {subject.target}%</Badge>
-                      </div>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Study Progress Overview</CardTitle>
+          <CardDescription>Track your progress across all subjects</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {["Physics", "Chemistry", "Biology"].map(subject => (
+              <Card key={subject}>
+                <CardHeader className="py-4">
+                  <CardTitle className="text-lg">{subject}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Overall Progress</span>
+                      <span>{subject === "Physics" ? "65" : subject === "Chemistry" ? "78" : "82"}%</span>
                     </div>
-                    <Progress value={subject.progress} className="h-2" />
+                    <Progress 
+                      value={subject === "Physics" ? 65 : subject === "Chemistry" ? 78 : 82} 
+                      className="h-2" 
+                    />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {subject === "Physics" 
+                        ? "Focus on Mechanics and Optics" 
+                        : subject === "Chemistry" 
+                          ? "Organic Chemistry needs attention" 
+                          : "Strong in Botany, work on Zoology"
+                      }
+                    </p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-          {/* Daily Smart Suggestions - Moved here */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                Daily Smart Suggestions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
-                  <h4 className="font-semibold text-blue-900 dark:text-blue-100">Focus Area: Chemistry</h4>
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    Your chemistry performance is below target. Recommend increasing daily practice by 30 minutes.
-                  </p>
-                </div>
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
-                  <h4 className="font-semibold text-green-900 dark:text-green-100">Strength: Biology</h4>
-                  <p className="text-sm text-green-800 dark:text-green-200">
-                    Excellent progress! Continue with current pace and add advanced practice questions.
-                  </p>
-                </div>
-                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-l-4 border-yellow-500">
-                  <h4 className="font-semibold text-yellow-900 dark:text-yellow-100">Revision Needed: Physics</h4>
-                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    Schedule revision sessions for Newton's Laws and Thermodynamics this week.
-                  </p>
-                </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="active-plans">Active Plans</TabsTrigger>
+          <TabsTrigger value="completed-plans">Completed Plans</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="active-plans">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {activePlans.map(plan => (
+              <StudyPlanCard 
+                key={plan.id} 
+                plan={plan} 
+                onViewDetails={() => handleViewPlan(plan.id)} 
+              />
+            ))}
+            
+            {activePlans.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">You have no active study plans.</p>
+                <Button variant="outline" onClick={handleCreatePlan} className="mt-4">
+                  Create Your First Plan
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="space-y-6">
-          {/* Study Streak */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-600" />
-                Study Streak
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-yellow-600 mb-2">{studyPlanData.currentStreak}</div>
-                <p className="text-sm text-gray-600">Days in a row</p>
-                <div className="mt-4 flex justify-center">
-                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                    🔥 On Fire!
-                  </Badge>
-                </div>
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="completed-plans">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {completedPlans.map(plan => (
+              <StudyPlanCard 
+                key={plan.id} 
+                plan={plan} 
+                onViewDetails={() => handleViewPlan(plan.id)} 
+              />
+            ))}
+            
+            {completedPlans.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">You have no completed study plans.</p>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Upcoming Milestones */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-purple-600" />
-                Upcoming Milestones
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {studyPlanData.upcomingMilestones.map((milestone, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <div>
-                      <p className="font-medium text-sm">{milestone.title}</p>
-                      <p className="text-xs text-gray-600">{milestone.date}</p>
-                    </div>
-                    <Badge variant="outline" size="sm" className="capitalize">
-                      {milestone.type}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Achievement */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-orange-600" />
-                Recent Achievement
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="h-8 w-8 text-orange-600" />
-                </div>
-                <h4 className="font-semibold">Week Warrior</h4>
-                <p className="text-sm text-gray-600">Completed 7 days of study goals</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <Calendar className="h-4 w-4 mr-2" />
-                View Study Calendar
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Progress Analytics
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Clock className="h-4 w-4 mr-2" />
-                Time Tracking
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
+  );
+};
+
+interface StudyPlanCardProps {
+  plan: StudyPlan;
+  onViewDetails: () => void;
+}
+
+const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onViewDetails }) => {
+  // Calculate days left for active plans
+  const getDaysLeft = () => {
+    if (plan.status === "completed") return null;
+    
+    const endDate = new Date(plan.endDate);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : 0;
+  };
+  
+  const daysLeft = getDaysLeft();
+
+  return (
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg truncate">{plan.title}</CardTitle>
+          <Badge variant={plan.status === "active" ? "default" : "outline"}>
+            {plan.status === "active" ? "Active" : "Completed"}
+          </Badge>
+        </div>
+        <CardDescription className="line-clamp-2">{plan.description}</CardDescription>
+      </CardHeader>
+      
+      <CardContent className="flex-grow">
+        <div className="space-y-3">
+          {plan.subjects.map(subject => (
+            <div key={subject.id} className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span>{subject.name}</span>
+                <span>{subject.progressPercent}%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full ${subject.color}`} 
+                  style={{ width: `${subject.progressPercent}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+          <Calendar className="h-4 w-4" />
+          <span>
+            {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
+          </span>
+        </div>
+        
+        {daysLeft !== null && (
+          <div className="flex items-center gap-2 mt-2 text-sm">
+            <Clock className="h-4 w-4" />
+            <span className={daysLeft <= 7 ? "text-amber-600" : "text-gray-500"}>
+              {daysLeft} {daysLeft === 1 ? "day" : "days"} remaining
+            </span>
+          </div>
+        )}
+        
+        <div className="mt-4">
+          <div className="flex justify-between text-sm mb-1">
+            <span>Overall Progress</span>
+            <span>{plan.progressPercent}%</span>
+          </div>
+          <Progress value={plan.progressPercent} className="h-2" />
+        </div>
+      </CardContent>
+      
+      <CardFooter>
+        <Button 
+          onClick={onViewDetails} 
+          className="w-full"
+          variant={plan.status === "active" ? "default" : "outline"}
+        >
+          {plan.status === "active" ? (
+            <>
+              <BookMarked className="mr-2 h-4 w-4" />
+              View Plan
+            </>
+          ) : (
+            <>
+              <FileText className="mr-2 h-4 w-4" />
+              View Details
+            </>
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

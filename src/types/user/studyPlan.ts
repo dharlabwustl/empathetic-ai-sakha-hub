@@ -1,30 +1,61 @@
-export interface StudyPlanSubject {
+
+// Study Plan Types
+export interface StudyPlanTopic {
+  id: string;
   name: string;
-  totalHours: number;
-  completedHours: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  completed: boolean;
+  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
   priority: 'high' | 'medium' | 'low';
-  topics: string[];
 }
 
-// Keep this for backward compatibility
-export type NewStudyPlanSubject = StudyPlanSubject;
+export interface StudyPlanSubject {
+  id: string;
+  name: string;
+  color?: string;
+  hoursPerWeek: number;
+  priority: 'high' | 'medium' | 'low';
+  proficiency: 'weak' | 'medium' | 'strong';
+  completed: boolean;
+  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
+  difficulty?: 'easy' | 'medium' | 'hard';
+  topics?: StudyPlanTopic[];
+}
 
 export interface StudyPlan {
   id: string;
-  userId: string;
-  examType: string;
-  targetDate: Date;
+  title?: string;
+  goal?: string;
+  examGoal: string;
+  examDate: string | Date;
+  status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
-  weeklyHours: number;
-  dailyHours: number;
-  createdAt: Date;
-  updatedAt: Date;
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  createdAt: string;
+  updatedAt?: string;
+  progressPercent?: number;
+  progressPercentage?: number;
+  progress?: number;
+  daysLeft?: number;
+  weeklyHours?: number;
+  userId?: string;
 }
 
-export interface SubjectProgress {
-  id: string;
-  name: string;
-  progress: number;
-  target: number;
-  color: string;
+export interface NewStudyPlan {
+  id?: string;
+  title?: string;
+  goal?: string;
+  examGoal: string;
+  examDate: string | Date;
+  subjects: StudyPlanSubject[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  weeklyHours?: number;
+  status?: 'active' | 'completed' | 'archived' | 'pending';
 }
+
+// Export types to be used in other files
+export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

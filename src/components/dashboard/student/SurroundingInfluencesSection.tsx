@@ -220,7 +220,7 @@ const SurroundingInfluencesSection: React.FC<SurroundingInfluencesSectionProps> 
                           <span className={`text-xs font-medium ${getScoreColor(factor.score)}`}>
                             {factor.score}%
                           </span>
-                          <Badge variant="outline" className={
+                          <Badge variant="outline" size="sm" className={
                             factor.status === 'optimal' ? 'border-green-200 text-green-700' :
                             factor.status === 'good' ? 'border-yellow-200 text-yellow-700' :
                             'border-red-200 text-red-700'

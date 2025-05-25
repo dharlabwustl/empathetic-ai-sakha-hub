@@ -1,71 +1,94 @@
 
-import React, { useEffect, useState } from 'react';
-import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import React, { useEffect, useRef } from 'react';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
   userName: string;
-  language?: string;
+  isReturningUser?: boolean;
+  lastActivity?: string;
+  pendingTasks?: string[];
 }
 
-const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
-  isFirstTimeUser,
+const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
+  isFirstTimeUser, 
   userName,
-  language = "en"
+  isReturningUser = false,
+  lastActivity,
+  pendingTasks = []
 }) => {
-  const [hasGreeted, setHasGreeted] = useState(false);
-  
-  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
-    userName,
-    initialSettings: {
-      enabled: true,
-      muted: false,
-      language: language === "en" ? 'en-US' : language,
-      pitch: 1.0,
-      rate: 0.9,
-      volume: 0.8
-    }
-  });
+  const hasSpokenRef = useRef(false);
 
   useEffect(() => {
-    if (!hasGreeted && voiceSettings.enabled && !voiceSettings.muted) {
-      const timer = setTimeout(() => {
-        const greeting = getContextualGreeting(isFirstTimeUser, userName);
-        speakMessage(greeting);
-        setHasGreeted(true);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [hasGreeted, voiceSettings.enabled, voiceSettings.muted, speakMessage, isFirstTimeUser, userName]);
-
-  const getContextualGreeting = (isFirstTime: boolean, name: string) => {
-    const prepzrPronunciation = "PREP ZAR";
+    // Only speak once per mount
+    if (hasSpokenRef.current) return;
     
-    if (isFirstTime) {
-      return `Congratulations ${name}! Welcome to ${prepzrPronunciation} - your AI-powered exam preparation companion. 
+    const speakGreeting = () => {
+      if (!('speechSynthesis' in window)) return;
+      
+      let greeting = '';
+      
+      if (isReturningUser) {
+        greeting = `Welcome back to PREPZR, ${userName}! I'm Sakha AI, your learning companion. `;
+        
+        if (lastActivity) {
+          greeting += `Last time you were ${lastActivity}. `;
+        }
+        
+        if (pendingTasks.length > 0) {
+          greeting += `You have ${pendingTasks.length} pending activities waiting for you. `;
+        }
+        
+        greeting += `I'm here to help you with your study plan, daily activities, and any questions you have. Let's make today productive!`;
+      } else if (isFirstTimeUser) {
+        greeting = `Welcome to PREPZR, ${userName}! I'm Sakha AI, your AI-powered learning companion. I'm excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
+      } else {
+        greeting = `Hello ${userName}! I'm Sakha AI, ready to assist you with your studies today. How can I help you achieve your learning goals?`;
+      }
+      
+      const speech = new SpeechSynthesisUtterance();
+      speech.text = greeting.replace(/PREPZR/gi, 'PREP-zer');
+      speech.lang = 'en-US';
+      speech.rate = 0.95;
+      speech.pitch = 1.1;
+      speech.volume = 0.8;
+      
+      // Get available voices and select a preferred female voice
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoices = voices.filter(voice => 
+        voice.name.toLowerCase().includes('female') || 
+        voice.name.toLowerCase().includes('zira') ||
+        voice.name.toLowerCase().includes('samantha') ||
+        (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
+      );
+      
+      if (femaleVoices.length > 0) {
+        speech.voice = femaleVoices[0];
+      }
+      
+      // Small delay to ensure voices are loaded
+      setTimeout(() => {
+        window.speechSynthesis.speak(speech);
+        hasSpokenRef.current = true;
+      }, 1000);
+    };
 
-I'm Sakha AI, and I'm here to guide you through your journey to exam success. Let me introduce you to our powerful features:
-
-Your Dashboard Overview shows your progress and exam readiness score. The Academic Advisor helps create personalized study plans and provides strategic guidance. Today's Plan gives you daily tasks optimized for your learning pace.
-
-Our Concept Cards offer detailed explanations with examples. Smart Flashcards use spaced repetition for better retention. Practice Exams simulate real test conditions with detailed analytics.
-
-The Formula Section helps you master mathematical concepts with memory techniques. I'm available 24/7 to assist with your studies and answer questions.
-
-Would you like me to show you around the dashboard features or help you create your first study plan?`;
+    // Load voices if not already loaded
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.addEventListener('voiceschanged', speakGreeting, { once: true });
     } else {
-      return `Welcome back, ${name}! I'm Sakha AI, ready to help you excel in your studies today.
-
-Let me quickly remind you about your pending tasks and study progress. You have several items on your today's plan that need attention. Your exam readiness score has been updated based on your recent performance.
-
-Don't forget to check your daily tasks - they're optimized based on your learning patterns. If you have any questions about concepts, need help with practice problems, or want guidance on your study strategy, just ask me.
-
-I'm here to support your preparation journey and help you achieve your exam goals. What would you like to work on today?`;
+      speakGreeting();
     }
-  };
+    
+    return () => {
+      // Clean up speech synthesis
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks]);
 
-  return null; // This component doesn't render anything visual
+  // This component doesn't render anything visible
+  return null;
 };
 
 export default VoiceGreeting;

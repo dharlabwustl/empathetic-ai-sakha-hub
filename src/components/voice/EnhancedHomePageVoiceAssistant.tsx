@@ -1,210 +1,405 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Volume2, VolumeX, Bot, RotateCcw } from "lucide-react";
-import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import React, { useEffect, useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface EnhancedHomePageVoiceAssistantProps {
   language?: string;
-  isFirstTimeUser?: boolean;
 }
 
-const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantProps> = ({
-  language = "en-US",
-  isFirstTimeUser = false
+const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantProps> = ({ 
+  language = 'en-US'
 }) => {
-  const [expanded, setExpanded] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const { toast } = useToast();
+  const location = useLocation();
   
-  const {
-    voiceSettings,
-    toggleMute,
-    speakMessage,
-    isVoiceSupported,
-    isSpeaking,
-    isListening,
-    startListening,
-    stopListening,
-    transcript
-  } = useVoiceAnnouncer({ userName: "Visitor" });
+  // Refs for cleanup
+  const recognitionRef = useRef<any>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
+  const lastCommandTimeRef = useRef<number>(0);
   
-  // Auto-greet on page load with enhanced greeting
-  useEffect(() => {
-    if (!hasGreeted && voiceSettings.enabled) {
-      const timer = setTimeout(() => {
-        const greeting = getEnhancedGreeting(isFirstTimeUser);
-        speakMessage(greeting);
-        setHasGreeted(true);
-      }, 2000);
-      
-      return () => clearTimeout(timer);
+  // Check if current page should have voice assistant
+  const shouldActivate = location.pathname === '/' || 
+                        location.pathname.includes('/signup') ||
+                        location.pathname.includes('/login') ||
+                        location.pathname.includes('/exam-readiness');
+
+  // Cleanup function
+  const cleanup = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
-  }, [hasGreeted, voiceSettings.enabled, speakMessage, isFirstTimeUser]);
-  
-  const getEnhancedGreeting = (isFirstTime: boolean) => {
-    if (isFirstTime) {
-      return `Welcome to PREPZR! I'm Sakha AI, your intelligent exam preparation companion. Congratulations on taking the first step towards exam success! 
-
-PREPZR is a comprehensive AI-powered platform designed to revolutionize how you prepare for competitive exams. We offer personalized study plans, adaptive learning, 24/7 AI tutoring, and smart analytics to maximize your performance.
-
-Our key features include: personalized daily study plans that adapt to your pace, concept cards with detailed explanations, smart flashcards with spaced repetition, practice exams with detailed analytics, an academic advisor for guidance, and formula practice with memory techniques.
-
-Take a moment to explore our platform. Would you like me to guide you through our exam readiness analyzer or help you sign up to unlock the full potential of AI-powered exam preparation?`;
-    } else {
-      return `Welcome back to PREPZR! I'm Sakha AI, ready to help you excel in your exam preparation. 
-
-PREPZR combines cutting-edge AI technology with proven learning methodologies to give you the competitive edge. Our platform features personalized study plans, intelligent concept learning, adaptive flashcards, comprehensive practice exams, and real-time progress tracking.
-
-Explore our exam readiness analyzer to assess your current preparation level, or sign up to access our full suite of AI-powered study tools. I'm here to assist you every step of the way towards exam success!`;
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+        recognitionRef.current.stop();
+      } catch (error) {
+        // Ignore cleanup errors
+      }
+      recognitionRef.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
     }
   };
-  
-  useEffect(() => {
-    if (transcript) {
-      processVoiceCommand(transcript);
-    }
-  }, [transcript]);
-  
-  const processVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase();
+
+  // Get contextual greeting based on page
+  const getContextualGreeting = (pathname: string): string => {
+    const hour = new Date().getHours();
+    const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
     
-    if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
-      speakMessage(`Hello! Welcome to PREPZR. I'm Sakha AI, your intelligent exam preparation assistant. How can I help you succeed today?`);
+    if (pathname === '/') {
+      return `${timeGreeting}! Welcome to PREP-zer, the world's first emotionally intelligent exam preparation platform. I'm Sakha AI, your adaptive learning companion. I can help you navigate our features or answer questions about your exam preparation journey. Try saying "Sign up", "Take demo", or "Analyze my readiness".`;
+    } else if (pathname.includes('/signup')) {
+      return `${timeGreeting}! Welcome to PREP-zer signup. I'm Sakha AI, and I can assist you through the registration process. You can use voice commands like "Next", "Continue", or ask me questions anytime.`;
+    } else if (pathname.includes('/login')) {
+      return `${timeGreeting}! Welcome back to PREP-zer. I'm here to help you access your personalized learning dashboard. Say "Demo login" for a quick preview or ask me anything about our features.`;
+    } else if (pathname.includes('/exam-readiness')) {
+      return `${timeGreeting}! Our AI-powered exam readiness analyzer will evaluate your preparation level and create a personalized study plan. I'll guide you through the assessment process.`;
+    }
+    
+    return `${timeGreeting}! Welcome to PREP-zer. I'm Sakha AI, your intelligent exam preparation assistant.`;
+  };
+
+  // Speak with female voice preference and correct pronunciation
+  const speakMessage = (message: string) => {
+    if (isMuted || !('speechSynthesis' in window)) return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    // Create utterance with correct PREP-zer pronunciation
+    const speech = new SpeechSynthesisUtterance();
+    speech.text = message.replace(/PREPZR/g, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
+    speech.lang = language;
+    speech.rate = 1.0; // Natural speed
+    speech.pitch = 1.15; // Pleasant, confident female tone
+    speech.volume = 0.9;
+
+    // Get available voices and prefer female voices
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Priority list for female voices with pleasant, confident tone
+    const preferredFemaleVoices = [
+      'Google US English Female',
+      'Microsoft Zira Desktop',
+      'Microsoft Zira',
+      'Samantha',
+      'Karen',
+      'Victoria',
+      'Alice',
+      'Emma',
+      'Moira'
+    ];
+
+    // Find best female voice
+    let selectedVoice = null;
+    for (const voiceName of preferredFemaleVoices) {
+      const voice = voices.find(v => 
+        v.name?.toLowerCase().includes(voiceName.toLowerCase())
+      );
+      if (voice) {
+        selectedVoice = voice;
+        break;
+      }
+    }
+
+    // Fallback to any available female voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => 
+        v.name?.toLowerCase().includes('female') && 
+        !v.name?.toLowerCase().includes('male')
+      );
+    }
+
+    // Final fallback to first available voice
+    if (!selectedVoice && voices.length > 0) {
+      selectedVoice = voices[0];
+    }
+
+    if (selectedVoice) {
+      speech.voice = selectedVoice;
+    }
+
+    // Event handlers
+    speech.onstart = () => console.log('Voice greeting started');
+    speech.onend = () => {
+      console.log('Voice greeting completed');
+      // Start listening after greeting with smart delay
+      setTimeout(() => {
+        if (!isMuted && shouldActivate) {
+          startVoiceRecognition();
+        }
+      }, 1000);
+    };
+    speech.onerror = (e) => {
+      console.error('Speech error:', e);
+      // Try to start recognition anyway with smart delay
+      setTimeout(() => {
+        if (!isMuted && shouldActivate) {
+          startVoiceRecognition();
+        }
+      }, 1500);
+    };
+
+    speechRef.current = speech;
+    window.speechSynthesis.speak(speech);
+  };
+
+  // Voice recognition setup with intelligent command handling
+  const startVoiceRecognition = () => {
+    if (!shouldActivate || isMuted || recognitionRef.current) return;
+
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      console.error('Speech recognition not supported');
       return;
     }
-    
-    if (lowerCommand.includes('features') || lowerCommand.includes('what can you do')) {
-      speakMessage(`PREPZR offers amazing features: personalized study plans that adapt to your learning style, concept cards with detailed explanations, smart flashcards using spaced repetition, practice exams with analytics, 24/7 AI tutoring, and academic advisor guidance. Would you like to explore any specific feature?`);
-      return;
+
+    try {
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = language;
+      
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+        recognitionRef.current = null;
+        
+        // Smart breaks - auto-restart with appropriate delays
+        if (!isMuted && shouldActivate && document.visibilityState === 'visible') {
+          retryTimeoutRef.current = window.setTimeout(() => {
+            startVoiceRecognition();
+          }, 3000); // 3 second break between recognition sessions
+        }
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        recognitionRef.current = null;
+        
+        // Smart retry based on error type
+        const retryDelay = event.error === 'network' ? 8000 : 
+                          event.error === 'audio' ? 6000 : 5000;
+        
+        if (event.error !== 'aborted' && !isMuted && shouldActivate) {
+          retryTimeoutRef.current = window.setTimeout(() => {
+            startVoiceRecognition();
+          }, retryDelay);
+        }
+      };
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        console.log('Voice command:', transcript);
+        
+        // Prevent rapid commands
+        const now = Date.now();
+        if (now - lastCommandTimeRef.current < 3000) {
+          return;
+        }
+        lastCommandTimeRef.current = now;
+        
+        // Handle intelligent voice commands
+        handleVoiceCommand(transcript);
+      };
+      
+      recognition.start();
+      recognitionRef.current = recognition;
+      
+    } catch (error) {
+      console.error('Error starting recognition:', error);
+      // Retry with longer delay on error
+      retryTimeoutRef.current = window.setTimeout(() => {
+        startVoiceRecognition();
+      }, 6000);
     }
-    
-    if (lowerCommand.includes('exam readiness') || lowerCommand.includes('readiness')) {
-      speakMessage(`Our exam readiness analyzer evaluates your preparation level across all subjects using AI algorithms. It provides a comprehensive score and identifies areas for improvement. Would you like to try it now?`);
+  };
+
+  // Handle intelligent voice commands with smart routing
+  const handleVoiceCommand = (command: string) => {
+    // Navigation commands
+    if (command.includes('sign up') || command.includes('signup') || command.includes('register')) {
+      window.location.href = '/signup';
+      speakMessage('Taking you to sign up page.');
+    } else if (command.includes('login') || command.includes('log in')) {
+      window.location.href = '/login';
+      speakMessage('Taking you to login page.');
+    } else if (command.includes('demo') || command.includes('try demo') || command.includes('take demo')) {
+      window.location.href = '/login';
+      speakMessage('Opening demo access.');
+    } else if (command.includes('home') || command.includes('go home')) {
+      window.location.href = '/';
+      speakMessage('Going to home page.');
+    } else if (command.includes('analyze') || command.includes('readiness') || command.includes('assessment') || command.includes('analyze my readiness')) {
       // Trigger exam readiness analyzer
       window.dispatchEvent(new Event('open-exam-analyzer'));
-      return;
+      speakMessage('Opening your exam readiness analysis.');
+    } else if (command.includes('help') || command.includes('what can you do')) {
+      const helpMessage = `I can help you navigate PREP-zer. Try saying: Sign up, Login, Demo, Analyze readiness, or ask me about our features.`;
+      speakMessage(helpMessage);
+    } else if (command.includes('features') || command.includes('what is prepzr') || command.includes('what is prep-zer')) {
+      const featuresMessage = `PREP-zer is an AI-powered exam preparation platform that adapts to your learning style and emotional state. We provide personalized study plans, concept cards, practice exams, and emotional support for competitive exams like JEE, NEET, UPSC, and CAT.`;
+      speakMessage(featuresMessage);
+    } else if (command.includes('mute') || command.includes('stop') || command.includes('quiet')) {
+      setIsMuted(true);
+      localStorage.setItem('voice_assistant_muted', 'true');
+      cleanup();
+      speakMessage('Voice assistant muted. You can unmute in settings.');
+    } else {
+      // Smart response for unrecognized commands
+      const responses = [
+        "I didn't catch that. Try saying 'Sign up', 'Demo', or 'Help' for assistance.",
+        "Please repeat that. You can say commands like 'Login', 'Analyze readiness', or ask about our features.",
+        "Could you try again? Say 'Help' to hear what I can do for you."
+      ];
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      speakMessage(randomResponse);
     }
-    
-    if (lowerCommand.includes('sign up') || lowerCommand.includes('register')) {
-      speakMessage(`Excellent choice! Signing up unlocks personalized study plans, progress tracking, unlimited practice tests, and 24/7 AI tutoring. Let me direct you to our registration page.`);
-      window.location.href = '/auth/signup';
-      return;
-    }
-    
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('plan')) {
-      speakMessage(`Our AI creates personalized study plans based on your exam date, available time, strengths, and weaknesses. The plan adapts as you progress, ensuring optimal learning efficiency. Sign up to get your customized plan!`);
-      return;
-    }
-    
-    // Default response
-    speakMessage(`I'm Sakha AI, your exam preparation assistant. I can help you explore PREPZR's features, analyze your exam readiness, or guide you through our AI-powered study tools. What would you like to know?`);
   };
-  
-  const suggestions = [
-    "What features do you offer?",
-    "Check my exam readiness",
-    "Help me sign up",
-    "Tell me about study plans",
-    "How does AI tutoring work?",
-    "Show me practice exams"
-  ];
-  
-  if (!isVoiceSupported) {
-    return null;
-  }
-  
-  return (
-    <div className="fixed bottom-6 left-6 z-50">
-      <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20`}>
-        <CardHeader className="p-3 pb-0">
-          <CardTitle className="text-sm flex justify-between items-center text-purple-800 dark:text-purple-200">
-            <div className="flex items-center gap-2">
-              <Bot className="h-4 w-4" />
-              <span>Sakha AI Assistant</span>
-            </div>
-            {expanded && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setExpanded(false)}
-                className="h-6 w-6 p-0"
-              >
-                ×
-              </Button>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3">
-          {expanded ? (
-            <div className="space-y-3">
-              <div className="text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-800/50 p-2 rounded">
-                <strong>PREPZR AI Assistant</strong> - Your exam success companion
-              </div>
-              
-              <div className="flex items-center justify-center gap-2">
-                <Button 
-                  variant={isListening ? "default" : "outline"}
-                  size="sm" 
-                  onClick={isListening ? stopListening : startListening}
-                  className={`${isListening ? 'bg-purple-500 hover:bg-purple-600' : 'border-purple-200'}`}
-                >
-                  {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-                  {isListening ? 'Stop' : 'Ask'} AI
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => toggleMute()}
-                  disabled={isSpeaking}
-                  className="border-purple-200"
-                >
-                  {voiceSettings.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                </Button>
-              </div>
-              
-              {transcript && (
-                <div className="bg-purple-100 dark:bg-purple-800/50 p-2 rounded-md text-sm">
-                  <p className="font-semibold text-purple-800 dark:text-purple-200">You asked:</p>
-                  <p className="text-purple-700 dark:text-purple-300">{transcript}</p>
-                </div>
-              )}
-              
-              <div>
-                <p className="text-xs text-purple-600 dark:text-purple-400 mb-2">Try asking:</p>
-                <div className="grid grid-cols-1 gap-1">
-                  {suggestions.slice(0, 3).map((suggestion, index) => (
-                    <Button 
-                      key={index} 
-                      variant="ghost" 
-                      size="sm"
-                      className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800/50"
-                      onClick={() => processVoiceCommand(suggestion)}
-                    >
-                      "{suggestion}"
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setExpanded(true)}
-                className="w-full text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800/50"
-              >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                AI Help
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+
+  // Initialize voices separately to ensure they're loaded
+  useEffect(() => {
+    if (window.speechSynthesis) {
+      // Force voice loading
+      window.speechSynthesis.getVoices();
+      
+      // Setup event listener for when voices are loaded
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => {
+          console.log("Voices loaded:", window.speechSynthesis.getVoices().length);
+        };
+      }
+    }
+  }, []);
+
+  // Main effect for instant greeting and page changes
+  useEffect(() => {
+    // Better cleanup on page changes
+    cleanup();
+    setHasGreeted(false);
+    setIsListening(false);
+
+    // Check mute preference
+    const mutePref = localStorage.getItem('voice_assistant_muted');
+    if (mutePref === 'true') {
+      setIsMuted(true);
+      return;
+    }
+
+    // Only activate on valid pages
+    if (!shouldActivate) return;
+
+    // Instant greeting with minimal delay for page loading
+    const initializeVoice = () => {
+      if (window.speechSynthesis && !hasGreeted && !isMuted) {
+        const voices = window.speechSynthesis.getVoices();
+        
+        if (voices.length > 0) {
+          setHasGreeted(true);
+          const greeting = getContextualGreeting(location.pathname);
+          
+          // Very short delay to ensure page has loaded
+          timeoutRef.current = window.setTimeout(() => {
+            speakMessage(greeting);
+            
+            // Show helpful toast
+            toast({
+              title: "Sakha AI Voice Assistant Active",
+              description: "Say 'Help' to hear available commands",
+              duration: 4000,
+            });
+          }, 500); // Just 0.5 second delay for immediate greeting
+        }
+      }
+    };
+
+    // Load voices and initialize
+    if (window.speechSynthesis) {
+      // Force voices to load
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          initializeVoice();
+        } else {
+          // Retry if voices not loaded yet
+          setTimeout(loadVoices, 50);
+        }
+      };
+
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.onvoiceschanged = null;
+        initializeVoice();
+      };
+      
+      // Trigger voice loading
+      loadVoices();
+    }
+
+    // Cleanup on unmount
+    return cleanup;
+  }, [location.pathname, shouldActivate, hasGreeted, isMuted]);
+
+  // Listen for mute/unmute events
+  useEffect(() => {
+    const handleMute = () => {
+      setIsMuted(true);
+      cleanup();
+    };
+    
+    const handleUnmute = () => {
+      setIsMuted(false);
+      if (shouldActivate && !hasGreeted) {
+        const greeting = getContextualGreeting(location.pathname);
+        setTimeout(() => speakMessage(greeting), 500);
+      }
+    };
+
+    document.addEventListener('voice-assistant-mute', handleMute);
+    document.addEventListener('voice-assistant-unmute', handleUnmute);
+
+    return () => {
+      document.removeEventListener('voice-assistant-mute', handleMute);
+      document.removeEventListener('voice-assistant-unmute', handleUnmute);
+    };
+  }, [shouldActivate, hasGreeted, location.pathname]);
+
+  // Handle page visibility changes for better cleanup
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        cleanup();
+      } else if (document.visibilityState === 'visible' && shouldActivate && !isMuted) {
+        // Smart restart when page becomes visible
+        setTimeout(() => {
+          if (!recognitionRef.current && hasGreeted) {
+            startVoiceRecognition();
+          }
+        }, 1000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [shouldActivate, isMuted, hasGreeted]);
+
+  return null; // This component renders no UI
 };
 
 export default EnhancedHomePageVoiceAssistant;
