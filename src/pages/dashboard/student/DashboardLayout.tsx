@@ -5,7 +5,6 @@ import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
 import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
-import LanguageSelector from "@/components/dashboard/student/LanguageSelector";
 import { UserProfileType, MoodType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
@@ -15,7 +14,6 @@ import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -72,7 +70,6 @@ const DashboardLayout = ({
   onProfileImageUpdate,
   upcomingEvents = []
 }: DashboardLayoutProps) => {
-  const { language, t } = useLanguage();
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
@@ -133,23 +130,18 @@ const DashboardLayout = ({
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <div className="flex min-h-screen">
         <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
-          {/* Top Navigation Controls with language selector */}
-          <div className="flex justify-between items-center mb-4">
-            <TopNavigationControls 
-              hideSidebar={hideSidebar}
-              onToggleSidebar={onToggleSidebar}
-              formattedDate={formattedDate}
-              formattedTime={formattedTime}
-              onOpenTour={handleOpenTour}
-              userName={userProfile.name}
-              mood={currentMood}
-              isFirstTimeUser={isFirstTimeUser}
-              onViewStudyPlan={onViewStudyPlan}
-            />
-            
-            {/* Language Selector */}
-            <LanguageSelector />
-          </div>
+          {/* Top Navigation Controls with all voice controls and features */}
+          <TopNavigationControls 
+            hideSidebar={hideSidebar}
+            onToggleSidebar={onToggleSidebar}
+            formattedDate={formattedDate}
+            formattedTime={formattedTime}
+            onOpenTour={handleOpenTour}
+            userName={userProfile.name}
+            mood={currentMood}
+            isFirstTimeUser={isFirstTimeUser}
+            onViewStudyPlan={onViewStudyPlan}
+          />
 
           {/* Subscription Banner */}
           <SubscriptionBanner 
@@ -158,7 +150,7 @@ const DashboardLayout = ({
             isExpired={subscriptionDetails.isExpired}
           />
 
-          {/* Enhanced Dashboard Header */}
+          {/* Enhanced Dashboard Header without theme toggle (moved to top nav) */}
           <div className="mb-6">
             <EnhancedDashboardHeader 
               userProfile={userProfile}

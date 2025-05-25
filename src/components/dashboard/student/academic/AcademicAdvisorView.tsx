@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,6 @@ import { useAcademicPlans } from './hooks/useAcademicPlans';
 import CreateStudyPlanWizard from "./CreateStudyPlanWizard";
 import StudyPlanSections from "./components/StudyPlanSections";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import LearningPageVoiceAssistant from '@/components/voice/LearningPageVoiceAssistant';
-import { useLanguage } from '@/hooks/useLanguage';
 
 interface AcademicAdvisorViewProps {
   userProfile: UserProfileType;
@@ -175,8 +174,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
     // In a real app, this would save the plan to the database
   };
 
-  const { language, t } = useLanguage();
-
   return (
     <SharedPageLayout
       title="Academic Advisor"
@@ -230,12 +227,6 @@ const AcademicAdvisorView: React.FC<AcademicAdvisorViewProps> = ({ userProfile }
           onClose={() => setShowCreateDialog(false)}
           onCreatePlan={handleCreatePlan}
           examGoal={userProfile.goals?.[0]?.title}
-        />
-        
-        {/* Context-aware voice assistant for academic advisor */}
-        <LearningPageVoiceAssistant 
-          userName="Student"
-          pageType="academic-advisor"
         />
       </div>
     </SharedPageLayout>

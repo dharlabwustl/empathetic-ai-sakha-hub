@@ -1,11 +1,9 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
@@ -13,11 +11,9 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import LearningPageVoiceAssistant from '@/components/voice/LearningPageVoiceAssistant';
-import { useLanguage } from '@/hooks/useLanguage';
+import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 
 const EnhancedTodaysPlan: React.FC = () => {
-  const { language, t } = useLanguage();
   const { userProfile } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -35,17 +31,17 @@ const EnhancedTodaysPlan: React.FC = () => {
   } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
   
   if (loading) {
-    return <LoadingState message={t('todaysPlan.loading') || "Loading your study plan..."} />;
+    return <LoadingState message="Loading your study plan..." />;
   }
   
   if (error) {
     return (
       <ErrorState 
-        title={t('todaysPlan.errorTitle') || "Could not load study plan"} 
+        title="Could not load study plan" 
         message={error} 
         action={
           <Button onClick={refreshData}>
-            {t('todaysPlan.tryAgain') || "Try Again"}
+            Try Again
           </Button>
         }
       />
@@ -83,27 +79,24 @@ const EnhancedTodaysPlan: React.FC = () => {
 
   return (
     <SharedPageLayout
-      title={t('todaysPlan.title')}
-      subtitle={t('todaysPlan.subtitle')}
+      title="Today's Study Plan"
+      subtitle="Your personalized daily study schedule"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
       <Helmet>
-        <title>{t('todaysPlan.title')} - PREPZR</title>
+        <title>Today's Plan - PREPZR</title>
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
-        {/* Progress meter at the top */}
-        <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
-        
-        {/* Smart suggestions section - enhanced and moved below progress */}
+        {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
           isMobile={isMobile}
         />
         
-        {/* Enhanced task breakdown with premium styling */}
+        {/* Enhanced task breakdown with premium styling - keep existing design */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
@@ -111,10 +104,10 @@ const EnhancedTodaysPlan: React.FC = () => {
         />
       </div>
       
-      {/* Context-aware voice assistant for today's plan */}
-      <LearningPageVoiceAssistant 
+      {/* Voice assistant for learning support */}
+      <FloatingVoiceButton 
         userName={planData?.userName || userProfile?.name}
-        pageType="today-plan"
+        language="en-US"
       />
     </SharedPageLayout>
   );

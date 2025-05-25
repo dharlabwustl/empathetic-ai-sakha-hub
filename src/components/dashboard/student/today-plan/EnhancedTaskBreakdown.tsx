@@ -19,7 +19,6 @@ import {
   Timer
 } from 'lucide-react';
 import { TodaysPlanData } from '@/types/student/todaysPlan';
-import { useLanguage } from '@/hooks/useLanguage';
 
 interface EnhancedTaskBreakdownProps {
   planData: TodaysPlanData | null;
@@ -32,7 +31,6 @@ const EnhancedTaskBreakdown: React.FC<EnhancedTaskBreakdownProps> = ({
   onConceptClick, 
   isMobile = false 
 }) => {
-  const { language, t } = useLanguage();
   const [activeTimer, setActiveTimer] = useState<string | null>(null);
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
 
@@ -76,178 +74,235 @@ const EnhancedTaskBreakdown: React.FC<EnhancedTaskBreakdownProps> = ({
     }
   };
 
-  const getPriorityColor = (priority?: string) => {
-    switch (priority?.toLowerCase()) {
-      case 'high': return 'bg-red-50 border-l-red-500';
-      case 'medium': return 'bg-yellow-50 border-l-yellow-500';
-      case 'low': return 'bg-green-50 border-l-green-500';
-      default: return 'bg-gray-50 border-l-gray-500';
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'concept': return 'bg-blue-50 border-blue-200 text-blue-700';
+      case 'flashcard': return 'bg-purple-50 border-purple-200 text-purple-700';
+      case 'practice-exam': return 'bg-green-50 border-green-200 text-green-700';
+      default: return 'bg-gray-50 border-gray-200 text-gray-700';
     }
   };
 
-  const completedCount = completedTasks.size;
-  const totalTasks = allTasks.length;
-  const completionPercentage = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+  const handleTaskClick = (task: any) => {
+    if (task.type === 'concept') {
+      onConceptClick(task.id);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Task Overview Header */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold">
-              {t('todaysPlan.taskBreakdown')}
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
-              <span className="text-sm font-medium">
-                {completedCount}/{totalTasks} {language === 'hi' ? 'पूर्ण' : 'Complete'}
-              </span>
-            </div>
+    <Card className="bg-white dark:bg-gray-800 shadow-xl border-0">
+      <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-b">
+        <CardTitle className="text-2xl flex items-center gap-3">
+          <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full">
+            <Trophy className="h-6 w-6 text-yellow-600" />
           </div>
-          <Progress value={completionPercentage} className="mt-2" />
-        </CardHeader>
-      </Card>
-
-      {/* Task Cards */}
-      <div className="grid gap-4">
-        {allTasks.map((task, index) => {
-          const isCompleted = completedTasks.has(task.id);
-          const isTimerActive = activeTimer === task.id;
-          
-          return (
-            <Card 
-              key={task.id}
-              className={`${getPriorityColor(task.priority)} border-l-4 transition-all duration-300 hover:shadow-md ${
-                isCompleted ? 'opacity-75 bg-green-50' : ''
-              }`}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    {/* Task Icon */}
-                    <div className={`p-2 rounded-lg ${
-                      task.type === 'concept' ? 'bg-blue-100' :
-                      task.type === 'flashcard' ? 'bg-purple-100' :
-                      'bg-green-100'
-                    }`}>
-                      {getTaskIcon(task.type)}
-                    </div>
-                    
-                    {/* Task Details */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className={`font-semibold ${isCompleted ? 'line-through text-gray-500' : ''}`}>
-                          {task.title}
-                        </h3>
-                        {task.difficulty && (
-                          <Badge className={getDifficultyColor(task.difficulty)}>
-                            {language === 'hi' ? 
-                              (task.difficulty === 'easy' ? 'आसान' : task.difficulty === 'medium' ? 'मध्यम' : 'कठिन') :
-                              task.difficulty
-                            }
-                          </Badge>
-                        )}
-                      </div>
+          Task Breakdown
+          <Badge variant="outline" className="ml-auto bg-white dark:bg-gray-800">
+            {allTasks.filter(t => completedTasks.has(t.id) || t.status === 'completed').length}/{allTasks.length} Complete
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          {/* Task list with premium cards */}
+          <div className="space-y-4">
+            {allTasks.map((task) => {
+              const isCompleted = completedTasks.has(task.id) || task.status === 'completed';
+              const isActive = activeTimer === task.id;
+              
+              return (
+                <Card 
+                  key={task.id}
+                  className={`transition-all duration-300 hover:shadow-lg border-l-4 ${
+                    isCompleted 
+                      ? 'bg-green-50 dark:bg-green-900/20 border-l-green-500 shadow-green-100' 
+                      : 'bg-white dark:bg-gray-800 border-l-blue-500 hover:shadow-blue-100 dark:hover:shadow-blue-900/20'
+                  }`}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      {/* Completion checkbox */}
+                      <button
+                        onClick={() => handleTaskToggle(task.id)}
+                        className={`mt-1 transition-all duration-200 ${
+                          isCompleted 
+                            ? 'text-green-600 scale-110' 
+                            : 'text-gray-300 hover:text-blue-600 hover:scale-110'
+                        }`}
+                      >
+                        <CheckCircle2 className="h-7 w-7" />
+                      </button>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{task.timeEstimate || 30} {language === 'hi' ? 'मिनट' : 'min'}</span>
+                      <div className="flex-1 min-w-0">
+                        {/* Task header */}
+                        <div className="flex items-center gap-3 mb-3">
+                          {getTaskIcon(task.type)}
+                          <h3 
+                            className={`font-bold text-xl cursor-pointer hover:text-blue-600 transition-colors ${
+                              isCompleted ? 'line-through text-gray-500' : 'text-gray-800 dark:text-white'
+                            }`}
+                            onClick={() => handleTaskClick(task)}
+                          >
+                            {task.title}
+                          </h3>
+                          {task.type === 'concept' && (
+                            <ChevronRight className="h-5 w-5 text-gray-400" />
+                          )}
                         </div>
                         
-                        {task.priority && (
-                          <div className="flex items-center gap-1">
-                            <AlertTriangle className="h-4 w-4" />
-                            <span className="capitalize">
-                              {language === 'hi' ? 
-                                (task.priority === 'high' ? 'उच्च' : task.priority === 'medium' ? 'मध्यम' : 'निम्न') :
-                                task.priority
-                              } {language === 'hi' ? 'प्राथमिकता' : 'priority'}
-                            </span>
+                        {/* Badges */}
+                        <div className="flex items-center gap-2 mb-4 flex-wrap">
+                          <Badge className={getTypeColor(task.type)}>
+                            {task.type.replace('-', ' ').toUpperCase()}
+                          </Badge>
+                          {task.difficulty && (
+                            <Badge variant="outline" className={getDifficultyColor(task.difficulty)}>
+                              {task.difficulty}
+                            </Badge>
+                          )}
+                          <Badge variant="outline" className="bg-gray-50 text-gray-700">
+                            {task.subject}
+                          </Badge>
+                        </div>
+                        
+                        {/* Task details */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            <span className="font-medium">{task.duration} min</span>
+                          </div>
+                          {task.topic && (
+                            <div className="flex items-center gap-2">
+                              <BookOpen className="h-4 w-4" />
+                              <span>{task.topic}</span>
+                            </div>
+                          )}
+                          {task.cardCount && (
+                            <div className="flex items-center gap-2">
+                              <Brain className="h-4 w-4" />
+                              <span>{task.cardCount} cards</span>
+                            </div>
+                          )}
+                          {task.questionCount && (
+                            <div className="flex items-center gap-2">
+                              <Target className="h-4 w-4" />
+                              <span>{task.questionCount} questions</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Progress bar for active tasks */}
+                        {isActive && (
+                          <div className="mb-4">
+                            <div className="flex justify-between text-sm mb-2">
+                              <span>Study Progress</span>
+                              <span>25% Complete</span>
+                            </div>
+                            <Progress value={25} className="h-2" />
                           </div>
                         )}
                       </div>
                       
-                      {task.description && (
-                        <p className="text-sm text-gray-600 mt-2">{task.description}</p>
+                      {/* Action buttons */}
+                      {!isCompleted && (
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            size="lg"
+                            variant={isActive ? "default" : "outline"}
+                            onClick={() => handleStartTimer(task.id)}
+                            className={`min-w-[120px] ${
+                              isActive 
+                                ? 'bg-red-600 hover:bg-red-700 text-white' 
+                                : 'border-blue-200 text-blue-600 hover:bg-blue-50'
+                            }`}
+                          >
+                            {isActive ? (
+                              <>
+                                <Pause className="h-4 w-4 mr-2" />
+                                Pause
+                              </>
+                            ) : (
+                              <>
+                                <Play className="h-4 w-4 mr-2" />
+                                Start
+                              </>
+                            )}
+                          </Button>
+                          
+                          {task.type === 'concept' && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleTaskClick(task)}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            >
+                              <BookOpen className="h-4 w-4 mr-2" />
+                              Study
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Backlog section with premium styling */}
+          {planData.backlogTasks && planData.backlogTasks.length > 0 && (
+            <Card className="border-l-4 border-l-orange-500 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xl flex items-center gap-3 text-orange-800 dark:text-orange-200">
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-full">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
                   </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-2 ml-4">
-                    {/* Timer Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleStartTimer(task.id)}
-                      className={isTimerActive ? 'bg-blue-100 text-blue-700' : ''}
-                    >
-                      {isTimerActive ? <Pause className="h-4 w-4" /> : <Timer className="h-4 w-4" />}
-                    </Button>
-                    
-                    {/* Complete Button */}
-                    <Button
-                      variant={isCompleted ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleTaskToggle(task.id)}
-                      className={isCompleted ? 'bg-green-600 hover:bg-green-700' : ''}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                    </Button>
-                    
-                    {/* Start/Open Button */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (task.type === 'concept') {
-                          onConceptClick(task.id);
-                        }
-                      }}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  Pending Backlog ({planData.backlogTasks.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {planData.backlogTasks.slice(0, 3).map((task) => (
+                    <Card key={task.id} className="bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-700">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold text-lg">{task.title}</h4>
+                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              <span className="flex items-center gap-1">
+                                <BookOpen className="h-4 w-4" />
+                                {task.subject}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Timer className="h-4 w-4" />
+                                {task.timeEstimate}min
+                              </span>
+                              {task.daysOverdue && (
+                                <Badge variant="destructive" className="text-xs">
+                                  {task.daysOverdue} days overdue
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Clear Now
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-                
-                {/* Timer Display */}
-                {isTimerActive && (
-                  <div className="mt-3 p-2 bg-blue-50 rounded-lg">
-                    <div className="flex items-center justify-center gap-2 text-blue-700">
-                      <Timer className="h-4 w-4" />
-                      <span className="font-mono text-lg">25:00</span>
-                      <span className="text-sm">
-                        {language === 'hi' ? 'फोकस सत्र' : 'Focus Session'}
-                      </span>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
-      
-      {/* Completion Celebration */}
-      {completionPercentage === 100 && (
-        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-          <CardContent className="p-6 text-center">
-            <Trophy className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-green-800 mb-2">
-              {language === 'hi' ? 'बधाई हो!' : 'Congratulations!'}
-            </h3>
-            <p className="text-green-700">
-              {language === 'hi' ? 
-                'आपने आज के सभी कार्य पूरे कर लिए हैं!' :
-                'You have completed all tasks for today!'
-              }
-            </p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

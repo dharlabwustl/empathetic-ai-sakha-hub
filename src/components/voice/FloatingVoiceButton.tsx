@@ -5,20 +5,16 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
 import UnifiedVoiceAssistant from './UnifiedVoiceAssistant';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useLanguage } from '@/hooks/useLanguage';
 
 interface FloatingVoiceButtonProps {
   userName?: string;
   language?: string;
-  handsFreeMode?: boolean;
 }
 
 const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
   userName = 'Student',
-  language: voiceLang = 'en-US',
-  handsFreeMode = true
+  language = 'en-US'
 }) => {
-  const { language, t } = useLanguage();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [hasPlayedGreeting, setHasPlayedGreeting] = useState(false);
   const location = useLocation();
@@ -37,35 +33,29 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
   // Auto-play intelligent greeting on page load
   useEffect(() => {
     const context = getContext();
-    const hasSeenGreeting = sessionStorage.getItem(`voice_greeting_${context}_${language}`);
+    const hasSeenGreeting = sessionStorage.getItem(`voice_greeting_${context}`);
     
     if (!hasSeenGreeting && !hasPlayedGreeting) {
       const timer = setTimeout(() => {
         playContextualGreeting(context);
-        sessionStorage.setItem(`voice_greeting_${context}_${language}`, 'true');
+        sessionStorage.setItem(`voice_greeting_${context}`, 'true');
         setHasPlayedGreeting(true);
-      }, 2000);
+      }, 2000); // Wait 2 seconds after page load
       
       return () => clearTimeout(timer);
     }
-  }, [location.pathname, hasPlayedGreeting, language]);
+  }, [location.pathname, hasPlayedGreeting]);
 
   const playContextualGreeting = (context: string) => {
     if ('speechSynthesis' in window) {
       const messages = {
-        homepage: language === 'hi' 
-          ? `PREPZR में आपका स्वागत है! मैं सखा AI हूं, आपका बुद्धिमान अध्ययन साथी। PREPZR भारत का पहला भावनात्मक रूप से जागरूक परीक्षा तैयारी प्लेटफॉर्म है। हम व्यक्तिगत शिक्षा पथ, अनुकूली अध्ययन योजनाएं और उन्नत AI ट्यूटरिंग प्रदान करते हैं।`
-          : `Welcome to PREPZR! I'm Sakha AI, your intelligent study companion. PREPZR is India's first emotionally aware exam preparation platform. We offer personalized learning paths, adaptive study plans, and advanced AI tutoring.`,
-        dashboard: language === 'hi'
-          ? `वापस स्वागत है ${userName}! मैं आपके डैशबोर्ड को नेविगेट करने और आपके अध्ययन सत्रों को अनुकूलित करने में मदद करने के लिए यहां हूं।`
-          : `Welcome back ${userName}! I'm here to help you navigate your dashboard and optimize your study sessions.`,
-        learning: language === 'hi'
-          ? `नमस्ते ${userName}! मैं आपकी सीखने की यात्रा का समर्थन करने के लिए यहां हूं।`
-          : `Hello ${userName}! I'm here to support your learning journey.`
+        homepage: `Welcome to PREPZR! I'm Sakha AI, your intelligent study companion. PREPZR is India's first emotionally aware exam preparation platform. We offer personalized learning paths, adaptive study plans, and advanced AI tutoring. Click the voice button to explore our features, start your free trial, or analyze your exam readiness!`,
+        dashboard: `Welcome back ${userName}! I'm here to help you navigate your dashboard and optimize your study sessions. I can guide you through your study plan, concept cards, practice exams, and more. Let me know how I can assist you today!`,
+        learning: `Hello ${userName}! I'm here to support your learning journey. I can help explain concepts, create flashcards, or answer any study-related questions. What would you like to explore?`
       };
 
       const speech = new SpeechSynthesisUtterance(messages[context] || messages.homepage);
-      speech.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+      speech.lang = language;
       speech.rate = 0.9;
       speech.pitch = 1.1;
       speech.volume = 0.8;
@@ -74,7 +64,7 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
       const voices = window.speechSynthesis.getVoices();
       const femaleVoice = voices.find(voice => 
         voice.name.toLowerCase().includes('female') || 
-        (!voice.name.toLowerCase().includes('male') && voice.lang.includes(language === 'hi' ? 'hi' : 'en'))
+        (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
       );
       
       if (femaleVoice) {
@@ -117,14 +107,12 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
           
           <Volume2 className="h-6 w-6 relative z-10" />
           
-          {/* Pulsing indicator for hands-free mode */}
-          {handsFreeMode && (
-            <motion.div
-              className="absolute top-1 right-1 h-3 w-3 bg-green-400 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          )}
+          {/* Pulsing indicator */}
+          <motion.div
+            className="absolute top-1 right-1 h-3 w-3 bg-green-400 rounded-full"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
           
           {/* Ripple effect */}
           <motion.div
@@ -140,20 +128,19 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
           initial={{ opacity: 0, y: 10 }}
           whileHover={{ opacity: 1, y: 0 }}
         >
-          {language === 'hi' ? 'सखा AI सहायक' : 'Sakha AI Assistant'}
+          Sakha AI Assistant
           <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80" />
         </motion.div>
       </motion.div>
 
-      {/* Unified Voice Assistant with hands-free mode */}
+      {/* Unified Voice Assistant */}
       <UnifiedVoiceAssistant
         isOpen={isAssistantOpen}
         onClose={() => setIsAssistantOpen(false)}
         userName={userName}
-        language={language === 'hi' ? 'hi-IN' : 'en-US'}
+        language={language}
         context={getContext()}
         onNavigationCommand={handleNavigationCommand}
-        handsFreeMode={handsFreeMode}
       />
     </>
   );
