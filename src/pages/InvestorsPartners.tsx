@@ -130,38 +130,13 @@ const InvestorsPartners = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              <Card className="h-full">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-                    <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <CardTitle>Technology Partners</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Collaborating with leading tech companies to integrate cutting-edge AI and cloud technologies.
-                  </p>
-                  <div className="text-sm text-blue-600 dark:text-blue-400">
-                    • Cloud Infrastructure Partners
-                    • AI/ML Platform Integrations
-                    • Developer Tool Providers
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
+          <div className="flex justify-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
+              className="max-w-md"
             >
               <Card className="h-full">
                 <CardHeader>
@@ -175,35 +150,8 @@ const InvestorsPartners = () => {
                     Partnering with schools, colleges, and coaching institutes to provide comprehensive learning solutions.
                   </p>
                   <div className="text-sm text-purple-600 dark:text-purple-400">
-                    • Academic Content Partnerships
                     • Institutional Licensing
-                    • Teacher Training Programs
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <Card className="h-full">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                    <Handshake className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <CardTitle>Content Partners</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Working with subject matter experts and content creators to develop high-quality educational materials.
-                  </p>
-                  <div className="text-sm text-green-600 dark:text-green-400">
-                    • Expert Content Contributors
-                    • Video Learning Partners
-                    • Assessment Platform Integrations
+                    • Academic Content Partnerships
                   </div>
                 </CardContent>
               </Card>
