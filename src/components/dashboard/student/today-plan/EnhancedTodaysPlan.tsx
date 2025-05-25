@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
+import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -12,8 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
-import PageVoiceAssistant from '@/components/voice/PageVoiceAssistant';
+import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -21,6 +21,7 @@ const EnhancedTodaysPlan: React.FC = () => {
   const isMobile = useIsMobile();
   const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
   
+  // Get today's plan data
   const {
     loading,
     error,
@@ -49,10 +50,13 @@ const EnhancedTodaysPlan: React.FC = () => {
     );
   }
 
+  // Handle concept click to navigate to concept study page
   const handleConceptClick = (conceptId: string) => {
+    console.log("Navigating to concept detail page:", conceptId);
     navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 
+  // Handle smart suggestion actions
   const handleSuggestionAction = (action: string) => {
     switch (action) {
       case 'concepts':
@@ -90,27 +94,27 @@ const EnhancedTodaysPlan: React.FC = () => {
         {/* Progress meter at the top */}
         <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
         
-        {/* Enhanced task breakdown */}
+        {/* Smart suggestions section */}
+        <SmartSuggestionsSection 
+          planData={planData}
+          onActionClick={handleSuggestionAction}
+          isMobile={isMobile}
+        />
+        
+        {/* Enhanced task breakdown with premium styling */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
         
-        {/* Smart suggestions for task completion and backlog management */}
-        <SmartSuggestionsSection 
+        {/* Voice assistant for today's plan */}
+        <TodaysPlanVoiceAssistant 
           planData={planData}
-          onActionClick={handleSuggestionAction}
-          isMobile={isMobile}
+          userName={planData?.userName}
+          isEnabled={true}
         />
       </div>
-      
-      {/* Page-specific voice assistant */}
-      <PageVoiceAssistant 
-        userName={userProfile?.name}
-        pageContext="today-plan"
-        isEnabled={true}
-      />
     </SharedPageLayout>
   );
 };
