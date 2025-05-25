@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -20,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import HomePageFloatingVoiceAssistant from '@/components/voice/HomePageFloatingVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -121,28 +121,8 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced intelligent voice assistant for homepage with immediate greeting */}
-      <EnhancedHomePageVoiceAssistant language="en-US" />
-      
-      {/* Floating Voice Assistant button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <motion.button
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          onClick={handleOpenVoiceAssistant}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" x2="12" y1="19" y2="22"></line>
-          </svg>
-          <span className="ml-2 font-medium">Voice Assistant</span>
-        </motion.button>
-      </div>
+      {/* Enhanced Home Page Floating Voice Assistant */}
+      <HomePageFloatingVoiceAssistant />
       
       {/* Enhanced Floating Voice Assistant with settings panel */}
       {showVoiceAssistant && (
@@ -150,7 +130,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
-          language="en-US"  // Use US English for female voice preference
+          language="en-US"
         />
       )}
     </div>

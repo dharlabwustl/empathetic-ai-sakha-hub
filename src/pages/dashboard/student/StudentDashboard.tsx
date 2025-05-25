@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -11,6 +10,7 @@ import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
 import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
+import UnifiedDashboardVoiceAssistant from "@/components/dashboard/student/UnifiedDashboardVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -176,8 +176,8 @@ const StudentDashboard = () => {
     <>
       <DashboardLayout
         userProfile={enhancedUserProfile}
-        hideSidebar={false}
-        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
@@ -199,8 +199,14 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Add the floating voice assistant */}
-      <FloatingVoiceAssistant userName={userProfile.name} />
+      {/* Unified voice assistant that works across all dashboard pages */}
+      <UnifiedDashboardVoiceAssistant 
+        userName={userProfile.name}
+        isFirstTimeUser={isFirstTimeUser}
+        isReturningUser={!isFirstTimeUser && userProfile.loginCount > 1}
+        lastActivity={lastActivity?.description}
+        pendingTasks={suggestedNextAction ? [suggestedNextAction] : []}
+      />
     </>
   );
 };
