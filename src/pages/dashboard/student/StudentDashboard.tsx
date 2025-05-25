@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -9,6 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
+import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -176,10 +176,12 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Unified floating voice assistant */}
-      <FloatingVoiceButton 
+      {/* Interactive Voice Assistant with enhanced navigation */}
+      <InteractiveVoiceAssistant 
         userName={userProfile.name}
         language="en-US"
+        onNavigationCommand={(route) => navigate(route)}
+        position="bottom-right"
       />
     </>
   );

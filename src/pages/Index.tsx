@@ -18,7 +18,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -105,10 +105,12 @@ const Index = () => {
       
       <Footer />
       
-      {/* Floating Voice Assistant Button */}
-      <FloatingVoiceButton 
+      {/* Interactive Voice Assistant */}
+      <InteractiveVoiceAssistant 
         userName="Visitor"
         language="en-US"
+        onNavigationCommand={handleNavigationCommand}
+        position="bottom-right"
       />
     </div>
   );
