@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -10,7 +11,6 @@ import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
 import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
 import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
-import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -177,7 +177,7 @@ const StudentDashboard = () => {
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true}
+        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
@@ -199,12 +199,8 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Unified Voice Assistant for Dashboard */}
-      <UnifiedVoiceAssistant 
-        userName={userProfile.name}
-        isHomePage={false}
-        onNavigationCommand={(route) => window.location.href = route}
-      />
+      {/* Add the floating voice assistant */}
+      <FloatingVoiceAssistant userName={userProfile.name} />
     </>
   );
 };

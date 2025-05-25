@@ -1,95 +1,302 @@
-import React from "react";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/providers/ThemeProvider";
-import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useIsMobile } from "@/hooks/use-mobile";
+
+import React, { useState, useEffect } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
-import { ModeToggle } from "@/components/theme/ModeToggle";
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button";
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FloatingVoiceAssistant from './FloatingVoiceAssistant';
 
 interface TopNavigationControlsProps {
-  hideSidebar: boolean;
-  onToggleSidebar: () => void;
-  formattedDate: string;
-  formattedTime: string;
-  onOpenTour: () => void;
-  userName: string;
+  hideSidebar?: boolean;
+  onToggleSidebar?: () => void;
+  formattedDate?: string;
+  formattedTime?: string;
+  onOpenTour?: () => void;
+  userName?: string;
   mood?: string;
   isFirstTimeUser?: boolean;
-  onViewStudyPlan: () => void;
+  onViewStudyPlan?: () => void;
 }
 
 const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
-  hideSidebar,
-  onToggleSidebar,
-  formattedDate,
-  formattedTime,
-  onOpenTour,
+  onViewStudyPlan,
   userName,
-  mood,
-  isFirstTimeUser,
-  onViewStudyPlan
+  onOpenTour,
+  formattedTime,
+  formattedDate
 }) => {
-  const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const handleToggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('en-US');
+  const [isContinuousListening, setIsContinuousListening] = useState(false);
+  
   const handleLogout = async () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('user_profile_image');
+    await logout();
     navigate('/login');
   };
 
-  return (
-    <div className="flex items-center justify-between">
-      {/* Left: Sidebar Toggle (Mobile Only) */}
-      {!hideSidebar && isMobile && (
-        <Button variant="ghost" size="sm" onClick={onToggleSidebar}>
-          <Menu className="h-5 w-5" />
-        </Button>
-      )}
+  const handleVoiceAssistant = () => {
+    setIsVoiceAssistantOpen(true);
+  };
 
-      {/* Center: Date and Time */}
-      <div className="text-center">
-        <div className="text-sm font-medium">{formattedTime}</div>
-        <div className="text-xs text-muted-foreground">{formattedDate}</div>
+  const handleMicToggle = () => {
+    setIsMicActive(!isMicActive);
+  };
+
+  const handleMuteToggle = () => {
+    setIsMuted(!isMuted);
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
+  };
+
+  const handleSubscriptionClick = () => {
+    navigate('/dashboard/student/subscription');
+  };
+
+  const handleContinuousListening = () => {
+    setIsContinuousListening(!isContinuousListening);
+    // Here you would implement the continuous listening logic
+    console.log('Continuous listening:', !isContinuousListening);
+  };
+
+  // Get current subscription status
+  const getCurrentPlan = () => {
+    if (!user?.subscription) return 'Free';
+    
+    if (typeof user.subscription === 'string') {
+      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
+             user.subscription === 'pro_annual' ? 'Pro Annual' :
+             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
+    }
+    
+    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
+           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
+           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
+           (user.subscription.planType || 'Free').slice(1);
+  };
+  
+  return (
+    <div className="flex items-center justify-between w-full mb-4">
+      {/* Left side - Welcome message with subscription plan */}
+      <div className="flex items-center gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Welcome back, {userName || user?.name || 'Student'}!
+          </h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSubscriptionClick}
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary p-0 h-auto"
+          >
+            Current Plan: {getCurrentPlan()}
+          </Button>
+        </div>
       </div>
 
-      {/* Right: User Avatar and Theme Toggle */}
-      <div className="flex items-center space-x-4">
-        {/* Theme Toggle */}
-        <ModeToggle />
+      {/* Right side - Controls */}
+      <div className="flex items-center space-x-3">
+        {/* Time Display */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <Clock className="h-4 w-4" />
+                <span>{formattedTime}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{formattedDate}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        {/* User Dropdown */}
+        {/* Language Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
+                <SelectTrigger className="w-[80px] h-8">
+                  <Globe className="h-4 w-4" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en-US">EN</SelectItem>
+                  <SelectItem value="hi-IN">HI</SelectItem>
+                  <SelectItem value="es-ES">ES</SelectItem>
+                  <SelectItem value="fr-FR">FR</SelectItem>
+                </SelectContent>
+              </Select>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Voice Language</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Continuous Listening Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleContinuousListening}
+                className={`relative ${isContinuousListening ? 'bg-green-50 border-green-300' : ''}`}
+              >
+                {isContinuousListening ? (
+                  <Pause className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {isContinuousListening && (
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isContinuousListening ? 'Stop Continuous Listening' : 'Start Continuous Listening'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Microphone Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleMicToggle}
+                className={`relative ${isMicActive ? 'bg-green-50 border-green-300' : ''}`}
+              >
+                {isMicActive ? (
+                  <Mic className="h-4 w-4 text-green-600" />
+                ) : (
+                  <MicOff className="h-4 w-4" />
+                )}
+                {isMicActive && (
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isMicActive ? 'Microphone Active' : 'Activate Microphone'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Mute Toggle */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleMuteToggle}
+                className={isMuted ? 'bg-red-50 border-red-300' : ''}
+              >
+                {isMuted ? (
+                  <VolumeX className="h-4 w-4 text-red-600" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>{isMuted ? 'Unmute Voice' : 'Mute Voice'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Voice Assistant Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleVoiceAssistant}
+                className="relative"
+              >
+                <Volume2 className="h-4 w-4" />
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Voice Assistant</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Study Plan Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewStudyPlan}
+                className="gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Study Plan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>View your personalized study plan</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={localStorage.getItem('user_profile_image') || user?.image} alt={userName} />
-                <AvatarFallback>{userName?.charAt(0).toUpperCase()}</AvatarFallback>
+                <AvatarImage src={`https://avatar.vercel.sh/${user?.name}.png`} alt={user?.name || "Avatar"} />
+                <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase() || "UN"}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onViewStudyPlan}>
-              View Study Plan
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/dashboard/student/profile')}>
+              Profile & Batch Management
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onOpenTour}>
-              Take Welcome Tour
+            <DropdownMenuItem onClick={() => navigate('/dashboard/student/subscription')}>
+              Subscription Plan
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsVoiceAssistantOpen(true)}>
+              <Settings className="mr-2 h-4 w-4" />
+              Voice Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
@@ -98,6 +305,14 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Voice Assistant Modal */}
+      <FloatingVoiceAssistant 
+        isOpen={isVoiceAssistantOpen}
+        onClose={() => setIsVoiceAssistantOpen(false)}
+        userName={userName || user?.name}
+        language={selectedLanguage}
+      />
     </div>
   );
 };
