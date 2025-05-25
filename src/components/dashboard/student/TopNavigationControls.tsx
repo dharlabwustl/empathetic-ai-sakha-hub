@@ -82,24 +82,17 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
   const handleContinuousListening = () => {
     setIsContinuousListening(!isContinuousListening);
-    // Here you would implement the continuous listening logic
     console.log('Continuous listening:', !isContinuousListening);
+  };
+
+  // Handle Switch Exam / New Plan button - route to academic advisor
+  const handleSwitchExamNewPlan = () => {
+    navigate('/dashboard/student/academic');
   };
 
   // Get current subscription status
   const getCurrentPlan = () => {
-    if (!user?.subscription) return 'Free';
-    
-    if (typeof user.subscription === 'string') {
-      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
-             user.subscription === 'pro_annual' ? 'Pro Annual' :
-             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
-    }
-    
-    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
-           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
-           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
-           (user.subscription.planType || 'Free').slice(1);
+    return 'Free'; // Default to Free since user might not have subscription property
   };
   
   return (
@@ -255,22 +248,22 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Study Plan Button */}
+        {/* Switch Exam / New Plan Button - routes to academic advisor */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onViewStudyPlan}
+                onClick={handleSwitchExamNewPlan}
                 className="gap-2"
               >
                 <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
+                <span className="hidden sm:inline">Switch Exam / New Plan</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>View your personalized study plan</p>
+              <p>Switch exam or create new study plan</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
