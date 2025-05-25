@@ -11,11 +11,10 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import UniversalVoiceAssistant from '@/components/voice/UniversalVoiceAssistant';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Target, Clock, BookOpen, Lightbulb } from 'lucide-react';
+import { Target, Clock, BookOpen, Lightbulb, AlertTriangle } from 'lucide-react';
 
 const TodaysPlanProgressMeter: React.FC<{ planData: any; isMobile: boolean }> = ({ planData, isMobile }) => {
   if (!planData) return null;
@@ -257,11 +256,6 @@ const EnhancedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
       </div>
-      
-      {/* Voice assistant for learning support */}
-      <UniversalVoiceAssistant 
-        userName={planData?.userName || userProfile?.name}
-      />
     </SharedPageLayout>
   );
 };
