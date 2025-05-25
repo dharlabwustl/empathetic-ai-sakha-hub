@@ -1,113 +1,111 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Clock, CheckCircle, Target, Calendar } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, Target, Clock, Flame, CheckCircle2 } from 'lucide-react';
 import { TodaysPlanData } from '@/types/student/todaysPlan';
-import { motion } from 'framer-motion';
 
 interface TodaysPlanProgressMeterProps {
   planData: TodaysPlanData | null;
   isMobile?: boolean;
 }
 
-const TodaysPlanProgressMeter: React.FC<TodaysPlanProgressMeterProps> = ({ 
-  planData, 
-  isMobile = false 
-}) => {
+const TodaysPlanProgressMeter: React.FC<TodaysPlanProgressMeterProps> = ({ planData, isMobile = false }) => {
   if (!planData) return null;
 
-  const completionPercentage = planData.totalTasks > 0 
-    ? Math.round((planData.completedTasks / planData.totalTasks) * 100)
-    : 0;
-
-  const timeSpent = planData.timeAllocation ? 
-    Object.values(planData.timeAllocation).reduce((acc, curr) => acc + (typeof curr === 'number' ? curr : 0), 0) - (planData.timeAllocation.total || 0)
-    : 0;
-
-  const totalTime = planData.timeAllocation?.total || 160;
-  const timePercentage = timeSpent > 0 ? Math.round((timeSpent / totalTime) * 100) : 0;
+  const progressPercentage = planData.totalTasks > 0 ? (planData.completedTasks / planData.totalTasks) * 100 : 0;
+  const totalTimeCompleted = Math.round((progressPercentage / 100) * planData.timeAllocation.total);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/30 border-blue-200 dark:border-blue-800">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-xl flex items-center gap-2">
-            <Target className="h-6 w-6 text-blue-600" />
-            Today's Progress Overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Task Completion Progress */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <span className="font-medium">Task Completion</span>
-              </div>
-              <span className="text-sm font-semibold text-blue-600">
-                {planData.completedTasks}/{planData.totalTasks} Tasks
-              </span>
+    <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-lg">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/20 rounded-full">
+              <Calendar className="h-6 w-6" />
             </div>
-            <Progress value={completionPercentage} className="h-3" />
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {completionPercentage}% of today's tasks completed
-            </p>
+            <div>
+              <h2 className="text-2xl font-bold">Today's Study Plan</h2>
+              <p className="text-blue-100">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </p>
+            </div>
+          </div>
+          <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+            {planData.examGoal || 'NEET'}
+          </Badge>
+        </div>
+
+        {/* Progress Overview */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="text-center">
+            <div className="p-3 bg-white/10 rounded-lg mb-2">
+              <Target className="h-6 w-6 mx-auto" />
+            </div>
+            <div className="text-2xl font-bold">{planData.completedTasks}/{planData.totalTasks}</div>
+            <div className="text-sm text-blue-100">Tasks</div>
           </div>
 
-          {/* Time Allocation Progress */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-orange-600" />
-                <span className="font-medium">Time Allocation</span>
-              </div>
-              <span className="text-sm font-semibold text-orange-600">
-                {totalTime} minutes planned
-              </span>
+          <div className="text-center">
+            <div className="p-3 bg-white/10 rounded-lg mb-2">
+              <Clock className="h-6 w-6 mx-auto" />
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              {planData.timeAllocation && (
-                <>
-                  <div className="text-center">
-                    <p className="font-medium text-purple-600">{planData.timeAllocation.concepts}m</p>
-                    <p className="text-gray-500">Concepts</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-medium text-green-600">{planData.timeAllocation.flashcards}m</p>
-                    <p className="text-gray-500">Flashcards</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-medium text-blue-600">{planData.timeAllocation.practiceExams}m</p>
-                    <p className="text-gray-500">Practice</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-medium text-yellow-600">{planData.timeAllocation.revision}m</p>
-                    <p className="text-gray-500">Revision</p>
-                  </div>
-                </>
-              )}
-            </div>
+            <div className="text-2xl font-bold">{totalTimeCompleted}m</div>
+            <div className="text-sm text-blue-100">Completed</div>
           </div>
 
-          {/* Streak Information */}
-          <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-red-500" />
-              <span className="font-medium">Study Streak</span>
+          <div className="text-center">
+            <div className="p-3 bg-white/10 rounded-lg mb-2">
+              <Flame className="h-6 w-6 mx-auto" />
             </div>
-            <div className="text-right">
-              <p className="text-lg font-bold text-red-500">{planData.streak} days</p>
-              <p className="text-xs text-gray-500">Keep it going!</p>
+            <div className="text-2xl font-bold">{planData.streak}</div>
+            <div className="text-sm text-blue-100">Day Streak</div>
+          </div>
+
+          <div className="text-center">
+            <div className="p-3 bg-white/10 rounded-lg mb-2">
+              <CheckCircle2 className="h-6 w-6 mx-auto" />
+            </div>
+            <div className="text-2xl font-bold">{Math.round(progressPercentage)}%</div>
+            <div className="text-sm text-blue-100">Complete</div>
+          </div>
+        </div>
+
+        {/* Main Progress Bar */}
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">Daily Progress</span>
+            <span className="text-blue-100">{Math.round(progressPercentage)}% of {planData.timeAllocation.total}min</span>
+          </div>
+          <Progress 
+            value={progressPercentage} 
+            className="h-4 bg-white/20"
+          />
+          <div className="flex justify-between text-xs text-blue-100">
+            <span>Start: 9:00 AM</span>
+            <span>Target: {planData.timeAllocation.total}min study time</span>
+            <span>End: 6:00 PM</span>
+          </div>
+        </div>
+
+        {/* Backlog Alert */}
+        {planData.backlogTasks && planData.backlogTasks.length > 0 && (
+          <div className="mt-4 p-3 bg-orange-500/20 border border-orange-400/30 rounded-lg">
+            <div className="flex items-center gap-2 text-orange-100">
+              <Target className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                {planData.backlogTasks.length} pending tasks from previous days
+              </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

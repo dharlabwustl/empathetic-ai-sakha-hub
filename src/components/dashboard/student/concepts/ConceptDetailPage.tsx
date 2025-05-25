@@ -16,7 +16,6 @@ import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
-import ConceptVoiceAssistant from '@/components/voice/ConceptVoiceAssistant';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -275,14 +274,6 @@ const ConceptDetailPage = () => {
             <TabAIAssistant 
               tabName="Concepts"
               context={`User is studying ${concept.title} in ${concept.subject}`}
-            />
-
-            {/* Voice Assistant for Concept Learning */}
-            <ConceptVoiceAssistant 
-              conceptName={concept.title}
-              conceptSubject={concept.subject}
-              conceptTopic={concept.topic}
-              isEnabled={true}
             />
             
             <ConceptSidebar 
