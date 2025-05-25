@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { 
   FileText, 
   Eye, 
-  Cube, 
+  Box, 
   FlaskConical, 
   Video, 
   AlertTriangle,
@@ -24,7 +24,7 @@ interface ContentOverviewSectionProps {
 const formatIcons: Record<ConceptCardFormat, any> = {
   'text-summary': FileText,
   'visual-diagram': Eye,
-  '3d-model': Cube,
+  '3d-model': Box,
   'interactive-lab': FlaskConical,
   'video': Video,
   'exam-mistakes': AlertTriangle

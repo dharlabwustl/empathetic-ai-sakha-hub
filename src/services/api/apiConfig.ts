@@ -22,6 +22,22 @@ export const API_ENDPOINTS = {
     SYSTEM_LOGS: '/admin/logs',
     SETTINGS: '/admin/settings',
     NOTIFICATIONS: '/admin/notifications',
+    AI_MODELS: '/admin/ai-models',
+    BATCH_MANAGEMENT: '/admin/batches',
+    EXAM_MANAGEMENT: '/admin/exams',
+    SUBSCRIPTION_MANAGEMENT: '/admin/subscriptions',
+    ANALYTICS_CENTER: '/admin/analytics',
+    SECURITY_CENTER: '/admin/security',
+    NOTIFICATION_CENTER: '/admin/notification-center',
+    VOICE_ASSISTANT: '/admin/voice-assistant',
+    STUDY_PLAN_MANAGEMENT: '/admin/study-plans',
+    MOOD_ANALYTICS: '/admin/mood-analytics',
+    FEEL_GOOD_CORNER: '/admin/feel-good-corner',
+    SURROUNDING_INFLUENCE: '/admin/surrounding-influence',
+    EXAM_READINESS: '/admin/exam-readiness',
+    ONBOARDING_DATA: '/admin/onboarding-data',
+    AI_TUTOR_MANAGEMENT: '/admin/ai-tutor',
+    SYSTEM_OVERVIEW: '/admin/system-overview',
     STUDY_HABITS: {
       SETTINGS: '/admin/study-habits/settings',
       ANALYTICS: '/admin/study-habits/analytics',
@@ -36,6 +52,17 @@ export const API_ENDPOINTS = {
       EXAM_CONFIDENCE: '/admin/verified-metrics/exam-confidence',
       RETENTION_RATE: '/admin/verified-metrics/retention-rate',
       MOOD_FEATURE_USAGE: '/admin/verified-metrics/mood-feature-usage'
+    },
+    CONTENT_MANAGEMENT: {
+      OVERVIEW: '/admin/content/overview',
+      CONCEPT_CARDS: '/admin/content/concept-cards',
+      FLASHCARDS: '/admin/content/flashcards',
+      EXAMS: '/admin/content/exams',
+      STUDY_MATERIALS: '/admin/content/study-materials',
+      APPROVAL_QUEUE: '/admin/content/approval-queue',
+      UPLOAD: '/admin/content/upload',
+      GENERATE: '/admin/content/generate',
+      AI_MODELS: '/admin/content/ai-models'
     }
   },
   STUDENTS: {
@@ -62,7 +89,10 @@ export const API_ENDPOINTS = {
     DOUBT_RESPONSE: '/ai/doubt-response',
     TUTOR_CHAT: '/ai/tutor-chat',
     MOOD_SUGGESTIONS: '/ai/mood-suggestions',
-    TIME_SAVED_ANALYSIS: '/ai/time-saved-analysis'
+    TIME_SAVED_ANALYSIS: '/ai/time-saved-analysis',
+    CONTENT_GENERATION: '/ai/content/generate',
+    MODEL_CONFIG: '/ai/models/config',
+    MODEL_TEST: '/ai/models/test'
   }
 };
 

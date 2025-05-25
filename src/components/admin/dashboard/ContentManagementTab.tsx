@@ -7,6 +7,7 @@ import ContentManagementHeader from "@/components/admin/dashboard/content/Conten
 import ContentSummaryCards from "@/components/admin/dashboard/content/ContentSummaryCards";
 import ContentOverviewSection from "@/components/admin/dashboard/content/ContentOverviewSection";
 import ConceptCardFormats from "@/components/admin/dashboard/content/ConceptCardFormats";
+import AIModelIntegration from "@/components/admin/dashboard/content/AIModelIntegration";
 import TabContentApprovalQueue from "@/components/admin/dashboard/content/TabContentApprovalQueue";
 import TabContentStudyMaterials from "@/components/admin/dashboard/content/TabContentStudyMaterials";
 import TabContentPrompts from "@/components/admin/dashboard/content/TabContentPrompts";
@@ -150,9 +151,10 @@ const ContentManagementTab = () => {
           <ContentSummaryCards handleManageContent={handleManageContent} />
 
           <Tabs defaultValue="overview" value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="mb-4 grid w-full grid-cols-5 gap-2">
+            <TabsList className="mb-4 grid w-full grid-cols-6 gap-2">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="formats">Concept Formats</TabsTrigger>
+              <TabsTrigger value="ai-models">AI Models</TabsTrigger>
               <TabsTrigger value="upload">Upload & Generate</TabsTrigger>
               <TabsTrigger value="queue">Approval Queue</TabsTrigger>
               <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
@@ -167,6 +169,10 @@ const ContentManagementTab = () => {
                 onSelectFormat={handleSelectFormat}
                 onConfigureFormat={handleConfigureFormat}
               />
+            </TabsContent>
+
+            <TabsContent value="ai-models">
+              <AIModelIntegration />
             </TabsContent>
 
             <TabsContent value="upload">

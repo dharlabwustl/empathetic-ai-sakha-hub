@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { 
   FileText, 
   Eye, 
-  Cube, 
+  Box, 
   FlaskConical, 
   Video, 
   AlertTriangle,
@@ -40,7 +40,7 @@ const conceptCardFormats: ConceptCardFormatOption[] = [
     id: '3d-model',
     name: '3D Model',
     description: '3D interactive models with audio explanations',
-    icon: 'Cube',
+    icon: 'Box',
     features: ['360° interaction', 'Audio guidance', 'Layer exploration', 'Real-time manipulation']
   },
   {
@@ -69,7 +69,7 @@ const conceptCardFormats: ConceptCardFormatOption[] = [
 const iconComponents = {
   FileText,
   Eye,
-  Cube,
+  Box,
   FlaskConical,
   Video,
   AlertTriangle
