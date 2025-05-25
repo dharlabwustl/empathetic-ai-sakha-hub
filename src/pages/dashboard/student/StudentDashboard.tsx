@@ -8,14 +8,13 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import { VoiceManagerProvider } from "@/components/dashboard/student/voice/UnifiedVoiceManager";
-import UnifiedDashboardVoice from "@/components/dashboard/student/voice/UnifiedDashboardVoice";
-import EnhancedFloatingVoiceIcon from "@/components/voice/EnhancedFloatingVoiceIcon";
+import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
+import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
+import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [greetingCompleted, setGreetingCompleted] = useState(false);
   const location = useLocation();
   
   const {
@@ -44,11 +43,23 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Determine if user is first time based on login count
-  const isFirstTimeUser = userProfile?.loginCount === undefined || userProfile.loginCount <= 1;
+  // Voice announcer hook
+  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
+    userName: userProfile?.name,
+    initialSettings: {
+      enabled: true,
+      muted: false,
+      language: 'en-IN',
+      pitch: 1.1, // Higher pitch for female voice
+      rate: 0.95  // Slightly faster for more energy
+    }
+  });
+
+  // Important: Force disable welcome tour completely
+  const [shouldShowTour, setShouldShowTour] = useState(false);
 
   useEffect(() => {
-    // Force disable welcome tour completely
+    // Explicitly mark tour as seen to prevent it from appearing
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.removeItem('new_user_signup');
     
@@ -70,28 +81,39 @@ const StudentDashboard = () => {
 
     // Ensure profile image is available
     if (userProfile && userProfile.avatar) {
+      // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
-  }, [location, userProfile]);
+
+    // Auto-start voice greeting after 3 seconds
+    if (userProfile?.name) {
+      const timer = setTimeout(() => {
+        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
+        speakMessage(greeting);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location, userProfile, speakMessage, currentMood]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
     if (!currentMood) {
-      setCurrentMood(MoodType.MOTIVATED);
+      setCurrentMood(MoodType.Motivated);
       const userData = localStorage.getItem("userData");
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.MOTIVATED;
+          parsedData.mood = MoodType.Motivated;
           localStorage.setItem("userData", JSON.stringify(parsedData));
         } catch (err) {
           console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
         }
       } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
+        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
       }
     }
   };
@@ -151,11 +173,11 @@ const StudentDashboard = () => {
   const modifiedShowWelcomeTour = false;
 
   return (
-    <VoiceManagerProvider>
+    <>
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true}
+        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
@@ -177,16 +199,9 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Unified Dashboard Voice Assistant - Only speaks when appropriate */}
-      <UnifiedDashboardVoice
-        userName={userProfile.name}
-        isFirstTimeUser={isFirstTimeUser}
-        loginCount={userProfile.loginCount}
-      />
-      
-      {/* Enhanced Floating Voice Icon with Settings Panel */}
-      <EnhancedFloatingVoiceIcon userName={userProfile.name} />
-    </VoiceManagerProvider>
+      {/* Add the floating voice assistant */}
+      <FloatingVoiceAssistant userName={userProfile.name} />
+    </>
   );
 };
 

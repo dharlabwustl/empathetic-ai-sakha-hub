@@ -1,46 +1,69 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { StudyTimeChart } from './study-progress/StudyTimeChart';
+import { QuizzesList } from './study-progress/QuizzesList';
+import { TopicsList } from './study-progress/TopicsList';
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
-export interface SubjectProgress {
-  id?: string;
-  subject: string;
-  progress: number;
-  total: number;
+interface StudyProgressProps {
+  subjects: SubjectProgress[];
+  studyStreak: StudyStreak;
 }
 
-export interface StudyProgressProps {
-  subjectProgress?: SubjectProgress[];
-}
+const StudyProgress: React.FC<StudyProgressProps> = ({ subjects, studyStreak }) => {
+  const [activeTab, setActiveTab] = useState<string>('study-time');
+  const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(
+    subjects.length > 0 ? subjects[0] : null
+  );
 
-const StudyProgress: React.FC<StudyProgressProps> = ({ subjectProgress = [] }) => {
-  const defaultProgress: SubjectProgress[] = [
-    { id: '1', subject: 'Physics', progress: 75, total: 100 },
-    { id: '2', subject: 'Chemistry', progress: 60, total: 100 },
-    { id: '3', subject: 'Mathematics', progress: 85, total: 100 },
-    { id: '4', subject: 'Biology', progress: 70, total: 100 }
-  ];
-
-  const displayProgress = subjectProgress.length > 0 ? subjectProgress : defaultProgress;
+  const handleSelectSubject = (subjectId: string) => {
+    const subject = subjects.find(s => s.id === subjectId);
+    if (subject) {
+      setSelectedSubject(subject);
+    }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Study Progress</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {displayProgress.map((subject, index) => (
-          <div key={subject.id || index} className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="font-medium">{subject.subject}</span>
-              <span className="text-muted-foreground">
-                {subject.progress}%
-              </span>
-            </div>
-            <Progress value={subject.progress} className="h-2" />
-          </div>
-        ))}
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full justify-start mb-4">
+            <TabsTrigger value="study-time">Study Time</TabsTrigger>
+            <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+            <TabsTrigger value="topics">Topics</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="study-time">
+            <StudyTimeChart 
+              selectedSubject={selectedSubject} 
+              subjects={subjects}
+              selectSubject={handleSelectSubject}
+              studyStreak={studyStreak}
+            />
+          </TabsContent>
+          
+          <TabsContent value="quizzes">
+            <QuizzesList 
+              selectedSubject={selectedSubject}
+              subjects={subjects}
+              selectSubject={handleSelectSubject}
+            />
+          </TabsContent>
+          
+          <TabsContent value="topics">
+            <TopicsList 
+              selectedSubject={selectedSubject}
+              subjects={subjects}
+              selectSubject={handleSelectSubject}
+            />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
