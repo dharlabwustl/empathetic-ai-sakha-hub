@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, Target, Trophy, Flame, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, Target, Trophy, Flame } from 'lucide-react';
 import { TodaysPlanData } from '@/types/student/todaysPlan';
 
 interface TodaysPlanHeaderProps {
@@ -46,82 +46,86 @@ const TodaysPlanHeader: React.FC<TodaysPlanHeaderProps> = ({ planData, isMobile 
           </div>
         </div>
 
-        {/* Unified Progress Section */}
-        <div className="space-y-6">
-          {/* Main Progress Bar */}
+        {/* Main Progress Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Overall Progress */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-lg font-semibold text-gray-800 dark:text-gray-200">Daily Progress</span>
-              <span className="text-xl font-bold text-blue-600">{Math.round(progressPercentage)}%</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Progress</span>
+              <span className="text-sm font-bold text-blue-600">{Math.round(progressPercentage)}%</span>
             </div>
-            <Progress value={progressPercentage} className="h-4" />
-            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+            <Progress value={progressPercentage} className="h-3" />
+            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center gap-1">
-                <CheckCircle className="h-4 w-4" />
-                <span>{planData.completedTasks}/{planData.totalTasks} tasks completed</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{timeSpent} minutes studied</span>
+                <Target className="h-4 w-4" />
+                <span>{planData.completedTasks}/{planData.totalTasks} tasks</span>
               </div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Concepts */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Concepts</span>
-              </div>
-              <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {planData.concepts?.filter(c => c.status === 'completed').length || 0}/{planData.concepts?.length || 0}
-              </div>
-              <p className="text-xs text-gray-500">{planData.timeAllocation.concepts}m allocated</p>
+          {/* Time Progress */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Time Invested</span>
+              <span className="text-sm font-bold text-green-600">{timeSpent} min</span>
             </div>
-
-            {/* Flashcards */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Flashcards</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <span>Concepts</span>
+                </div>
+                <span>{planData.timeAllocation.concepts}m</span>
               </div>
-              <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {planData.flashcards?.filter(f => f.status === 'completed').length || 0}/{planData.flashcards?.length || 0}
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  <span>Flashcards</span>
+                </div>
+                <span>{planData.timeAllocation.flashcards}m</span>
               </div>
-              <p className="text-xs text-gray-500">{planData.timeAllocation.flashcards}m allocated</p>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>Practice</span>
+                </div>
+                <span>{planData.timeAllocation.practiceExams}m</span>
+              </div>
             </div>
+          </div>
 
-            {/* Practice Tests */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Practice</span>
-              </div>
-              <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {planData.practiceExams?.filter(p => p.status === 'completed').length || 0}/{planData.practiceExams?.length || 0}
-              </div>
-              <p className="text-xs text-gray-500">{planData.timeAllocation.practiceExams}m allocated</p>
+          {/* Achievement Status */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Today's Goal</span>
+              <Trophy className={`h-4 w-4 ${progressPercentage >= 100 ? 'text-yellow-500' : 'text-gray-400'}`} />
             </div>
-
-            {/* Achievement Status */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-              <div className="flex items-center gap-2 mb-2">
-                <Trophy className={`h-4 w-4 ${progressPercentage >= 100 ? 'text-yellow-500' : 'text-gray-400'}`} />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
-              </div>
-              <div className="text-sm">
-                {progressPercentage >= 100 ? (
-                  <span className="text-green-600 font-semibold">🎉 Complete!</span>
-                ) : progressPercentage >= 75 ? (
-                  <span className="text-blue-600 font-semibold">🚀 Almost there!</span>
-                ) : progressPercentage >= 50 ? (
-                  <span className="text-amber-600 font-semibold">💪 Great progress!</span>
-                ) : (
-                  <span className="text-purple-600 font-semibold">⭐ Let's start!</span>
-                )}
-              </div>
+            <div className="space-y-2">
+              {progressPercentage >= 100 ? (
+                <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                  <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                    🎉 Congratulations! You've completed today's plan!
+                  </p>
+                </div>
+              ) : progressPercentage >= 75 ? (
+                <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    🚀 Almost there! Just a few more tasks to go!
+                  </p>
+                </div>
+              ) : progressPercentage >= 50 ? (
+                <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    💪 Great progress! Keep up the momentum!
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                    ⭐ Let's start strong today!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
