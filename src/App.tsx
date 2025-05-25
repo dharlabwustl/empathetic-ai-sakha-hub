@@ -77,6 +77,7 @@ import FAQ from '@/pages/FAQ';
 import Contact from '@/pages/Contact';
 import Careers from '@/pages/Careers';
 import Sustainability from '@/pages/Sustainability';
+import InvestorsPartners from '@/pages/InvestorsPartners';
 
 // Wrap a component with SidebarLayout and protection
 const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<any> }) => {
