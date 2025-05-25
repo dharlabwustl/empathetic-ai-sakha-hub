@@ -98,7 +98,7 @@ const RedesignedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
         
-        {/* New enhanced today's plan view with progress meter and enhanced task breakdown */}
+        {/* Enhanced today's plan view with progress meter and enhanced task breakdown */}
         <NewTodaysPlanView 
           planData={planData}
           onConceptClick={handleConceptClick}
