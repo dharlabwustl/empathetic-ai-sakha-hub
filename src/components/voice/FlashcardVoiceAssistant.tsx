@@ -2,25 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, Brain, Target, RotateCcw } from "lucide-react";
+import { Mic, MicOff, Speaker, Brain, RotateCcw, Target } from "lucide-react";
 import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
 
 interface FlashcardVoiceAssistantProps {
-  flashcardData?: any;
+  currentCard?: number;
+  totalCards?: number;
+  subject?: string;
   userName?: string;
   isEnabled?: boolean;
-  onNext?: () => void;
-  onPrevious?: () => void;
-  onFlip?: () => void;
 }
 
 const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
-  flashcardData,
+  currentCard = 1,
+  totalCards = 10,
+  subject = "General",
   userName = "Student",
-  isEnabled = true,
-  onNext,
-  onPrevious,
-  onFlip
+  isEnabled = true
 }) => {
   const [expanded, setExpanded] = useState(false);
   
@@ -45,49 +43,47 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
-    if (lowerCommand.includes('next') || lowerCommand.includes('skip')) {
-      speakMessage("Moving to the next flashcard.");
-      onNext?.();
+    if (lowerCommand.includes('progress') || lowerCommand.includes('how many')) {
+      const percentage = Math.round((currentCard / totalCards) * 100);
+      speakMessage(`You're on card ${currentCard} of ${totalCards}. That's ${percentage}% complete! You're making great progress with your ${subject} flashcards.`);
       return;
     }
     
-    if (lowerCommand.includes('previous') || lowerCommand.includes('back')) {
-      speakMessage("Going back to the previous flashcard.");
-      onPrevious?.();
+    if (lowerCommand.includes('tip') || lowerCommand.includes('study better')) {
+      speakMessage(`Here are some flashcard study tips: Space out your reviews over several days. Focus on cards you find difficult. Try to explain the answer in your own words, and use active recall instead of just reading.`);
       return;
     }
     
-    if (lowerCommand.includes('flip') || lowerCommand.includes('show answer') || lowerCommand.includes('reveal')) {
-      speakMessage("Flipping the card to show the answer.");
-      onFlip?.();
+    if (lowerCommand.includes('difficult') || lowerCommand.includes('hard cards')) {
+      speakMessage(`For difficult cards, try these strategies: Break complex concepts into smaller parts. Create visual associations. Practice them more frequently. Don't worry - repetition is key to mastery!`);
       return;
     }
     
-    if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
-      speakMessage("You're making great progress with your flashcard review. Keep practicing to strengthen your memory.");
+    if (lowerCommand.includes('next') || lowerCommand.includes('continue')) {
+      speakMessage(`Ready for the next card! Remember to think about your answer before flipping. This active recall helps strengthen your memory pathways.`);
       return;
     }
     
-    if (lowerCommand.includes('study tips') || lowerCommand.includes('help')) {
-      speakMessage("For effective flashcard study, try to recall the answer before flipping. Review difficult cards more frequently, and space out your practice sessions.");
+    if (lowerCommand.includes('review') || lowerCommand.includes('go back')) {
+      speakMessage(`Reviewing previous cards is a great strategy! Focus on the ones you found challenging. Spaced repetition will help move information to your long-term memory.`);
       return;
     }
     
-    if (lowerCommand.includes('difficult') || lowerCommand.includes('hard')) {
-      speakMessage("Mark this card for extra review. Don't worry, challenging concepts become easier with repeated practice.");
+    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage')) {
+      speakMessage(`You're doing fantastic! Every flashcard you review is building stronger neural pathways. Keep up the consistent practice - it's the key to long-term retention and exam success.`);
       return;
     }
     
     // Default response
-    speakMessage("I can help you navigate flashcards. Say 'next', 'previous', 'flip', or ask for study tips.");
+    speakMessage(`I'm here to guide your flashcard study session! Ask me about your progress, study tips, or just say 'next' when you're ready to continue.`);
   };
   
   const suggestions = [
-    "Next card",
-    "Flip card",
-    "How am I doing?",
-    "Study tips",
-    "This is difficult"
+    "How's my progress?",
+    "Give me study tips",
+    "Help with difficult cards",
+    "Motivate me",
+    "Next card please"
   ];
   
   if (!isVoiceSupported || !isEnabled) {
@@ -99,8 +95,8 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
       <CardHeader className="p-3 pb-0">
         <CardTitle className="text-sm flex justify-between items-center text-purple-800">
           <div className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
-            <span>Flashcard Assistant</span>
+            <RotateCcw className="h-4 w-4" />
+            <span>Flashcard Coach</span>
           </div>
           {expanded && (
             <Button 
@@ -177,8 +173,8 @@ const FlashcardVoiceAssistant: React.FC<FlashcardVoiceAssistantProps> = ({
               onClick={() => setExpanded(true)}
               className="w-full text-purple-700 hover:bg-purple-100"
             >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Flashcard Help
+              <Brain className="h-4 w-4 mr-2" />
+              Study Coach
             </Button>
           </div>
         )}
