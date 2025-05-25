@@ -1,345 +1,311 @@
 
 import React from 'react';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, Users, TrendingUp, Rocket, Star, Shield, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Building2, 
+  TrendingUp, 
+  Users, 
+  Globe, 
+  Award, 
+  Rocket,
+  Star,
+  Target,
+  Zap,
+  Shield
+} from 'lucide-react';
+import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 const InvestorsPartners = () => {
-  const partnerships = [
+  const benefits = [
+    "Access to the latest NVIDIA developer resources and training",
+    "Exclusive NVIDIA hardware to accelerate our AI strategies", 
+    "Technical mentorship from NVIDIA experts",
+    "Priority access to new AI frameworks and tools",
+    "Marketing and go-to-market support",
+    "Networking opportunities with other AI startups"
+  ];
+
+  const futurePartnerships = [
     {
-      name: 'NVIDIA Inception Program',
-      type: 'Strategic Technology Partner',
-      logo: '/lovable-uploads/c13c9764-a94b-443a-9e17-418ecca7ef44.png',
-      description: 'PREPZR is proud to be a member of the prestigious NVIDIA Inception Program, joining an elite community of AI-driven startups that are transforming industries worldwide. This partnership empowers us with cutting-edge resources and exclusive access to accelerate our AI-powered educational platform.',
-      benefits: [
-        'Access to latest developer resources and training programs',
-        'Exclusive NVIDIA hardware to accelerate our AI strategies',
-        'Technical mentorship and support from NVIDIA experts',
-        'Early access to new technologies and development tools',
-        'Networking opportunities with industry leaders',
-        'Marketing and go-to-market support'
-      ],
-      status: 'Active',
-      joinedDate: '2024',
-      story: 'Our journey with NVIDIA began when we recognized the transformative potential of AI in education. As we developed our personalized learning algorithms, we needed powerful computing resources and expertise to bring our vision to life. The NVIDIA Inception Program provided us with the perfect platform to scale our AI capabilities and connect with like-minded innovators in the startup ecosystem.'
+      category: "Technology Partners",
+      description: "Cloud providers, AI/ML platforms, and educational technology companies",
+      icon: <Zap className="h-6 w-6" />
+    },
+    {
+      category: "Educational Institutions", 
+      description: "Universities, colleges, and coaching institutes for content partnerships",
+      icon: <Building2 className="h-6 w-6" />
+    },
+    {
+      category: "Government Bodies",
+      description: "Educational boards and examination authorities for official endorsements", 
+      icon: <Shield className="h-6 w-6" />
     }
   ];
 
-  const investmentHighlights = [
+  const investmentOpportunities = [
     {
-      icon: <TrendingUp className="h-6 w-6" />,
-      title: 'Market Opportunity',
-      description: '$280B+ global education technology market with rapid AI adoption',
-      color: 'bg-blue-500'
+      stage: "Series A",
+      focus: "Scale AI capabilities and expand to new exam categories",
+      amount: "₹50-100 Cr", 
+      timeline: "Q2 2025"
     },
     {
-      icon: <Users className="h-6 w-6" />,
-      title: 'Growing User Base',
-      description: 'Expanding student community across competitive exam preparation',
-      color: 'bg-green-500'
-    },
-    {
-      icon: <Zap className="h-6 w-6" />,
-      title: 'AI-First Approach',
-      description: 'Cutting-edge AI technology powering personalized learning experiences',
-      color: 'bg-purple-500'
-    },
-    {
-      icon: <Rocket className="h-6 w-6" />,
-      title: 'Scalable Platform',
-      description: 'Built for global expansion with robust, scalable architecture',
-      color: 'bg-orange-500'
+      stage: "Strategic Partnerships",
+      focus: "Content partnerships and technology integrations",
+      amount: "Ongoing",
+      timeline: "Continuous"
     }
-  ];
-
-  const upcomingOpportunities = [
-    'Series A funding round opening Q2 2025',
-    'Strategic partnerships with leading educational institutions',
-    'International market expansion opportunities',
-    'Technology licensing and white-label solutions',
-    'Corporate training and enterprise solutions'
   ];
 
   return (
-    <>
-      <Helmet>
-        <title>Investors & Partners - PREPZR</title>
-        <meta name="description" content="Join PREPZR's journey in revolutionizing education through AI. Learn about our partnerships, investment opportunities, and strategic collaborations." />
-      </Helmet>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <Header />
       
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <main className="pt-20">
         {/* Hero Section */}
-        <section className="pt-20 pb-16 px-4">
-          <div className="container mx-auto max-w-6xl">
+        <section className="py-20">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-16"
+              className="text-center max-w-4xl mx-auto"
             >
-              <Badge className="mb-4 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                Building the Future of Education
-              </Badge>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
                 Investors & Partners
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                Join us in revolutionizing education through AI-powered personalized learning. 
-                Discover partnership opportunities and investment potential in the future of exam preparation.
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+                Join us in revolutionizing education with AI-powered learning solutions for millions of students across India
               </p>
-            </motion.div>
-
-            {/* Investment Highlights */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
-            >
-              {investmentHighlights.map((highlight, index) => (
-                <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardHeader className="pb-2">
-                    <div className={`w-12 h-12 rounded-lg ${highlight.color} flex items-center justify-center text-white mb-3`}>
-                      {highlight.icon}
-                    </div>
-                    <CardTitle className="text-lg">{highlight.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-                      {highlight.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+              <div className="flex flex-wrap justify-center gap-4">
+                <Badge variant="outline" className="text-lg px-4 py-2 bg-blue-50 border-blue-200">
+                  <Building2 className="h-5 w-5 mr-2" />
+                  NVIDIA Inception Partner
+                </Badge>
+                <Badge variant="outline" className="text-lg px-4 py-2 bg-green-50 border-green-200">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  High Growth Potential
+                </Badge>
+                <Badge variant="outline" className="text-lg px-4 py-2 bg-purple-50 border-purple-200">
+                  <Users className="h-5 w-5 mr-2" />
+                  Million+ Student Market
+                </Badge>
+              </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Strategic Partnerships */}
-        <section className="py-16 px-4 bg-white dark:bg-gray-800">
-          <div className="container mx-auto max-w-6xl">
+        {/* NVIDIA Partnership Story */}
+        <section className="py-16 bg-white dark:bg-gray-900">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-12"
+              className="max-w-6xl mx-auto"
             >
-              <h2 className="text-4xl font-bold mb-4">Strategic Partnerships</h2>
-              <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                We collaborate with industry leaders to deliver cutting-edge educational technology
-              </p>
-            </motion.div>
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold mb-4">Our Partnership Journey</h2>
+                <p className="text-xl text-gray-600 dark:text-gray-300">
+                  Backed by industry leaders who believe in our vision
+                </p>
+              </div>
 
-            <div className="space-y-8">
-              {partnerships.map((partner, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: index * 0.1 }}
-                >
-                  <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                    <CardContent className="p-8">
-                      <div className="flex flex-col lg:flex-row items-start gap-8">
-                        <div className="flex-shrink-0">
-                          <div className="w-40 h-24 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-xl flex items-center justify-center p-6 shadow-lg">
-                            <img 
-                              src={partner.logo} 
-                              alt={`${partner.name} logo`}
-                              className="max-w-full max-h-full object-contain"
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-                            <h3 className="text-3xl font-bold">{partner.name}</h3>
-                            <div className="flex gap-2">
-                              <Badge variant="secondary" className="text-sm">{partner.type}</Badge>
-                              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                {partner.status}
-                              </Badge>
-                              <Badge variant="outline">Since {partner.joinedDate}</Badge>
-                            </div>
-                          </div>
-                          
-                          <div className="mb-6">
-                            <h4 className="font-semibold mb-3 text-lg">Our Partnership Story</h4>
-                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                              {partner.story}
-                            </p>
-                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                              {partner.description}
-                            </p>
-                          </div>
-                          
-                          <div>
-                            <h4 className="font-semibold mb-4 flex items-center gap-2 text-lg">
-                              <Star className="h-5 w-5 text-yellow-500" />
-                              Partnership Benefits & Access
-                            </h4>
-                            <div className="grid sm:grid-cols-2 gap-3">
-                              {partner.benefits.map((benefit, benefitIndex) => (
-                                <div key={benefitIndex} className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                  <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                                  <span>{benefit}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Future Partnerships */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="mt-12 text-center"
-            >
-              <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-                <CardContent className="p-8">
-                  <div className="text-gray-500 dark:text-gray-400 mb-4">
-                    <Rocket className="h-12 w-12 mx-auto mb-3" />
+              <Card className="overflow-hidden shadow-2xl">
+                <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white p-8">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-white p-3 rounded-lg">
+                      <img
+                        src="/lovable-uploads/01d9bec1-6662-487f-8de6-86c1d36cddfd.png"
+                        alt="NVIDIA Inception Logo"
+                        className="h-12 w-auto"
+                      />
+                    </div>
+                    <div>
+                      <CardTitle className="text-3xl font-bold">NVIDIA Inception Program</CardTitle>
+                      <p className="text-green-100 text-lg">Accelerating AI Innovation in Education</p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">More Partnerships Coming Soon</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    We're actively building relationships with leading technology companies, 
-                    educational institutions, and industry experts to expand our ecosystem.
-                  </p>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Our Partnership Story</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                        PREPZR was accepted into the prestigious NVIDIA Inception Program, recognizing our innovative approach to AI-powered education. 
+                        This partnership validates our technology stack and positions us at the forefront of the AI revolution in Indian education.
+                      </p>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Through this partnership, we're leveraging cutting-edge GPU acceleration and AI frameworks to deliver 
+                        personalized learning experiences that adapt to each student's unique learning patterns and exam requirements.
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Partnership Benefits</h3>
+                      <div className="space-y-3">
+                        {benefits.map((benefit, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className="flex items-start gap-3"
+                          >
+                            <div className="bg-green-100 dark:bg-green-900 p-1 rounded-full mt-1">
+                              <Star className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            </div>
+                            <span className="text-gray-700 dark:text-gray-300">{benefit}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
           </div>
         </section>
 
-        {/* Investment Opportunity */}
-        <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-          <div className="container mx-auto max-w-4xl text-center">
+        {/* Investment Opportunities */}
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
+              className="max-w-6xl mx-auto"
             >
-              <h2 className="text-4xl font-bold mb-6">Investment Opportunity</h2>
-              <p className="text-xl mb-8 opacity-90 leading-relaxed">
-                Be part of the next generation of educational technology. Join our mission to make quality education accessible through AI.
-              </p>
-              
-              <div className="grid md:grid-cols-2 gap-8 mb-12">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <Shield className="h-5 w-5" />
-                      Why Invest in PREPZR?
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-left">
-                    <ul className="space-y-3 text-white/90">
-                      <li className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full mt-2"></div>
-                        Proven AI technology with measurable learning outcomes
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full mt-2"></div>
-                        Large addressable market with global expansion potential
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full mt-2"></div>
-                        Strong partnerships with technology leaders like NVIDIA
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full mt-2"></div>
-                        Experienced team with education and technology expertise
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <Globe className="h-5 w-5" />
-                      Upcoming Opportunities
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-left">
-                    <ul className="space-y-3 text-white/90">
-                      {upcomingOpportunities.map((opportunity, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-white rounded-full mt-2"></div>
-                          {opportunity}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold mb-4">Investment Opportunities</h2>
+                <p className="text-xl text-gray-600 dark:text-gray-300">
+                  Join us in transforming education for millions of students
+                </p>
               </div>
 
-              <Button 
-                size="lg" 
-                className="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-8"
-              >
-                Contact Us for Investment Opportunities
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Partnership Opportunities */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto max-w-4xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="text-4xl font-bold mb-6">Partnership Opportunities</h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
-                Interested in partnering with PREPZR? We're always looking for strategic collaborations that advance our mission.
-              </p>
-
-              <div className="grid md:grid-cols-3 gap-6 mb-12">
-                {[
-                  { title: 'Educational Institutions', description: 'Integrate our AI technology into your curriculum' },
-                  { title: 'Technology Partners', description: 'Collaborate on cutting-edge educational innovations' },
-                  { title: 'Content Partners', description: 'Expand our content library with your expertise' }
-                ].map((type, index) => (
-                  <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                    <CardContent className="p-6 text-center">
-                      <h3 className="font-semibold mb-2">{type.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">{type.description}</p>
-                    </CardContent>
-                  </Card>
+              <div className="grid md:grid-cols-2 gap-8">
+                {investmentOpportunities.map((opportunity, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                  >
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
+                            <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <CardTitle className="text-2xl">{opportunity.stage}</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 dark:text-gray-300 mb-4">{opportunity.focus}</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="font-semibold">Target Amount:</span>
+                            <span className="text-blue-600 dark:text-blue-400 font-bold">{opportunity.amount}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-semibold">Timeline:</span>
+                            <span className="text-gray-700 dark:text-gray-300">{opportunity.timeline}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 ))}
               </div>
-
-              <Button size="lg" variant="outline">
-                Explore Partnership Opportunities
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
             </motion.div>
           </div>
         </section>
-      </div>
-      
+
+        {/* Future Partnerships */}
+        <section className="py-16 bg-white dark:bg-gray-900">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="max-w-6xl mx-auto"
+            >
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold mb-4">Future Partnership Opportunities</h2>
+                <p className="text-xl text-gray-600 dark:text-gray-300">
+                  We're actively seeking strategic partnerships to expand our impact
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                {futurePartnerships.map((partnership, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                  >
+                    <Card className="h-full text-center hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="bg-purple-100 dark:bg-purple-900 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                          <div className="text-purple-600 dark:text-purple-400">
+                            {partnership.icon}
+                          </div>
+                        </div>
+                        <CardTitle className="text-xl">{partnership.category}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 dark:text-gray-300">{partnership.description}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="text-center max-w-4xl mx-auto"
+            >
+              <h2 className="text-4xl font-bold mb-6">Ready to Partner With Us?</h2>
+              <p className="text-xl mb-8 text-blue-100">
+                Join us in revolutionizing education and creating the next generation of AI-powered learning solutions
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
+                  <Target className="h-5 w-5 mr-2" />
+                  Investment Inquiries
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+                  <Rocket className="h-5 w-5 mr-2" />
+                  Partnership Opportunities
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </main>
+
       <Footer />
-    </>
+    </div>
   );
 };
 
