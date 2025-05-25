@@ -1,61 +1,41 @@
 
-// Study Plan Types
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  priority: 'high' | 'medium' | 'low';
-}
-
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  color?: string;
-  hoursPerWeek: number;
+  chapters: StudyPlanChapter[];
+  totalHours: number;
+  completedHours: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency: 'weak' | 'medium' | 'strong';
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+export interface StudyPlanChapter {
+  id: string;
+  name: string;
+  topics: StudyPlanTopic[];
+  estimatedHours: number;
   completed: boolean;
-  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  difficulty?: 'easy' | 'medium' | 'hard';
-  topics?: StudyPlanTopic[];
+}
+
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  estimatedMinutes: number;
+  completed: boolean;
+  difficulty: 'easy' | 'medium' | 'hard';
 }
 
 export interface StudyPlan {
   id: string;
-  title?: string;
-  goal?: string;
-  examGoal: string;
-  examDate: string | Date;
-  status: 'active' | 'completed' | 'archived' | 'pending';
+  userId: string;
+  examType: string;
+  targetDate: string;
   subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
+  weeklyHours: number;
+  dailyHours: number;
   createdAt: string;
-  updatedAt?: string;
-  progressPercent?: number;
-  progressPercentage?: number;
-  progress?: number;
-  daysLeft?: number;
-  weeklyHours?: number;
-  userId?: string;
+  updatedAt: string;
 }
 
-export interface NewStudyPlan {
-  id?: string;
-  title?: string;
-  goal?: string;
-  examGoal: string;
-  examDate: string | Date;
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
-  weeklyHours?: number;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
-}
-
-// Export types to be used in other files
-export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };
+// Legacy alias for backward compatibility
+export type NewStudyPlanSubject = StudyPlanSubject;
