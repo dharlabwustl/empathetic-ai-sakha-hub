@@ -86,31 +86,13 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const handleSwitchExam = () => {
-    // Handle exam switching logic
     console.log('Switch exam clicked');
   };
 
   const handleNewPlan = () => {
-    // Handle new plan creation
     console.log('New plan clicked');
   };
 
-  // Get current subscription status
-  const getCurrentPlan = () => {
-    if (!user?.subscription) return 'Free';
-    
-    if (typeof user.subscription === 'string') {
-      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
-             user.subscription === 'pro_annual' ? 'Pro Annual' :
-             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
-    }
-    
-    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
-           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
-           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
-           (user.subscription.planType || 'Free').slice(1);
-  };
-  
   return (
     <div className="flex items-center justify-between w-full mb-4">
       {/* Left side - Welcome message with subscription plan */}
@@ -125,7 +107,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             onClick={handleSubscriptionClick}
             className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary p-0 h-auto"
           >
-            Current Plan: {getCurrentPlan()}
+            Current Plan: Free
           </Button>
         </div>
       </div>
