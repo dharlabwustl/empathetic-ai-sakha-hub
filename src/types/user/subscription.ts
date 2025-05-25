@@ -1,3 +1,4 @@
+
 export enum SubscriptionType {
   FREE = 'free',
   BASIC = 'basic',
@@ -42,8 +43,6 @@ export interface CreditPack {
   credits: number;
   price: number;
   description: string;
-  bestValue?: boolean;
-  isExamCredits?: boolean;
 }
 
 export const creditPacks: CreditPack[] = [
@@ -52,27 +51,21 @@ export const creditPacks: CreditPack[] = [
     name: '10 Credits',
     credits: 10,
     price: 99,
-    description: 'Perfect for occasional use',
-    bestValue: false,
-    isExamCredits: true
+    description: 'Perfect for occasional use'
   },
   {
     id: 'pack_50',
     name: '50 Credits',
     credits: 50,
     price: 399,
-    description: 'Best value for regular users',
-    bestValue: true,
-    isExamCredits: true
+    description: 'Best value for regular users'
   },
   {
     id: 'pack_100',
     name: '100 Credits',
     credits: 100,
     price: 699,
-    description: 'For power users',
-    bestValue: false,
-    isExamCredits: true
+    description: 'For power users'
   }
 ];
 
