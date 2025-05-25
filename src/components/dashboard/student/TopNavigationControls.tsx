@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import FloatingVoiceAssistant from './FloatingVoiceAssistant';
+import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
 
 interface TopNavigationControlsProps {
   hideSidebar?: boolean;
@@ -82,11 +82,9 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
 
   const handleContinuousListening = () => {
     setIsContinuousListening(!isContinuousListening);
-    // Here you would implement the continuous listening logic
     console.log('Continuous listening:', !isContinuousListening);
   };
 
-  // Get current subscription status
   const getCurrentPlan = () => {
     if (!user?.subscription) return 'Free';
     
@@ -160,81 +158,6 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Continuous Listening Toggle */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleContinuousListening}
-                className={`relative ${isContinuousListening ? 'bg-green-50 border-green-300' : ''}`}
-              >
-                {isContinuousListening ? (
-                  <Pause className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Play className="h-4 w-4" />
-                )}
-                {isContinuousListening && (
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>{isContinuousListening ? 'Stop Continuous Listening' : 'Start Continuous Listening'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Microphone Toggle */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleMicToggle}
-                className={`relative ${isMicActive ? 'bg-green-50 border-green-300' : ''}`}
-              >
-                {isMicActive ? (
-                  <Mic className="h-4 w-4 text-green-600" />
-                ) : (
-                  <MicOff className="h-4 w-4" />
-                )}
-                {isMicActive && (
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>{isMicActive ? 'Microphone Active' : 'Activate Microphone'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Mute Toggle */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleMuteToggle}
-                className={isMuted ? 'bg-red-50 border-red-300' : ''}
-              >
-                {isMuted ? (
-                  <VolumeX className="h-4 w-4 text-red-600" />
-                ) : (
-                  <Volume2 className="h-4 w-4" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>{isMuted ? 'Unmute Voice' : 'Mute Voice'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
         {/* Voice Assistant Button */}
         <TooltipProvider>
           <Tooltip>
@@ -243,14 +166,14 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
                 variant="outline"
                 size="icon"
                 onClick={handleVoiceAssistant}
-                className="relative"
+                className="relative bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 hover:from-purple-600 hover:to-blue-600"
               >
                 <Volume2 className="h-4 w-4" />
-                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>Voice Assistant</p>
+              <p>Sakha AI Voice Assistant</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -306,12 +229,13 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
         </DropdownMenu>
       </div>
 
-      {/* Voice Assistant Modal */}
-      <FloatingVoiceAssistant 
+      {/* Unified Voice Assistant Modal */}
+      <UnifiedVoiceAssistant 
         isOpen={isVoiceAssistantOpen}
         onClose={() => setIsVoiceAssistantOpen(false)}
         userName={userName || user?.name}
         language={selectedLanguage}
+        context="dashboard"
       />
     </div>
   );

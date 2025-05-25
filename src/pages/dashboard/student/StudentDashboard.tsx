@@ -5,17 +5,16 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
-import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
-import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
+import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
+  const navigate = useNavigate();
   
   const {
     loading,
@@ -42,18 +41,6 @@ const StudentDashboard = () => {
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
-
-  // Voice announcer hook
-  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
-    userName: userProfile?.name,
-    initialSettings: {
-      enabled: true,
-      muted: false,
-      language: 'en-IN',
-      pitch: 1.1, // Higher pitch for female voice
-      rate: 0.95  // Slightly faster for more energy
-    }
-  });
 
   // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
@@ -84,17 +71,7 @@ const StudentDashboard = () => {
       // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
-
-    // Auto-start voice greeting after 3 seconds
-    if (userProfile?.name) {
-      const timer = setTimeout(() => {
-        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
-        speakMessage(greeting);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [location, userProfile, speakMessage, currentMood]);
+  }, [location, userProfile]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -199,8 +176,11 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Add the floating voice assistant */}
-      <FloatingVoiceAssistant userName={userProfile.name} />
+      {/* Unified floating voice assistant */}
+      <FloatingVoiceButton 
+        userName={userProfile.name}
+        language="en-US"
+      />
     </>
   );
 };

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,8 @@ import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
+import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -69,7 +67,7 @@ const EnhancedTodaysPlan: React.FC = () => {
         navigate('/dashboard/student/practice-exam');
         break;
       case 'break':
-        console.log('Take a break suggestion clicked');
+        navigate('/dashboard/student/feel-good-corner');
         break;
       case 'bonus':
         navigate('/dashboard/student/feel-good-corner');
@@ -90,31 +88,27 @@ const EnhancedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Progress meter at the top */}
-        <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
-        
-        {/* Smart suggestions section */}
+      <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
+        {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
           isMobile={isMobile}
         />
         
-        {/* Enhanced task breakdown with premium styling */}
+        {/* Enhanced task breakdown with premium styling - keep existing design */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
-        
-        {/* Voice assistant for today's plan */}
-        <TodaysPlanVoiceAssistant 
-          planData={planData}
-          userName={planData?.userName}
-          isEnabled={true}
-        />
       </div>
+      
+      {/* Voice assistant for learning support */}
+      <FloatingVoiceButton 
+        userName={planData?.userName || userProfile?.name}
+        language="en-US"
+      />
     </SharedPageLayout>
   );
 };
