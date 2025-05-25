@@ -13,7 +13,6 @@ import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TabAIAssistant from './ai-assistant/TabAIAssistant';
 import TabProgressMeter from './progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
-import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
 
 interface RedesignedTodaysPlanProps {
   userProfile: UserProfileBase;
@@ -25,79 +24,18 @@ const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile
 
   return (
     <div className="space-y-6">
-      {/* Progress meter at the top */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
-        <TabProgressMeter 
-          tabName="Today's Plan" 
-          progressData={progressData}
-          showDetailed={true}
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
           <h2 className="text-2xl font-bold mb-4">Today's Plan for {userProfile.name}</h2>
           <p className="text-muted-foreground mb-6">Your personalized study schedule is ready!</p>
-          
-          {/* Enhanced Task Breakdown will be rendered here */}
-          <div className="space-y-4">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-l-blue-500">
-              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                📚 Core Concepts
-                <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded-full">3 pending</span>
-              </h3>
-              <div className="space-y-2">
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Newton's Laws of Motion</span>
-                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Medium</span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">15 min estimated</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-l-purple-500">
-              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                🧠 Flashcard Review
-                <span className="text-sm bg-purple-100 text-purple-700 px-2 py-1 rounded-full">5 sets</span>
-              </h3>
-              <div className="space-y-2">
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors cursor-pointer">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Physics Formulas</span>
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Due</span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">10 min review</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-        
         <div className="space-y-4">
-          <TabAIAssistant tabName="Today's Plan" isMinimized />
-          <TodaysPlanVoiceAssistant 
-            planData={{
-              userName: userProfile.name,
-              totalTasks: 8,
-              completedTasks: 3,
-              concepts: [
-                { id: '1', title: "Newton's Laws", status: 'pending', difficulty: 'medium' }
-              ],
-              flashcards: [
-                { id: '1', title: "Physics Formulas", status: 'pending', difficulty: 'easy' }
-              ],
-              practiceExams: [
-                { id: '1', title: "Mock Test 1", status: 'pending', difficulty: 'hard' }
-              ],
-              streak: 5,
-              timeAllocation: { total: 120 },
-              backlogTasks: []
-            }}
-            userName={userProfile.name}
-            isEnabled={true}
+          <TabProgressMeter 
+            tabName="Today's Plan" 
+            progressData={progressData}
+            showDetailed={false}
           />
+          <TabAIAssistant tabName="Today's Plan" isMinimized />
         </div>
       </div>
     </div>
