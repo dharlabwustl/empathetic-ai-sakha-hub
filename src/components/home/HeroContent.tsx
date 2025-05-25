@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import HeroButtons from './HeroButtons';
 import FeatureCheckpoints from './FeatureCheckpoints';
 import StudentJourneyBadge from './StudentJourneyBadge';
 import ExamNamesBadge from './ExamNamesBadge';
-import YearBadge from '@/components/ui/year-badge';
 import { Award, GraduationCap, Clock, Shield, Smile, Brain } from 'lucide-react';
 import { takeawayPoints } from './hero/feature-highlights/featureData';
 import { fadeInStagger, itemVariants } from './hero/feature-highlights/animationVariants';
@@ -28,11 +28,6 @@ const HeroContent: React.FC<HeroContentProps> = ({ handleExamReadinessClick }) =
       className="w-full lg:w-1/2 pt-8 lg:pt-0 lg:pr-8"
     >
       <div className="flex flex-wrap gap-2 mb-4">
-        <YearBadge 
-          variant="outline" 
-          size="md" 
-          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-none"
-        />
         <StudentJourneyBadge />
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
