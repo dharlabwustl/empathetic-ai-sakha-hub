@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, Calendar, CheckCircle, Clock } from "lucide-react";
-import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import { Mic, MicOff, Volume2, VolumeX, Calendar, Play, Pause } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { TodaysPlanData } from '@/types/student/todaysPlan';
 
 interface TodaysPlanVoiceAssistantProps {
-  planData?: TodaysPlanData | null;
+  planData: TodaysPlanData | null;
   userName?: string;
   isEnabled?: boolean;
 }
@@ -18,96 +18,105 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
   isEnabled = true
 }) => {
   const [expanded, setExpanded] = useState(false);
-  
-  const {
-    voiceSettings,
-    toggleMute,
-    speakMessage,
-    isVoiceSupported,
-    isSpeaking,
-    isListening,
-    startListening,
-    stopListening,
-    transcript
-  } = useVoiceAnnouncer({ userName });
-  
-  useEffect(() => {
-    if (transcript) {
-      processVoiceCommand(transcript);
+  const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [transcript, setTranscript] = useState('');
+
+  const speakMessage = (message: string) => {
+    if (!isMuted && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      const speech = new SpeechSynthesisUtterance();
+      speech.text = message.replace(/PREPZR/gi, 'PREP-ZER');
+      speech.lang = 'en-IN';
+      speech.volume = 0.8;
+      speech.rate = 0.9;
+      speech.pitch = 1.1;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('female') || 
+        voice.name.toLowerCase().includes('zira') ||
+        !voice.name.toLowerCase().includes('male')
+      );
+      
+      if (femaleVoice) {
+        speech.voice = femaleVoice;
+      }
+      
+      window.speechSynthesis.speak(speech);
     }
-  }, [transcript]);
-  
+  };
+
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
     if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
-      const completedTasks = planData?.completedTasks || 0;
-      const totalTasks = planData?.totalTasks || 0;
-      const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      const totalTasks = planData ? 
+        planData.concepts.length + planData.flashcards.length + planData.practiceExams.length : 0;
+      const completedTasks = planData ? 
+        planData.concepts.filter(c => c.status === 'completed').length +
+        planData.flashcards.filter(f => f.status === 'completed').length +
+        planData.practiceExams.filter(p => p.status === 'completed').length : 0;
       
-      speakMessage(`You've completed ${completedTasks} out of ${totalTasks} tasks today. That's ${percentage}% progress. ${percentage >= 70 ? 'Excellent work!' : percentage >= 50 ? 'Good progress, keep going!' : 'You can do this, stay focused!'}`);
+      speakMessage(`You've completed ${completedTasks} out of ${totalTasks} tasks today. Great progress, ${userName}!`);
       return;
     }
     
-    if (lowerCommand.includes('what tasks') || lowerCommand.includes('what should i do')) {
-      const pendingConcepts = planData?.concepts?.filter(c => c.status === 'pending')?.length || 0;
-      const pendingFlashcards = planData?.flashcards?.filter(f => f.status === 'pending')?.length || 0;
-      const pendingExams = planData?.practiceExams?.filter(p => p.status === 'pending')?.length || 0;
+    if (lowerCommand.includes('next task') || lowerCommand.includes('what\'s next')) {
+      const nextTask = planData?.concepts.find(c => c.status === 'pending') ||
+                      planData?.flashcards.find(f => f.status === 'pending') ||
+                      planData?.practiceExams.find(p => p.status === 'pending');
       
-      speakMessage(`You have ${pendingConcepts} concepts to study, ${pendingFlashcards} flashcard sets to review, and ${pendingExams} practice exams pending. I recommend starting with concepts first.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('backlog') || lowerCommand.includes('overdue')) {
-      const backlogCount = planData?.backlogTasks?.length || 0;
-      if (backlogCount > 0) {
-        speakMessage(`You have ${backlogCount} overdue tasks in your backlog. Consider tackling these first to catch up on your studies.`);
+      if (nextTask) {
+        speakMessage(`Your next task is: ${nextTask.title}. This should take about ${nextTask.duration} minutes.`);
       } else {
-        speakMessage("Great! You don't have any overdue tasks. You're staying on track with your studies.");
+        speakMessage(`Excellent work! You've completed all your tasks for today.`);
       }
       return;
     }
     
-    if (lowerCommand.includes('time') || lowerCommand.includes('how long')) {
-      const totalTime = planData?.timeAllocation?.total || 0;
-      speakMessage(`Your total study time planned for today is ${totalTime} minutes. Remember to take breaks between study sessions for better retention.`);
+    if (lowerCommand.includes('help') || lowerCommand.includes('assistance')) {
+      speakMessage(`I'm here to help you with your study plan. You can ask me about your progress, next tasks, or get study tips. What would you like to know?`);
       return;
     }
     
-    if (lowerCommand.includes('streak') || lowerCommand.includes('consecutive days')) {
-      const streak = planData?.streak || 0;
-      speakMessage(`You're on a ${streak} day study streak! ${streak >= 7 ? 'Amazing consistency!' : streak >= 3 ? 'Keep it up!' : 'Great start, build on this momentum!'}`);
+    if (lowerCommand.includes('motivate') || lowerCommand.includes('encourage')) {
+      speakMessage(`You're doing amazing, ${userName}! Every task you complete brings you closer to your exam goals. Keep up the excellent work!`);
       return;
     }
     
-    if (lowerCommand.includes('suggestions') || lowerCommand.includes('what do you recommend')) {
-      speakMessage("Based on your progress, I suggest focusing on pending concepts first, then reviewing flashcards, and finishing with practice exams. Take short breaks between different types of activities.");
-      return;
-    }
-    
-    // Default response
-    speakMessage("I can help you track your progress, manage tasks, handle backlogs, and provide study recommendations for today's plan.");
+    speakMessage(`I can help you with your today's plan. Try asking about your progress, next tasks, or say "motivate me" for encouragement!`);
   };
-  
+
+  const handleToggleListening = () => {
+    setIsListening(!isListening);
+    if (!isListening) {
+      speakMessage(`Hi ${userName}, I'm listening. What would you like to know about your study plan?`);
+      // Simulate voice recognition
+      setTimeout(() => {
+        setIsListening(false);
+        processVoiceCommand("progress");
+      }, 3000);
+    }
+  };
+
   const suggestions = [
-    "How am I doing today?",
-    "What tasks should I do?",
-    "Check my backlog",
-    "What do you recommend?",
-    "How's my streak?"
+    "How is my progress today?",
+    "What's my next task?",
+    "Motivate me",
+    "I need help"
   ];
-  
-  if (!isVoiceSupported || !isEnabled) {
-    return null;
-  }
-  
+
+  if (!isEnabled) return null;
+
   return (
-    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-indigo-200 bg-indigo-50`}>
+    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-blue-200 bg-blue-50`}>
       <CardHeader className="p-3 pb-0">
-        <CardTitle className="text-sm flex justify-between items-center text-indigo-800">
+        <CardTitle className="text-sm flex justify-between items-center text-blue-800">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            <span>Today's Plan Assistant</span>
+            <span>Study Plan Assistant</span>
           </div>
           {expanded && (
             <Button 
@@ -128,8 +137,8 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
               <Button 
                 variant={isListening ? "default" : "outline"}
                 size="sm" 
-                onClick={isListening ? stopListening : startListening}
-                className={`${isListening ? 'bg-indigo-500 hover:bg-indigo-600' : 'border-indigo-200'}`}
+                onClick={handleToggleListening}
+                className={`${isListening ? 'bg-blue-500 hover:bg-blue-600' : 'border-blue-200'}`}
               >
                 {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
                 {isListening ? 'Stop' : 'Start'} Listening
@@ -138,37 +147,31 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => toggleMute()}
-                disabled={isSpeaking}
-                className="border-indigo-200"
+                onClick={() => setIsMuted(!isMuted)}
+                className="border-blue-200"
               >
-                <Speaker className="h-4 w-4 mr-2" />
-                {voiceSettings.muted ? 'Unmute' : 'Mute'}
+                {isMuted ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                {isMuted ? 'Unmute' : 'Mute'}
               </Button>
             </div>
             
             {transcript && (
-              <div className="bg-indigo-100 p-2 rounded-md text-sm">
-                <p className="font-semibold text-indigo-800">You said:</p>
-                <p className="text-indigo-700">{transcript}</p>
+              <div className="bg-blue-100 p-2 rounded-md text-sm">
+                <p className="font-semibold text-blue-800">You said:</p>
+                <p className="text-blue-700">{transcript}</p>
               </div>
             )}
             
             <div>
-              <p className="text-xs text-indigo-600 mb-2 flex items-center gap-1">
-                <CheckCircle className="h-3 w-3" />
-                Try saying:
-              </p>
+              <p className="text-xs text-blue-600 mb-2">Try saying:</p>
               <div className="grid grid-cols-1 gap-1">
-                {suggestions.slice(0, 3).map((suggestion, index) => (
+                {suggestions.map((suggestion, index) => (
                   <Button 
                     key={index} 
                     variant="ghost" 
                     size="sm"
-                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-indigo-700 hover:bg-indigo-100"
-                    onClick={() => {
-                      processVoiceCommand(suggestion);
-                    }}
+                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-blue-700 hover:bg-blue-100"
+                    onClick={() => processVoiceCommand(suggestion)}
                   >
                     "{suggestion}"
                   </Button>
@@ -182,10 +185,10 @@ const TodaysPlanVoiceAssistant: React.FC<TodaysPlanVoiceAssistantProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={() => setExpanded(true)}
-              className="w-full text-indigo-700 hover:bg-indigo-100"
+              className="w-full text-blue-700 hover:bg-blue-100"
             >
-              <Clock className="h-4 w-4 mr-2" />
-              Plan Assistant
+              <Play className="h-4 w-4 mr-2" />
+              Study Assistant
             </Button>
           </div>
         )}

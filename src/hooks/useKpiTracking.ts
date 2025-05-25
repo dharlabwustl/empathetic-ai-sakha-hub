@@ -16,11 +16,15 @@ export interface NudgeData {
   id: string;
   title: string;
   description: string;
+  message?: string;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
   read?: boolean;
   actionUrl?: string;
   actionText?: string;
+  actionLabel?: string;
+  action?: string;
+  icon?: string;
 }
 
 export function useKpiTracking(userRole: UserRole) {
@@ -74,17 +78,23 @@ export function useKpiTracking(userRole: UserRole) {
             id: '1',
             title: 'Physics Test Tomorrow',
             description: 'Don\'t forget to review your notes for tomorrow\'s test',
+            message: 'Don\'t forget to review your notes for tomorrow\'s test',
             priority: 'high',
             createdAt: new Date().toISOString(),
             actionUrl: '/dashboard/student/concepts',
-            actionText: 'Review Concepts'
+            actionText: 'Review Concepts',
+            actionLabel: 'Review Concepts',
+            action: 'review',
+            icon: '📚'
           },
           {
             id: '2',
             title: 'New Recommended Resources',
             description: 'Check out these new study materials based on your performance',
+            message: 'Check out these new study materials based on your performance',
             priority: 'medium',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            icon: '💡'
           }
         ]);
       } else if (userRole === UserRole.Admin) {
@@ -130,17 +140,23 @@ export function useKpiTracking(userRole: UserRole) {
             id: '1',
             title: 'New Support Tickets',
             description: '3 new tickets require your attention',
+            message: '3 new tickets require your attention',
             priority: 'high',
             createdAt: new Date().toISOString(),
             actionUrl: '/admin/support',
-            actionText: 'View Tickets'
+            actionText: 'View Tickets',
+            actionLabel: 'View Tickets',
+            action: 'view',
+            icon: '🎫'
           },
           {
             id: '2',
             title: 'System Update',
             description: 'New system update available for deployment',
+            message: 'New system update available for deployment',
             priority: 'medium',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            icon: '🔄'
           }
         ]);
       }

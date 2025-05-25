@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -13,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
+import TodaysPlanSmartSuggestions from './TodaysPlanSmartSuggestions';
 import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
 
 const EnhancedTodaysPlan: React.FC = () => {
@@ -94,17 +94,17 @@ const EnhancedTodaysPlan: React.FC = () => {
         {/* Progress meter at the top */}
         <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
         
-        {/* Smart suggestions section */}
-        <SmartSuggestionsSection 
-          planData={planData}
-          onActionClick={handleSuggestionAction}
-          isMobile={isMobile}
-        />
-        
         {/* Enhanced task breakdown with premium styling */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
+          isMobile={isMobile}
+        />
+        
+        {/* Smart suggestions section for task completion and backlog management */}
+        <TodaysPlanSmartSuggestions 
+          planData={planData}
+          onActionClick={handleSuggestionAction}
           isMobile={isMobile}
         />
         
