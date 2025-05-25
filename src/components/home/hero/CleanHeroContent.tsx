@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Users, Award } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Users, Award, Clock, Shield, BookOpen, Target, BarChart3, Trophy } from 'lucide-react';
 
 interface CleanHeroContentProps {
   onAnalyzeClick: () => void;
@@ -16,11 +16,14 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
     navigate('/signup');
   };
 
-  const features = [
-    "AI-powered personalized study plans",
-    "Adaptive difficulty based on your progress", 
-    "Interactive concept cards & flashcards",
-    "Real-time performance analytics"
+  const keyBenefits = [
+    { icon: <Clock className="w-5 h-5" />, text: "Save Your Time", color: "from-blue-500 to-blue-600" },
+    { icon: <Shield className="w-5 h-5" />, text: "Stress Free", color: "from-green-500 to-green-600" },
+    { icon: <BookOpen className="w-5 h-5" />, text: "Develop Study Habits", color: "from-purple-500 to-purple-600" },
+    { icon: <Target className="w-5 h-5" />, text: "Syllabus Linked", color: "from-orange-500 to-orange-600" },
+    { icon: <Trophy className="w-5 h-5" />, text: "Boost Your Confidence", color: "from-yellow-500 to-yellow-600" },
+    { icon: <BarChart3 className="w-5 h-5" />, text: "Smart Analytics", color: "from-indigo-500 to-indigo-600" },
+    { icon: <Award className="w-5 h-5" />, text: "Exam Ready", color: "from-pink-500 to-pink-600" }
   ];
 
   const stats = [
@@ -55,10 +58,10 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         className="space-y-4"
       >
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-          <span className="text-gray-900 dark:text-gray-100">Transform Your</span>
+          <span className="text-gray-900 dark:text-gray-100">We understand your</span>
           <br />
           <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Exam Preparation
+            mindset, not just the exam
           </span>
         </h1>
         
@@ -67,25 +70,33 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         </p>
       </motion.div>
 
-      {/* Features List */}
+      {/* Key Benefits in a Row */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.5 }}
-        className="space-y-3"
+        className="space-y-4"
       >
-        {features.map((feature, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-            className="flex items-center gap-3 text-gray-700 dark:text-gray-300"
-          >
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>{feature}</span>
-          </motion.div>
-        ))}
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+          Key Benefits That Transform Your Journey
+        </h3>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {keyBenefits.map((benefit, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+              className={`flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r ${benefit.color} text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105`}
+            >
+              <div className="flex-shrink-0 bg-white/20 p-2 rounded-lg">
+                {benefit.icon}
+              </div>
+              <span className="font-medium text-sm">{benefit.text}</span>
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
 
       {/* CTA Buttons */}
