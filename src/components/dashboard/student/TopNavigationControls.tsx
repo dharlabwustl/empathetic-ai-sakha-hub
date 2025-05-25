@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   DropdownMenu,
@@ -86,13 +85,11 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const handleSwitchExam = () => {
-    // Handle exam switching logic
-    console.log('Switch exam clicked');
+    navigate('/dashboard/student/academic-advisor');
   };
 
   const handleNewPlan = () => {
-    // Handle new plan creation
-    console.log('New plan clicked');
+    navigate('/dashboard/student/academic-advisor');
   };
 
   // Get current subscription status

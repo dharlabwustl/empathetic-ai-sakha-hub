@@ -9,12 +9,13 @@ import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
-import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
 import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
+import EnhancedVoiceGreeting from "@/components/voice/EnhancedVoiceGreeting";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const location = useLocation();
   
   const {
@@ -43,28 +44,15 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Voice announcer hook
-  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
-    userName: userProfile?.name,
-    initialSettings: {
-      enabled: true,
-      muted: false,
-      language: 'en-IN',
-      pitch: 1.1, // Higher pitch for female voice
-      rate: 0.95  // Slightly faster for more energy
-    }
-  });
-
-  // Important: Force disable welcome tour completely
-  const [shouldShowTour, setShouldShowTour] = useState(false);
-
+  // Check for first time user
   useEffect(() => {
-    // Explicitly mark tour as seen to prevent it from appearing
+    const params = new URLSearchParams(location.search);
+    const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
+    setIsFirstTimeUser(isNew);
+    
+    // Force disable welcome tour completely
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.removeItem('new_user_signup');
-    
-    // Don't show splash screen for now
-    setShowSplash(false);
     
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
@@ -78,42 +66,26 @@ const StudentDashboard = () => {
         console.error("Error parsing user data from localStorage:", err);
       }
     }
-
-    // Ensure profile image is available
-    if (userProfile && userProfile.avatar) {
-      // Store the profile image in localStorage for persistence across sessions
-      localStorage.setItem('user_profile_image', userProfile.avatar);
-    }
-
-    // Auto-start voice greeting after 3 seconds
-    if (userProfile?.name) {
-      const timer = setTimeout(() => {
-        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
-        speakMessage(greeting);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [location, userProfile, speakMessage, currentMood]);
+  }, [location, userProfile]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
     if (!currentMood) {
-      setCurrentMood(MoodType.Motivated);
+      setCurrentMood(MoodType.motivated);
       const userData = localStorage.getItem("userData");
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.Motivated;
+          parsedData.mood = MoodType.motivated;
           localStorage.setItem("userData", JSON.stringify(parsedData));
         } catch (err) {
           console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
+          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.motivated }));
         }
       } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
+        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.motivated }));
       }
     }
   };
@@ -169,20 +141,17 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Force welcome tour to never show
-  const modifiedShowWelcomeTour = false;
-
   return (
     <>
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+        hideTabsNav={true}
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={modifiedShowWelcomeTour}
+        showWelcomeTour={false}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -198,6 +167,13 @@ const StudentDashboard = () => {
       >
         {getTabContent()}
       </DashboardLayout>
+      
+      {/* Enhanced Voice Greeting - completes full message before page changes */}
+      <EnhancedVoiceGreeting 
+        userName={userProfile.name || 'Student'}
+        isFirstTimeUser={isFirstTimeUser}
+        language="en-IN"
+      />
       
       {/* Add the floating voice assistant */}
       <FloatingVoiceAssistant userName={userProfile.name} />

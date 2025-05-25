@@ -1,3 +1,4 @@
+
 export enum MoodType {
   HAPPY = 'happy',
   FOCUSED = 'focused',

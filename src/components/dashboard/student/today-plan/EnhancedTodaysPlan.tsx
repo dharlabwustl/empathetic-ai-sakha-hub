@@ -94,14 +94,14 @@ const EnhancedTodaysPlan: React.FC = () => {
         {/* Progress meter at the top */}
         <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
         
-        {/* Smart suggestions section */}
+        {/* Smart suggestions section for task completion and backlog management */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
           isMobile={isMobile}
         />
         
-        {/* Enhanced task breakdown with premium styling */}
+        {/* Enhanced task breakdown */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
