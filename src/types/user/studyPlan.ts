@@ -1,4 +1,5 @@
 
+// Study Plan Types
 export interface StudyPlanTopic {
   id: string;
   name: string;
@@ -12,38 +13,33 @@ export interface StudyPlanSubject {
   id: string;
   name: string;
   color?: string;
-  hoursPerWeek?: number;
-  totalHours: number;
-  completedHours: number;
+  hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency?: 'weak' | 'medium' | 'strong' | number;
-  completed?: boolean;
+  proficiency: 'weak' | 'medium' | 'strong';
+  completed: boolean;
   status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
-  topics?: StudyPlanTopic[] | string[];
+  topics?: StudyPlanTopic[];
 }
 
 export interface StudyPlan {
   id: string;
   title?: string;
   goal?: string;
-  examGoal?: string;
-  examType: string;
-  examDate?: string | Date;
-  targetDate: Date;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
+  examGoal: string;
+  examDate: string | Date;
+  status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
-  studyHoursPerDay?: number;
-  dailyHours: number;
-  weeklyHours: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  createdAt: string | Date;
-  updatedAt?: string | Date;
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  createdAt: string;
+  updatedAt?: string;
   progressPercent?: number;
   progressPercentage?: number;
   progress?: number;
   daysLeft?: number;
+  weeklyHours?: number;
   userId?: string;
 }
 
@@ -51,25 +47,15 @@ export interface NewStudyPlan {
   id?: string;
   title?: string;
   goal?: string;
-  examGoal?: string;
-  examType: string;
-  examDate?: string | Date;
-  targetDate: Date;
+  examGoal: string;
+  examDate: string | Date;
   subjects: StudyPlanSubject[];
-  studyHoursPerDay?: number;
-  dailyHours: number;
-  weeklyHours: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'moderate' | 'fast';
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  weeklyHours?: number;
   status?: 'active' | 'completed' | 'archived' | 'pending';
 }
 
-export interface SubjectProgress {
-  id: string;
-  name: string;
-  progress: number;
-  target: number;
-  color: string;
-}
-
+// Export types to be used in other files
 export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

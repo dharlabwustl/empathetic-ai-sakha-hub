@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
+import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -12,7 +13,6 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import DailySmartSuggestions from '../dashboard-sections/DailySmartSuggestions';
 import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
 
 const EnhancedTodaysPlan: React.FC = () => {
@@ -21,11 +21,15 @@ const EnhancedTodaysPlan: React.FC = () => {
   const isMobile = useIsMobile();
   const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
   
+  // Get today's plan data
   const {
     loading,
     error,
     planData,
-    refreshData
+    refreshData,
+    markTaskCompleted,
+    addBookmark,
+    addNote
   } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
   
   if (loading) {
@@ -46,9 +50,33 @@ const EnhancedTodaysPlan: React.FC = () => {
     );
   }
 
+  // Handle concept click to navigate to concept study page
   const handleConceptClick = (conceptId: string) => {
     console.log("Navigating to concept detail page:", conceptId);
     navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
+  // Handle smart suggestion actions
+  const handleSuggestionAction = (action: string) => {
+    switch (action) {
+      case 'concepts':
+        navigate('/dashboard/student/concepts');
+        break;
+      case 'flashcards':
+        navigate('/dashboard/student/flashcards');
+        break;
+      case 'practice-exam':
+        navigate('/dashboard/student/practice-exam');
+        break;
+      case 'break':
+        console.log('Take a break suggestion clicked');
+        break;
+      case 'bonus':
+        navigate('/dashboard/student/feel-good-corner');
+        break;
+      default:
+        console.log('Suggestion action:', action);
+    }
   };
 
   return (
@@ -66,15 +94,19 @@ const EnhancedTodaysPlan: React.FC = () => {
         {/* Progress meter at the top */}
         <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
         
+        {/* Smart suggestions section */}
+        <SmartSuggestionsSection 
+          planData={planData}
+          onActionClick={handleSuggestionAction}
+          isMobile={isMobile}
+        />
+        
         {/* Enhanced task breakdown with premium styling */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
-        
-        {/* Smart suggestions section for task completion and backlog management */}
-        <DailySmartSuggestions />
         
         {/* Voice assistant for today's plan */}
         <TodaysPlanVoiceAssistant 
