@@ -124,7 +124,7 @@ const Index = () => {
       {/* Enhanced intelligent voice assistant for homepage with immediate greeting */}
       <EnhancedHomePageVoiceAssistant language="en-US" />
       
-      {/* Floating Voice Assistant button with settings panel */}
+      {/* Floating Voice Assistant button */}
       <div className="fixed bottom-6 right-6 z-50">
         <motion.button
           className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center"
@@ -150,7 +150,7 @@ const Index = () => {
           isOpen={showVoiceAssistant} 
           onClose={handleCloseVoiceAssistant}
           onNavigationCommand={handleNavigationCommand}
-          language="en-US"
+          language="en-US"  // Use US English for female voice preference
         />
       )}
     </div>
