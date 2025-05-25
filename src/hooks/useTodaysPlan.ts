@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { TodaysPlanData, TimelineView, SmartSuggestion } from '@/types/student/todaysPlan';
 
@@ -168,7 +167,28 @@ const mockTodayPlan: TodaysPlanData = {
       daysOverdue: 2
     }
   ],
-  smartSuggestions: []
+  smartSuggestions: [
+    {
+      id: "s1",
+      type: "concept",
+      title: "Start with Easy Concepts",
+      description: "Begin with fundamental concepts to build momentum",
+      action: "concepts",
+      priority: "high",
+      reason: "Starting with easier topics helps build confidence",
+      estimatedTime: 15
+    },
+    {
+      id: "s2",
+      type: "flashcard",
+      title: "Quick Review Session",
+      description: "Review flashcards for better retention",
+      action: "flashcards",
+      priority: "medium",
+      reason: "Spaced repetition improves long-term memory",
+      estimatedTime: 10
+    }
+  ]
 };
 
 export const useTodaysPlan = (examGoal = "IIT-JEE", userName = "Student") => {

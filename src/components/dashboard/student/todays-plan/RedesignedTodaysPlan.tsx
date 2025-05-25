@@ -12,7 +12,7 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
-import NewTodaysPlanView from '../today-plan/NewTodaysPlanView';
+import NewTodaysPlanView from './NewTodaysPlanView';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
+import TodaysPlanProgressMeter from './TodaysPlanProgressMeter';
 import { TodaysPlanData } from '@/types/student/todaysPlan';
 
 interface NewTodaysPlanViewProps {
