@@ -9,12 +9,11 @@ import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import { useVoiceAnnouncer } from "@/hooks/useVoiceAnnouncer";
+import { getGreeting } from "@/components/dashboard/student/voice/voiceUtils";
 import FloatingVoiceAssistant from "@/components/dashboard/student/FloatingVoiceAssistant";
-import EnhancedVoiceGreeting from "@/components/dashboard/student/voice/EnhancedVoiceGreeting";
-import UnifiedVoiceManager from "@/components/dashboard/student/voice/UnifiedVoiceManager";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   
@@ -44,21 +43,30 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Check if user is first time
-  const isFirstTimeUser = userProfile?.loginCount === 1;
+  // Voice announcer hook
+  const { speakMessage, voiceSettings } = useVoiceAnnouncer({
+    userName: userProfile?.name,
+    initialSettings: {
+      enabled: true,
+      muted: false,
+      language: 'en-IN',
+      pitch: 1.1, // Higher pitch for female voice
+      rate: 0.95  // Slightly faster for more energy
+    }
+  });
 
-  // Force disable welcome tour completely
+  // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
 
   useEffect(() => {
-    // Explicitly mark tour as seen
+    // Explicitly mark tour as seen to prevent it from appearing
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.removeItem('new_user_signup');
     
-    // Don't show splash screen
+    // Don't show splash screen for now
     setShowSplash(false);
     
-    // Try to get saved mood
+    // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
     if (savedUserData) {
       try {
@@ -71,11 +79,22 @@ const StudentDashboard = () => {
       }
     }
 
-    // Store profile image
+    // Ensure profile image is available
     if (userProfile && userProfile.avatar) {
+      // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
-  }, [location, userProfile]);
+
+    // Auto-start voice greeting after 3 seconds
+    if (userProfile?.name) {
+      const timer = setTimeout(() => {
+        const greeting = getGreeting(userProfile.name, currentMood?.toString(), false);
+        speakMessage(greeting);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location, userProfile, speakMessage, currentMood]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -158,7 +177,7 @@ const StudentDashboard = () => {
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true}
+        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
@@ -180,22 +199,7 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Voice Greeting */}
-      <EnhancedVoiceGreeting 
-        userName={userProfile.name}
-        isFirstTimeUser={isFirstTimeUser}
-        loginCount={userProfile.loginCount}
-      />
-      
-      {/* Unified Voice Manager */}
-      <UnifiedVoiceManager 
-        userName={userProfile.name}
-        currentPage="dashboard"
-        isFirstTimeUser={isFirstTimeUser}
-        loginCount={userProfile.loginCount}
-      />
-      
-      {/* Floating Voice Assistant */}
+      {/* Add the floating voice assistant */}
       <FloatingVoiceAssistant userName={userProfile.name} />
     </>
   );

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
+import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import ConceptsPage from '@/pages/dashboard/student/ConceptsPage';
 import FlashcardsPage from '@/pages/dashboard/student/FlashcardsPage';
@@ -19,7 +20,6 @@ import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
-import EnhancedTodaysPlanPage from '@/components/dashboard/student/today-plan/EnhancedTodaysPlanPage';
 
 const StudentRoutes = () => {
   return (
@@ -27,7 +27,7 @@ const StudentRoutes = () => {
       <Route path="/" element={<StudentDashboard />} />
       <Route path="/today" element={
         <SidebarLayout>
-          <EnhancedTodaysPlanPage />
+          <TodaysPlanView />
         </SidebarLayout>
       } />
       <Route path="/academic" element={
