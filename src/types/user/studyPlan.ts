@@ -1,61 +1,30 @@
-
-// Study Plan Types
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  priority: 'high' | 'medium' | 'low';
-}
-
 export interface StudyPlanSubject {
-  id: string;
   name: string;
-  color?: string;
-  hoursPerWeek: number;
+  totalHours: number;
+  completedHours: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency: 'weak' | 'medium' | 'strong';
-  completed: boolean;
-  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  difficulty?: 'easy' | 'medium' | 'hard';
-  topics?: StudyPlanTopic[];
+  topics: string[];
 }
+
+// Keep this for backward compatibility
+export type NewStudyPlanSubject = StudyPlanSubject;
 
 export interface StudyPlan {
   id: string;
-  title?: string;
-  goal?: string;
-  examGoal: string;
-  examDate: string | Date;
-  status: 'active' | 'completed' | 'archived' | 'pending';
+  userId: string;
+  examType: string;
+  targetDate: Date;
   subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
-  createdAt: string;
-  updatedAt?: string;
-  progressPercent?: number;
-  progressPercentage?: number;
-  progress?: number;
-  daysLeft?: number;
-  weeklyHours?: number;
-  userId?: string;
+  weeklyHours: number;
+  dailyHours: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface NewStudyPlan {
-  id?: string;
-  title?: string;
-  goal?: string;
-  examGoal: string;
-  examDate: string | Date;
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
-  weeklyHours?: number;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  target: number;
+  color: string;
 }
-
-// Export types to be used in other files
-export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

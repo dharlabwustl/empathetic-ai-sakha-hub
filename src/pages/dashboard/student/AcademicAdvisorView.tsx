@@ -115,12 +115,12 @@ const AcademicAdvisorView = () => {
             </CardContent>
           </Card>
 
-          {/* Study Recommendations */}
+          {/* Daily Smart Suggestions - Moved here */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-purple-600" />
-                Smart Study Recommendations
+                Daily Smart Suggestions
               </CardTitle>
             </CardHeader>
             <CardContent>

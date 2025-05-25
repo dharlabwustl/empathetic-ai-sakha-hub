@@ -6,6 +6,7 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ArrowLeft, BookOpen, Star, RotateCw, CheckCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import FlashcardVoiceAssistant from '@/components/voice/FlashcardVoiceAssistant';
 
 const FlashcardInteractivePage: React.FC = () => {
   const { deckId = 'default' } = useParams<{ deckId: string }>();
@@ -14,7 +15,6 @@ const FlashcardInteractivePage: React.FC = () => {
   const [flipped, setFlipped] = useState(false);
   const [masteryScore, setMasteryScore] = useState(68);
   
-  // Mock flashcard data
   const mockFlashcards = [
     {
       id: '1',
@@ -55,7 +55,6 @@ const FlashcardInteractivePage: React.FC = () => {
   };
   
   const handleMarkAsMastered = () => {
-    // In a real app, you would update the mastery status in your data store
     setMasteryScore(masteryScore + 2);
   };
   
@@ -84,6 +83,16 @@ const FlashcardInteractivePage: React.FC = () => {
           <span className="text-sm font-medium">{Math.round((currentCardIndex + 1) / mockFlashcards.length * 100)}% Complete</span>
         </div>
         <Progress value={(currentCardIndex + 1) / mockFlashcards.length * 100} className="h-2" />
+      </div>
+      
+      {/* Voice Assistant */}
+      <div className="mb-4 flex justify-end">
+        <FlashcardVoiceAssistant 
+          currentCard={mockFlashcards[currentCardIndex].question}
+          deckName="Physics Fundamentals"
+          isEnabled={true}
+          userName="Student"
+        />
       </div>
       
       {/* Main content area */}
@@ -263,7 +272,6 @@ const FlashcardInteractivePage: React.FC = () => {
           transform: rotateY(180deg);
         }
         
-        /* Extra small screen class */
         @media (max-width: 400px) {
           .xs\\:hidden {
             display: none;

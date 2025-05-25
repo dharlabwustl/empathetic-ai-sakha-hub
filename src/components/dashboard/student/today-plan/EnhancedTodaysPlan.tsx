@@ -13,6 +13,9 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Calendar, Target, Clock, CheckCircle } from 'lucide-react';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -20,7 +23,6 @@ const EnhancedTodaysPlan: React.FC = () => {
   const isMobile = useIsMobile();
   const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
   
-  // Get today's plan data
   const {
     loading,
     error,
@@ -49,13 +51,11 @@ const EnhancedTodaysPlan: React.FC = () => {
     );
   }
 
-  // Handle concept click to navigate to concept study page
   const handleConceptClick = (conceptId: string) => {
     console.log("Navigating to concept detail page:", conceptId);
     navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 
-  // Handle smart suggestion actions
   const handleSuggestionAction = (action: string) => {
     switch (action) {
       case 'concepts':
@@ -78,6 +78,11 @@ const EnhancedTodaysPlan: React.FC = () => {
     }
   };
 
+  // Calculate progress data
+  const totalTasks = 12;
+  const completedTasks = 8;
+  const progressPercentage = (completedTasks / totalTasks) * 100;
+
   return (
     <SharedPageLayout
       title="Today's Study Plan"
@@ -90,14 +95,50 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Smart suggestions section at the top */}
+        {/* Progress meter at the top */}
+        <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+              <Target className="h-5 w-5" />
+              Today's Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Tasks Completed</span>
+                <span className="text-sm text-gray-600">{completedTasks}/{totalTasks}</span>
+              </div>
+              <Progress value={progressPercentage} className="h-3" />
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="flex flex-col items-center">
+                  <Calendar className="h-4 w-4 text-blue-600 mb-1" />
+                  <span className="text-xs text-gray-600">Today</span>
+                  <span className="text-sm font-medium">{completedTasks}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <Clock className="h-4 w-4 text-orange-600 mb-1" />
+                  <span className="text-xs text-gray-600">Remaining</span>
+                  <span className="text-sm font-medium">{totalTasks - completedTasks}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mb-1" />
+                  <span className="text-xs text-gray-600">Progress</span>
+                  <span className="text-sm font-medium">{Math.round(progressPercentage)}%</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Smart suggestions section */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
           isMobile={isMobile}
         />
         
-        {/* Enhanced task breakdown with premium styling */}
+        {/* Enhanced task breakdown */}
         <EnhancedTaskBreakdown 
           planData={planData}
           onConceptClick={handleConceptClick}
