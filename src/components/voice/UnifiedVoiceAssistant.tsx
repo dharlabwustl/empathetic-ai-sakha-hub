@@ -1,47 +1,42 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Mic, MicOff, Settings, X, MessageCircle } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface UnifiedVoiceAssistantProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigationCommand?: (route: string) => void;
-  language?: string;
   userName?: string;
-  context?: 'homepage' | 'dashboard' | 'learning';
+  language?: string;
+  context?: string;
+  onNavigationCommand?: (route: string) => void;
 }
 
-const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({ 
-  isOpen, 
-  onClose, 
-  onNavigationCommand,
+const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
+  isOpen,
+  onClose,
+  userName = 'Student',
   language = 'en-US',
-  userName = "Student",
-  context = 'homepage'
+  context = 'homepage',
+  onNavigationCommand
 }) => {
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(80);
@@ -49,93 +44,57 @@ const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
   const [pitch, setPitch] = useState(50);
   const [voicePreference, setVoicePreference] = useState("female");
   const [transcript, setTranscript] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
   
   const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<number | null>(null);
-  
-  // Context-aware greetings and responses
-  const getContextualGreeting = () => {
-    switch (context) {
-      case 'homepage':
-        return `Hello ${userName}! Welcome to PREPZR, India's most advanced AI-powered exam preparation platform. I'm Sakha AI, your personal learning assistant. How can I help you today?`;
-      case 'dashboard':
-        return `Welcome back ${userName}! I'm here to help you navigate your dashboard, track your progress, and optimize your study plan. What would you like to explore?`;
-      case 'learning':
-        return `Hi ${userName}! I'm here to support your learning journey. I can help you understand concepts, create flashcards, or answer any study-related questions.`;
-      default:
-        return `Hello ${userName}! I'm Sakha AI, your intelligent study companion. How can I assist you?`;
-    }
-  };
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const getContextualCommands = () => {
-    const commonCommands = [
-      "Tell me about PREPZR",
-      "Help me with voice settings",
-      "What can you help me with?"
-    ];
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error('Error stopping recognition:', error);
+        }
+      }
+    };
+  }, []);
 
-    switch (context) {
-      case 'homepage':
-        return [
-          ...commonCommands,
-          "Start free trial",
-          "Sign up for PREPZR",
-          "Analyze exam readiness",
-          "Show me features",
-          "Why choose PREPZR?",
-          "Login to dashboard"
-        ];
-      case 'dashboard':
-        return [
-          ...commonCommands,
-          "Show my study plan",
-          "Open concept cards",
-          "Start practice exam",
-          "Check my progress",
-          "Open flashcards",
-          "Go to today's plan",
-          "Academic advisor",
-          "Feel good corner",
-          "Formula lab"
-        ];
-      case 'learning':
-        return [
-          ...commonCommands,
-          "Explain this concept",
-          "Create flashcard",
-          "Test my knowledge",
-          "Show related topics",
-          "Get study tips"
-        ];
-      default:
-        return commonCommands;
-    }
-  };
+  const speakMessage = (message: string) => {
+    if (isMuted || !('speechSynthesis' in window)) return;
 
-  const handleToggleMute = () => {
-    setIsMuted(!isMuted);
-    localStorage.setItem('unified_voice_muted', (!isMuted).toString());
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance();
+    speech.text = message.replace(/PREPZR/gi, 'PREP-zer');
+    speech.lang = language;
+    speech.volume = volume / 100;
+    speech.rate = 0.85 + (speed / 100);
+    speech.pitch = 0.75 + (pitch / 100) * 0.5;
+
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(voice => 
+      voice.name.toLowerCase().includes('female') || 
+      (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
+    );
     
-    toast({
-      title: isMuted ? "Voice Unmuted" : "Voice Muted",
-      description: isMuted ? "Sakha AI can now speak to you" : "Sakha AI voice responses are now muted",
-    });
-  };
-  
-  const handleToggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
+    if (femaleVoice) {
+      speech.voice = femaleVoice;
     }
+
+    speechRef.current = speech;
+    window.speechSynthesis.speak(speech);
   };
 
   const startListening = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
-        title: "Speech Recognition Not Supported",
-        description: "Your browser doesn't support speech recognition.",
+        title: "Speech recognition not supported",
+        description: "Your browser doesn't support voice commands",
         variant: "destructive"
       });
       return;
@@ -151,32 +110,23 @@ const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
       
       recognition.onstart = () => {
         setIsListening(true);
-        toast({
-          title: "Listening...",
-          description: "Speak your command now",
-        });
       };
       
-      recognition.onresult = (event) => {
-        const result = event.results[0][0].transcript;
-        setTranscript(result);
-        setIsProcessing(true);
-        processVoiceCommand(result);
+      recognition.onend = () => {
+        setIsListening(false);
+        recognitionRef.current = null;
       };
       
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
-        toast({
-          title: "Recognition Error",
-          description: "Could not understand. Please try again.",
-          variant: "destructive"
-        });
+        recognitionRef.current = null;
       };
       
-      recognition.onend = () => {
-        setIsListening(false);
-        setIsProcessing(false);
+      recognition.onresult = (event) => {
+        const result = event.results[0][0].transcript.toLowerCase().trim();
+        setTranscript(result);
+        handleVoiceCommand(result);
       };
       
       recognition.start();
@@ -185,7 +135,7 @@ const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
     } catch (error) {
       console.error('Error starting recognition:', error);
       toast({
-        title: "Error",
+        title: "Voice recognition error",
         description: "Failed to start voice recognition",
         variant: "destructive"
       });
@@ -194,215 +144,163 @@ const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
 
   const stopListening = () => {
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
-    }
-    setIsListening(false);
-  };
-
-  const speakMessage = (message: string) => {
-    if (!isMuted && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      const speech = new SpeechSynthesisUtterance();
-      speech.text = message.replace(/PREPZR/gi, 'PREP-zer');
-      speech.lang = language;
-      speech.volume = volume / 100;
-      speech.rate = 0.85 + (speed / 100) * 0.3;
-      speech.pitch = 0.75 + (pitch / 100) * 0.5;
-      
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoices = voices.filter(voice => {
-        if (voicePreference === "female") {
-          return voice.name.toLowerCase().includes("female") || 
-                !voice.name.toLowerCase().includes("male");
-        } else {
-          return voice.name.toLowerCase().includes("male");
-        }
-      });
-      
-      if (preferredVoices.length > 0) {
-        speech.voice = preferredVoices[0];
-      }
-      
-      window.speechSynthesis.speak(speech);
-    }
-  };
-
-  const processVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase();
-    
-    // Context-specific command processing
-    if (context === 'homepage') {
-      if (lowerCommand.includes('free trial') || lowerCommand.includes('trial')) {
-        speakMessage("I'll help you start your free trial. Let me take you to the signup page.");
-        onNavigationCommand?.('/signup');
-        return;
-      }
-      
-      if (lowerCommand.includes('sign up') || lowerCommand.includes('signup')) {
-        speakMessage("Great choice! Let me take you to the signup page to get started with PREPZR.");
-        onNavigationCommand?.('/signup');
-        return;
-      }
-      
-      if (lowerCommand.includes('exam readiness') || lowerCommand.includes('analyze')) {
-        speakMessage("I'll open the exam readiness analyzer to evaluate your preparation level.");
-        window.dispatchEvent(new Event('open-exam-analyzer'));
-        return;
-      }
-      
-      if (lowerCommand.includes('features') || lowerCommand.includes('what can prepzr do')) {
-        speakMessage("PREPZR offers AI-powered personalized learning, emotional intelligence tracking, adaptive study plans, interactive concept cards, practice exams, and much more. Would you like me to show you specific features?");
-        return;
-      }
-      
-      if (lowerCommand.includes('why prepzr') || lowerCommand.includes('better')) {
-        speakMessage("PREPZR is India's first emotionally intelligent exam prep platform. We adapt to your mood, learning style, and progress to create truly personalized study experiences. Our AI ensures you study smarter, not harder.");
-        return;
-      }
-    }
-    
-    if (context === 'dashboard') {
-      if (lowerCommand.includes('study plan')) {
-        speakMessage("Opening your personalized study plan now.");
-        // Trigger study plan
-        return;
-      }
-      
-      if (lowerCommand.includes('concept') || lowerCommand.includes('concepts')) {
-        speakMessage("Taking you to concept cards where you can learn interactively.");
-        onNavigationCommand?.('/dashboard/student/concepts');
-        return;
-      }
-      
-      if (lowerCommand.includes('flashcard') || lowerCommand.includes('flashcards')) {
-        speakMessage("Opening your flashcards for quick revision.");
-        onNavigationCommand?.('/dashboard/student/flashcards');
-        return;
-      }
-      
-      if (lowerCommand.includes('exam') || lowerCommand.includes('practice')) {
-        speakMessage("Let's start a practice exam to test your knowledge.");
-        onNavigationCommand?.('/dashboard/student/practice-exam');
-        return;
-      }
-      
-      if (lowerCommand.includes('today') || lowerCommand.includes('plan')) {
-        speakMessage("Here's your personalized study plan for today.");
-        onNavigationCommand?.('/dashboard/student/todays-plan');
-        return;
-      }
-      
-      if (lowerCommand.includes('feel good') || lowerCommand.includes('break') || lowerCommand.includes('stress')) {
-        speakMessage("Taking you to the feel good corner for some relaxation and motivation.");
-        onNavigationCommand?.('/dashboard/student/feel-good-corner');
-        return;
-      }
-    }
-    
-    // Common commands for all contexts
-    if (lowerCommand.includes('prepzr') || lowerCommand.includes('about')) {
-      speakMessage("PREPZR is India's most advanced AI-powered exam preparation platform. We use emotional intelligence and adaptive learning to help students excel in competitive exams like NEET, JEE, and more.");
-      return;
-    }
-    
-    // Default response
-    speakMessage("I'm not sure how to help with that. Try asking about PREPZR features, study plans, or use the suggested commands.");
-  };
-
-  // Load settings from localStorage
-  useEffect(() => {
-    const savedMuted = localStorage.getItem('unified_voice_muted');
-    if (savedMuted) {
-      setIsMuted(savedMuted === 'true');
-    }
-  }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (recognitionRef.current) {
+      try {
         recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
       }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-  
+    }
+  };
+
+  const handleVoiceCommand = (command: string) => {
+    console.log('Voice command received:', command);
+    
+    // Navigation commands
+    if (command.includes('sign up') || command.includes('signup') || command.includes('register')) {
+      navigate('/signup');
+      speakMessage('Taking you to the sign up page.');
+    } else if (command.includes('login') || command.includes('log in')) {
+      navigate('/login');
+      speakMessage('Taking you to the login page.');
+    } else if (command.includes('dashboard') || command.includes('home dashboard')) {
+      navigate('/dashboard/student');
+      speakMessage('Opening your dashboard.');
+    } else if (command.includes('concepts') || command.includes('concept cards')) {
+      navigate('/dashboard/student/concepts');
+      speakMessage('Opening concept cards for your study.');
+    } else if (command.includes('flashcards') || command.includes('flash cards')) {
+      navigate('/dashboard/student/flashcards');
+      speakMessage('Opening flashcards for quick revision.');
+    } else if (command.includes('practice exam') || command.includes('exam')) {
+      navigate('/dashboard/student/practice-exam');
+      speakMessage('Opening practice exams to test your knowledge.');
+    } else if (command.includes('today') || command.includes('study plan') || command.includes('todays plan')) {
+      navigate('/dashboard/student/today');
+      speakMessage('Opening your personalized study plan for today.');
+    } else if (command.includes('analyze') || command.includes('readiness') || command.includes('assessment')) {
+      window.dispatchEvent(new Event('open-exam-analyzer'));
+      speakMessage('Opening your exam readiness analysis.');
+    } else if (command.includes('help') || command.includes('what can you do')) {
+      const helpMessage = getContextualHelp();
+      speakMessage(helpMessage);
+    } else if (command.includes('features') || command.includes('what is prepzr')) {
+      const featuresMessage = `PREP-zer is India's first emotionally intelligent exam preparation platform. We provide AI-powered personalized study plans, adaptive concept cards, interactive flashcards, practice exams, and emotional support for competitive exams like JEE, NEET, UPSC, and CAT.`;
+      speakMessage(featuresMessage);
+    } else if (command.includes('mute') || command.includes('stop talking')) {
+      setIsMuted(true);
+      speakMessage('Voice assistant muted.');
+    } else {
+      const contextResponse = getContextualResponse(command);
+      speakMessage(contextResponse);
+    }
+  };
+
+  const getContextualHelp = () => {
+    if (location.pathname === '/') {
+      return `I can help you navigate PREP-zer. Try saying: Sign up, Login, Demo, Analyze readiness, or ask me about our features.`;
+    } else if (location.pathname.includes('/dashboard')) {
+      return `I can help you with your dashboard. Say things like: Open concepts, Show flashcards, Start practice exam, Today's plan, or ask about any study feature.`;
+    }
+    return `I'm here to help you with PREP-zer. Ask me about features, navigation, or study assistance.`;
+  };
+
+  const getContextualResponse = (command: string) => {
+    const responses = [
+      "I didn't catch that. Try saying 'Help' to hear what I can do for you.",
+      "Could you repeat that? You can ask about features, navigation, or study assistance.",
+      "I'm not sure about that command. Say 'Help' for available options."
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (!isMuted) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <MessageCircle className="h-6 w-6 text-purple-500" />
-            Sakha AI Assistant
-          </DialogTitle>
+          <DialogTitle className="text-xl font-bold">Sakha AI Voice Assistant</DialogTitle>
           <DialogDescription>
-            Your intelligent companion for {context === 'homepage' ? 'exploring PREPZR' : context === 'dashboard' ? 'dashboard navigation' : 'learning support'}
+            PREPZR's intelligent voice companion for seamless study support
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Current Status */}
-          {(isListening || isProcessing) && (
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm">
-                    {isListening ? 'Listening...' : 'Processing...'}
-                  </span>
-                </div>
-                {transcript && (
-                  <p className="text-sm text-gray-600 mt-1">"{transcript}"</p>
-                )}
+          {/* Voice Controls */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Microphone</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={toggleListening}
+                  variant={isListening ? "destructive" : "secondary"}
+                  className="w-full"
+                >
+                  {isListening ? (
+                    <><MicOff className="mr-2 h-4 w-4" /> Stop</>
+                  ) : (
+                    <><Mic className="mr-2 h-4 w-4" /> Listen</>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Speaker</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={toggleMute}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {isMuted ? (
+                    <><VolumeX className="mr-2 h-4 w-4" /> Unmute</>
+                  ) : (
+                    <><Volume2 className="mr-2 h-4 w-4" /> Mute</>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Transcript Display */}
+          {transcript && (
+            <Card>
+              <CardContent className="pt-4">
+                <p className="text-sm"><strong>You said:</strong> {transcript}</p>
               </CardContent>
             </Card>
           )}
           
-          {/* Voice Controls */}
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              onClick={handleToggleListening}
-              variant={isListening ? "destructive" : "default"}
-              className="h-12"
-              disabled={isProcessing}
-            >
-              {isListening ? (
-                <><MicOff className="mr-2 h-4 w-4" /> Stop</>
-              ) : (
-                <><Mic className="mr-2 h-4 w-4" /> Listen</>
-              )}
-            </Button>
-            
-            <Button 
-              onClick={handleToggleMute}
-              variant="outline"
-              className="h-12"
-            >
-              {isMuted ? (
-                <><VolumeX className="mr-2 h-4 w-4" /> Unmute</>
-              ) : (
-                <><Volume2 className="mr-2 h-4 w-4" /> Mute</>
-              )}
-            </Button>
-          </div>
-          
           {/* Voice Settings */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle className="text-sm">Voice Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label htmlFor="voice-volume">Volume</Label>
+                  <Label>Volume</Label>
                   <span className="text-sm text-muted-foreground">{volume}%</span>
                 </div>
                 <Slider 
-                  id="voice-volume"
                   min={0} 
                   max={100} 
                   step={1}
@@ -413,11 +311,10 @@ const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
               
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label htmlFor="voice-speed">Speed</Label>
+                  <Label>Speed</Label>
                   <span className="text-sm text-muted-foreground">{speed}%</span>
                 </div>
                 <Slider 
-                  id="voice-speed"
                   min={0} 
                   max={100} 
                   step={1}
@@ -427,53 +324,61 @@ const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
               </div>
               
               <div className="space-y-2">
-                <Label>Voice Type</Label>
-                <Select value={voicePreference} onValueChange={setVoicePreference}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="female">Female Voice</SelectItem>
-                    <SelectItem value="male">Male Voice</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex justify-between">
+                  <Label>Pitch</Label>
+                  <span className="text-sm text-muted-foreground">{pitch}%</span>
+                </div>
+                <Slider 
+                  min={0} 
+                  max={100} 
+                  step={1}
+                  value={[pitch]}
+                  onValueChange={(values) => setPitch(values[0])}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Voice Preference</Label>
+                <div className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      checked={voicePreference === "female"}
+                      onCheckedChange={() => setVoicePreference("female")}
+                    />
+                    <Label>Female</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      checked={voicePreference === "male"}
+                      onCheckedChange={() => setVoicePreference("male")}
+                    />
+                    <Label>Male</Label>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
           
-          {/* Suggested Commands */}
+          {/* Voice Commands Help */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Try These Commands</CardTitle>
+            <CardHeader>
+              <CardTitle className="text-sm">Try Saying:</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 gap-2">
-                {getContextualCommands().slice(0, 6).map((command, index) => (
-                  <Button 
-                    key={index} 
-                    variant="ghost" 
-                    size="sm"
-                    className="justify-start text-left h-auto py-2 px-3"
-                    onClick={() => {
-                      speakMessage(command);
-                      processVoiceCommand(command);
-                    }}
-                  >
-                    "{command}"
-                  </Button>
-                ))}
-              </div>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>"Open concepts" or "Show flashcards"</li>
+                <li>"Start practice exam" or "Today's plan"</li>
+                <li>"Sign up" or "Login"</li>
+                <li>"What is PREPZR?" or "Help"</li>
+                <li>"Analyze my readiness"</li>
+              </ul>
             </CardContent>
           </Card>
         </div>
         
-        <DialogFooter>
+        <div className="flex justify-end">
           <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button onClick={() => speakMessage(getContextualGreeting())}>
-            <Volume2 className="mr-2 h-4 w-4" />
-            Play Greeting
-          </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
