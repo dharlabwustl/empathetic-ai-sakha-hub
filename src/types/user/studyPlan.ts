@@ -14,6 +14,8 @@ export interface StudyPlanSubject {
   name: string;
   color?: string;
   hoursPerWeek: number;
+  totalHours?: number;
+  completedHours?: number;
   priority: 'high' | 'medium' | 'low';
   proficiency: 'weak' | 'medium' | 'strong';
   completed: boolean;
