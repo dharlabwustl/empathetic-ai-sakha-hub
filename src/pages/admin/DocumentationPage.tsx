@@ -1,56 +1,40 @@
+
 import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, BookOpen, Server, Database, Download, FileJson, FileSpreadsheet, FileImage } from "lucide-react";
-import { AVAILABLE_EXPORTS } from "@/services/api/apiConfig";
+import { FileText, BookOpen, Server, Database, Download } from "lucide-react";
 
 export const DocumentationPage = () => {
-  const handleDownload = (exportItem: any) => {
-    // Trigger download for the specific export format
-    console.log(`Downloading: ${exportItem.title}`);
-    
-    // In a real implementation, this would trigger the actual download
-    // For now, we'll show a mock download action
-    const link = document.createElement('a');
-    link.href = '#';
-    link.download = exportItem.title.toLowerCase().replace(/\s+/g, '_');
-    link.click();
-  };
-
   return (
     <AdminLayout>
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-3xl font-bold">Documentation Center</h1>
+          <h1 className="text-3xl font-bold">Documentation</h1>
           <p className="text-gray-500 dark:text-gray-400">
-            Comprehensive technical documentation and export center for PREPZR platform
+            Complete technical documentation for the Prepzr admin platform
           </p>
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid grid-cols-5 mb-8">
+          <TabsList className="grid grid-cols-4 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               <span>Overview</span>
             </TabsTrigger>
             <TabsTrigger value="api" className="flex items-center gap-2">
               <Server className="w-4 h-4" />
-              <span>API Docs</span>
+              <span>API Documentation</span>
             </TabsTrigger>
             <TabsTrigger value="database" className="flex items-center gap-2">
               <Database className="w-4 h-4" />
-              <span>Database</span>
+              <span>Database Schema</span>
             </TabsTrigger>
             <TabsTrigger value="guides" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
-              <span>Integration</span>
-            </TabsTrigger>
-            <TabsTrigger value="exports" className="flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              <span>Downloads</span>
+              <span>Integration Guides</span>
             </TabsTrigger>
           </TabsList>
 
@@ -272,96 +256,6 @@ export const DocumentationPage = () => {
                       </Button>
                     </CardContent>
                   </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="exports" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Documentation & Schema Exports</CardTitle>
-                <CardDescription>
-                  Download comprehensive documentation and database schemas in multiple formats
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {AVAILABLE_EXPORTS.map((exportItem) => (
-                    <Card key={exportItem.endpoint} className="hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-base flex items-center gap-2">
-                          {exportItem.format === 'csv' && <FileSpreadsheet className="h-5 w-5 text-green-600" />}
-                          {exportItem.format === 'json' && <FileJson className="h-5 w-5 text-blue-600" />}
-                          {exportItem.format === 'pdf' && <FileImage className="h-5 w-5 text-red-600" />}
-                          {exportItem.format === 'docx' && <FileText className="h-5 w-5 text-purple-600" />}
-                          {exportItem.title}
-                        </CardTitle>
-                        <CardDescription className="text-sm">
-                          {exportItem.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="text-xs">
-                            {exportItem.format.toUpperCase()}
-                          </Badge>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleDownload(exportItem)}
-                            className="gap-2"
-                          >
-                            <Download className="h-3 w-3" />
-                            Download
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold mb-4">Export Descriptions</h3>
-                  <div className="space-y-4">
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base">Database Schema Exports</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="text-sm space-y-1 text-gray-600">
-                          <li>• <strong>CSV Format:</strong> Table structure with columns, data types, and relationships</li>
-                          <li>• <strong>JSON Format:</strong> Structured schema with complete metadata and relationships</li>
-                        </ul>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base">API Documentation Exports</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="text-sm space-y-1 text-gray-600">
-                          <li>• <strong>PDF Format:</strong> Professional documentation for printing and sharing</li>
-                          <li>• <strong>Word Format:</strong> Editable documentation for customization</li>
-                        </ul>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base">Flask Integration Guide</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="text-sm space-y-1 text-gray-600">
-                          <li>• <strong>Step-by-step instructions</strong> for Flask backend setup</li>
-                          <li>• <strong>Code examples</strong> and configuration templates</li>
-                          <li>• <strong>Database models</strong> and API endpoint implementations</li>
-                          <li>• <strong>Authentication</strong> and security configuration</li>
-                        </ul>
-                      </CardContent>
-                    </Card>
-                  </div>
                 </div>
               </CardContent>
             </Card>
