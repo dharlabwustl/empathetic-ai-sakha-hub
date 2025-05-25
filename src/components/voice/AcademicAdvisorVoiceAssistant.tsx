@@ -1,185 +1,211 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, GraduationCap, BookOpen, Calendar } from "lucide-react";
-import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Mic, MicOff, Volume2, GraduationCap, BookOpen, Target } from 'lucide-react';
 
 interface AcademicAdvisorVoiceAssistantProps {
-  userName?: string;
-  isEnabled?: boolean;
-  userGoals?: any[];
+  studentName?: string;
+  isEnabled: boolean;
 }
 
 const AcademicAdvisorVoiceAssistant: React.FC<AcademicAdvisorVoiceAssistantProps> = ({
-  userName = "Student",
-  isEnabled = true,
-  userGoals = []
+  studentName = "Student",
+  isEnabled
 }) => {
-  const [expanded, setExpanded] = useState(false);
-  
-  const {
-    voiceSettings,
-    toggleMute,
-    speakMessage,
-    isVoiceSupported,
-    isSpeaking,
-    isListening,
-    startListening,
-    stopListening,
-    transcript
-  } = useVoiceAnnouncer({ userName });
-  
-  useEffect(() => {
-    if (transcript) {
-      processVoiceCommand(transcript);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState('');
+
+  const speak = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setIsSpeaking(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.lang = 'en-US';
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+      };
+      
+      speechSynthesis.speak(utterance);
     }
-  }, [transcript]);
-  
-  const processVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
-      speakMessage("For an effective study plan, balance your weak and strong subjects. Allocate more time to challenging topics while maintaining your strengths. Include regular breaks and revision sessions.");
-      return;
-    }
-    
-    if (lowerCommand.includes('time management') || lowerCommand.includes('organize time')) {
-      speakMessage("Use the Pomodoro technique: 25 minutes focused study, 5 minute break. Schedule your hardest subjects when you're most alert. Track your time to identify improvement areas.");
-      return;
-    }
-    
-    if (lowerCommand.includes('exam strategy') || lowerCommand.includes('exam preparation')) {
-      speakMessage("Start with a comprehensive syllabus review. Practice previous year papers regularly. Focus on understanding concepts rather than memorization. Create a revision timetable for the final weeks.");
-      return;
-    }
-    
-    if (lowerCommand.includes('weak subjects') || lowerCommand.includes('struggling with')) {
-      speakMessage("Identify specific topics within weak subjects that need attention. Use multiple learning methods: videos, practice problems, group study. Don't hesitate to seek help from teachers or peers.");
-      return;
-    }
-    
-    if (lowerCommand.includes('motivation') || lowerCommand.includes('feeling discouraged')) {
-      speakMessage("Remember your goals and why they matter to you. Celebrate small victories and progress. Surround yourself with positive influences. Take care of your physical and mental health.");
-      return;
-    }
-    
-    if (lowerCommand.includes('study tips') || lowerCommand.includes('how to study better')) {
-      speakMessage("Active learning is key: summarize in your own words, teach concepts to others, create mind maps. Use spaced repetition for better retention. Find your optimal study environment.");
-      return;
-    }
-    
-    if (lowerCommand.includes('goal setting') || lowerCommand.includes('set goals')) {
-      speakMessage("Set SMART goals: Specific, Measurable, Achievable, Relevant, Time-bound. Break long-term goals into smaller milestones. Review and adjust your goals regularly based on progress.");
-      return;
-    }
-    
-    // Default response
-    speakMessage("I'm here to help with study planning, time management, exam strategies, and academic guidance. What specific area would you like advice on?");
   };
-  
-  const suggestions = [
-    "Help me plan my studies",
-    "Time management tips",
-    "Exam strategies",
-    "I'm struggling with subjects",
-    "Need motivation"
+
+  const startListening = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsListening(true);
+        setCurrentMessage('Listening for your academic question...');
+      };
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        handleVoiceCommand(transcript);
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        setCurrentMessage('Sorry, I couldn\'t hear you clearly.');
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognition.start();
+    }
+  };
+
+  const handleVoiceCommand = (command: string) => {
+    setCurrentMessage(`You asked: "${command}"`);
+    
+    let response = '';
+    
+    if (command.includes('study plan') || command.includes('schedule')) {
+      response = `${studentName}, I recommend creating a balanced study schedule with 2-3 hour focused blocks, regular breaks, and review sessions. Prioritize your weak subjects while maintaining strong ones.`;
+    } else if (command.includes('time management') || command.includes('organize')) {
+      response = `Great question! Use the Pomodoro technique: 25 minutes focused study, 5-minute break. Plan your day the night before and stick to priorities. Quality over quantity!`;
+    } else if (command.includes('motivation') || command.includes('encourage')) {
+      response = `${studentName}, remember that every expert was once a beginner. Your consistent effort today builds the expertise of tomorrow. Small daily improvements lead to stunning results!`;
+    } else if (command.includes('exam strategy') || command.includes('preparation')) {
+      response = `For exam success: 1) Create a revision timetable, 2) Practice with mock tests, 3) Focus on understanding concepts, not just memorizing, 4) Get adequate sleep before exams.`;
+    } else if (command.includes('weak subject') || command.includes('struggling')) {
+      response = `Don't worry about struggling subjects! Break them into smaller topics, spend extra time on fundamentals, seek help when needed, and practice regularly. Persistence pays off.`;
+    } else if (command.includes('stress') || command.includes('pressure')) {
+      response = `Academic stress is normal, but manageable. Take regular breaks, practice deep breathing, exercise, maintain a social support system, and remember - your worth isn't defined by grades alone.`;
+    } else if (command.includes('goal') || command.includes('target')) {
+      response = `Set SMART goals: Specific, Measurable, Achievable, Relevant, and Time-bound. Break big goals into smaller milestones and celebrate each achievement along the way.`;
+    } else {
+      response = `I'm your academic advisor, ${studentName}! I can help with study planning, time management, exam strategies, motivation, and academic guidance. What specific challenge would you like to discuss?`;
+    }
+    
+    speak(response);
+  };
+
+  const quickActions = [
+    {
+      label: 'Study Planning',
+      action: () => speak(`Let's create an effective study plan! Focus on understanding concepts deeply, schedule regular review sessions, and balance all subjects based on your exam weightage.`)
+    },
+    {
+      label: 'Time Management',
+      action: () => speak('Effective time management: Use time-blocking, eliminate distractions during study hours, take breaks, and maintain a consistent sleep schedule for optimal brain function.')
+    },
+    {
+      label: 'Exam Strategy',
+      action: () => speak('Winning exam strategy: Master the syllabus systematically, practice with previous years\' papers, improve speed and accuracy, and develop smart test-taking techniques.')
+    },
+    {
+      label: 'Motivation Boost',
+      action: () => speak(`${studentName}, you have incredible potential! Every challenge is an opportunity to grow stronger. Trust the process, stay consistent, and believe in yourself. Success is inevitable!`)
+    }
   ];
-  
-  if (!isVoiceSupported || !isEnabled) {
-    return null;
-  }
-  
+
   return (
-    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-green-200 bg-green-50`}>
-      <CardHeader className="p-3 pb-0">
-        <CardTitle className="text-sm flex justify-between items-center text-green-800">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-4 w-4" />
-            <span>Academic Advisor</span>
-          </div>
-          {expanded && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setExpanded(false)}
-              className="h-6 w-6 p-0"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-6"
+    >
+      <Card className="bg-gradient-to-br from-indigo-50/80 to-purple-50/80 dark:from-indigo-950/30 dark:to-purple-950/30 border-2 border-indigo-100 dark:border-indigo-900/30">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+                <GraduationCap className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-indigo-700 dark:text-indigo-400">
+                  Academic Advisor Assistant
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Get personalized academic guidance and planning
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
             >
-              ×
+              {isExpanded ? 'Collapse' : 'Expand'}
             </Button>
+          </div>
+
+          <div className="flex gap-2 mb-4">
+            <Button
+              onClick={startListening}
+              disabled={isListening || isSpeaking || !isEnabled}
+              className={`flex items-center gap-2 ${
+                isListening 
+                  ? 'bg-red-500 hover:bg-red-600' 
+                  : 'bg-indigo-500 hover:bg-indigo-600'
+              }`}
+            >
+              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              {isListening ? 'Listening...' : 'Ask Advisor'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => speak(`Hello ${studentName}! I'm your academic advisor assistant. I'm here to help you with study planning, time management, exam strategies, and academic guidance. How can I assist you today?`)}
+              disabled={isSpeaking}
+              className="flex items-center gap-2"
+            >
+              <Volume2 className="h-4 w-4" />
+              Introduction
+            </Button>
+          </div>
+
+          {currentMessage && (
+            <div className="mb-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg">
+              <p className="text-sm text-gray-700 dark:text-gray-300">{currentMessage}</p>
+            </div>
           )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-3">
-        {expanded ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-2">
-              <Button 
-                variant={isListening ? "default" : "outline"}
-                size="sm" 
-                onClick={isListening ? stopListening : startListening}
-                className={`${isListening ? 'bg-green-500 hover:bg-green-600' : 'border-green-200'}`}
+
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-3"
               >
-                {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-                {isListening ? 'Stop' : 'Start'} Listening
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => toggleMute()}
-                disabled={isSpeaking}
-                className="border-green-200"
-              >
-                <Speaker className="h-4 w-4 mr-2" />
-                {voiceSettings.muted ? 'Unmute' : 'Mute'}
-              </Button>
-            </div>
-            
-            {transcript && (
-              <div className="bg-green-100 p-2 rounded-md text-sm">
-                <p className="font-semibold text-green-800">You said:</p>
-                <p className="text-green-700">{transcript}</p>
-              </div>
+                <h4 className="font-medium text-gray-700 dark:text-gray-300">Quick Guidance:</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {quickActions.map((action, idx) => (
+                    <Button
+                      key={idx}
+                      variant="outline"
+                      size="sm"
+                      onClick={action.action}
+                      disabled={isSpeaking}
+                      className="text-left justify-start"
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              </motion.div>
             )}
-            
-            <div>
-              <p className="text-xs text-green-600 mb-2 flex items-center gap-1">
-                <BookOpen className="h-3 w-3" />
-                Try saying:
-              </p>
-              <div className="grid grid-cols-1 gap-1">
-                {suggestions.slice(0, 3).map((suggestion, index) => (
-                  <Button 
-                    key={index} 
-                    variant="ghost" 
-                    size="sm"
-                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-green-700 hover:bg-green-100"
-                    onClick={() => {
-                      processVoiceCommand(suggestion);
-                    }}
-                  >
-                    "{suggestion}"
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-center">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setExpanded(true)}
-              className="w-full text-green-700 hover:bg-green-100"
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              Academic Guidance
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </AnimatePresence>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

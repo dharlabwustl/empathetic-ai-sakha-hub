@@ -1,69 +1,48 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { StudyTimeChart } from './study-progress/StudyTimeChart';
-import { QuizzesList } from './study-progress/QuizzesList';
-import { TopicsList } from './study-progress/TopicsList';
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { Progress } from "@/components/ui/progress";
+import { BookOpen, TrendingUp, Target } from 'lucide-react';
 
-interface StudyProgressProps {
-  subjects: SubjectProgress[];
-  studyStreak: StudyStreak;
+interface SubjectProgress {
+  subject: string;
+  progress: number;
+  topics: number;
+  completed: number;
 }
 
-const StudyProgress: React.FC<StudyProgressProps> = ({ subjects, studyStreak }) => {
-  const [activeTab, setActiveTab] = useState<string>('study-time');
-  const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(
-    subjects.length > 0 ? subjects[0] : null
-  );
-
-  const handleSelectSubject = (subjectId: string) => {
-    const subject = subjects.find(s => s.id === subjectId);
-    if (subject) {
-      setSelectedSubject(subject);
-    }
-  };
+const StudyProgress = () => {
+  const subjectProgress: SubjectProgress[] = [
+    { subject: 'Physics', progress: 75, topics: 20, completed: 15 },
+    { subject: 'Chemistry', progress: 60, topics: 18, completed: 11 },
+    { subject: 'Biology', progress: 85, topics: 22, completed: 19 }
+  ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Study Progress</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <BookOpen className="h-5 w-5 text-blue-600" />
+          Study Progress
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full justify-start mb-4">
-            <TabsTrigger value="study-time">Study Time</TabsTrigger>
-            <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
-            <TabsTrigger value="topics">Topics</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="study-time">
-            <StudyTimeChart 
-              selectedSubject={selectedSubject} 
-              subjects={subjects}
-              selectSubject={handleSelectSubject}
-              studyStreak={studyStreak}
-            />
-          </TabsContent>
-          
-          <TabsContent value="quizzes">
-            <QuizzesList 
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={handleSelectSubject}
-            />
-          </TabsContent>
-          
-          <TabsContent value="topics">
-            <TopicsList 
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={handleSelectSubject}
-            />
-          </TabsContent>
-        </Tabs>
+        <div className="space-y-4">
+          {subjectProgress.map((subject, index) => (
+            <div key={subject.subject} className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{subject.subject}</span>
+                <span className="text-sm text-gray-600">
+                  {subject.completed}/{subject.topics} topics
+                </span>
+              </div>
+              <Progress value={subject.progress} className="h-2" />
+              <div className="text-xs text-gray-500">
+                {subject.progress}% complete
+              </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
