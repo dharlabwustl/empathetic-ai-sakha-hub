@@ -11,9 +11,8 @@ import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import EnhancedTodaysPlanProgressMeter from './EnhancedTodaysPlanProgressMeter';
-import PremiumTaskCards from './PremiumTaskCards';
-import TodaysPlanVoiceAssistant from './TodaysPlanVoiceAssistant';
+import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
+import NewTodaysPlanView from '../today-plan/NewTodaysPlanView';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -91,13 +90,7 @@ const RedesignedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
-        {/* Enhanced progress meter at the top */}
-        <EnhancedTodaysPlanProgressMeter 
-          planData={planData}
-          isMobile={isMobile}
-        />
-        
+      <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
         {/* Smart suggestions section */}
         <SmartSuggestionsSection 
           planData={planData}
@@ -105,14 +98,14 @@ const RedesignedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
         
-        {/* Premium task breakdown cards */}
-        <PremiumTaskCards 
+        {/* New enhanced today's plan view with progress meter and enhanced task breakdown */}
+        <NewTodaysPlanView 
           planData={planData}
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
         
-        {/* Context-aware voice assistant for today's plan */}
+        {/* Voice assistant for today's plan */}
         <TodaysPlanVoiceAssistant 
           planData={planData}
           userName={planData?.userName}

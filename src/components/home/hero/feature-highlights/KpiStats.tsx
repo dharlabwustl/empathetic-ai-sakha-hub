@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, BookOpen, Award, Clock, Brain, CheckSquare } from 'lucide-react';
 import { adminService } from '@/services/adminService';
 
 const KpiStats = () => {
+  // Using the stats data directly from the adminService
   const [stats, setStats] = React.useState([
     {
       icon: <Users className="h-8 w-8 text-blue-500" />,
@@ -43,14 +45,14 @@ const KpiStats = () => {
     }
   ]);
 
-  // Fetch dynamic stats from backend when component mounts
+  // Fetch stats from backend when component mounts
   React.useEffect(() => {
     const fetchStats = async () => {
       try {
         const dashboardStats = await adminService.getDashboardStats();
         
         if (dashboardStats) {
-          // Update the stats with real data from the backend
+          // Update the stats with data from the backend
           setStats([
             {
               icon: <Users className="h-8 w-8 text-blue-500" />,
@@ -79,7 +81,7 @@ const KpiStats = () => {
             {
               icon: <Clock className="h-8 w-8 text-orange-500" />,
               value: dashboardStats.averageTimeSavedPerWeek ? 
-                Math.round(dashboardStats.averageTimeSavedPerWeek * 10) + '%' : 
+                dashboardStats.averageTimeSavedPerWeek * 10 + '%' : 
                 '35%',
               label: 'Time Saved',
               description: 'Study more efficiently with AI'
@@ -104,7 +106,6 @@ const KpiStats = () => {
         }
       } catch (error) {
         console.error('Error fetching KPI stats:', error);
-        // Keep fallback values if backend is unavailable
       }
     };
     
