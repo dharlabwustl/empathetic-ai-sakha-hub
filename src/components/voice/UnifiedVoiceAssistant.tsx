@@ -1,481 +1,327 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Mic, MicOff, Settings, X, MessageCircle } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { Mic, MicOff, Volume2, VolumeX, Settings, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface UnifiedVoiceAssistantProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigationCommand?: (route: string) => void;
-  language?: string;
   userName?: string;
+  language?: string;
   context?: 'homepage' | 'dashboard' | 'learning';
+  onNavigationCommand?: (route: string) => void;
+  handsFreeMode?: boolean;
 }
 
-const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({ 
-  isOpen, 
-  onClose, 
+const UnifiedVoiceAssistant: React.FC<UnifiedVoiceAssistantProps> = ({
+  isOpen,
+  onClose,
+  userName = 'Student',
+  language: voiceLang = 'en-US',
+  context = 'homepage',
   onNavigationCommand,
-  language = 'en-US',
-  userName = "Student",
-  context = 'homepage'
+  handsFreeMode = false
 }) => {
+  const { language, t } = useLanguage();
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(80);
-  const [speed, setSpeed] = useState(50);
-  const [pitch, setPitch] = useState(50);
-  const [voicePreference, setVoicePreference] = useState("female");
   const [transcript, setTranscript] = useState('');
+  const [confidence, setConfidence] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   
   const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<number | null>(null);
-  
-  // Context-aware greetings and responses
-  const getContextualGreeting = () => {
-    switch (context) {
-      case 'homepage':
-        return `Hello ${userName}! Welcome to PREPZR, India's most advanced AI-powered exam preparation platform. I'm Sakha AI, your personal learning assistant. How can I help you today?`;
-      case 'dashboard':
-        return `Welcome back ${userName}! I'm here to help you navigate your dashboard, track your progress, and optimize your study plan. What would you like to explore?`;
-      case 'learning':
-        return `Hi ${userName}! I'm here to support your learning journey. I can help you understand concepts, create flashcards, or answer any study-related questions.`;
-      default:
-        return `Hello ${userName}! I'm Sakha AI, your intelligent study companion. How can I assist you?`;
-    }
-  };
+  const continuousListeningRef = useRef<boolean>(handsFreeMode);
 
-  const getContextualCommands = () => {
-    const commonCommands = [
-      "Tell me about PREPZR",
-      "Help me with voice settings",
-      "What can you help me with?"
-    ];
-
-    switch (context) {
-      case 'homepage':
-        return [
-          ...commonCommands,
-          "Start free trial",
-          "Sign up for PREPZR",
-          "Analyze exam readiness",
-          "Show me features",
-          "Why choose PREPZR?",
-          "Login to dashboard"
-        ];
-      case 'dashboard':
-        return [
-          ...commonCommands,
-          "Show my study plan",
-          "Open concept cards",
-          "Start practice exam",
-          "Check my progress",
-          "Open flashcards",
-          "Go to today's plan",
-          "Academic advisor",
-          "Feel good corner",
-          "Formula lab"
-        ];
-      case 'learning':
-        return [
-          ...commonCommands,
-          "Explain this concept",
-          "Create flashcard",
-          "Test my knowledge",
-          "Show related topics",
-          "Get study tips"
-        ];
-      default:
-        return commonCommands;
-    }
-  };
-
-  const handleToggleMute = () => {
-    setIsMuted(!isMuted);
-    localStorage.setItem('unified_voice_muted', (!isMuted).toString());
-    
-    toast({
-      title: isMuted ? "Voice Unmuted" : "Voice Muted",
-      description: isMuted ? "Sakha AI can now speak to you" : "Sakha AI voice responses are now muted",
-    });
-  };
-  
-  const handleToggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
-
-  const startListening = () => {
+  // Initialize speech recognition
+  useEffect(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      toast({
-        title: "Speech Recognition Not Supported",
-        description: "Your browser doesn't support speech recognition.",
-        variant: "destructive"
-      });
+      console.warn('Speech recognition not supported');
       return;
     }
 
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+      
+      // Auto-restart if in hands-free mode and not muted
+      if (continuousListeningRef.current && !isMuted && isOpen) {
+        setTimeout(() => {
+          startListening();
+        }, 1000);
+      }
+    };
+    
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+      
+      if (continuousListeningRef.current && !isMuted && isOpen) {
+        setTimeout(() => {
+          startListening();
+        }, 2000);
+      }
+    };
+    
+    recognition.onresult = (event: any) => {
+      const last = event.results.length - 1;
+      const result = event.results[last];
+      
+      if (result.isFinal) {
+        const finalTranscript = result[0].transcript.trim();
+        const finalConfidence = result[0].confidence;
+        
+        setTranscript(finalTranscript);
+        setConfidence(finalConfidence);
+        
+        if (finalTranscript) {
+          processVoiceCommand(finalTranscript);
+        }
+      }
+    };
+    
+    recognitionRef.current = recognition;
+    
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error('Error stopping recognition:', error);
+        }
+      }
+    };
+  }, [language, isMuted, isOpen]);
+
+  // Start hands-free listening when component mounts
+  useEffect(() => {
+    if (handsFreeMode && isOpen && !isMuted) {
+      setTimeout(() => {
+        startListening();
+      }, 1000);
+    }
+  }, [handsFreeMode, isOpen, isMuted]);
+
+  const startListening = () => {
+    if (isMuted || !recognitionRef.current) return;
+    
     try {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = language;
-      
-      recognition.onstart = () => {
-        setIsListening(true);
-        toast({
-          title: "Listening...",
-          description: "Speak your command now",
-        });
-      };
-      
-      recognition.onresult = (event) => {
-        const result = event.results[0][0].transcript;
-        setTranscript(result);
-        setIsProcessing(true);
-        processVoiceCommand(result);
-      };
-      
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        toast({
-          title: "Recognition Error",
-          description: "Could not understand. Please try again.",
-          variant: "destructive"
-        });
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-        setIsProcessing(false);
-      };
-      
-      recognition.start();
-      recognitionRef.current = recognition;
-      
+      recognitionRef.current.start();
     } catch (error) {
       console.error('Error starting recognition:', error);
-      toast({
-        title: "Error",
-        description: "Failed to start voice recognition",
-        variant: "destructive"
-      });
     }
   };
 
   const stopListening = () => {
+    continuousListeningRef.current = false;
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
     }
-    setIsListening(false);
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      continuousListeningRef.current = true;
+      startListening();
+    }
   };
 
   const speakMessage = (message: string) => {
-    if (!isMuted && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      const speech = new SpeechSynthesisUtterance();
-      speech.text = message.replace(/PREPZR/gi, 'PREP-zer');
-      speech.lang = language;
-      speech.volume = volume / 100;
-      speech.rate = 0.85 + (speed / 100) * 0.3;
-      speech.pitch = 0.75 + (pitch / 100) * 0.5;
-      
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoices = voices.filter(voice => {
-        if (voicePreference === "female") {
-          return voice.name.toLowerCase().includes("female") || 
-                !voice.name.toLowerCase().includes("male");
-        } else {
-          return voice.name.toLowerCase().includes("male");
-        }
-      });
-      
-      if (preferredVoices.length > 0) {
-        speech.voice = preferredVoices[0];
-      }
-      
-      window.speechSynthesis.speak(speech);
+    if (isMuted || !('speechSynthesis' in window)) return;
+
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    utterance.volume = 0.8;
+
+    // Try to find a female voice
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(voice => 
+      voice.name.toLowerCase().includes('female') || 
+      (!voice.name.toLowerCase().includes('male') && voice.lang.includes(language === 'hi' ? 'hi' : 'en'))
+    );
+    
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
     }
+
+    window.speechSynthesis.speak(utterance);
   };
 
   const processVoiceCommand = (command: string) => {
+    setIsProcessing(true);
     const lowerCommand = command.toLowerCase();
     
-    // Context-specific command processing
-    if (context === 'homepage') {
-      if (lowerCommand.includes('free trial') || lowerCommand.includes('trial')) {
-        speakMessage("I'll help you start your free trial. Let me take you to the signup page.");
-        onNavigationCommand?.('/signup');
-        return;
-      }
-      
-      if (lowerCommand.includes('sign up') || lowerCommand.includes('signup')) {
-        speakMessage("Great choice! Let me take you to the signup page to get started with PREPZR.");
-        onNavigationCommand?.('/signup');
-        return;
-      }
-      
-      if (lowerCommand.includes('exam readiness') || lowerCommand.includes('analyze')) {
-        speakMessage("I'll open the exam readiness analyzer to evaluate your preparation level.");
-        window.dispatchEvent(new Event('open-exam-analyzer'));
-        return;
-      }
-      
-      if (lowerCommand.includes('features') || lowerCommand.includes('what can prepzr do')) {
-        speakMessage("PREPZR offers AI-powered personalized learning, emotional intelligence tracking, adaptive study plans, interactive concept cards, practice exams, and much more. Would you like me to show you specific features?");
-        return;
-      }
-      
-      if (lowerCommand.includes('why prepzr') || lowerCommand.includes('better')) {
-        speakMessage("PREPZR is India's first emotionally intelligent exam prep platform. We adapt to your mood, learning style, and progress to create truly personalized study experiences. Our AI ensures you study smarter, not harder.");
-        return;
-      }
+    // Navigation commands
+    if (lowerCommand.includes('dashboard') || lowerCommand.includes('डैशबोर्ड')) {
+      speakMessage(language === 'hi' ? 'डैशबोर्ड खोल रहा हूं' : 'Opening dashboard');
+      navigate('/dashboard/student');
+    } else if (lowerCommand.includes('today') || lowerCommand.includes('plan') || lowerCommand.includes('आज') || lowerCommand.includes('योजना')) {
+      speakMessage(language === 'hi' ? 'आज की योजना दिखा रहा हूं' : 'Showing today\'s plan');
+      navigate('/dashboard/student/today');
+    } else if (lowerCommand.includes('concept') || lowerCommand.includes('अवधारणा')) {
+      speakMessage(language === 'hi' ? 'अवधारणा कार्ड खोल रहा हूं' : 'Opening concept cards');
+      navigate('/dashboard/student/concepts');
+    } else if (lowerCommand.includes('flashcard') || lowerCommand.includes('फ्लैशकार्ड')) {
+      speakMessage(language === 'hi' ? 'फ्लैशकार्ड खोल रहा हूं' : 'Opening flashcards');
+      navigate('/dashboard/student/flashcards');
+    } else if (lowerCommand.includes('exam') || lowerCommand.includes('test') || lowerCommand.includes('परीक्षा')) {
+      speakMessage(language === 'hi' ? 'अभ्यास परीक्षा खोल रहा हूं' : 'Opening practice exam');
+      navigate('/dashboard/student/practice-exam');
+    } else if (lowerCommand.includes('advisor') || lowerCommand.includes('सलाहकार')) {
+      speakMessage(language === 'hi' ? 'शैक्षणिक सलाहकार खोल रहा हूं' : 'Opening academic advisor');
+      navigate('/dashboard/student/academic-advisor');
+    } else if (lowerCommand.includes('feel good') || lowerCommand.includes('break') || lowerCommand.includes('फील गुड')) {
+      speakMessage(language === 'hi' ? 'फील गुड कॉर्नर खोल रहा हूं' : 'Opening feel good corner');
+      navigate('/dashboard/student/feel-good-corner');
+    } else {
+      // Default helpful response
+      const helpMessage = language === 'hi' 
+        ? 'मैं आपकी मदद करने के लिए यहां हूं। आप मुझसे डैशबोर्ड, आज की योजना, या अन्य फीचर्स के बारे में पूछ सकते हैं।'
+        : 'I\'m here to help you. You can ask me about dashboard, today\'s plan, or other features.';
+      speakMessage(helpMessage);
     }
     
-    if (context === 'dashboard') {
-      if (lowerCommand.includes('study plan')) {
-        speakMessage("Opening your personalized study plan now.");
-        // Trigger study plan
-        return;
-      }
-      
-      if (lowerCommand.includes('concept') || lowerCommand.includes('concepts')) {
-        speakMessage("Taking you to concept cards where you can learn interactively.");
-        onNavigationCommand?.('/dashboard/student/concepts');
-        return;
-      }
-      
-      if (lowerCommand.includes('flashcard') || lowerCommand.includes('flashcards')) {
-        speakMessage("Opening your flashcards for quick revision.");
-        onNavigationCommand?.('/dashboard/student/flashcards');
-        return;
-      }
-      
-      if (lowerCommand.includes('exam') || lowerCommand.includes('practice')) {
-        speakMessage("Let's start a practice exam to test your knowledge.");
-        onNavigationCommand?.('/dashboard/student/practice-exam');
-        return;
-      }
-      
-      if (lowerCommand.includes('today') || lowerCommand.includes('plan')) {
-        speakMessage("Here's your personalized study plan for today.");
-        onNavigationCommand?.('/dashboard/student/todays-plan');
-        return;
-      }
-      
-      if (lowerCommand.includes('feel good') || lowerCommand.includes('break') || lowerCommand.includes('stress')) {
-        speakMessage("Taking you to the feel good corner for some relaxation and motivation.");
-        onNavigationCommand?.('/dashboard/student/feel-good-corner');
-        return;
-      }
-    }
-    
-    // Common commands for all contexts
-    if (lowerCommand.includes('prepzr') || lowerCommand.includes('about')) {
-      speakMessage("PREPZR is India's most advanced AI-powered exam preparation platform. We use emotional intelligence and adaptive learning to help students excel in competitive exams like NEET, JEE, and more.");
-      return;
-    }
-    
-    // Default response
-    speakMessage("I'm not sure how to help with that. Try asking about PREPZR features, study plans, or use the suggested commands.");
+    setIsProcessing(false);
   };
 
-  // Load settings from localStorage
-  useEffect(() => {
-    const savedMuted = localStorage.getItem('unified_voice_muted');
-    if (savedMuted) {
-      setIsMuted(savedMuted === 'true');
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (!isMuted) {
+      window.speechSynthesis.cancel();
+      stopListening();
+    } else if (handsFreeMode) {
+      continuousListeningRef.current = true;
+      startListening();
     }
-  }, []);
+  };
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-  
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <MessageCircle className="h-6 w-6 text-purple-500" />
-            Sakha AI Assistant
-          </DialogTitle>
-          <DialogDescription>
-            Your intelligent companion for {context === 'homepage' ? 'exploring PREPZR' : context === 'dashboard' ? 'dashboard navigation' : 'learning support'}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4">
-          {/* Current Status */}
-          {(isListening || isProcessing) && (
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm">
-                    {isListening ? 'Listening...' : 'Processing...'}
-                  </span>
-                </div>
-                {transcript && (
-                  <p className="text-sm text-gray-600 mt-1">"{transcript}"</p>
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      >
+        <Card className="w-full max-w-md">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">
+                {language === 'hi' ? 'सखा AI सहायक' : 'Sakha AI Assistant'}
+              </CardTitle>
+              <Button variant="ghost" size="sm" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            {/* Status indicators */}
+            <div className="flex items-center justify-center gap-4">
+              <Badge variant={isListening ? "default" : "secondary"}>
+                {isListening ? (language === 'hi' ? 'सुन रहा हूं' : 'Listening') : (language === 'hi' ? 'बंद' : 'Stopped')}
+              </Badge>
+              {handsFreeMode && (
+                <Badge variant="outline">
+                  {language === 'hi' ? 'हैंड्स-फ्री मोड' : 'Hands-free Mode'}
+                </Badge>
+              )}
+            </div>
+
+            {/* Control buttons */}
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant={isListening ? "destructive" : "default"}
+                size="sm"
+                onClick={toggleListening}
+                className="flex items-center gap-2"
+              >
+                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {isListening ? (language === 'hi' ? 'रोकें' : 'Stop') : (language === 'hi' ? 'सुनें' : 'Listen')}
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleMute}
+                className="flex items-center gap-2"
+              >
+                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                {isMuted ? (language === 'hi' ? 'अनम्यूट' : 'Unmute') : (language === 'hi' ? 'म्यूट' : 'Mute')}
+              </Button>
+            </div>
+
+            {/* Transcript display */}
+            {transcript && (
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-sm font-medium mb-1">
+                  {language === 'hi' ? 'आपने कहा:' : 'You said:'}
+                </p>
+                <p className="text-sm">{transcript}</p>
+                {confidence > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === 'hi' ? 'विश्वसनीयता:' : 'Confidence:'} {Math.round(confidence * 100)}%
+                  </p>
                 )}
-              </CardContent>
-            </Card>
-          )}
-          
-          {/* Voice Controls */}
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              onClick={handleToggleListening}
-              variant={isListening ? "destructive" : "default"}
-              className="h-12"
-              disabled={isProcessing}
-            >
-              {isListening ? (
-                <><MicOff className="mr-2 h-4 w-4" /> Stop</>
-              ) : (
-                <><Mic className="mr-2 h-4 w-4" /> Listen</>
-              )}
-            </Button>
-            
-            <Button 
-              onClick={handleToggleMute}
-              variant="outline"
-              className="h-12"
-            >
-              {isMuted ? (
-                <><VolumeX className="mr-2 h-4 w-4" /> Unmute</>
-              ) : (
-                <><Volume2 className="mr-2 h-4 w-4" /> Mute</>
-              )}
-            </Button>
-          </div>
-          
-          {/* Voice Settings */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Voice Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label htmlFor="voice-volume">Volume</Label>
-                  <span className="text-sm text-muted-foreground">{volume}%</span>
-                </div>
-                <Slider 
-                  id="voice-volume"
-                  min={0} 
-                  max={100} 
-                  step={1}
-                  value={[volume]}
-                  onValueChange={(values) => setVolume(values[0])}
-                />
               </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label htmlFor="voice-speed">Speed</Label>
-                  <span className="text-sm text-muted-foreground">{speed}%</span>
-                </div>
-                <Slider 
-                  id="voice-speed"
-                  min={0} 
-                  max={100} 
-                  step={1}
-                  value={[speed]}
-                  onValueChange={(values) => setSpeed(values[0])}
-                />
+            )}
+
+            {/* Processing indicator */}
+            {isProcessing && (
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
+                  {language === 'hi' ? 'प्रोसेसिंग...' : 'Processing...'}
+                </p>
               </div>
-              
-              <div className="space-y-2">
-                <Label>Voice Type</Label>
-                <Select value={voicePreference} onValueChange={setVoicePreference}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="female">Female Voice</SelectItem>
-                    <SelectItem value="male">Male Voice</SelectItem>
-                  </SelectContent>
-                </Select>
+            )}
+
+            {/* Quick commands */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">
+                {language === 'hi' ? 'कमांड का उदाहरण:' : 'Example commands:'}
+              </p>
+              <div className="grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                <p>• "{language === 'hi' ? 'डैशबोर्ड दिखाओ' : 'Show dashboard'}"</p>
+                <p>• "{language === 'hi' ? 'आज की योजना खोलो' : 'Open today\'s plan'}"</p>
+                <p>• "{language === 'hi' ? 'अवधारणा कार्ड देखो' : 'Show concept cards'}"</p>
+                <p>• "{language === 'hi' ? 'अभ्यास परीक्षा शुरू करो' : 'Start practice exam'}"</p>
               </div>
-            </CardContent>
-          </Card>
-          
-          {/* Suggested Commands */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Try These Commands</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-2">
-                {getContextualCommands().slice(0, 6).map((command, index) => (
-                  <Button 
-                    key={index} 
-                    variant="ghost" 
-                    size="sm"
-                    className="justify-start text-left h-auto py-2 px-3"
-                    onClick={() => {
-                      speakMessage(command);
-                      processVoiceCommand(command);
-                    }}
-                  >
-                    "{command}"
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button onClick={() => speakMessage(getContextualGreeting())}>
-            <Volume2 className="mr-2 h-4 w-4" />
-            Play Greeting
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

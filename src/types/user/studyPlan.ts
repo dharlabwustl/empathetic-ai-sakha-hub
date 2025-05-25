@@ -19,7 +19,18 @@ export interface StudyPlanSubject {
   completed: boolean;
   status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
-  topics?: StudyPlanTopic[];
+  topics: StudyPlanTopic[];
+}
+
+export interface NewStudyPlanSubject {
+  id: string;
+  name: string;
+  color?: string;
+  hoursPerWeek: number;
+  priority: 'high' | 'medium' | 'low';
+  proficiency: 'weak' | 'medium' | 'strong';
+  completed: boolean;
+  topics: StudyPlanTopic[];
 }
 
 export interface StudyPlan {
@@ -49,7 +60,7 @@ export interface NewStudyPlan {
   goal?: string;
   examGoal: string;
   examDate: string | Date;
-  subjects: StudyPlanSubject[];
+  subjects: NewStudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
@@ -58,4 +69,4 @@ export interface NewStudyPlan {
 }
 
 // Export types to be used in other files
-export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };
+export type { StudyPlan as StudyPlanType, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

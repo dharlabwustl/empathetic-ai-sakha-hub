@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Card, 
@@ -59,6 +58,8 @@ import {
   DialogFooter,
   DialogClose
 } from "@/components/ui/dialog";
+import LearningPageVoiceAssistant from '@/components/voice/LearningPageVoiceAssistant';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ConceptCardDetailProps {
   conceptId: string;
@@ -92,6 +93,7 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
   const { saveNote, getNoteForConcept } = useUserNotes();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
   
   useEffect(() => {
     // Simulate loading concept data
@@ -549,601 +551,609 @@ const ConceptCardDetail: React.FC<ConceptCardDetailProps> = ({ conceptId, onBack
   }
   
   return (
-    <Card className="w-full max-w-5xl mx-auto">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div>
-            <Button variant="ghost" size="sm" className="mb-2" onClick={onBack}>
-              <ChevronLeft className="mr-1 h-4 w-4" /> Back to Concepts
-            </Button>
-            <CardTitle className="text-2xl font-bold">{conceptData.title}</CardTitle>
-            <CardDescription className="text-base">{conceptData.subtitle}</CardDescription>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={toggleBookmark}
-              className={bookmarked ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : ""}
-            >
-              {bookmarked ? (
-                <BookmarkCheck className="h-4 w-4 mr-1 text-blue-500" />
-              ) : (
-                <Bookmark className="h-4 w-4 mr-1" />
-              )}
-              {bookmarked ? "Saved" : "Save"}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={toggleFlagForRevision}
-              className={flaggedForRevision ? "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" : ""}
-            >
-              <Flag className={`h-4 w-4 mr-1 ${flaggedForRevision ? "text-amber-500" : ""}`} />
-              {flaggedForRevision ? "Flagged" : "Flag for Revision"}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={shareContent}
-            >
-              <Share2 className="h-4 w-4 mr-1" /> Share
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex flex-wrap gap-2 mt-3">
-          <Badge variant="outline">{conceptData.subject}</Badge>
-          <Badge variant="outline">{conceptData.chapter}</Badge>
-          <Badge>{conceptData.difficulty}</Badge>
-        </div>
-        
-        <div className="flex justify-between items-center mt-3">
-          <div className="flex gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" /> {conceptData.estimatedTime}
-            </div>
-            <div>Last studied: {conceptData.lastStudied}</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Mastery:</span>
-            <Progress value={conceptData.mastery} className="w-32" />
-            <span className="text-sm font-medium">{conceptData.mastery}%</span>
-          </div>
-        </div>
-        
-        {/* Quick action buttons */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={readAloudContent}
-            className={audioPlaying ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : ""}
-          >
-            {audioPlaying ? (
-              <>
-                <PauseCircle className="mr-1 h-4 w-4" /> Stop Reading
-              </>
-            ) : (
-              <>
-                <Headphones className="mr-1 h-4 w-4" /> Read Aloud
-              </>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={startQuiz}
-          >
-            <BrainCircuit className="mr-1 h-4 w-4" /> Quick Recall Practice
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAddingNote(true)}
-          >
-            <Pen className="mr-1 h-4 w-4" /> Add Notes
-          </Button>
-          <Dialog open={aiTutorDialogOpen} onOpenChange={setAiTutorDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-              >
-                <HelpCircle className="mr-1 h-4 w-4" /> Ask AI Tutor
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900">
+      <Card className="w-full max-w-5xl mx-auto">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-start">
+            <div>
+              <Button variant="ghost" size="sm" className="mb-2" onClick={onBack}>
+                <ChevronLeft className="mr-1 h-4 w-4" /> Back to Concepts
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl">
-              <DialogHeader>
-                <DialogTitle>Ask AI Tutor about {conceptData.title}</DialogTitle>
-                <DialogDescription>
-                  Get personalized help with understanding this concept.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 mt-2">
-                {tutorResponse && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <p className="text-sm">{tutorResponse}</p>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <Textarea
-                    placeholder="Ask a question about this concept..."
-                    value={tutorQuestion}
-                    onChange={(e) => setTutorQuestion(e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                  <Button 
-                    onClick={submitTutorQuestion} 
-                    disabled={isTutorThinking || !tutorQuestion.trim()}
-                    className="w-full"
-                  >
-                    {isTutorThinking ? "Thinking..." : "Ask Question"}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsShowingRelatedConcepts(!isShowingRelatedConcepts)}
-          >
-            <LinkIcon className="mr-1 h-4 w-4" /> Related Concepts
-          </Button>
-        </div>
-        {/* Related concepts panel */}
-        {isShowingRelatedConcepts && (
-          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-            <h4 className="text-sm font-medium mb-3">Related Concepts</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {conceptData.relatedConcepts.map((concept: any) => (
-                <div 
-                  key={concept.id} 
-                  className="p-3 border rounded-lg hover:bg-white dark:hover:bg-gray-800 cursor-pointer transition-colors"
-                  onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                      <LinkIcon className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{concept.title}</p>
-                      <p className="text-xs text-muted-foreground">{concept.subject} • {concept.difficulty}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <CardTitle className="text-2xl font-bold">{conceptData.title}</CardTitle>
+              <CardDescription className="text-base">{conceptData.subtitle}</CardDescription>
             </div>
-          </div>
-        )}
-      </CardHeader>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="px-6">
-          <TabsList className="w-full">
-            <TabsTrigger value="read" className="flex-1">
-              <BookOpen className="h-4 w-4 mr-1" /> Read
-            </TabsTrigger>
-            <TabsTrigger value="visualize" className="flex-1">
-              <Lightbulb className="h-4 w-4 mr-1" /> Visualize
-            </TabsTrigger>
-            <TabsTrigger value="listen" className="flex-1">
-              <AudioLines className="h-4 w-4 mr-1" /> Listen
-            </TabsTrigger>
-            <TabsTrigger value="practice" className="flex-1">
-              <MessageSquare className="h-4 w-4 mr-1" /> Practice
-            </TabsTrigger>
-            <TabsTrigger value="notes" className="flex-1">
-              <FileText className="h-4 w-4 mr-1" /> Notes
-            </TabsTrigger>
-            <TabsTrigger value="flashcards" className="flex-1">
-              <Brain className="h-4 w-4 mr-1" /> Flashcards
-            </TabsTrigger>
-          </TabsList>
-        </div>
-        
-        <CardContent className="pt-4">
-          <TabsContent value="read" className="space-y-4">
-            <div 
-              className="prose dark:prose-invert max-w-none"
-              onMouseUp={handleTextSelection}
-              dangerouslySetInnerHTML={{ __html: conceptData.content }}
-            />
-            
-            {selectedText && (
-              <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg flex gap-3 z-10">
-                <Button size="sm" onClick={addHighlight}>
-                  <Highlighter className="h-4 w-4 mr-1" /> Highlight
-                </Button>
-                <Button size="sm" onClick={() => {
-                  setNoteText(`Note about: "${selectedText}"\n\n`);
-                  setIsAddingNote(true);
-                  setSelectedText("");
-                }}>
-                  <FileText className="h-4 w-4 mr-1" /> Add Note
-                </Button>
-              </div>
-            )}
-            
-            <div className="flex justify-between mt-4 pt-4 border-t">
-              <div>
-                <Button variant="outline" onClick={downloadContent}>
-                  <Download className="h-4 w-4 mr-1" /> Download PDF
-                </Button>
-              </div>
-              
-              <div>
-                <Button variant="ghost">
-                  <ChevronLeft className="h-4 w-4 mr-1" /> Previous
-                </Button>
-                <Button variant="ghost">
-                  Next <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="visualize" className="space-y-6">
-            <h3 className="text-xl font-medium">Visual Aids</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {conceptData.diagrams.map((diagram: any, index: number) => (
-                <div key={index} className="border rounded-lg overflow-hidden">
-                  <img 
-                    src={diagram.url} 
-                    alt={diagram.title} 
-                    className="w-full object-cover"
-                  />
-                  <div className="p-3 border-t">
-                    <h4 className="font-medium">{diagram.title}</h4>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <h3 className="text-xl font-medium pt-4">Key Formulas</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {conceptData.formulas.map((formula: any, index: number) => (
-                <div key={index} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-                  <div className="text-sm text-muted-foreground mb-1">{formula.name}</div>
-                  <div className="text-lg font-bold">{formula.formula}</div>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="listen" className="space-y-4">
-            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
-              <h3 className="text-xl font-medium mb-4">Audio Explanation</h3>
-              <p className="mb-4">Listen to an audio explanation of {conceptData.title}. This audio covers all key principles and applications.</p>
-              <div className="flex justify-center">
-                <Button 
-                  size="lg" 
-                  onClick={readAloudContent}
-                  className={`${audioPlaying ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
-                >
-                  {audioPlaying ? (
-                    <>
-                      <div className="flex items-center">
-                        <span className="sr-only">Audio is playing</span>
-                        <div className="flex items-center gap-1">
-                          <div className="w-1 h-4 bg-white animate-sound-wave-1"></div>
-                          <div className="w-1 h-6 bg-white animate-sound-wave-2"></div>
-                          <div className="w-1 h-8 bg-white animate-sound-wave-3"></div>
-                          <div className="w-1 h-4 bg-white animate-sound-wave-4"></div>
-                        </div>
-                        <span className="ml-2">Playing...</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <Headphones className="mr-2 h-4 w-4" /> Start Reading Aloud
-                    </>
-                  )}
-                </Button>
-              </div>
-              
-              <style jsx>{`
-                @keyframes sound-wave-1 {
-                  0%, 100% { height: 4px; }
-                  50% { height: 12px; }
-                }
-                @keyframes sound-wave-2 {
-                  0%, 100% { height: 6px; }
-                  50% { height: 20px; }
-                }
-                @keyframes sound-wave-3 {
-                  0%, 100% { height: 8px; }
-                  50% { height: 16px; }
-                }
-                @keyframes sound-wave-4 {
-                  0%, 100% { height: 4px; }
-                  50% { height: 10px; }
-                }
-                .animate-sound-wave-1 {
-                  animation: sound-wave-1 0.5s infinite;
-                }
-                .animate-sound-wave-2 {
-                  animation: sound-wave-2 0.7s infinite;
-                }
-                .animate-sound-wave-3 {
-                  animation: sound-wave-3 0.6s infinite;
-                }
-                .animate-sound-wave-4 {
-                  animation: sound-wave-4 0.5s infinite;
-                }
-              `}</style>
-            </div>
-            
-            <h3 className="text-xl font-medium pt-4">Key Points</h3>
-            <div className="space-y-2">
-              {conceptData.keyPoints.map((point: string, index: number) => (
-                <div key={index} className="flex items-start gap-2">
-                  <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">{index + 1}</div>
-                  <p>{point}</p>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="practice" className="space-y-4">
-            <h3 className="text-xl font-medium">Practice Questions</h3>
-            <div className="space-y-6">
-              {conceptData.questions.map((item: any, index: number) => (
-                <div key={index} className="border rounded-lg overflow-hidden">
-                  <div className="p-4 border-b bg-gray-50 dark:bg-gray-800">
-                    <h4 className="font-medium">Question {index + 1}</h4>
-                    <p className="mt-1">{item.question}</p>
-                  </div>
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20">
-                    <h4 className="font-medium text-sm text-muted-foreground">Answer</h4>
-                    <p className="mt-1">{item.answer}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="mt-6 flex gap-3">
-              <Button className="flex-1" onClick={startQuiz}>
-                <BrainCircuit className="mr-2 h-4 w-4" /> Quick Recall Practice
-              </Button>
-              <Dialog open={aiTutorDialogOpen} onOpenChange={setAiTutorDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="flex-1">
-                    <MessageSquare className="mr-2 h-4 w-4" /> Ask AI Tutor
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="notes" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-medium">Your Notes</h3>
+            <div className="flex flex-wrap gap-2">
               <Button 
-                onClick={() => {
-                  setNoteText("");
-                  setIsAddingNote(true);
-                }}
-                disabled={isAddingNote}
+                variant="outline" 
+                size="sm"
+                onClick={toggleBookmark}
+                className={bookmarked ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : ""}
               >
-                <Pen className="h-4 w-4 mr-1" /> Add Note
+                {bookmarked ? (
+                  <BookmarkCheck className="h-4 w-4 mr-1 text-blue-500" />
+                ) : (
+                  <Bookmark className="h-4 w-4 mr-1" />
+                )}
+                {bookmarked ? "Saved" : "Save"}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={toggleFlagForRevision}
+                className={flaggedForRevision ? "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" : ""}
+              >
+                <Flag className={`h-4 w-4 mr-1 ${flaggedForRevision ? "text-amber-500" : ""}`} />
+                {flaggedForRevision ? "Flagged" : "Flag for Revision"}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={shareContent}
+              >
+                <Share2 className="h-4 w-4 mr-1" /> Share
               </Button>
             </div>
-            
-            {isAddingNote ? (
-              <div className="border rounded-lg p-4 space-y-3">
-                <Textarea
-                  className="w-full min-h-[150px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Write your note here..."
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsAddingNote(false)}>Cancel</Button>
-                  <Button onClick={addNote}>Save Note</Button>
-                </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mt-3">
+            <Badge variant="outline">{conceptData.subject}</Badge>
+            <Badge variant="outline">{conceptData.chapter}</Badge>
+            <Badge>{conceptData.difficulty}</Badge>
+          </div>
+          
+          <div className="flex justify-between items-center mt-3">
+            <div className="flex gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" /> {conceptData.estimatedTime}
               </div>
-            ) : notes.length > 0 ? (
-              <div className="space-y-4">
-                {notes.map((note, index) => (
-                  <div key={index} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-                    <p className="whitespace-pre-line">{note}</p>
-                    <div className="text-xs text-muted-foreground mt-2">
-                      Added on {new Date().toLocaleDateString()}
+              <div>Last studied: {conceptData.lastStudied}</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Mastery:</span>
+              <Progress value={conceptData.mastery} className="w-32" />
+              <span className="text-sm font-medium">{conceptData.mastery}%</span>
+            </div>
+          </div>
+          
+          {/* Quick action buttons */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={readAloudContent}
+              className={audioPlaying ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : ""}
+            >
+              {audioPlaying ? (
+                <>
+                  <PauseCircle className="mr-1 h-4 w-4" /> Stop Reading
+                </>
+              ) : (
+                <>
+                  <Headphones className="mr-1 h-4 w-4" /> Read Aloud
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startQuiz}
+            >
+              <BrainCircuit className="mr-1 h-4 w-4" /> Quick Recall Practice
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAddingNote(true)}
+            >
+              <Pen className="mr-1 h-4 w-4" /> Add Notes
+            </Button>
+            <Dialog open={aiTutorDialogOpen} onOpenChange={setAiTutorDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                >
+                  <HelpCircle className="mr-1 h-4 w-4" /> Ask AI Tutor
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl">
+                <DialogHeader>
+                  <DialogTitle>Ask AI Tutor about {conceptData.title}</DialogTitle>
+                  <DialogDescription>
+                    Get personalized help with understanding this concept.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 mt-2">
+                  {tutorResponse && (
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <p className="text-sm">{tutorResponse}</p>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Textarea
+                      placeholder="Ask a question about this concept..."
+                      value={tutorQuestion}
+                      onChange={(e) => setTutorQuestion(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                    <Button 
+                      onClick={submitTutorQuestion} 
+                      disabled={isTutorThinking || !tutorQuestion.trim()}
+                      className="w-full"
+                    >
+                      {isTutorThinking ? "Thinking..." : "Ask Question"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsShowingRelatedConcepts(!isShowingRelatedConcepts)}
+            >
+              <LinkIcon className="mr-1 h-4 w-4" /> Related Concepts
+            </Button>
+          </div>
+          {/* Related concepts panel */}
+          {isShowingRelatedConcepts && (
+            <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <h4 className="text-sm font-medium mb-3">Related Concepts</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {conceptData.relatedConcepts.map((concept: any) => (
+                  <div 
+                    key={concept.id} 
+                    className="p-3 border rounded-lg hover:bg-white dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                    onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                        <LinkIcon className="h-3.5 w-3.5" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{concept.title}</p>
+                        <p className="text-xs text-muted-foreground">{concept.subject} • {concept.difficulty}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-8 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                <FileText className="h-12 w-12 mx-auto text-gray-400" />
-                <p className="mt-2 text-muted-foreground">You haven't added any notes yet.</p>
+            </div>
+          )}
+        </CardHeader>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <div className="px-6">
+            <TabsList className="w-full">
+              <TabsTrigger value="read" className="flex-1">
+                <BookOpen className="h-4 w-4 mr-1" /> Read
+              </TabsTrigger>
+              <TabsTrigger value="visualize" className="flex-1">
+                <Lightbulb className="h-4 w-4 mr-1" /> Visualize
+              </TabsTrigger>
+              <TabsTrigger value="listen" className="flex-1">
+                <AudioLines className="h-4 w-4 mr-1" /> Listen
+              </TabsTrigger>
+              <TabsTrigger value="practice" className="flex-1">
+                <MessageSquare className="h-4 w-4 mr-1" /> Practice
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="flex-1">
+                <FileText className="h-4 w-4 mr-1" /> Notes
+              </TabsTrigger>
+              <TabsTrigger value="flashcards" className="flex-1">
+                <Brain className="h-4 w-4 mr-1" /> Flashcards
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <CardContent className="pt-4">
+            <TabsContent value="read" className="space-y-4">
+              <div 
+                className="prose dark:prose-invert max-w-none"
+                onMouseUp={handleTextSelection}
+                dangerouslySetInnerHTML={{ __html: conceptData.content }}
+              />
+              
+              {selectedText && (
+                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg flex gap-3 z-10">
+                  <Button size="sm" onClick={addHighlight}>
+                    <Highlighter className="h-4 w-4 mr-1" /> Highlight
+                  </Button>
+                  <Button size="sm" onClick={() => {
+                    setNoteText(`Note about: "${selectedText}"\n\n`);
+                    setIsAddingNote(true);
+                    setSelectedText("");
+                  }}>
+                    <FileText className="h-4 w-4 mr-1" /> Add Note
+                  </Button>
+                </div>
+              )}
+              
+              <div className="flex justify-between mt-4 pt-4 border-t">
+                <div>
+                  <Button variant="outline" onClick={downloadContent}>
+                    <Download className="h-4 w-4 mr-1" /> Download PDF
+                  </Button>
+                </div>
+                
+                <div>
+                  <Button variant="ghost">
+                    <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                  </Button>
+                  <Button variant="ghost">
+                    Next <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
               </div>
-            )}
+            </TabsContent>
             
-            {highlights.length > 0 && (
-              <>
-                <h3 className="text-xl font-medium pt-4">Your Highlights</h3>
-                <div className="space-y-2">
-                  {highlights.map((highlight, index) => (
-                    <div key={index} className="border-l-4 border-yellow-400 pl-3 py-1">
-                      <p className="italic">"{highlight}"</p>
+            <TabsContent value="visualize" className="space-y-6">
+              <h3 className="text-xl font-medium">Visual Aids</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {conceptData.diagrams.map((diagram: any, index: number) => (
+                  <div key={index} className="border rounded-lg overflow-hidden">
+                    <img 
+                      src={diagram.url} 
+                      alt={diagram.title} 
+                      className="w-full object-cover"
+                    />
+                    <div className="p-3 border-t">
+                      <h4 className="font-medium">{diagram.title}</h4>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <h3 className="text-xl font-medium pt-4">Key Formulas</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {conceptData.formulas.map((formula: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                    <div className="text-sm text-muted-foreground mb-1">{formula.name}</div>
+                    <div className="text-lg font-bold">{formula.formula}</div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="listen" className="space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+                <h3 className="text-xl font-medium mb-4">Audio Explanation</h3>
+                <p className="mb-4">Listen to an audio explanation of {conceptData.title}. This audio covers all key principles and applications.</p>
+                <div className="flex justify-center">
+                  <Button 
+                    size="lg" 
+                    onClick={readAloudContent}
+                    className={`${audioPlaying ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
+                  >
+                    {audioPlaying ? (
+                      <>
+                        <div className="flex items-center">
+                          <span className="sr-only">Audio is playing</span>
+                          <div className="flex items-center gap-1">
+                            <div className="w-1 h-4 bg-white animate-sound-wave-1"></div>
+                            <div className="w-1 h-6 bg-white animate-sound-wave-2"></div>
+                            <div className="w-1 h-8 bg-white animate-sound-wave-3"></div>
+                            <div className="w-1 h-4 bg-white animate-sound-wave-4"></div>
+                          </div>
+                          <span className="ml-2">Playing...</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Headphones className="mr-2 h-4 w-4" /> Start Reading Aloud
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                <style jsx>{`
+                  @keyframes sound-wave-1 {
+                    0%, 100% { height: 4px; }
+                    50% { height: 12px; }
+                  }
+                  @keyframes sound-wave-2 {
+                    0%, 100% { height: 6px; }
+                    50% { height: 20px; }
+                  }
+                  @keyframes sound-wave-3 {
+                    0%, 100% { height: 8px; }
+                    50% { height: 16px; }
+                  }
+                  @keyframes sound-wave-4 {
+                    0%, 100% { height: 4px; }
+                    50% { height: 10px; }
+                  }
+                  .animate-sound-wave-1 {
+                    animation: sound-wave-1 0.5s infinite;
+                  }
+                  .animate-sound-wave-2 {
+                    animation: sound-wave-2 0.7s infinite;
+                  }
+                  .animate-sound-wave-3 {
+                    animation: sound-wave-3 0.6s infinite;
+                  }
+                  .animate-sound-wave-4 {
+                    animation: sound-wave-4 0.5s infinite;
+                  }
+                `}</style>
+              </div>
+              
+              <h3 className="text-xl font-medium pt-4">Key Points</h3>
+              <div className="space-y-2">
+                {conceptData.keyPoints.map((point: string, index: number) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">{index + 1}</div>
+                    <p>{point}</p>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="practice" className="space-y-4">
+              <h3 className="text-xl font-medium">Practice Questions</h3>
+              <div className="space-y-6">
+                {conceptData.questions.map((item: any, index: number) => (
+                  <div key={index} className="border rounded-lg overflow-hidden">
+                    <div className="p-4 border-b bg-gray-50 dark:bg-gray-800">
+                      <h4 className="font-medium">Question {index + 1}</h4>
+                      <p className="mt-1">{item.question}</p>
+                    </div>
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20">
+                      <h4 className="font-medium text-sm text-muted-foreground">Answer</h4>
+                      <p className="mt-1">{item.answer}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 flex gap-3">
+                <Button className="flex-1" onClick={startQuiz}>
+                  <BrainCircuit className="mr-2 h-4 w-4" /> Quick Recall Practice
+                </Button>
+                <Dialog open={aiTutorDialogOpen} onOpenChange={setAiTutorDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="flex-1">
+                      <MessageSquare className="mr-2 h-4 w-4" /> Ask AI Tutor
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="notes" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-medium">Your Notes</h3>
+                <Button 
+                  onClick={() => {
+                    setNoteText("");
+                    setIsAddingNote(true);
+                  }}
+                  disabled={isAddingNote}
+                >
+                  <Pen className="h-4 w-4 mr-1" /> Add Note
+                </Button>
+              </div>
+              
+              {isAddingNote ? (
+                <div className="border rounded-lg p-4 space-y-3">
+                  <Textarea
+                    className="w-full min-h-[150px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Write your note here..."
+                    value={noteText}
+                    onChange={(e) => setNoteText(e.target.value)}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsAddingNote(false)}>Cancel</Button>
+                    <Button onClick={addNote}>Save Note</Button>
+                  </div>
+                </div>
+              ) : notes.length > 0 ? (
+                <div className="space-y-4">
+                  {notes.map((note, index) => (
+                    <div key={index} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                      <p className="whitespace-pre-line">{note}</p>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        Added on {new Date().toLocaleDateString()}
+                      </div>
                     </div>
                   ))}
                 </div>
-              </>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="flashcards" className="space-y-6">
-            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
-              <h3 className="text-xl font-medium mb-4">Flashcards & Exam Format</h3>
-              <p className="mb-4">Convert this concept into flashcards and exam questions to test your knowledge.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="border rounded-lg p-5 bg-white dark:bg-gray-900 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Brain className="h-5 w-5 text-purple-500" />
-                    <h4 className="font-medium">Flashcards</h4>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    Create a set of flashcards based on this concept to practice recall.
-                  </p>
-                  <Button className="w-full" onClick={() => navigate('/dashboard/student/flashcards')}>
-                    Study Flashcards
-                  </Button>
-                </div>
-                
-                <div className="border rounded-lg p-5 bg-white dark:bg-gray-900 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <CopyCheck className="h-5 w-5 text-green-500" />
-                    <h4 className="font-medium">Practice Tests</h4>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    Test your understanding with exam-style questions.
-                  </p>
-                  <Button className="w-full" onClick={() => navigate('/dashboard/student/practice-exam')}>
-                    Take Practice Test
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <h4 className="font-medium mb-3">Preview Flashcards</h4>
-                <div className="border rounded-lg overflow-hidden mb-4">
-                  <div className="p-4 border-b bg-white dark:bg-gray-900 text-center">
-                    <p className="font-medium">What is Newton's First Law?</p>
-                  </div>
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-center">
-                    <p>An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</p>
-                  </div>
-                </div>
-                
-                <Button variant="outline" className="w-full" onClick={startQuiz}>
-                  <BrainCircuit className="mr-2 h-4 w-4" /> Quick Recall Practice
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-        </CardContent>
-      </Tabs>
-      
-      <CardFooter className="flex justify-between border-t pt-4">
-        <div>
-          <h4 className="text-sm font-medium">Related Concepts</h4>
-          <div className="flex flex-wrap gap-2 mt-1">
-            {conceptData.relatedConcepts.map((concept: any) => (
-              <Badge 
-                key={concept.id} 
-                variant="secondary"
-                className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}
-              >
-                {concept.title}
-              </Badge>
-            ))}
-          </div>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/student/today')}>
-          <List className="h-4 w-4 mr-1" /> View in Study Plan
-        </Button>
-      </CardFooter>
-      
-      {/* Quick Recall Practice Dialog */}
-      <Dialog open={quizDialogOpen} onOpenChange={setQuizDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Quick Recall Practice</DialogTitle>
-            <DialogDescription>
-              Test your understanding of {conceptData.title}
-            </DialogDescription>
-          </DialogHeader>
-          
-          {conceptData.quizQuestions && currentQuizQuestion < conceptData.quizQuestions.length && (
-            <div className="space-y-4">
-              <div className="py-2">
-                <h4 className="font-medium mb-2">
-                  Question {currentQuizQuestion + 1} of {conceptData.quizQuestions.length}
-                </h4>
-                <p>{conceptData.quizQuestions[currentQuizQuestion].question}</p>
-              </div>
-              
-              <div className="space-y-2">
-                {conceptData.quizQuestions[currentQuizQuestion].options.map((option: string) => (
-                  <div 
-                    key={option} 
-                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                      selectedAnswer === option 
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                    } ${
-                      quizAnswered && option === conceptData.quizQuestions[currentQuizQuestion].correctAnswer
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                        : ''
-                    } ${
-                      quizAnswered && selectedAnswer === option && option !== conceptData.quizQuestions[currentQuizQuestion].correctAnswer
-                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                        : ''
-                    }`}
-                    onClick={() => {
-                      if (!quizAnswered) {
-                        setSelectedAnswer(option);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center">
-                      <div className={`w-5 h-5 rounded-full border mr-2 flex-shrink-0 ${
-                        selectedAnswer === option 
-                          ? 'border-blue-500 bg-blue-500' 
-                          : 'border-gray-300'
-                      }`}>
-                        {selectedAnswer === option && (
-                          <Check className="h-4 w-4 text-white" />
-                        )}
-                      </div>
-                      <span>{option}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="flex justify-between pt-4">
-                {!quizAnswered ? (
-                  <Button 
-                    className="w-full"
-                    onClick={checkAnswer}
-                    disabled={!selectedAnswer}
-                  >
-                    Check Answer
-                  </Button>
-                ) : (
-                  <Button 
-                    className="w-full"
-                    onClick={nextQuestion}
-                  >
-                    {currentQuizQuestion < conceptData.quizQuestions.length - 1 ? 'Next Question' : 'Finish Quiz'}
-                  </Button>
-                )}
-              </div>
-              
-              {quizAnswered && (
-                <div className={`p-3 rounded-lg ${
-                  selectedAnswer === conceptData.quizQuestions[currentQuizQuestion].correctAnswer
-                    ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200'
-                    : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-200'
-                }`}>
-                  {selectedAnswer === conceptData.quizQuestions[currentQuizQuestion].correctAnswer 
-                    ? 'Correct! Well done.' 
-                    : `Incorrect. The correct answer is: ${conceptData.quizQuestions[currentQuizQuestion].correctAnswer}`
-                  }
+              ) : (
+                <div className="text-center py-8 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                  <FileText className="h-12 w-12 mx-auto text-gray-400" />
+                  <p className="mt-2 text-muted-foreground">You haven't added any notes yet.</p>
                 </div>
               )}
+              
+              {highlights.length > 0 && (
+                <>
+                  <h3 className="text-xl font-medium pt-4">Your Highlights</h3>
+                  <div className="space-y-2">
+                    {highlights.map((highlight, index) => (
+                      <div key={index} className="border-l-4 border-yellow-400 pl-3 py-1">
+                        <p className="italic">"{highlight}"</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="flashcards" className="space-y-6">
+              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+                <h3 className="text-xl font-medium mb-4">Flashcards & Exam Format</h3>
+                <p className="mb-4">Convert this concept into flashcards and exam questions to test your knowledge.</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="border rounded-lg p-5 bg-white dark:bg-gray-900 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Brain className="h-5 w-5 text-purple-500" />
+                      <h4 className="font-medium">Flashcards</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Create a set of flashcards based on this concept to practice recall.
+                    </p>
+                    <Button className="w-full" onClick={() => navigate('/dashboard/student/flashcards')}>
+                      Study Flashcards
+                    </Button>
+                  </div>
+                  
+                  <div className="border rounded-lg p-5 bg-white dark:bg-gray-900 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CopyCheck className="h-5 w-5 text-green-500" />
+                      <h4 className="font-medium">Practice Tests</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Test your understanding with exam-style questions.
+                    </p>
+                    <Button className="w-full" onClick={() => navigate('/dashboard/student/practice-exam')}>
+                      Take Practice Test
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="mt-6">
+                  <h4 className="font-medium mb-3">Preview Flashcards</h4>
+                  <div className="border rounded-lg overflow-hidden mb-4">
+                    <div className="p-4 border-b bg-white dark:bg-gray-900 text-center">
+                      <p className="font-medium">What is Newton's First Law?</p>
+                    </div>
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-center">
+                      <p>An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</p>
+                    </div>
+                  </div>
+                  
+                  <Button variant="outline" className="w-full" onClick={startQuiz}>
+                    <BrainCircuit className="mr-2 h-4 w-4" /> Quick Recall Practice
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
+        
+        <CardFooter className="flex justify-between border-t pt-4">
+          <div>
+            <h4 className="text-sm font-medium">Related Concepts</h4>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {conceptData.relatedConcepts.map((concept: any) => (
+                <Badge 
+                  key={concept.id} 
+                  variant="secondary"
+                  className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  onClick={() => navigate(`/dashboard/student/concepts/${concept.id}`)}
+                >
+                  {concept.title}
+                </Badge>
+              ))}
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </Card>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/student/today')}>
+            <List className="h-4 w-4 mr-1" /> View in Study Plan
+          </Button>
+        </CardFooter>
+        
+        {/* Quick Recall Practice Dialog */}
+        <Dialog open={quizDialogOpen} onOpenChange={setQuizDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Quick Recall Practice</DialogTitle>
+              <DialogDescription>
+                Test your understanding of {conceptData.title}
+              </DialogDescription>
+            </DialogHeader>
+            
+            {conceptData.quizQuestions && currentQuizQuestion < conceptData.quizQuestions.length && (
+              <div className="space-y-4">
+                <div className="py-2">
+                  <h4 className="font-medium mb-2">
+                    Question {currentQuizQuestion + 1} of {conceptData.quizQuestions.length}
+                  </h4>
+                  <p>{conceptData.quizQuestions[currentQuizQuestion].question}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  {conceptData.quizQuestions[currentQuizQuestion].options.map((option: string) => (
+                    <div 
+                      key={option} 
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                        selectedAnswer === option 
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                      } ${
+                        quizAnswered && option === conceptData.quizQuestions[currentQuizQuestion].correctAnswer
+                          ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                          : ''
+                      } ${
+                        quizAnswered && selectedAnswer === option && option !== conceptData.quizQuestions[currentQuizQuestion].correctAnswer
+                          ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                          : ''
+                      }`}
+                      onClick={() => {
+                        if (!quizAnswered) {
+                          setSelectedAnswer(option);
+                        }
+                      }}
+                    >
+                      <div className="flex items-center">
+                        <div className={`w-5 h-5 rounded-full border mr-2 flex-shrink-0 ${
+                          selectedAnswer === option 
+                            ? 'border-blue-500 bg-blue-500' 
+                            : 'border-gray-300'
+                        }`}>
+                          {selectedAnswer === option && (
+                            <Check className="h-4 w-4 text-white" />
+                          )}
+                        </div>
+                        <span>{option}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-between pt-4">
+                  {!quizAnswered ? (
+                    <Button 
+                      className="w-full"
+                      onClick={checkAnswer}
+                      disabled={!selectedAnswer}
+                    >
+                      Check Answer
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="w-full"
+                      onClick={nextQuestion}
+                    >
+                      {currentQuizQuestion < conceptData.quizQuestions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                    </Button>
+                  )}
+                </div>
+                
+                {quizAnswered && (
+                  <div className={`p-3 rounded-lg ${
+                    selectedAnswer === conceptData.quizQuestions[currentQuizQuestion].correctAnswer
+                      ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-200'
+                      : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-200'
+                  }`}>
+                    {selectedAnswer === conceptData.quizQuestions[currentQuizQuestion].correctAnswer 
+                      ? 'Correct! Well done.' 
+                      : `Incorrect. The correct answer is: ${conceptData.quizQuestions[currentQuizQuestion].correctAnswer}`
+                    }
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+        
+        {/* Context-aware voice assistant for concept cards */}
+        <LearningPageVoiceAssistant 
+          userName={userProfile?.name || "Student"}
+          pageType="concepts"
+        />
+      </Card>
+    </div>
   );
 };
 

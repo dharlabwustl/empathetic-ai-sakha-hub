@@ -19,8 +19,10 @@ import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const Index = () => {
+  const { language, t } = useLanguage();
   const navigate = useNavigate();
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   
@@ -67,7 +69,7 @@ const Index = () => {
         >
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-              Smart Data. Real Impact. Humanizing exam prep.
+              {language === 'hi' ? 'स्मार्ट डेटा। वास्तविक प्रभाव। परीक्षा तैयारी को मानवीय बनाना।' : 'Smart Data. Real Impact. Humanizing exam prep.'}
             </h2>
           </div>
           <KpiStats />
@@ -105,10 +107,11 @@ const Index = () => {
       
       <Footer />
       
-      {/* Floating Voice Assistant Button */}
+      {/* Unified Floating Voice Assistant Button with hands-free mode */}
       <FloatingVoiceButton 
         userName="Visitor"
-        language="en-US"
+        language={language === 'hi' ? 'hi-IN' : 'en-US'}
+        handsFreeMode={true}
       />
     </div>
   );

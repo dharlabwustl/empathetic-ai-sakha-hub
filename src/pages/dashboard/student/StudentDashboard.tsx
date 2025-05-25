@@ -9,9 +9,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const { language, t } = useLanguage();
+  const [showSplash, setShowSplash] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,18 +44,14 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
 
   useEffect(() => {
-    // Explicitly mark tour as seen to prevent it from appearing
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.removeItem('new_user_signup');
     
-    // Don't show splash screen for now
     setShowSplash(false);
     
-    // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
     if (savedUserData) {
       try {
@@ -66,9 +64,7 @@ const StudentDashboard = () => {
       }
     }
 
-    // Ensure profile image is available
     if (userProfile && userProfile.avatar) {
-      // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
   }, [location, userProfile]);
@@ -133,7 +129,6 @@ const StudentDashboard = () => {
     );
   }
 
-  // Ensure the profile has the correct image
   const enhancedUserProfile = {
     ...userProfile,
     avatar: userProfile.avatar || localStorage.getItem('user_profile_image')
@@ -146,7 +141,6 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
 
   return (
@@ -154,7 +148,7 @@ const StudentDashboard = () => {
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+        hideTabsNav={true}
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
@@ -176,10 +170,11 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Unified floating voice assistant */}
+      {/* Unified floating voice assistant with hands-free mode and language support */}
       <FloatingVoiceButton 
         userName={userProfile.name}
-        language="en-US"
+        language={language === 'hi' ? 'hi-IN' : 'en-US'}
+        handsFreeMode={true}
       />
     </>
   );
