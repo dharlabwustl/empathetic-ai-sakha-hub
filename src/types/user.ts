@@ -1,6 +1,32 @@
 
-// This file is kept for backward compatibility
-// It re-exports all user-related types from the new modular structure
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  subscription?: {
+    type: string;
+    status: string;
+    plan?: string;
+    expiresAt?: string;
+    credits?: number;
+  };
+}
 
-export * from './user/index';
-export * from './user/base'; // Add this line to export UserRole directly
+export interface UserAnswer {
+  questionId: string;
+  selectedAnswer: string;
+  isCorrect?: boolean;
+  timeSpent?: number;
+}
+
+export interface ExamQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  subject: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  explanation?: string;
+}

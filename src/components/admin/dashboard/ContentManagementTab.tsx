@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ContentType } from "@/types/content";
 import ContentManagementHeader from "@/components/admin/dashboard/content/ContentManagementHeader";
 import ContentSummaryCards from "@/components/admin/dashboard/content/ContentSummaryCards";
+import ContentOverviewSection from "@/components/admin/dashboard/content/ContentOverviewSection";
+import ConceptCardFormats from "@/components/admin/dashboard/content/ConceptCardFormats";
 import TabContentApprovalQueue from "@/components/admin/dashboard/content/TabContentApprovalQueue";
 import TabContentStudyMaterials from "@/components/admin/dashboard/content/TabContentStudyMaterials";
 import TabContentPrompts from "@/components/admin/dashboard/content/TabContentPrompts";
@@ -14,20 +15,19 @@ import { useContentManagement } from "@/hooks/admin/useContentManagement";
 
 const ContentManagementTab = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("upload");
-  const [showUploader, setShowUploader] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   
   const {
     uploading,
     uploadProgress,
     selectedFile,
+    overviewStats,
     handleFileSelect,
     handleFileRemove,
     handleUpload,
   } = useContentManagement();
   
   const handleUploadClick = () => {
-    setShowUploader(true);
     setActiveTab("upload");
   };
   
@@ -117,6 +117,20 @@ const ContentManagementTab = () => {
     });
   };
 
+  const handleSelectFormat = (format: string) => {
+    toast({
+      title: "Format Selected",
+      description: `${format} format selected for concept card generation.`
+    });
+  };
+
+  const handleConfigureFormat = (format: string) => {
+    toast({
+      title: "Configure Format",
+      description: `Opening configuration for ${format} format.`
+    });
+  };
+
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
@@ -135,13 +149,25 @@ const ContentManagementTab = () => {
         <CardContent className="pt-6">
           <ContentSummaryCards handleManageContent={handleManageContent} />
 
-          <Tabs defaultValue="upload" value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="mb-4 grid w-full grid-cols-4 gap-2">
+          <Tabs defaultValue="overview" value={activeTab} onValueChange={handleTabChange}>
+            <TabsList className="mb-4 grid w-full grid-cols-5 gap-2">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="formats">Concept Formats</TabsTrigger>
               <TabsTrigger value="upload">Upload & Generate</TabsTrigger>
               <TabsTrigger value="queue">Approval Queue</TabsTrigger>
-              <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
               <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="overview">
+              <ContentOverviewSection stats={overviewStats} />
+            </TabsContent>
+
+            <TabsContent value="formats">
+              <ConceptCardFormats 
+                onSelectFormat={handleSelectFormat}
+                onConfigureFormat={handleConfigureFormat}
+              />
+            </TabsContent>
 
             <TabsContent value="upload">
               <ContentUploader
@@ -156,13 +182,6 @@ const ContentManagementTab = () => {
 
             <TabsContent value="queue">
               <TabContentApprovalQueue handleContentAction={handleContentAction} />
-            </TabsContent>
-
-            <TabsContent value="studyMaterials">
-              <TabContentStudyMaterials 
-                handleUpload={handleUploadClick} 
-                handleContentAction={handleContentAction} 
-              />
             </TabsContent>
 
             <TabsContent value="prompts">

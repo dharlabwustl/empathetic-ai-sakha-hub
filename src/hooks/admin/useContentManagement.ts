@@ -1,59 +1,113 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ContentType, ContentFile, ContentManagementHookReturn } from "@/types/content";
+import { ContentType, ContentFile, ContentManagementHookReturn, ContentOverviewStats } from "@/types/content";
 
 export const useContentManagement = (): ContentManagementHookReturn => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [currentTab, setCurrentTab] = useState<ContentType>("study-material");
+  const [currentTab, setCurrentTab] = useState<ContentType>("concept-card");
   const [searchTerm, setSearchTerm] = useState("");
   
-  // Ensure the sample data strictly follows ContentType
   const [uploadedFiles, setUploadedFiles] = useState<ContentFile[]>([
     {
       id: "file1",
       name: "NEET Biology Notes.pdf",
-      type: "study-material",
+      type: "concept-card",
       subject: "Biology",
       examType: "NEET",
       uploadDate: "2025-03-31",
       size: "4.2 MB",
-      tags: ["notes", "biology", "neet"]
+      tags: ["notes", "biology", "neet"],
+      format: "text-summary",
+      generatedContent: {
+        textSummary: true,
+        visualDiagram: false,
+        threeDModel: false,
+        interactiveLab: false,
+        video: false,
+        examMistakes: true,
+        audioAnalysis: false,
+        createdAt: "2025-03-31T10:00:00Z",
+        processingTime: 45
+      }
     },
     {
       id: "file2",
-      name: "JEE Advanced Physics Formula Sheet.pdf",
-      type: "syllabus",
+      name: "Physics Mechanics Concepts",
+      type: "concept-card",
       subject: "Physics",
       examType: "JEE Advanced",
       uploadDate: "2025-03-29",
       size: "2.1 MB",
-      tags: ["formulas", "physics", "jee"]
+      tags: ["mechanics", "physics", "jee"],
+      format: "visual-diagram",
+      generatedContent: {
+        textSummary: true,
+        visualDiagram: true,
+        threeDModel: false,
+        interactiveLab: false,
+        video: false,
+        examMistakes: false,
+        audioAnalysis: true,
+        createdAt: "2025-03-29T14:30:00Z",
+        processingTime: 120
+      }
     },
     {
       id: "file3",
-      name: "CAT Quantitative Aptitude Question Bank.pdf",
-      type: "practice",
-      subject: "Mathematics",
-      examType: "CAT",
+      name: "Chemistry Molecular Models",
+      type: "concept-card",
+      subject: "Chemistry",
+      examType: "NEET",
       uploadDate: "2025-03-25",
       size: "8.7 MB",
-      tags: ["questions", "mathematics", "cat"]
-    },
-    {
-      id: "file4",
-      name: "UPSC Previous Year Papers (2024).pdf",
-      type: "exam-material",
-      subject: "General Studies",
-      examType: "UPSC",
-      uploadDate: "2025-03-20",
-      size: "12.4 MB",
-      tags: ["previous-papers", "upsc"]
+      tags: ["molecules", "chemistry", "3d"],
+      format: "3d-model",
+      generatedContent: {
+        textSummary: true,
+        visualDiagram: false,
+        threeDModel: true,
+        interactiveLab: true,
+        video: false,
+        examMistakes: false,
+        audioAnalysis: true,
+        createdAt: "2025-03-25T09:15:00Z",
+        processingTime: 180
+      }
     }
   ]);
+
+  // Calculate overview stats
+  const overviewStats: ContentOverviewStats = {
+    totalGenerated: uploadedFiles.length,
+    byFormat: uploadedFiles.reduce((acc, file) => {
+      if (file.format) {
+        acc[file.format] = (acc[file.format] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<any, number>),
+    bySubject: uploadedFiles.reduce((acc, file) => {
+      acc[file.subject] = (acc[file.subject] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+    byExam: uploadedFiles.reduce((acc, file) => {
+      acc[file.examType] = (acc[file.examType] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+    recentActivity: {
+      today: 2,
+      thisWeek: 8,
+      thisMonth: 24
+    },
+    qualityMetrics: {
+      averageProcessingTime: 115,
+      successRate: 94,
+      userSatisfaction: 4.6
+    }
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -88,7 +142,6 @@ export const useContentManagement = (): ContentManagementHookReturn => {
           clearInterval(interval);
           setUploading(false);
           
-          // Ensure we create a new file with the correct ContentType
           const newFile: ContentFile = {
             id: `file${uploadedFiles.length + 1}`,
             name: selectedFile.name,
@@ -97,7 +150,19 @@ export const useContentManagement = (): ContentManagementHookReturn => {
             examType: "Exam Type",
             uploadDate: new Date().toISOString().split('T')[0],
             size: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
-            tags: ["new"]
+            tags: ["new"],
+            format: "text-summary",
+            generatedContent: {
+              textSummary: true,
+              visualDiagram: false,
+              threeDModel: false,
+              interactiveLab: false,
+              video: false,
+              examMistakes: false,
+              audioAnalysis: false,
+              createdAt: new Date().toISOString(),
+              processingTime: Math.floor(Math.random() * 120) + 30
+            }
           };
           
           setUploadedFiles(prev => [newFile, ...prev]);
@@ -105,7 +170,7 @@ export const useContentManagement = (): ContentManagementHookReturn => {
           
           toast({
             title: "File uploaded successfully",
-            description: `${selectedFile.name} has been uploaded.`,
+            description: `${selectedFile.name} has been uploaded and concept cards generated.`,
           });
           
           return 0;
@@ -130,6 +195,7 @@ export const useContentManagement = (): ContentManagementHookReturn => {
     searchTerm,
     currentTab,
     filteredFiles,
+    overviewStats,
     handleFileSelect,
     handleFileRemove,
     handleUpload,
