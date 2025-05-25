@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { 
   LayoutDashboard, Users, FileText, Bot, BookOpen, 
   GraduationCap, Heart, Smile, MessageCircle, Bell,
-  Users as UsersIcon, CreditCard, BarChart3, Mic, Globe,
+  UserGroup, CreditCard, BarChart3, Mic, Globe,
   Target, FileSearch, Shield
 } from 'lucide-react';
 
@@ -20,7 +20,7 @@ const adminModules = [
   { path: '/admin/feel-good', label: 'Feel Good Corner', icon: Smile },
   { path: '/admin/ai-tutor', label: 'AI Tutor', icon: MessageCircle },
   { path: '/admin/notifications', label: 'Notifications', icon: Bell },
-  { path: '/admin/batches', label: 'Batch Management', icon: UsersIcon },
+  { path: '/admin/batches', label: 'Batch Management', icon: UserGroup },
   { path: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
   { path: '/admin/analytics', label: 'Analytics Center', icon: BarChart3 },
   { path: '/admin/voice', label: 'Voice Assistant', icon: Mic },
