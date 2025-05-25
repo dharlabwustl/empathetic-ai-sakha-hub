@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Users, Award, Clock, Shield, BookOpen, Target, BarChart3, Trophy } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, TrendingUp, Award } from 'lucide-react';
 
 interface CleanHeroContentProps {
   onAnalyzeClick: () => void;
@@ -11,19 +11,20 @@ interface CleanHeroContentProps {
 
 const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) => {
   const navigate = useNavigate();
+  const [currentBenefit, setCurrentBenefit] = useState(0);
   
   const handleGetStarted = () => {
     navigate('/signup');
   };
 
   const keyBenefits = [
-    { icon: <Clock className="w-5 h-5" />, text: "Save Your Time", color: "from-blue-500 to-blue-600" },
-    { icon: <Shield className="w-5 h-5" />, text: "Stress Free", color: "from-green-500 to-green-600" },
-    { icon: <BookOpen className="w-5 h-5" />, text: "Develop Study Habits", color: "from-purple-500 to-purple-600" },
-    { icon: <Target className="w-5 h-5" />, text: "Syllabus Linked", color: "from-orange-500 to-orange-600" },
-    { icon: <Trophy className="w-5 h-5" />, text: "Boost Your Confidence", color: "from-yellow-500 to-yellow-600" },
-    { icon: <BarChart3 className="w-5 h-5" />, text: "Smart Analytics", color: "from-indigo-500 to-indigo-600" },
-    { icon: <Award className="w-5 h-5" />, text: "Exam Ready", color: "from-pink-500 to-pink-600" }
+    "Save Your Time",
+    "Stress Free",
+    "Develop Study Habits", 
+    "Syllabus Linked",
+    "Boost Your Confidence",
+    "Smart Analytics",
+    "Exam Ready"
   ];
 
   const stats = [
@@ -31,6 +32,14 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
     { icon: <TrendingUp className="w-5 h-5" />, value: "95%", label: "Success Rate" },
     { icon: <Award className="w-5 h-5" />, value: "50K+", label: "Success Stories" }
   ];
+
+  // Auto-rotate benefits every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBenefit((prev) => (prev + 1) % keyBenefits.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <motion.div
@@ -70,32 +79,42 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         </p>
       </motion.div>
 
-      {/* Key Benefits in a Row */}
+      {/* Dynamic Key Benefits Slider */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.5 }}
         className="space-y-4"
       >
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
           Key Benefits That Transform Your Journey
         </h3>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {keyBenefits.map((benefit, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-              className={`flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r ${benefit.color} text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105`}
-            >
-              <div className="flex-shrink-0 bg-white/20 p-2 rounded-lg">
-                {benefit.icon}
-              </div>
-              <span className="font-medium text-sm">{benefit.text}</span>
-            </motion.div>
-          ))}
+        <div className="relative h-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/50 flex items-center justify-center overflow-hidden">
+          <motion.div
+            key={currentBenefit}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <div className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {keyBenefits[currentBenefit]}
+            </div>
+          </motion.div>
+          
+          {/* Progress indicator */}
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+            {keyBenefits.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                  index === currentBenefit ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </motion.div>
 
@@ -103,7 +122,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.9 }}
+        transition={{ duration: 0.6, delay: 0.7 }}
         className="flex flex-col sm:flex-row gap-4"
       >
         <Button
@@ -129,7 +148,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.1 }}
+        transition={{ duration: 0.6, delay: 0.9 }}
         className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200 dark:border-gray-800"
       >
         {stats.map((stat, index) => (
