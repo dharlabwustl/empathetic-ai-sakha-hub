@@ -8,10 +8,9 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import EnhancedVoiceGreeting from "@/components/dashboard/student/voice/EnhancedVoiceGreeting";
 import { VoiceManagerProvider } from "@/components/dashboard/student/voice/UnifiedVoiceManager";
-import ContextAwareVoiceAssistant from "@/components/dashboard/student/voice/ContextAwareVoiceAssistant";
-import FloatingVoiceIcon from "@/components/voice/FloatingVoiceIcon";
+import UnifiedDashboardVoice from "@/components/dashboard/student/voice/UnifiedDashboardVoice";
+import EnhancedFloatingVoiceIcon from "@/components/voice/EnhancedFloatingVoiceIcon";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false);
@@ -178,21 +177,15 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Voice Greeting - Only on dashboard home page */}
-      {activeTab === "overview" && !greetingCompleted && (
-        <EnhancedVoiceGreeting
-          userName={userProfile.name}
-          isFirstTimeUser={isFirstTimeUser}
-          loginCount={userProfile.loginCount}
-          onComplete={() => setGreetingCompleted(true)}
-        />
-      )}
+      {/* Unified Dashboard Voice Assistant - Only speaks when appropriate */}
+      <UnifiedDashboardVoice
+        userName={userProfile.name}
+        isFirstTimeUser={isFirstTimeUser}
+        loginCount={userProfile.loginCount}
+      />
       
-      {/* Context-aware voice assistant for all pages */}
-      <ContextAwareVoiceAssistant userName={userProfile.name} />
-      
-      {/* Floating voice assistant icon with settings panel */}
-      <FloatingVoiceIcon userName={userProfile.name} />
+      {/* Enhanced Floating Voice Icon with Settings Panel */}
+      <EnhancedFloatingVoiceIcon userName={userProfile.name} />
     </VoiceManagerProvider>
   );
 };

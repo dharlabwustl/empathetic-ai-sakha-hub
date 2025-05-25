@@ -2,7 +2,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
-import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
+import PremiumTodaysPlan from '@/pages/dashboard/student/redesigned/PremiumTodaysPlan';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import ConceptsPage from '@/pages/dashboard/student/ConceptsPage';
 import FlashcardsPage from '@/pages/dashboard/student/FlashcardsPage';
@@ -21,20 +21,21 @@ import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
 import { VoiceManagerProvider } from '@/components/dashboard/student/voice/UnifiedVoiceManager';
-import PageSpecificVoiceAssistant from '@/components/dashboard/student/voice/PageSpecificVoiceAssistant';
-import FloatingVoiceIcon from '@/components/voice/FloatingVoiceIcon';
+import ContextAwareVoiceAssistant from '@/components/voice/ContextAwareVoiceAssistant';
+import EnhancedFloatingVoiceIcon from '@/components/voice/EnhancedFloatingVoiceIcon';
 
 interface PageWrapperProps {
   children: React.ReactNode;
+  pageType?: 'academic' | 'concepts' | 'today' | 'flashcards' | 'formula';
 }
 
-const PageWrapper: React.FC<PageWrapperProps> = ({ children }) => {
+const PageWrapper: React.FC<PageWrapperProps> = ({ children, pageType }) => {
   return (
     <VoiceManagerProvider>
       <SidebarLayout>
         {children}
-        <PageSpecificVoiceAssistant />
-        <FloatingVoiceIcon />
+        <ContextAwareVoiceAssistant pageType={pageType} />
+        <EnhancedFloatingVoiceIcon />
       </SidebarLayout>
     </VoiceManagerProvider>
   );
@@ -45,52 +46,52 @@ const StudentRoutes = () => {
     <Routes>
       <Route path="/" element={<StudentDashboard />} />
       <Route path="/today" element={
-        <PageWrapper>
-          <TodaysPlanView />
+        <PageWrapper pageType="today">
+          <PremiumTodaysPlan />
         </PageWrapper>
       } />
       <Route path="/academic" element={
-        <PageWrapper>
+        <PageWrapper pageType="academic">
           <AcademicAdvisorView />
         </PageWrapper>
       } />
       <Route path="/concepts" element={
-        <PageWrapper>
+        <PageWrapper pageType="concepts">
           <ConceptsPage />
         </PageWrapper>
       } />
       <Route path="/concepts/card/:conceptId" element={
-        <PageWrapper>
+        <PageWrapper pageType="concepts">
           <ConceptDetailPage />
         </PageWrapper>
       } />
       <Route path="/concept/:conceptId" element={
-        <PageWrapper>
+        <PageWrapper pageType="concepts">
           <ConceptDetailPage />
         </PageWrapper>
       } />
       <Route path="/concepts/:conceptId" element={
-        <PageWrapper>
+        <PageWrapper pageType="concepts">
           <ConceptDetailPage />
         </PageWrapper>
       } />
       <Route path="/concepts/:conceptId/formula-lab" element={
-        <PageWrapper>
+        <PageWrapper pageType="formula">
           <FormulaLabPageWrapper />
         </PageWrapper>
       } />
       <Route path="/concept-study/:conceptId" element={
-        <PageWrapper>
+        <PageWrapper pageType="concepts">
           <ConceptStudyPage />
         </PageWrapper>
       } />
       <Route path="/flashcards" element={
-        <PageWrapper>
+        <PageWrapper pageType="flashcards">
           <FlashcardsPage />
         </PageWrapper>
       } />
       <Route path="/flashcards/:id/interactive" element={
-        <PageWrapper>
+        <PageWrapper pageType="flashcards">
           <InteractiveFlashcard />
         </PageWrapper>
       } />
