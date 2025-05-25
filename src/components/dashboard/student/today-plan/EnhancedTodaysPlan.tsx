@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
-import TodaysPlanProgressMeter from '../todays-plan/TodaysPlanProgressMeter';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -90,11 +88,8 @@ const EnhancedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Progress meter at the top */}
-        <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
-        
-        {/* Smart suggestions section for task completion and backlog management */}
+      <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
+        {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
@@ -109,11 +104,10 @@ const EnhancedTodaysPlan: React.FC = () => {
         />
       </div>
       
-      {/* Context-aware voice assistant for today's plan */}
+      {/* Voice assistant for learning support */}
       <FloatingVoiceButton 
         userName={planData?.userName || userProfile?.name}
         language="en-US"
-        context="todays-plan"
       />
     </SharedPageLayout>
   );
