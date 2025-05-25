@@ -26,6 +26,11 @@ export interface OnboardingData {
   [key: string]: any;
 }
 
+export interface ProgressData {
+  completedTopics: number;
+  totalTopics: number;
+}
+
 export interface StudentData {
   id: string;
   name: string;
@@ -37,10 +42,7 @@ export interface StudentData {
   subjects?: string[];
   examPrep?: string;
   lastActive?: string;
-  progress?: {
-    completedTopics: number;
-    totalTopics: number;
-  } | number;
+  progress?: ProgressData | number;
   subscription?: string;
   mood?: string;
   studyStreak?: number;

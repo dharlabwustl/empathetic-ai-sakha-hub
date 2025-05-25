@@ -14,8 +14,8 @@ import { useContentManagement } from "@/hooks/admin/useContentManagement";
 
 const ContentManagementTab = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("queue");
-  const [showUploader, setShowUploader] = useState(false);
+  const [activeTab, setActiveTab] = useState("upload");
+  const [showUploader, setShowUploader] = useState(true);
   
   const {
     uploading,
@@ -28,6 +28,7 @@ const ContentManagementTab = () => {
   
   const handleUploadClick = () => {
     setShowUploader(true);
+    setActiveTab("upload");
   };
   
   const handleCreateContent = () => {
@@ -69,7 +70,6 @@ const ContentManagementTab = () => {
       variant: "default"
     });
     
-    // Simulate testing process
     setTimeout(() => {
       toast({
         title: "Test Complete",
@@ -131,32 +131,17 @@ const ContentManagementTab = () => {
         handleContentGeneration={handleTestContentGeneration}
       />
       
-      {showUploader && (
-        <ContentUploader
-          handleFileSelect={handleFileSelect}
-          handleUpload={handleUpload}
-          selectedFile={selectedFile}
-          onFileRemove={handleFileRemove}
-          uploading={uploading}
-          uploadProgress={uploadProgress}
-        />
-      )}
-      
       <Card>
         <CardContent className="pt-6">
           <ContentSummaryCards handleManageContent={handleManageContent} />
 
-          <Tabs defaultValue="queue" value={activeTab} onValueChange={handleTabChange}>
+          <Tabs defaultValue="upload" value={activeTab} onValueChange={handleTabChange}>
             <TabsList className="mb-4 grid w-full grid-cols-4 gap-2">
-              <TabsTrigger value="queue">Approval Queue</TabsTrigger>
               <TabsTrigger value="upload">Upload & Generate</TabsTrigger>
+              <TabsTrigger value="queue">Approval Queue</TabsTrigger>
               <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
               <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="queue">
-              <TabContentApprovalQueue handleContentAction={handleContentAction} />
-            </TabsContent>
 
             <TabsContent value="upload">
               <ContentUploader
@@ -167,6 +152,10 @@ const ContentManagementTab = () => {
                 uploading={uploading}
                 uploadProgress={uploadProgress}
               />
+            </TabsContent>
+
+            <TabsContent value="queue">
+              <TabContentApprovalQueue handleContentAction={handleContentAction} />
             </TabsContent>
 
             <TabsContent value="studyMaterials">
