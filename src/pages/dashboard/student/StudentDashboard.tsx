@@ -8,10 +8,11 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
+import UniversalVoiceAssistant from "@/components/voice/UniversalVoiceAssistant";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   const navigate = useNavigate();
@@ -150,7 +151,7 @@ const StudentDashboard = () => {
   const modifiedShowWelcomeTour = false;
 
   return (
-    <>
+    <LanguageProvider>
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
@@ -176,12 +177,11 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Unified floating voice assistant */}
-      <FloatingVoiceButton 
+      {/* Universal Voice Assistant */}
+      <UniversalVoiceAssistant 
         userName={userProfile.name}
-        language="en-US"
       />
-    </>
+    </LanguageProvider>
   );
 };
 

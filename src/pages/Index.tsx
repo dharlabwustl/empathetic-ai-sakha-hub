@@ -18,7 +18,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import UniversalVoiceAssistant from '@/components/voice/UniversalVoiceAssistant';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -30,10 +31,6 @@ const Index = () => {
   
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
-  };
-  
-  const handleNavigationCommand = (route: string) => {
-    navigate(route);
   };
 
   // Listen for events
@@ -50,67 +47,66 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
-      <Header />
-      
-      <main>
-        {/* Enhanced 3D hero section with voice interaction */}
-        <HeroSection />
+    <LanguageProvider>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
+        <Header />
         
-        {/* Smart Data section with animation and KPI stats */}
-        <motion.section 
-          className="container mx-auto px-4 py-16 mb-20"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-              Smart Data. Real Impact. Humanizing exam prep.
-            </h2>
-          </div>
-          <KpiStats />
-        </motion.section>
+        <main>
+          {/* Enhanced 3D hero section with voice interaction */}
+          <HeroSection />
+          
+          {/* Smart Data section with animation and KPI stats */}
+          <motion.section 
+            className="container mx-auto px-4 py-16 mb-20"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                Smart Data. Real Impact. Humanizing exam prep.
+              </h2>
+            </div>
+            <KpiStats />
+          </motion.section>
+          
+          {/* Backed By Section with partner logos */}
+          <BackedBySection />
+          
+          {/* Add proper spacing between sections */}
+          <div className="pt-12"></div>
+                  
+          <WhatIsSection />
+          
+          {/* Champion Methodology Section */}
+          <ChampionMethodologySection />
+          
+          <EcosystemAnimation />
+          
+          <FeaturesSection />
+          
+          <ExamPreparationSection />
+          
+          {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
+          
+          <StudentBenefitsSection />
+          
+          <VideoSection />
+          
+          <FounderSection />
+          
+          <FoundingTeamSection />
+          
+          <CallToAction />
+        </main>
         
-        {/* Backed By Section with partner logos */}
-        <BackedBySection />
+        <Footer />
         
-        {/* Add proper spacing between sections */}
-        <div className="pt-12"></div>
-                
-        <WhatIsSection />
-        
-        {/* Champion Methodology Section */}
-        <ChampionMethodologySection />
-        
-        <EcosystemAnimation />
-        
-        <FeaturesSection />
-        
-        <ExamPreparationSection />
-        
-        {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
-        
-        <StudentBenefitsSection />
-        
-        <VideoSection />
-        
-        <FounderSection />
-        
-        <FoundingTeamSection />
-        
-        <CallToAction />
-      </main>
-      
-      <Footer />
-      
-      {/* Floating Voice Assistant Button */}
-      <FloatingVoiceButton 
-        userName="Visitor"
-        language="en-US"
-      />
-    </div>
+        {/* Universal Voice Assistant */}
+        <UniversalVoiceAssistant userName="Visitor" />
+      </div>
+    </LanguageProvider>
   );
 };
 
