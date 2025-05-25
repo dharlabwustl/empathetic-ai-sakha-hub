@@ -5,14 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import TodaysPlanHeader from './TodaysPlanHeader';
 import SmartSuggestionsSection from './SmartSuggestionsSection';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
+import TodaysPlanProgressMeter from './TodaysPlanProgressMeter';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import TodaysPlanVoiceAssistant from '@/components/voice/TodaysPlanVoiceAssistant';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -81,7 +82,7 @@ const RedesignedTodaysPlan: React.FC = () => {
 
   return (
     <SharedPageLayout
-      title="Today's Plan"
+      title="Today's Study Plan"
       subtitle="Your personalized daily study schedule"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
@@ -91,8 +92,8 @@ const RedesignedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Progress header with meter */}
-        <TodaysPlanHeader planData={planData} isMobile={isMobile} />
+        {/* Progress meter at the top */}
+        <TodaysPlanProgressMeter planData={planData} isMobile={isMobile} />
         
         {/* Smart suggestions section */}
         <SmartSuggestionsSection 
@@ -106,6 +107,13 @@ const RedesignedTodaysPlan: React.FC = () => {
           planData={planData}
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
+        />
+        
+        {/* Voice assistant for today's plan */}
+        <TodaysPlanVoiceAssistant 
+          planData={planData}
+          userName={planData?.userName}
+          isEnabled={true}
         />
       </div>
     </SharedPageLayout>
