@@ -1,178 +1,211 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, MicOff, Speaker, BookOpen, Brain, Lightbulb } from "lucide-react";
-import useVoiceAnnouncer from "@/hooks/useVoiceAnnouncer";
-import { toast } from '@/hooks/use-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Mic, MicOff, Volume2, BookOpen, Lightbulb, Target } from 'lucide-react';
 
 interface ConceptVoiceAssistantProps {
-  conceptData?: any;
-  userName?: string;
-  isEnabled?: boolean;
+  conceptTitle: string;
+  conceptSubject: string;
+  isEnabled: boolean;
 }
 
 const ConceptVoiceAssistant: React.FC<ConceptVoiceAssistantProps> = ({
-  conceptData,
-  userName = "Student",
-  isEnabled = true
+  conceptTitle,
+  conceptSubject,
+  isEnabled
 }) => {
-  const [expanded, setExpanded] = useState(false);
-  
-  const {
-    voiceSettings,
-    toggleMute,
-    speakMessage,
-    isVoiceSupported,
-    isSpeaking,
-    isListening,
-    startListening,
-    stopListening,
-    transcript
-  } = useVoiceAnnouncer({ userName });
-  
-  // Process transcript when it changes
-  useEffect(() => {
-    if (transcript) {
-      processVoiceCommand(transcript);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState('');
+
+  const speak = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setIsSpeaking(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.lang = 'en-US';
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+      };
+      
+      speechSynthesis.speak(utterance);
     }
-  }, [transcript]);
-  
-  const processVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('explain') || lowerCommand.includes('what is')) {
-      speakMessage(`Let me explain this concept. ${conceptData?.title || 'This concept'} is an important topic in ${conceptData?.subject || 'your studies'}. The key points to understand are the fundamental principles and real-world applications.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('example') || lowerCommand.includes('give me an example')) {
-      speakMessage(`Here's a practical example: This concept is commonly used in problem-solving scenarios. Try to think of real-world situations where you might apply this knowledge.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('study tips') || lowerCommand.includes('how to study')) {
-      speakMessage(`For effective studying, break this concept into smaller parts. Create mind maps, practice with examples, and try teaching it to someone else. Regular revision is key.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('formula') || lowerCommand.includes('equation')) {
-      speakMessage(`Let me help you with the formulas. Remember to understand the derivation, not just memorize. Practice substituting different values to see how variables affect the result.`);
-      return;
-    }
-    
-    if (lowerCommand.includes('difficulty') || lowerCommand.includes('hard') || lowerCommand.includes('confused')) {
-      speakMessage(`Don't worry if this seems challenging. Break it down step by step. Focus on understanding the basic principles first, then build up to more complex applications.`);
-      return;
-    }
-    
-    // Default response
-    speakMessage("I'm here to help you understand this concept better. You can ask me to explain, give examples, provide study tips, or help with formulas.");
   };
-  
-  const suggestions = [
-    "Explain this concept",
-    "Give me an example",
-    "How should I study this?",
-    "Help me with the formula",
-    "This seems difficult"
+
+  const startListening = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsListening(true);
+        setCurrentMessage('Listening for your question...');
+      };
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        handleVoiceCommand(transcript);
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        setCurrentMessage('Sorry, I couldn\'t hear you clearly.');
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognition.start();
+    }
+  };
+
+  const handleVoiceCommand = (command: string) => {
+    setCurrentMessage(`You asked: "${command}"`);
+    
+    let response = '';
+    
+    if (command.includes('explain') || command.includes('what is')) {
+      response = `Let me explain ${conceptTitle}. This ${conceptSubject} concept is fundamental to understanding the subject. The key idea is that it describes the relationship between different variables and helps you solve related problems.`;
+    } else if (command.includes('example') || command.includes('give me an example')) {
+      response = `Here's a practical example of ${conceptTitle}: Think of it in real-world terms. For instance, you can see this concept in everyday situations like when objects move or interact. This helps make the abstract concept more concrete.`;
+    } else if (command.includes('formula') || command.includes('equation')) {
+      response = `The main formula for ${conceptTitle} involves several key variables. Remember to identify what you're given and what you need to find. Practice substituting values step by step to build confidence.`;
+    } else if (command.includes('remember') || command.includes('memorize') || command.includes('study tip')) {
+      response = `Great study tip for ${conceptTitle}: Use mnemonics or create visual associations. Try teaching this concept to someone else - it's one of the best ways to reinforce your understanding!`;
+    } else if (command.includes('difficult') || command.includes('hard') || command.includes('confused')) {
+      response = `Don't worry! ${conceptTitle} can be challenging at first. Break it down into smaller parts, focus on understanding the underlying principles, and practice with simple examples before moving to complex problems.`;
+    } else if (command.includes('application') || command.includes('use') || command.includes('real life')) {
+      response = `${conceptTitle} has many real-world applications! You'll find this concept useful in solving exam problems and understanding how ${conceptSubject} works in everyday situations.`;
+    } else {
+      response = `I'm here to help you understand ${conceptTitle}! You can ask me to explain the concept, give examples, share study tips, or discuss its applications. What specific aspect would you like to explore?`;
+    }
+    
+    speak(response);
+  };
+
+  const quickActions = [
+    {
+      label: 'Explain Concept',
+      action: () => speak(`${conceptTitle} is a key concept in ${conceptSubject}. It helps you understand the fundamental principles and solve related problems effectively.`)
+    },
+    {
+      label: 'Give Example',
+      action: () => speak(`Here's how ${conceptTitle} works in practice: Think of real-world situations where you can observe this concept in action.`)
+    },
+    {
+      label: 'Study Tips',
+      action: () => speak(`To master ${conceptTitle}, try these techniques: Create visual diagrams, practice with different examples, and explain it in your own words.`)
+    },
+    {
+      label: 'Memory Technique',
+      action: () => speak(`Here's a memory tip for ${conceptTitle}: Create acronyms or visual associations to remember key points. Connect it to concepts you already know well.`)
+    }
   ];
-  
-  if (!isVoiceSupported || !isEnabled) {
-    return null;
-  }
-  
+
   return (
-    <Card className={`${expanded ? 'w-80' : 'w-auto'} transition-all duration-300 border-blue-200 bg-blue-50`}>
-      <CardHeader className="p-3 pb-0">
-        <CardTitle className="text-sm flex justify-between items-center text-blue-800">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            <span>Concept Assistant</span>
-          </div>
-          {expanded && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setExpanded(false)}
-              className="h-6 w-6 p-0"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-6"
+    >
+      <Card className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-100 dark:border-blue-900/30">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-400">
+                  Concept Assistant
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Get help understanding {conceptTitle}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
             >
-              ×
+              {isExpanded ? 'Collapse' : 'Expand'}
             </Button>
+          </div>
+
+          <div className="flex gap-2 mb-4">
+            <Button
+              onClick={startListening}
+              disabled={isListening || isSpeaking || !isEnabled}
+              className={`flex items-center gap-2 ${
+                isListening 
+                  ? 'bg-red-500 hover:bg-red-600' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              {isListening ? 'Listening...' : 'Ask Question'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => speak(`Welcome to the concept assistant for ${conceptTitle}. I'm here to help you understand this ${conceptSubject} concept with explanations, examples, and study tips.`)}
+              disabled={isSpeaking}
+              className="flex items-center gap-2"
+            >
+              <Volume2 className="h-4 w-4" />
+              Introduction
+            </Button>
+          </div>
+
+          {currentMessage && (
+            <div className="mb-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg">
+              <p className="text-sm text-gray-700 dark:text-gray-300">{currentMessage}</p>
+            </div>
           )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-3">
-        {expanded ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-2">
-              <Button 
-                variant={isListening ? "default" : "outline"}
-                size="sm" 
-                onClick={isListening ? stopListening : startListening}
-                className={`${isListening ? 'bg-blue-500 hover:bg-blue-600' : 'border-blue-200'}`}
+
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-3"
               >
-                {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-                {isListening ? 'Stop' : 'Start'} Listening
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => toggleMute()}
-                disabled={isSpeaking}
-                className="border-blue-200"
-              >
-                <Speaker className="h-4 w-4 mr-2" />
-                {voiceSettings.muted ? 'Unmute' : 'Mute'}
-              </Button>
-            </div>
-            
-            {transcript && (
-              <div className="bg-blue-100 p-2 rounded-md text-sm">
-                <p className="font-semibold text-blue-800">You said:</p>
-                <p className="text-blue-700">{transcript}</p>
-              </div>
+                <h4 className="font-medium text-gray-700 dark:text-gray-300">Quick Help:</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {quickActions.map((action, idx) => (
+                    <Button
+                      key={idx}
+                      variant="outline"
+                      size="sm"
+                      onClick={action.action}
+                      disabled={isSpeaking}
+                      className="text-left justify-start"
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              </motion.div>
             )}
-            
-            <div>
-              <p className="text-xs text-blue-600 mb-2 flex items-center gap-1">
-                <Lightbulb className="h-3 w-3" />
-                Try saying:
-              </p>
-              <div className="grid grid-cols-1 gap-1">
-                {suggestions.slice(0, 3).map((suggestion, index) => (
-                  <Button 
-                    key={index} 
-                    variant="ghost" 
-                    size="sm"
-                    className="h-auto py-1 px-2 text-xs justify-start font-normal text-left text-blue-700 hover:bg-blue-100"
-                    onClick={() => {
-                      speakMessage(suggestion);
-                      processVoiceCommand(suggestion);
-                    }}
-                  >
-                    "{suggestion}"
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-center">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setExpanded(true)}
-              className="w-full text-blue-700 hover:bg-blue-100"
-            >
-              <Brain className="h-4 w-4 mr-2" />
-              Ask About Concept
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </AnimatePresence>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
