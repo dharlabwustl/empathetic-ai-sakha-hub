@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   DropdownMenu,
@@ -172,7 +173,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>PREPZR AI Voice Assistant</p>
+              <p>Sakha AI Voice Assistant</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
