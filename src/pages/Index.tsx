@@ -115,7 +115,6 @@ const Index = () => {
       <SpeechRecognitionButton
         position="homepage"
         onCommand={handleSpeechCommand}
-        className="fixed bottom-32 left-6 z-50"
       />
 
       {/* Interactive Voice Assistant - positioned below speech recognition */}
@@ -124,7 +123,6 @@ const Index = () => {
         language="en-US"
         onNavigationCommand={handleNavigationCommand}
         position="bottom-right"
-        className="fixed bottom-6 left-6 z-40"
       />
     </div>
   );

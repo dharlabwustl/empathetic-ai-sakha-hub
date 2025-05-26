@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
@@ -16,19 +15,18 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 import { motion } from 'framer-motion';
 import { 
+  Calendar, 
   Clock, 
   Target, 
+  TrendingUp, 
   BookOpen, 
   Brain,
   FileText,
   CheckCircle,
   Star,
+  Zap,
   Trophy,
-  BarChart3,
-  Sparkles,
-  Play,
-  Flame,
-  TrendingUp
+  BarChart3
 } from 'lucide-react';
 
 const EnhancedTodaysPlan: React.FC = () => {
@@ -54,47 +52,27 @@ const EnhancedTodaysPlan: React.FC = () => {
     day: 'numeric' 
   });
 
-  // Enhanced data structure without repetitive sections
+  // Mock enhanced data for today's plan
   const todaysData = {
-    overallProgress: 75,
+    overallProgress: 68,
     studyGoal: 4,
-    timeSpent: 3.2,
-    streak: 18,
-    smartSuggestions: [
-      { id: 1, title: "Start with Physics - your strongest subject today", icon: "🚀", type: "strategy" },
-      { id: 2, title: "Take a 10-min break after each hour", icon: "⏰", type: "wellness" },
-      { id: 3, title: "Review yesterday's mistakes first", icon: "🎯", type: "preparation" }
+    timeSpent: 2.7,
+    efficiency: 87,
+    streak: 12,
+    subjects: [
+      { name: 'Physics', progress: 75, tasks: 8, completed: 6, time: 90 },
+      { name: 'Chemistry', progress: 45, tasks: 6, completed: 3, time: 60 },
+      { name: 'Biology', progress: 80, tasks: 5, completed: 4, time: 75 },
+      { name: 'Mathematics', progress: 60, tasks: 4, completed: 2, time: 45 }
     ],
-    activeSubjects: [
-      { 
-        name: 'Physics', 
-        progress: 80, 
-        tasks: [
-          { id: 1, title: "Thermodynamics Laws", type: "concept", duration: 35, priority: "High", completed: false },
-          { id: 2, title: "Energy Conservation Practice", type: "practice", duration: 25, priority: "Medium", completed: true }
-        ],
-        color: "blue",
-        timeRemaining: "1h 15m"
-      },
-      { 
-        name: 'Chemistry', 
-        progress: 55, 
-        tasks: [
-          { id: 3, title: "Organic Mechanisms", type: "concept", duration: 40, priority: "High", completed: false },
-          { id: 4, title: "Periodic Properties Quiz", type: "quiz", duration: 20, priority: "Medium", completed: false }
-        ],
-        color: "green",
-        timeRemaining: "1h 45m"
-      },
-      { 
-        name: 'Biology', 
-        progress: 90, 
-        tasks: [
-          { id: 5, title: "Genetics Review", type: "flashcard", duration: 15, priority: "Low", completed: false }
-        ],
-        color: "purple",
-        timeRemaining: "30m"
-      }
+    pendingTasks: [
+      { id: 1, title: "Thermodynamics - Heat Transfer", type: "concept", subject: "Physics", difficulty: "Medium", duration: 30, priority: "High" },
+      { id: 2, title: "Organic Chemistry Reactions", type: "flashcard", subject: "Chemistry", difficulty: "Hard", duration: 25, priority: "Medium" },
+      { id: 3, title: "Cell Biology Quiz", type: "practice", subject: "Biology", difficulty: "Easy", duration: 20, priority: "Low" }
+    ],
+    completedTasks: [
+      { id: 4, title: "Newton's Laws Practice", type: "concept", subject: "Physics", difficulty: "Medium", duration: 30 },
+      { id: 5, title: "Photosynthesis Flashcards", type: "flashcard", subject: "Biology", difficulty: "Easy", duration: 15 }
     ]
   };
   
@@ -116,18 +94,20 @@ const EnhancedTodaysPlan: React.FC = () => {
     );
   }
 
-  const handleTaskClick = (taskId: number, type: string) => {
-    switch (type) {
-      case 'concept':
-        navigate(`/dashboard/student/concepts`);
-        break;
-      case 'flashcard':
-        navigate('/dashboard/student/flashcards');
-        break;
-      case 'practice':
-      case 'quiz':
-        navigate('/dashboard/student/practice-exam');
-        break;
+  const handleTaskClick = (taskId: number) => {
+    const task = todaysData.pendingTasks.find(t => t.id === taskId);
+    if (task) {
+      switch (task.type) {
+        case 'concept':
+          navigate(`/dashboard/student/concepts`);
+          break;
+        case 'flashcard':
+          navigate('/dashboard/student/flashcards');
+          break;
+        case 'practice':
+          navigate('/dashboard/student/practice-exam');
+          break;
+      }
     }
   };
 
@@ -135,19 +115,18 @@ const EnhancedTodaysPlan: React.FC = () => {
     switch (type) {
       case 'concept': return <BookOpen className="h-4 w-4" />;
       case 'flashcard': return <Brain className="h-4 w-4" />;
-      case 'practice':
-      case 'quiz': return <FileText className="h-4 w-4" />;
+      case 'practice': return <FileText className="h-4 w-4" />;
       default: return <Target className="h-4 w-4" />;
     }
   };
 
-  const getSubjectGradient = (color: string) => {
-    const gradients = {
-      blue: "from-blue-500 to-blue-600",
-      green: "from-green-500 to-green-600", 
-      purple: "from-purple-500 to-purple-600"
-    };
-    return gradients[color] || gradients.blue;
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'bg-red-100 text-red-700 border-red-200';
+      case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'Low': return 'bg-green-100 text-green-700 border-green-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
   };
 
   return (
@@ -161,44 +140,85 @@ const EnhancedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className={`space-y-6 ${isMobile ? 'px-0' : ''}`}>
-        {/* Header Section */}
+      <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
+        {/* Premium Header */}
         <motion.div 
-          className="text-center space-y-4"
+          className="text-center space-y-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Good Morning, {planData?.userName || userProfile?.name}! 🌟
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            {today} • Let's crush your goals today!
-          </p>
+          <div className="space-y-3">
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Good Morning, {planData?.userName || userProfile?.name}! 🌟
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              {today} • Let's make today count towards your exam success
+            </p>
+          </div>
+
+          {/* Quick Stats Row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{todaysData.overallProgress}%</div>
+                <div className="text-sm text-blue-700">Today's Progress</div>
+              </div>
+            </Card>
+            <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{todaysData.timeSpent}h</div>
+                <div className="text-sm text-green-700">Study Time</div>
+              </div>
+            </Card>
+            <Card className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">{todaysData.efficiency}%</div>
+                <div className="text-sm text-purple-700">Efficiency</div>
+              </div>
+            </Card>
+            <Card className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{todaysData.streak}</div>
+                <div className="text-sm text-orange-700">Day Streak</div>
+              </div>
+            </Card>
+          </div>
         </motion.div>
 
-        {/* Daily Smart Suggestions - Moved below header */}
+        {/* Subject Progress */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-amber-800">
-                <Sparkles className="h-5 w-5" />
-                Today's Smart Suggestions
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                Subject Progress
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {todaysData.smartSuggestions.map((suggestion) => (
-                  <div key={suggestion.id} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
-                    <span className="text-lg">{suggestion.icon}</span>
-                    <span className="font-medium text-amber-900 flex-1">{suggestion.title}</span>
-                    <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 text-xs">
-                      {suggestion.type}
-                    </Badge>
+              <div className="grid md:grid-cols-2 gap-6">
+                {todaysData.subjects.map((subject, index) => (
+                  <div key={subject.name} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{subject.name}</span>
+                      <Badge variant="outline">{subject.completed}/{subject.tasks} tasks</Badge>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <motion.div 
+                        className="h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${subject.progress}%` }}
+                        transition={{ duration: 1, delay: index * 0.1 }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>{subject.progress}% complete</span>
+                      <span>{subject.time} min studied</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -206,134 +226,103 @@ const EnhancedTodaysPlan: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Progress Dashboard */}
+        {/* Pending Tasks */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <Card className="bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border-violet-200">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-violet-800">
-                <BarChart3 className="h-5 w-5" />
-                Today's Progress Dashboard
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-orange-600" />
+                Pending Tasks ({todaysData.pendingTasks.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-white/70 rounded-xl border">
-                  <div className="text-2xl font-bold text-blue-600">{todaysData.overallProgress}%</div>
-                  <div className="text-sm text-blue-700 mt-1">Progress</div>
-                </div>
-                <div className="text-center p-4 bg-white/70 rounded-xl border">
-                  <div className="text-2xl font-bold text-green-600">{todaysData.timeSpent}h</div>
-                  <div className="text-sm text-green-700 mt-1">Studied</div>
-                </div>
-                <div className="text-center p-4 bg-white/70 rounded-xl border">
-                  <div className="text-2xl font-bold text-orange-600 flex items-center justify-center gap-1">
-                    <Flame className="h-5 w-5" />
-                    {todaysData.streak}
-                  </div>
-                  <div className="text-sm text-orange-700 mt-1">Day Streak</div>
-                </div>
-                <div className="text-center p-4 bg-white/70 rounded-xl border">
-                  <div className="text-2xl font-bold text-purple-600">{todaysData.studyGoal}h</div>
-                  <div className="text-sm text-purple-700 mt-1">Goal</div>
-                </div>
+              <div className="space-y-4">
+                {todaysData.pendingTasks.map((task, index) => (
+                  <motion.div
+                    key={task.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => handleTaskClick(task.id)}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-full">
+                          {getTaskIcon(task.type)}
+                        </div>
+                        <div>
+                          <h4 className="font-medium">{task.title}</h4>
+                          <p className="text-sm text-gray-600">{task.subject}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                          {task.priority}
+                        </Badge>
+                        <Badge variant="outline">
+                          {task.difficulty}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {task.duration} min
+                      </span>
+                      <Button size="sm" variant="outline">
+                        Start Now
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Subject Study Plans */}
+        {/* Completed Tasks */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="space-y-4"
         >
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Active Study Sessions
-          </h2>
-          
-          <div className="grid gap-4">
-            {todaysData.activeSubjects.map((subject, index) => (
-              <Card key={subject.name} className="overflow-hidden hover:shadow-lg transition-all duration-300">
-                <CardHeader className={`bg-gradient-to-r ${getSubjectGradient(subject.color)} text-white p-4`}>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle className="text-lg">{subject.name}</CardTitle>
-                      <p className="text-white/80 text-sm">{subject.timeRemaining} remaining</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">{subject.progress}%</div>
-                      <div className="text-white/80 text-xs">Complete</div>
-                    </div>
-                  </div>
-                  <Progress value={subject.progress} className="h-2 bg-white/20 mt-2" />
-                </CardHeader>
-                <CardContent className="p-0">
-                  {subject.tasks.map((task, taskIndex) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: taskIndex * 0.1 }}
-                      className={`p-4 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        task.completed ? 'bg-green-50' : ''
-                      }`}
-                      onClick={() => handleTaskClick(task.id, task.type)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full ${
-                            task.completed ? 'bg-green-100' : 'bg-blue-100'
-                          }`}>
-                            {task.completed ? (
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                            ) : (
-                              getTaskIcon(task.type)
-                            )}
-                          </div>
-                          <div>
-                            <h4 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
-                              {task.title}
-                            </h4>
-                            <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
-                              <div className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                <span>{task.duration} min</span>
-                              </div>
-                              <Badge variant="outline" className={`text-xs ${
-                                task.priority === 'High' ? 'border-red-300 text-red-700 bg-red-50' :
-                                task.priority === 'Medium' ? 'border-yellow-300 text-yellow-700 bg-yellow-50' :
-                                'border-green-300 text-green-700 bg-green-50'
-                              }`}>
-                                {task.priority}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        {!task.completed && (
-                          <Button size="sm" variant="outline" className="gap-1 hover:bg-blue-50">
-                            <Play className="h-3 w-3" />
-                            Start
-                          </Button>
-                        )}
-                        {task.completed && (
-                          <Badge className="bg-green-100 text-green-700 border-green-300">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Done
-                          </Badge>
-                        )}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                Completed Today ({todaysData.completedTasks.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {todaysData.completedTasks.map((task, index) => (
+                  <motion.div
+                    key={task.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    className="p-3 bg-green-50 border border-green-200 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-green-800">{task.title}</h4>
+                        <p className="text-sm text-green-600">{task.subject} • {task.duration} min</p>
                       </div>
-                    </motion.div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                        Completed
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
       
