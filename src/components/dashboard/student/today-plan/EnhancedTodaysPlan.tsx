@@ -11,10 +11,8 @@ import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
-import NewTodaysPlanHeader from './NewTodaysPlanHeader';
-import OverviewSection from '../OverviewSection';
+import RedesignedTodaysPlan from './RedesignedTodaysPlan';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -32,24 +30,6 @@ const EnhancedTodaysPlan: React.FC = () => {
     addBookmark,
     addNote
   } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
-
-  // Mock overview data for today's plan
-  const todaysOverview = {
-    subjects: [
-      { name: 'Physics', completed: 2, total: 4, progress: 50, efficiency: 85, studyTime: 90 },
-      { name: 'Chemistry', completed: 1, total: 3, progress: 33, efficiency: 70, studyTime: 60 },
-      { name: 'Biology', completed: 3, total: 3, progress: 100, efficiency: 95, studyTime: 75 },
-      { name: 'Mathematics', completed: 1, total: 2, progress: 50, efficiency: 80, studyTime: 45 }
-    ],
-    totalStudyTime: 270,
-    overallProgress: 58,
-    suggestions: [
-      'You\'re doing great with Biology today! 🎉',
-      'Focus on Chemistry next - only 2 tasks remaining',
-      'Take a 10-minute break before Physics numericals',
-      'Your morning session efficiency is above 80% ⚡'
-    ]
-  };
   
   if (loading) {
     return <LoadingState message="Loading your study plan..." />;
@@ -68,12 +48,6 @@ const EnhancedTodaysPlan: React.FC = () => {
       />
     );
   }
-
-  // Handle concept click to navigate to concept study page
-  const handleConceptClick = (conceptId: string) => {
-    console.log("Navigating to concept detail page:", conceptId);
-    navigate(`/dashboard/student/concepts/${conceptId}`);
-  };
 
   // Handle smart suggestion actions
   const handleSuggestionAction = (action: string) => {
@@ -110,32 +84,15 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
-        {/* Premium Header */}
-        <NewTodaysPlanHeader 
+        {/* Completely Redesigned Today's Plan */}
+        <RedesignedTodaysPlan 
           userName={planData?.userName || userProfile?.name}
-          isMobile={isMobile}
-        />
-
-        {/* Today's Overview Section */}
-        <OverviewSection 
-          title="Today's Progress"
-          subjects={todaysOverview.subjects}
-          totalStudyTime={todaysOverview.totalStudyTime}
-          overallProgress={todaysOverview.overallProgress}
-          suggestions={todaysOverview.suggestions}
         />
         
-        {/* Smart suggestions section - enhanced and moved to top */}
+        {/* Smart suggestions section */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
-          isMobile={isMobile}
-        />
-        
-        {/* Enhanced task breakdown with premium styling - keep existing design */}
-        <EnhancedTaskBreakdown 
-          planData={planData}
-          onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
       </div>

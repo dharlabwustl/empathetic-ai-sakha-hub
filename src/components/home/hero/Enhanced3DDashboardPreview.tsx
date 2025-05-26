@@ -1,436 +1,425 @@
-
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { 
-  Brain, 
-  Calendar, 
-  Target, 
   BookOpen, 
-  Zap, 
+  Brain, 
+  FileText, 
+  Target, 
   TrendingUp, 
+  Clock, 
   Award,
-  BarChart3,
-  Users,
-  Sparkles,
+  Zap,
+  Calendar,
   CheckCircle,
-  Clock,
-  Play,
-  Atom,
-  Beaker,
-  Dna
+  AlertTriangle,
+  Star,
+  Trophy,
+  Timer,
+  BookmarkCheck
 } from 'lucide-react';
 
 const Enhanced3DDashboardPreview = () => {
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const dashboardSlides = [
+  const slides = [
     {
-      title: "Dynamic Exam Plan",
-      description: "AI-powered study roadmap that adapts to your learning pace",
-      icon: <Target className="w-8 h-8" />,
-      preview: (
+      id: 'concept-mastery',
+      title: 'AI-Powered Concept Mastery',
+      content: (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Today's Goals</span>
-            <Badge variant="outline" className="text-xs">3/5 Complete</Badge>
+            <h3 className="text-lg font-semibold">Physics - Electromagnetism</h3>
+            <Badge className="bg-green-100 text-green-700">92% Mastered</Badge>
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="text-sm">Physics: Mechanics Review</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="text-sm">Chemistry: Organic Compounds</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-orange-500" />
-              <span className="text-sm">Biology: Cell Structure</span>
-            </div>
-          </div>
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-xs text-gray-600">Next: Advanced Physics Problems</div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div className="bg-blue-500 h-2 rounded-full w-3/5"></div>
-            </div>
-          </div>
-        </div>
-      ),
-      color: "bg-gradient-to-br from-blue-500 to-purple-600"
-    },
-    {
-      title: "Adaptive Daily Plan",
-      description: "Personalized schedule based on your energy and mood",
-      icon: <Calendar className="w-8 h-8" />,
-      preview: (
-        <div className="space-y-4">
-          <div className="text-sm text-gray-600 font-medium">Today - High Energy Mode</div>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center text-sm bg-green-50 p-2 rounded">
-              <span>9:00 AM - Physics</span>
-              <Badge className="h-5 text-xs">Active</Badge>
-            </div>
-            <div className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded">
-              <span>11:00 AM - Break</span>
-              <Badge variant="outline" className="h-5 text-xs">Rest</Badge>
-            </div>
-            <div className="flex justify-between items-center text-sm bg-blue-50 p-2 rounded">
-              <span>12:00 PM - Chemistry</span>
-              <Badge variant="secondary" className="h-5 text-xs">Next</Badge>
-            </div>
-          </div>
-          <div className="text-xs text-center text-gray-500">
-            Plan adapts based on your performance
-          </div>
-        </div>
-      ),
-      color: "bg-gradient-to-br from-green-500 to-teal-600"
-    },
-    {
-      title: "Mood-Based Changes",
-      description: "Content adapts to your emotional state for optimal learning",
-      icon: <Brain className="w-8 h-8" />,
-      preview: (
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">Feeling Motivated</span>
-          </div>
-          <div className="text-sm text-gray-600">Recommended: Advanced Practice</div>
-          <div className="space-y-2">
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-green-500 h-3 rounded-full w-4/5 transition-all duration-500"></div>
-            </div>
-            <span className="text-sm font-medium">Focus Level: 80%</span>
-          </div>
-          <div className="bg-green-50 p-3 rounded-lg">
-            <div className="text-xs text-green-700">Perfect time for challenging topics!</div>
-          </div>
-        </div>
-      ),
-      color: "bg-gradient-to-br from-purple-500 to-pink-600"
-    },
-    {
-      title: "Concept Mastery - 3D Visual",
-      description: "Interactive 3D models for complete understanding",
-      icon: <BookOpen className="w-8 h-8" />,
-      preview: (
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-2">
-            <Button size="sm" variant="outline" className="h-8 text-xs">Visual</Button>
-            <Button size="sm" className="h-8 text-xs">3D Model</Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs">Practice</Button>
-          </div>
-          <div className="text-sm text-center font-medium">
-            Atomic Structure - 3D View
-          </div>
-          <div className="bg-gradient-to-br from-blue-100 to-purple-100 p-4 rounded-lg h-24 flex items-center justify-center relative overflow-hidden">
+          
+          {/* 3D Concept Visualization */}
+          <div className="relative h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
             <motion.div
-              className="relative"
-              animate={{ 
-                rotateY: [0, 360],
-                scale: [1, 1.1, 1]
+              className="absolute inset-0 flex items-center justify-center"
+              animate={{
+                rotateY: isHovered ? 360 : 0,
+                scale: isHovered ? 1.1 : 1,
               }}
-              transition={{ 
-                duration: 4, 
-                repeat: Infinity, 
-                ease: "linear" 
-              }}
+              transition={{ duration: 2, ease: "easeInOut" }}
             >
-              <Atom className="w-8 h-8 text-blue-600" />
-            </motion.div>
-            <motion.div
-              className="absolute top-2 right-2"
-              animate={{ 
-                rotate: [0, 180, 360],
-                scale: [0.8, 1.2, 0.8]
-              }}
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-            >
-              <Beaker className="w-4 h-4 text-purple-600" />
-            </motion.div>
-            <motion.div
-              className="absolute bottom-2 left-2"
-              animate={{ 
-                y: [0, -5, 0],
-                rotate: [0, 360]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-            >
-              <Dna className="w-4 h-4 text-green-600" />
-            </motion.div>
-          </div>
-          <div className="text-xs text-center text-gray-500">
-            Rotate and interact with 3D models
-          </div>
-        </div>
-      ),
-      color: "bg-gradient-to-br from-orange-500 to-red-600"
-    },
-    {
-      title: "Recall Practice",
-      description: "Spaced repetition system for long-term memory retention",
-      icon: <Zap className="w-8 h-8" />,
-      preview: (
-        <div className="space-y-4">
-          <div className="text-sm font-medium">Active Recall Session</div>
-          <div className="space-y-3">
-            <div className="bg-yellow-50 p-3 rounded-lg text-sm">
-              Q: What is the formula for kinetic energy?
-            </div>
-            <Button size="sm" className="w-full h-8 text-xs">Show Answer</Button>
-          </div>
-          <div className="flex justify-between text-xs bg-gray-50 p-2 rounded">
-            <span>Success Rate: 85%</span>
-            <span>Next Review: 2h</span>
-          </div>
-          <div className="text-xs text-center text-gray-500">
-            Optimized for maximum retention
-          </div>
-        </div>
-      ),
-      color: "bg-gradient-to-br from-yellow-500 to-orange-600"
-    },
-    {
-      title: "Exam Practice",
-      description: "Adaptive mock tests that adjust difficulty in real-time",
-      icon: <BarChart3 className="w-8 h-8" />,
-      preview: (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Mock Test #15</span>
-            <Badge className="h-5 text-xs">In Progress</Badge>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Physics</span>
-              <span>15/20</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full w-3/4 transition-all duration-300"></div>
-            </div>
-          </div>
-          <div className="text-xs text-center text-gray-600 bg-blue-50 p-2 rounded">
-            Adapting difficulty based on performance...
-          </div>
-          <div className="text-xs text-center text-green-600">
-            Current Score: 78% - Excellent!
-          </div>
-        </div>
-      ),
-      color: "bg-gradient-to-br from-indigo-500 to-blue-600"
-    },
-    {
-      title: "Formula Practice",
-      description: "Interactive formula memorization with contextual applications",
-      icon: <TrendingUp className="w-8 h-8" />,
-      preview: (
-        <div className="space-y-4">
-          <div className="text-sm font-medium text-center">Formula Challenge</div>
-          <div className="bg-green-50 p-4 rounded-lg text-center">
-            <div className="text-lg font-mono">E = mc²</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-xs font-medium">Variables:</div>
-            <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-              E = Energy, m = Mass, c = Speed of light
-            </div>
-          </div>
-          <Button size="sm" className="w-full h-8 text-xs">Practice Application</Button>
-          <div className="text-xs text-center text-gray-500">
-            Master formulas through practice
-          </div>
-        </div>
-      ),
-      color: "bg-gradient-to-br from-teal-500 to-green-600"
-    }
-  ];
-
-  // Auto-play slides
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-    
-    const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % dashboardSlides.length);
-    }, 4000);
-    
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, dashboardSlides.length]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="relative w-full max-w-2xl mx-auto"
-      onMouseEnter={() => setIsAutoPlaying(false)}
-      onMouseLeave={() => setIsAutoPlaying(true)}
-    >
-      {/* 3D Card Container - Double Size */}
-      <div className="relative scale-125 origin-center">
-        {/* Background Cards for 3D Effect */}
-        <motion.div 
-          className="absolute inset-0 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform rotate-3 scale-95"
-          animate={{ rotate: [3, -2, 3] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute inset-0 bg-white dark:bg-gray-800 rounded-3xl shadow-xl transform -rotate-2 scale-98"
-          animate={{ rotate: [-2, 2, -2] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-        
-        {/* Main Card */}
-        <Card className="relative bg-white dark:bg-gray-800 border-0 shadow-3xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="relative">
+                {/* Electromagnetic field visualization */}
                 <motion.div
-                  animate={{ rotate: [0, 360] }}
+                  className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-70"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.7, 1, 0.7],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <motion.div
+                  className="absolute -inset-4 border-2 border-blue-300 rounded-full"
+                  animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles className="w-6 h-6" />
-                </motion.div>
-                <span className="font-bold text-lg">PREPZR Dashboard</span>
+                />
+                <motion.div
+                  className="absolute -inset-8 border border-purple-300 rounded-full"
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                />
               </div>
-              <Badge variant="secondary" className="bg-white/20 text-white">
-                Live Preview
-              </Badge>
+            </motion.div>
+            <div className="absolute bottom-2 right-2">
+              <Badge variant="outline" className="bg-white/80">3D Interactive</Badge>
             </div>
           </div>
           
-          {/* Content Area */}
-          <CardContent className="p-0">
-            {/* Current Slide */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Understanding Level</span>
+              <span>92%</span>
+            </div>
+            <Progress value={92} className="h-2" />
+          </div>
+          
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="p-2 bg-green-50 rounded">
+              <div className="text-sm font-bold text-green-600">15</div>
+              <div className="text-xs text-gray-500">Concepts</div>
+            </div>
+            <div className="p-2 bg-blue-50 rounded">
+              <div className="text-sm font-bold text-blue-600">8h</div>
+              <div className="text-xs text-gray-500">Study Time</div>
+            </div>
+            <div className="p-2 bg-purple-50 rounded">
+              <div className="text-sm font-bold text-purple-600">A+</div>
+              <div className="text-xs text-gray-500">Grade</div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 'exam-readiness',
+      title: 'NEET Exam Readiness Score',
+      content: (
+        <div className="space-y-4">
+          <div className="text-center">
             <motion.div
-              key={activeSlide}
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ duration: 0.6 }}
-              className="p-8"
+              className="relative w-24 h-24 mx-auto mb-4"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
-              <div className="flex items-start gap-6">
-                <motion.div 
-                  className={`p-4 rounded-2xl text-white ${dashboardSlides[activeSlide].color}`}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  {dashboardSlides[activeSlide].icon}
-                </motion.div>
-                
-                <div className="flex-1 space-y-3">
-                  <h3 className="font-bold text-gray-900 dark:text-white text-lg">
-                    {dashboardSlides[activeSlide].title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {dashboardSlides[activeSlide].description}
-                  </p>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400 to-blue-500 p-1">
+                <div className="bg-white rounded-full h-full w-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">85%</div>
+                    <div className="text-xs text-gray-500">Ready</div>
+                  </div>
                 </div>
               </div>
-              
-              {/* Preview Content */}
-              <motion.div 
-                className="mt-6 p-6 bg-gray-50 dark:bg-gray-700 rounded-2xl"
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.4 }}
-              >
-                {dashboardSlides[activeSlide].preview}
-              </motion.div>
+              <motion.div
+                className="absolute -inset-2 border-2 border-green-300 rounded-full"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              />
             </motion.div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="p-2 bg-green-50 rounded">
+              <CheckCircle className="h-4 w-4 text-green-500 mx-auto mb-1" />
+              <div className="text-xs font-medium">Physics</div>
+              <div className="text-xs text-green-600">Strong</div>
+            </div>
+            <div className="p-2 bg-yellow-50 rounded">
+              <AlertTriangle className="h-4 w-4 text-yellow-500 mx-auto mb-1" />
+              <div className="text-xs font-medium">Chemistry</div>
+              <div className="text-xs text-yellow-600">Improving</div>
+            </div>
+            <div className="p-2 bg-blue-50 rounded">
+              <Star className="h-4 w-4 text-blue-500 mx-auto mb-1" />
+              <div className="text-xs font-medium">Biology</div>
+              <div className="text-xs text-blue-600">Excellent</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-3 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Trophy className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm font-medium">Predicted Score</span>
+            </div>
+            <div className="text-lg font-bold text-green-600">580-620 / 720</div>
+            <div className="text-xs text-gray-500">Based on current performance</div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 'days-to-exam',
+      title: 'Days to NEET 2024',
+      content: (
+        <div className="space-y-4">
+          <div className="text-center">
+            <motion.div
+              className="relative"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <div className="text-6xl font-bold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                45
+              </div>
+              <div className="text-sm text-gray-500">Days Remaining</div>
+            </motion.div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-2 bg-red-50 rounded">
+              <div className="flex items-center gap-2">
+                <Timer className="h-4 w-4 text-red-500" />
+                <span className="text-sm">Final Revision</span>
+              </div>
+              <Badge variant="outline" className="bg-red-100 text-red-700">15 days</Badge>
+            </div>
             
-            {/* Navigation Dots */}
-            <div className="flex justify-center gap-3 pb-8">
-              {dashboardSlides.map((_, index) => (
+            <div className="flex items-center justify-between p-2 bg-orange-50 rounded">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-orange-500" />
+                <span className="text-sm">Mock Tests</span>
+              </div>
+              <Badge variant="outline" className="bg-orange-100 text-orange-700">20 days</Badge>
+            </div>
+            
+            <div className="flex items-center justify-between p-2 bg-green-50 rounded">
+              <div className="flex items-center gap-2">
+                <BookmarkCheck className="h-4 w-4 text-green-500" />
+                <span className="text-sm">Weak Topics</span>
+              </div>
+              <Badge variant="outline" className="bg-green-100 text-green-700">10 days</Badge>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 p-3 rounded-lg">
+            <div className="text-sm font-medium text-red-700 mb-1">Today's Priority</div>
+            <div className="text-xs text-gray-600">Focus on Chemistry weak topics and complete 2 mock tests</div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 'exam-champion',
+      title: 'Become an Exam Champion',
+      content: (
+        <div className="space-y-4">
+          <div className="text-center">
+            <motion.div
+              className="relative w-20 h-20 mx-auto mb-3"
+              animate={{ 
+                rotateY: [0, 180, 360],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                <Trophy className="h-10 w-10 text-white" />
+              </div>
+              <motion.div
+                className="absolute -inset-2 border-2 border-yellow-300 rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              />
+            </motion.div>
+            <div className="text-lg font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+              Champion Path
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span className="text-sm">Smart Study Plan</span>
+              <Badge className="ml-auto bg-green-100 text-green-700">Active</Badge>
+            </div>
+            
+            <div className="flex items-center gap-2 p-2 bg-blue-50 rounded">
+              <Brain className="h-4 w-4 text-blue-500" />
+              <span className="text-sm">AI-Powered Learning</span>
+              <Badge className="ml-auto bg-blue-100 text-blue-700">Engaged</Badge>
+            </div>
+            
+            <div className="flex items-center gap-2 p-2 bg-purple-50 rounded">
+              <Target className="h-4 w-4 text-purple-500" />
+              <span className="text-sm">Personalized Goals</span>
+              <Badge className="ml-auto bg-purple-100 text-purple-700">On Track</Badge>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg text-center">
+            <div className="text-sm font-medium text-yellow-700">Your Champion Score</div>
+            <div className="text-2xl font-bold text-orange-600">9.2/10</div>
+            <div className="text-xs text-gray-600">Excellent preparation level!</div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 'flashcards',
+      title: 'Smart Flashcards',
+      content: (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Chemistry Reactions</h3>
+            <Badge className="bg-blue-100 text-blue-700">24 cards</Badge>
+          </div>
+          
+          <motion.div
+            className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-lg"
+            whileHover={{ scale: 1.02, rotateY: 5 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="text-center">
+              <Brain className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+              <div className="text-sm font-medium">Aldol Condensation</div>
+              <div className="text-xs text-gray-500 mt-1">Tap to reveal mechanism</div>
+            </div>
+          </motion.div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-600">18</div>
+              <div className="text-xs text-gray-500">Mastered</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-orange-600">6</div>
+              <div className="text-xs text-gray-500">Learning</div>
+            </div>
+          </div>
+          
+          <Button size="sm" className="w-full">
+            <Brain className="h-4 w-4 mr-2" />
+            Continue Learning
+          </Button>
+        </div>
+      )
+    },
+
+    {
+      id: 'practice-exams',
+      title: 'Practice Exams',
+      content: (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">NEET Mock Test #5</h3>
+            <Badge className="bg-yellow-100 text-yellow-700">In Progress</Badge>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm">Progress</span>
+              <span className="text-sm font-medium">45/180 questions</span>
+            </div>
+            <Progress value={25} className="h-2" />
+          </div>
+          
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="p-2 bg-green-50 rounded">
+              <div className="text-sm font-bold text-green-600">38</div>
+              <div className="text-xs text-gray-500">Correct</div>
+            </div>
+            <div className="p-2 bg-red-50 rounded">
+              <div className="text-sm font-bold text-red-600">7</div>
+              <div className="text-xs text-gray-500">Wrong</div>
+            </div>
+            <div className="p-2 bg-blue-50 rounded">
+              <div className="text-sm font-bold text-blue-600">85%</div>
+              <div className="text-xs text-gray-500">Accuracy</div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm text-amber-600">
+            <Clock className="h-4 w-4" />
+            <span>2h 15m remaining</span>
+          </div>
+          
+          <Button size="sm" className="w-full">
+            <FileText className="h-4 w-4 mr-2" />
+            Resume Exam
+          </Button>
+        </div>
+      )
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
+  return (
+    <motion.div
+      className="relative w-full max-w-md mx-auto"
+      style={{ height: '600px' }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
+      <motion.div
+        className="relative h-full"
+        animate={{
+          rotateX: isHovered ? 5 : 0,
+          rotateY: isHovered ? 5 : 0,
+          scale: isHovered ? 1.05 : 1,
+        }}
+        transition={{ duration: 0.3 }}
+        style={{
+          transformStyle: 'preserve-3d',
+          transformOrigin: 'center center',
+        }}
+      >
+        <Card className="h-full bg-white/95 backdrop-blur-sm shadow-2xl border-0 overflow-hidden">
+          <CardContent className="p-6 h-full flex flex-col">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentSlide}
+                initial={{ opacity: 0, x: 50, rotateY: 90 }}
+                animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                exit={{ opacity: 0, x: -50, rotateY: -90 }}
+                transition={{ duration: 0.5 }}
+                className="flex-1"
+              >
+                <div className="mb-4">
+                  <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {slides[currentSlide].title}
+                  </h2>
+                </div>
+                {slides[currentSlide].content}
+              </motion.div>
+            </AnimatePresence>
+            
+            {/* Slide indicators */}
+            <div className="flex justify-center space-x-2 mt-4">
+              {slides.map((_, index) => (
                 <motion.button
                   key={index}
-                  onClick={() => setActiveSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === activeSlide 
-                      ? 'bg-blue-600 w-8' 
-                      : 'bg-gray-300 hover:bg-gray-400'
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === currentSlide 
+                      ? 'w-8 bg-gradient-to-r from-blue-500 to-purple-500' 
+                      : 'w-2 bg-gray-300'
                   }`}
-                  whileHover={{ scale: 1.3 }}
+                  onClick={() => setCurrentSlide(index)}
+                  whileHover={{ scale: 1.2 }}
                   whileTap={{ scale: 0.9 }}
                 />
               ))}
             </div>
           </CardContent>
-          
-          {/* Floating Action Button */}
-          <motion.div 
-            className="absolute bottom-6 right-6"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1, type: "spring" }}
-          >
-            <Button 
-              size="lg" 
-              className="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl"
-            >
-              <Play className="w-5 h-5" />
-            </Button>
-          </motion.div>
         </Card>
-      </div>
-      
-      {/* Floating Elements */}
-      <motion.div
-        className="absolute -top-6 -right-6 w-12 h-12 bg-yellow-400 rounded-full"
-        animate={{ 
-          y: [0, -15, 0],
-          rotate: [0, 180, 360],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{ 
-          duration: 4, 
-          repeat: Infinity, 
-          ease: "easeInOut" 
-        }}
-      />
-      
-      <motion.div
-        className="absolute -bottom-6 -left-6 w-10 h-10 bg-green-400 rounded-full"
-        animate={{ 
-          x: [0, 15, 0],
-          scale: [1, 1.3, 1],
-          rotate: [0, -180, 0]
-        }}
-        transition={{ 
-          duration: 3, 
-          repeat: Infinity, 
-          ease: "easeInOut",
-          delay: 1
-        }}
-      />
-      
-      <motion.div
-        className="absolute top-1/2 -left-10 w-8 h-8 bg-blue-400 rounded-full"
-        animate={{ 
-          x: [0, 10, 0],
-          y: [0, -10, 0]
-        }}
-        transition={{ 
-          duration: 2.5, 
-          repeat: Infinity, 
-          ease: "easeInOut",
-          delay: 0.5
-        }}
-      />
+      </motion.div>
     </motion.div>
   );
 };

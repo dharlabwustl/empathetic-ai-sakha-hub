@@ -8,7 +8,7 @@ import { Helmet } from 'react-helmet';
 import LoadingState from '@/components/common/LoadingState';
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
-import OverviewSection from '@/components/dashboard/student/OverviewSection';
+import EnhancedOverviewSection from '@/components/dashboard/student/EnhancedOverviewSection';
 
 const PracticeExamPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
@@ -48,8 +48,8 @@ const PracticeExamPage: React.FC = () => {
       </Helmet>
       
       <div className="space-y-8">
-        {/* Overview Section */}
-        <OverviewSection 
+        {/* Enhanced Overview Section */}
+        <EnhancedOverviewSection 
           title="NEET Practice Exams Progress"
           subjects={practiceExamsOverview.subjects}
           totalStudyTime={practiceExamsOverview.totalStudyTime}

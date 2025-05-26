@@ -12,7 +12,7 @@ import {
   Brain,
   Lightbulb,
   CheckCircle,
-  AlertCircle,
+  AlertTriangle,
   Zap,
   Award,
   Calendar,
@@ -21,25 +21,24 @@ import {
   Mic
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import SpeechRecognitionButton from './SpeechRecognitionButton';
 
-interface SubjectProgress {
+interface Subject {
   name: string;
   completed: number;
   total: number;
   progress: number;
   efficiency: number;
-  studyTime: number; // in minutes
+  studyTime: number;
 }
 
 interface EnhancedOverviewSectionProps {
   title: string;
-  subjects: SubjectProgress[];
+  subjects: Subject[];
   totalStudyTime: number;
   overallProgress: number;
   suggestions: string[];
   userName?: string;
-  pageContext?: 'concepts' | 'flashcards' | 'practice-exam' | 'formula-practice';
+  pageContext?: 'concepts' | 'flashcards' | 'practice-exam';
 }
 
 const EnhancedOverviewSection: React.FC<EnhancedOverviewSectionProps> = ({
@@ -51,184 +50,172 @@ const EnhancedOverviewSection: React.FC<EnhancedOverviewSectionProps> = ({
   userName = 'Student',
   pageContext = 'concepts'
 }) => {
-  const totalCompleted = subjects.reduce((sum, subject) => sum + subject.completed, 0);
-  const totalPending = subjects.reduce((sum, subject) => sum + (subject.total - subject.completed), 0);
-  const averageEfficiency = subjects.reduce((sum, subject) => sum + subject.efficiency, 0) / subjects.length;
-
-  const getEfficiencyColor = (efficiency: number) => {
-    if (efficiency >= 85) return 'text-green-600';
-    if (efficiency >= 70) return 'text-blue-600';
-    if (efficiency >= 50) return 'text-orange-600';
-    return 'text-red-600';
-  };
-
   const getContextIcon = () => {
     switch (pageContext) {
-      case 'flashcards':
-        return <Zap className="h-5 w-5 text-purple-600" />;
-      case 'practice-exam':
-        return <Target className="h-5 w-5 text-blue-600" />;
-      case 'formula-practice':
-        return <BarChart3 className="h-5 w-5 text-green-600" />;
-      default:
-        return <Brain className="h-5 w-5 text-indigo-600" />;
+      case 'concepts': return <BookOpen className="h-5 w-5 text-blue-500" />;
+      case 'flashcards': return <Brain className="h-5 w-5 text-purple-500" />;
+      case 'practice-exam': return <Target className="h-5 w-5 text-green-500" />;
+      default: return <BookOpen className="h-5 w-5 text-blue-500" />;
     }
   };
 
+  const getContextColor = () => {
+    switch (pageContext) {
+      case 'concepts': return 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
+      case 'flashcards': return 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20';
+      case 'practice-exam': return 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20';
+      default: return 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20';
+    }
+  };
+
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  };
+
+  const getEfficiencyBadge = (efficiency: number) => {
+    if (efficiency >= 90) return { color: 'bg-green-100 text-green-700 border-green-200', label: 'Excellent' };
+    if (efficiency >= 80) return { color: 'bg-blue-100 text-blue-700 border-blue-200', label: 'Good' };
+    if (efficiency >= 70) return { color: 'bg-yellow-100 text-yellow-700 border-yellow-200', label: 'Average' };
+    return { color: 'bg-red-100 text-red-700 border-red-200', label: 'Needs Work' };
+  };
+
   return (
-    <div className="space-y-6 mb-8">
-      {/* Header with Voice Assistant */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          {getContextIcon()}
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          <SpeechRecognitionButton 
-            context="dashboard"
-            size="md"
-            userName={userName}
-          />
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Voice Assistant
-          </Button>
-        </div>
-      </div>
-
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-700 dark:text-green-300">{totalCompleted}</p>
-                  <p className="text-xs text-green-600 dark:text-green-400">Completed</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-800">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-orange-100 dark:bg-orange-800 rounded-lg">
-                  <AlertCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{totalPending}</p>
-                  <p className="text-xs text-orange-600 dark:text-orange-400">Pending</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
-                  <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{Math.round(totalStudyTime / 60)}h</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Study Time</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Card className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 border-purple-200 dark:border-purple-800">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <p className={`text-2xl font-bold ${getEfficiencyColor(averageEfficiency)}`}>{Math.round(averageEfficiency)}%</p>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">Efficiency</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Progress Overview */}
-      <Card>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="space-y-6"
+    >
+      {/* Header Card */}
+      <Card className={`bg-gradient-to-r ${getContextColor()} border-opacity-50`}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-indigo-600" />
-            Subject Progress Overview
+          <CardTitle className="flex items-center gap-3">
+            {getContextIcon()}
+            <div>
+              <div className="text-xl font-bold">{title}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 font-normal">
+                Your personalized NEET preparation dashboard
+              </div>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Overall Progress */}
+            <div className="text-center">
+              <motion.div
+                className="relative w-20 h-20 mx-auto mb-3"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 p-1">
+                  <div className="bg-white rounded-full h-full w-full flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-blue-600">{overallProgress}%</div>
+                      <div className="text-xs text-gray-500">Complete</div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              <div className="text-sm font-medium">Overall Progress</div>
+            </div>
+
+            {/* Study Time */}
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center">
+                <Clock className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="text-lg font-bold text-green-600">{formatTime(totalStudyTime)}</div>
+              <div className="text-sm text-gray-500">Study Time</div>
+            </div>
+
+            {/* Best Subject */}
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-3 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full flex items-center justify-center">
+                <Award className="h-8 w-8 text-yellow-600" />
+              </div>
+              <div className="text-lg font-bold text-yellow-600">
+                {subjects.reduce((best, current) => current.progress > best.progress ? current : best).name}
+              </div>
+              <div className="text-sm text-gray-500">Top Subject</div>
+            </div>
+
+            {/* Efficiency */}
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+                <Zap className="h-8 w-8 text-purple-600" />
+              </div>
+              <div className="text-lg font-bold text-purple-600">
+                {Math.round(subjects.reduce((sum, s) => sum + s.efficiency, 0) / subjects.length)}%
+              </div>
+              <div className="text-sm text-gray-500">Avg Efficiency</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Subjects Progress */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-blue-500" />
+            Subject-wise Performance
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
             {subjects.map((subject, index) => (
               <motion.div
                 key={subject.name}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="space-y-3"
               >
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <BookOpen className="h-4 w-4 text-gray-600" />
+                    <div className={`w-3 h-3 rounded-full ${
+                      subject.name === 'Physics' ? 'bg-blue-500' :
+                      subject.name === 'Chemistry' ? 'bg-green-500' :
+                      subject.name === 'Biology' ? 'bg-purple-500' :
+                      'bg-orange-500'
+                    }`} />
                     <span className="font-medium">{subject.name}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-xs">
-                      {subject.completed}/{subject.total}
+                    <Badge variant="outline" className={getEfficiencyBadge(subject.efficiency).color}>
+                      {getEfficiencyBadge(subject.efficiency).label}
                     </Badge>
-                    <span className="text-sm font-medium">{subject.progress}%</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium">{subject.completed}/{subject.total}</div>
+                    <div className="text-xs text-gray-500">{formatTime(subject.studyTime)}</div>
                   </div>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span>{subject.progress}%</span>
+                  </div>
                   <Progress value={subject.progress} className="h-2" />
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        <Zap className="h-3 w-3" />
-                        Efficiency: <span className={getEfficiencyColor(subject.efficiency)}>{subject.efficiency}%</span>
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        Time: {Math.floor(subject.studyTime / 60)}h {subject.studyTime % 60}m
-                      </span>
-                    </div>
-                    {subject.progress === 100 && (
-                      <span className="flex items-center gap-1 text-green-600">
-                        <Award className="h-3 w-3" />
-                        Complete!
-                      </span>
-                    )}
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                    <span className="text-gray-600">{subject.completed} completed</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-blue-500" />
+                    <span className="text-gray-600">{subject.efficiency}% efficient</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Target className="h-3 w-3 text-purple-500" />
+                    <span className="text-gray-600">{subject.total - subject.completed} pending</span>
                   </div>
                 </div>
               </motion.div>
@@ -237,12 +224,12 @@ const EnhancedOverviewSection: React.FC<EnhancedOverviewSectionProps> = ({
         </CardContent>
       </Card>
 
-      {/* Smart AI Suggestions */}
-      <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-800">
+      {/* AI Suggestions */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-amber-600" />
-            Smart AI Suggestions for {pageContext.charAt(0).toUpperCase() + pageContext.slice(1).replace('-', ' ')}
+            <Lightbulb className="h-5 w-5 text-yellow-500" />
+            AI-Powered Suggestions
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -253,38 +240,27 @@ const EnhancedOverviewSection: React.FC<EnhancedOverviewSectionProps> = ({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="flex items-start gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-indigo-100 dark:border-indigo-800 hover:shadow-md transition-shadow"
+                className="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg"
               >
-                <Brain className="h-4 w-4 text-indigo-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm leading-relaxed">{suggestion}</span>
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-blue-600">{index + 1}</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{suggestion}</p>
+                </div>
               </motion.div>
             ))}
           </div>
           
-          {/* Quick Action Buttons */}
-          <div className="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-800">
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" className="text-xs">
-                <Calendar className="h-3 w-3 mr-1" />
-                Schedule Study Time
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs">
-                <Brain className="h-3 w-3 mr-1" />
-                Get More Tips
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs">
-                <Target className="h-3 w-3 mr-1" />
-                Set Goals
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs flex items-center gap-1">
-                <Mic className="h-3 w-3" />
-                Ask Voice Assistant
-              </Button>
-            </div>
+          <div className="mt-4 pt-4 border-t">
+            <Button variant="outline" className="w-full">
+              <Mic className="h-4 w-4 mr-2" />
+              Ask AI for More Suggestions
+            </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 
