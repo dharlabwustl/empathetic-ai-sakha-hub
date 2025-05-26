@@ -14,6 +14,7 @@ import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
+import SpeechRecognitionButton from "@/components/voice/SpeechRecognitionButton";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -96,6 +97,11 @@ const DashboardLayout = ({
     setShowTour(false);
     localStorage.setItem('sawWelcomeTour', 'true');
     onCompleteTour();
+  };
+
+  const handleSpeechCommand = (command: string) => {
+    console.log('Dashboard speech command received:', command);
+    // Commands are processed within the SpeechRecognitionButton component
   };
 
   const getSubscriptionDetails = () => {
@@ -199,6 +205,12 @@ const DashboardLayout = ({
           )}
         </main>
       </div>
+      
+      {/* Speech Recognition Button for Dashboard */}
+      <SpeechRecognitionButton
+        position="dashboard"
+        onCommand={handleSpeechCommand}
+      />
       
       {showStudyPlan && (
         <StudyPlanDialog 
