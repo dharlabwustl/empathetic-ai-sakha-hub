@@ -21,6 +21,8 @@ import ChampionMethodologySection from '@/components/home/ChampionMethodologySec
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
 import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
+import { Button } from '@/components/ui/button';
+import { Mic } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -55,16 +57,31 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
+      {/* NEET 2026 Live Button - Top positioned */}
+      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+        <Button 
+          className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold px-6 py-3 rounded-full shadow-lg animate-pulse"
+          onClick={() => navigate('/neet-2026-live')}
+        >
+          🏆 Take NEET 2026 Live Test - India's #1 Platform
+        </Button>
+      </div>
+      
       {/* Voice Recognition and Assistant positioned together */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-3 items-end">
-        {/* Speech Recognition Button */}
-        <SpeechRecognitionButton 
-          context="homepage"
-          className="shadow-lg"
-          onCommand={handleNavigationCommand}
-        />
+      <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-3 items-end">
+        {/* Speech Recognition Button - on top */}
+        <div className="relative">
+          <SpeechRecognitionButton 
+            context="homepage"
+            className="shadow-lg bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full"
+            onCommand={handleNavigationCommand}
+          />
+          <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+            Voice
+          </div>
+        </div>
         
-        {/* Voice Assistant positioned right below */}
+        {/* Voice Assistant positioned below */}
         <div className="relative">
           <EnhancedHomePageVoiceAssistant language="en-US" />
           <InteractiveVoiceAssistant 

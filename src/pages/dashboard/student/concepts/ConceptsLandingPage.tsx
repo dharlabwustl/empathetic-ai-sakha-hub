@@ -14,7 +14,7 @@ const ConceptsLandingPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
 
-  // Mock data for concepts overview - NEET subjects
+  // Mock data for concepts overview - NEET subjects only
   const conceptsOverview = {
     subjects: [
       { name: 'Physics', completed: 15, total: 25, progress: 60, efficiency: 85, studyTime: 120 },

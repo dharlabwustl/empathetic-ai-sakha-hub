@@ -14,7 +14,7 @@ const PracticeExamPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
 
-  // Mock data for practice exams overview - NEET subjects
+  // Mock data for practice exams overview - NEET subjects only
   const practiceExamsOverview = {
     subjects: [
       { name: 'Physics', completed: 12, total: 20, progress: 60, efficiency: 75, studyTime: 240 },

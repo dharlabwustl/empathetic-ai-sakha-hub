@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import CleanHeroContent from './hero/CleanHeroContent';
-import DashboardPreview from './hero/DashboardPreview';
+import EnhancedDashboardPreview from './hero/EnhancedDashboardPreview';
 import { ExamReadinessAnalyzer } from './ExamReadinessAnalyzer';
 
 const HeroSection = () => {
@@ -17,7 +17,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950 relative overflow-hidden pt-20">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -45,9 +45,9 @@ const HeroSection = () => {
             <CleanHeroContent onAnalyzeClick={handleOpenExamAnalyzer} />
           </div>
           
-          {/* Right Dashboard Preview */}
+          {/* Right Enhanced Dashboard Preview */}
           <div className="order-1 lg:order-2">
-            <DashboardPreview />
+            <EnhancedDashboardPreview />
           </div>
         </div>
       </div>
