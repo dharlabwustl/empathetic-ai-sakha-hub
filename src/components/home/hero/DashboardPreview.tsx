@@ -16,14 +16,7 @@ import {
   ChevronRight,
   User,
   Bell,
-  Settings,
-  Zap,
-  Trophy,
-  Star,
-  Play,
-  BarChart3,
-  Lightbulb,
-  Sparkles
+  Settings
 } from 'lucide-react';
 
 const DashboardPreview = () => {
@@ -31,258 +24,93 @@ const DashboardPreview = () => {
   
   const slides = [
     {
-      title: "Dynamic Plan as Per Your Learner Profile",
-      subtitle: "AI-Powered Personalization",
+      title: "Today's Study Plan",
       content: (
         <div className="space-y-3">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">Your Learning Style: Visual + Kinesthetic</h3>
-            <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">Adaptive</Badge>
+            <h3 className="font-semibold text-sm">Today's Progress</h3>
+            <Badge variant="outline" className="text-xs">65%</Badge>
           </div>
+          <Progress value={65} className="h-2" />
           
           <div className="space-y-2">
             {[
-              { subject: "Physics", style: "3D Simulations", progress: 85, color: "bg-blue-500" },
-              { subject: "Chemistry", style: "Interactive Models", progress: 70, color: "bg-green-500" },
-              { subject: "Mathematics", style: "Visual Proofs", progress: 92, color: "bg-purple-500" }
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2 p-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded">
-                <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">{item.subject}</span>
-                    <span className="text-xs text-gray-500">{item.style}</span>
-                  </div>
-                  <Progress value={item.progress} className="h-1 mt-1" />
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="flex items-center gap-2 mt-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-            <Zap className="h-3 w-3 text-blue-600" />
-            <span className="text-xs text-blue-700">Plan adapts based on your performance!</span>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Daily Adaptive Plans",
-      subtitle: "Smart Scheduling That Evolves",
-      content: (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">Today's Adaptive Schedule</h3>
-            <Badge variant="outline" className="text-xs bg-green-50 text-green-700">Optimized</Badge>
-          </div>
-          
-          <div className="space-y-2">
-            {[
-              { time: "9:00 AM", task: "Organic Chemistry", difficulty: "Peak Focus", status: "current" },
-              { time: "10:30 AM", task: "Physics Problems", difficulty: "High Energy", status: "upcoming" },
-              { time: "12:00 PM", task: "Math Revision", difficulty: "Post-Lunch", status: "upcoming" }
-            ].map((item, idx) => (
-              <div key={idx} className={`flex items-center gap-2 p-2 rounded ${
-                item.status === 'current' ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 dark:bg-gray-800'
-              }`}>
-                <div className="text-xs font-medium text-gray-600">{item.time}</div>
-                <div className="flex-1">
-                  <div className="text-xs font-medium">{item.task}</div>
-                  <div className="text-xs text-gray-500">{item.difficulty}</div>
-                </div>
-                {item.status === 'current' && <Play className="h-3 w-3 text-blue-600" />}
-              </div>
-            ))}
-          </div>
-          
-          <div className="flex items-center gap-2 mt-3 p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
-            <Clock className="h-3 w-3 text-orange-600" />
-            <span className="text-xs text-orange-700">Schedule adjusts to your energy levels</span>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Concept Mastery with Multi Techniques",
-      subtitle: "3D • Visual • Video • Summary",
-      content: (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-              <div className="text-lg font-bold text-blue-600">3D</div>
-              <div className="text-xs text-gray-600">Models</div>
-            </div>
-            <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
-              <div className="text-lg font-bold text-green-600">Visual</div>
-              <div className="text-xs text-gray-600">Diagrams</div>
-            </div>
-            <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
-              <div className="text-lg font-bold text-purple-600">Video</div>
-              <div className="text-xs text-gray-600">Lectures</div>
-            </div>
-            <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
-              <div className="text-lg font-bold text-orange-600">Summary</div>
-              <div className="text-xs text-gray-600">Notes</div>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span>Current: Cell Division</span>
-              <span className="font-medium">85% Mastered</span>
-            </div>
-            <Progress value={85} className="h-2" />
-            
-            <div className="flex items-center gap-2 mt-3">
-              <Lightbulb className="h-3 w-3 text-yellow-500" />
-              <span className="text-xs text-gray-600">Try 3D mitosis simulation next!</span>
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Recall Accuracy with Interactive Spaced Repetition",
-      subtitle: "Smart Memory Enhancement",
-      content: (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">Memory Strength</h3>
-            <Badge variant="outline" className="text-xs bg-green-50 text-green-700">Strong</Badge>
-          </div>
-          
-          <div className="space-y-2">
-            {[
-              { concept: "Newton's Laws", strength: 95, interval: "7 days", color: "bg-green-500" },
-              { concept: "Organic Reactions", strength: 75, interval: "3 days", color: "bg-yellow-500" },
-              { concept: "Trigonometry", strength: 60, interval: "1 day", color: "bg-orange-500" }
+              { subject: "Physics", time: "30 min", progress: 80, color: "bg-blue-500" },
+              { subject: "Chemistry", time: "25 min", progress: 60, color: "bg-green-500" },
+              { subject: "Mathematics", time: "35 min", progress: 45, color: "bg-purple-500" }
             ].map((item, idx) => (
               <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
                 <div className={`w-2 h-2 rounded-full ${item.color}`} />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">{item.concept}</span>
-                    <span className="text-xs text-gray-500">Next: {item.interval}</span>
-                  </div>
-                  <Progress value={item.strength} className="h-1 mt-1" />
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="flex items-center gap-2 mt-3 p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
-            <Brain className="h-3 w-3 text-purple-600" />
-            <span className="text-xs text-purple-700">AI optimizes review timing</span>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Formula Practice & Practice Exams",
-      subtitle: "Master Every Formula & Test Pattern",
-      content: (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-              <div className="text-lg font-bold text-blue-600">247</div>
-              <div className="text-xs text-gray-600">Formulas Mastered</div>
-            </div>
-            <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
-              <div className="text-lg font-bold text-green-600">89%</div>
-              <div className="text-xs text-gray-600">Exam Accuracy</div>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs p-2 border rounded">
-              <span>Next Practice Exam</span>
-              <span className="font-medium text-blue-600">NEET Mock Test #15</span>
-            </div>
-            <div className="flex items-center justify-between text-xs p-2 border rounded">
-              <span>Formula Focus</span>
-              <span className="font-medium text-purple-600">Kinematics</span>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 mt-3 p-2 bg-green-50 dark:bg-green-900/20 rounded">
-            <Target className="h-3 w-3 text-green-600" />
-            <span className="text-xs text-green-700">Ready for next level!</span>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Improve Exam Readiness Everyday",
-      subtitle: "Track Your Journey to Success",
-      content: (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">Exam Readiness Score</h3>
-            <Badge variant="outline" className="text-xs bg-green-50 text-green-700">Rising</Badge>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-1">87%</div>
-            <div className="text-xs text-gray-600 mb-2">+5% from yesterday</div>
-            <Progress value={87} className="h-3" />
-          </div>
-          
-          <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            <div>
-              <div className="font-bold text-blue-600">92%</div>
-              <div className="text-gray-600">Knowledge</div>
-            </div>
-            <div>
-              <div className="font-bold text-purple-600">85%</div>
-              <div className="text-gray-600">Speed</div>
-            </div>
-            <div>
-              <div className="font-bold text-orange-600">84%</div>
-              <div className="text-gray-600">Accuracy</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 mt-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-            <TrendingUp className="h-3 w-3 text-yellow-600" />
-            <span className="text-xs text-yellow-700">On track for your target score!</span>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Become Exam Champion",
-      subtitle: "Your Success Story Starts Here",
-      content: (
-        <div className="space-y-3">
-          <div className="text-center">
-            <div className="flex justify-center mb-2">
-              <Trophy className="h-8 w-8 text-yellow-500" />
-            </div>
-            <h3 className="font-bold text-sm mb-2">Champion in Progress</h3>
-          </div>
-          
-          <div className="space-y-2">
-            {[
-              { achievement: "Study Streak", value: "23 days", icon: "🔥", progress: 85 },
-              { achievement: "Concepts Mastered", value: "156/200", icon: "🧠", progress: 78 },
-              { achievement: "Mock Test Average", value: "89%", icon: "📝", progress: 89 }
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2 p-2 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded">
-                <span className="text-lg">{item.icon}</span>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">{item.achievement}</span>
-                    <span className="text-xs font-bold text-yellow-600">{item.value}</span>
+                    <span className="text-xs font-medium">{item.subject}</span>
+                    <span className="text-xs text-gray-500">{item.time}</span>
                   </div>
                   <Progress value={item.progress} className="h-1 mt-1" />
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      )
+    },
+    {
+      title: "Performance Analytics",
+      content: (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+              <div className="text-lg font-bold text-blue-600">85%</div>
+              <div className="text-xs text-gray-600">Accuracy</div>
+            </div>
+            <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
+              <div className="text-lg font-bold text-green-600">4.2h</div>
+              <div className="text-xs text-gray-600">Study Time</div>
+            </div>
+          </div>
           
-          <div className="text-center p-2 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
-            <Star className="h-4 w-4 text-purple-600 mx-auto mb-1" />
-            <span className="text-xs font-medium text-purple-700">You're destined for greatness!</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span>Weekly Target</span>
+              <span className="font-medium">28/30 hours</span>
+            </div>
+            <Progress value={93} className="h-2" />
+            
+            <div className="flex items-center gap-2 mt-3">
+              <TrendingUp className="h-3 w-3 text-green-500" />
+              <span className="text-xs text-green-600">+12% from last week</span>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Smart Recommendations",
+      content: (
+        <div className="space-y-3">
+          <div className="space-y-2">
+            {[
+              { icon: <Brain className="h-3 w-3" />, text: "Focus on Organic Chemistry", priority: "High" },
+              { icon: <BookOpen className="h-3 w-3" />, text: "Review Newton's Laws", priority: "Medium" },
+              { icon: <Target className="h-3 w-3" />, text: "Practice Integration", priority: "Low" }
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2 p-2 border rounded text-xs">
+                <div className="p-1 bg-blue-100 dark:bg-blue-900/30 rounded">
+                  {item.icon}
+                </div>
+                <div className="flex-1">{item.text}</div>
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs ${
+                    item.priority === 'High' ? 'border-red-300 text-red-600' :
+                    item.priority === 'Medium' ? 'border-orange-300 text-orange-600' :
+                    'border-green-300 text-green-600'
+                  }`}
+                >
+                  {item.priority}
+                </Badge>
+              </div>
+            ))}
           </div>
         </div>
       )
@@ -292,7 +120,7 @@ const DashboardPreview = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4500);
+    }, 4000);
     return () => clearInterval(timer);
   }, [slides.length]);
 
@@ -334,8 +162,8 @@ const DashboardPreview = () => {
               <User className="h-4 w-4 text-white" />
             </div>
             <div>
-              <div className="text-white font-medium text-sm">Welcome back, Alex!</div>
-              <div className="text-blue-100 text-xs">Let's ace your NEET preparation!</div>
+              <div className="text-white font-medium text-sm">Good Morning, Alex!</div>
+              <div className="text-blue-100 text-xs">Ready to ace your NEET prep?</div>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -345,16 +173,11 @@ const DashboardPreview = () => {
         </div>
 
         {/* Dashboard Content */}
-        <div className="p-4 h-80 sm:h-96">
+        <div className="p-4 h-64 sm:h-72">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {slides[currentSlide].title}
-              </h2>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                {slides[currentSlide].subtitle}
-              </p>
-            </div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {slides[currentSlide].title}
+            </h2>
             <div className="flex gap-1">
               {slides.map((_, idx) => (
                 <div
@@ -373,7 +196,7 @@ const DashboardPreview = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.3 }}
               className="h-full"
             >
               {slides[currentSlide].content}
@@ -428,7 +251,7 @@ const DashboardPreview = () => {
           repeatDelay: 0.5
         }}
       >
-        <Sparkles className="h-3 w-3 text-white" />
+        <Target className="h-3 w-3 text-white" />
       </motion.div>
     </motion.div>
   );

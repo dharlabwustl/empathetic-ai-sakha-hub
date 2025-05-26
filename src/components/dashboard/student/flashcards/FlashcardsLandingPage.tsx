@@ -1,334 +1,337 @@
 
 import React, { useState } from 'react';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { motion } from 'framer-motion';
-import {
-  Brain,
-  Clock,
-  Target,
-  Star,
-  Play,
-  RotateCcw,
-  TrendingUp,
-  Zap,
-  Award,
-  CheckCircle,
-  BookOpen
-} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Book, Search, Brain, Clock, Calendar, ChevronRight, Tag, BarChart } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
-const FlashcardsLandingPage: React.FC = () => {
+interface FlashcardDeck {
+  id: string;
+  title: string;
+  subject: string;
+  chapter: string;
+  description: string;
+  cardCount: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  timeEstimate: number;
+  tags: string[];
+  masteredCards: number;
+  lastReviewed?: string;
+  dueDate?: string;
+  isRecommended?: boolean;
+  accuracy?: number;
+}
+
+const FlashcardsLandingPage = () => {
   const navigate = useNavigate();
-  const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const flashcardDecks = [
+  // Mock data for flashcard decks
+  const flashcardDecks: FlashcardDeck[] = [
     {
-      id: 'organic-chemistry',
-      title: 'Organic Chemistry Reactions',
-      subject: 'Chemistry',
-      cardCount: 150,
-      masteredCount: 89,
-      reviewCount: 23,
-      newCount: 38,
-      difficulty: 'Advanced',
-      estimatedTime: 45,
-      nextReview: '2 hours',
-      streakDays: 12,
-      accuracy: 87
+      id: 'deck-1',
+      title: "Physics Formulas",
+      subject: "Physics",
+      chapter: "Mechanics",
+      description: "Core formulas and equations for mechanics problems",
+      cardCount: 25,
+      difficulty: "Medium",
+      timeEstimate: 20,
+      tags: ["Mechanics", "Formulas", "Equations"],
+      masteredCards: 12,
+      lastReviewed: "yesterday",
+      dueDate: "today",
+      isRecommended: true,
+      accuracy: 72
     },
     {
-      id: 'physics-formulas',
-      title: 'Physics Formulas & Concepts',
-      subject: 'Physics',
-      cardCount: 200,
-      masteredCount: 156,
-      reviewCount: 18,
-      newCount: 26,
-      difficulty: 'Intermediate',
-      estimatedTime: 35,
-      nextReview: 'Now',
-      streakDays: 8,
-      accuracy: 92
+      id: 'deck-2',
+      title: "Periodic Table Elements",
+      subject: "Chemistry",
+      chapter: "Elements",
+      description: "Learn properties and facts about periodic table elements",
+      cardCount: 30,
+      difficulty: "Medium",
+      timeEstimate: 25,
+      tags: ["Elements", "Properties", "Periodic Table"],
+      masteredCards: 20,
+      lastReviewed: "3 days ago",
+      dueDate: "today",
+      accuracy: 85
     },
     {
-      id: 'biology-terms',
-      title: 'Biology Terminology',
-      subject: 'Biology',
-      cardCount: 180,
-      masteredCount: 165,
-      reviewCount: 10,
-      newCount: 5,
-      difficulty: 'Beginner',
-      estimatedTime: 25,
-      nextReview: '1 day',
-      streakDays: 15,
-      accuracy: 94
+      id: 'deck-3',
+      title: "Calculus Definitions",
+      subject: "Mathematics",
+      chapter: "Calculus",
+      description: "Key definitions and theorems in calculus",
+      cardCount: 15,
+      difficulty: "Hard",
+      timeEstimate: 15,
+      tags: ["Calculus", "Definitions", "Theorems"],
+      masteredCards: 5,
+      lastReviewed: "5 days ago",
+      dueDate: "tomorrow",
+      isRecommended: true,
+      accuracy: 64
     },
     {
-      id: 'math-theorems',
-      title: 'Mathematical Theorems',
-      subject: 'Mathematics',
-      cardCount: 120,
-      masteredCount: 78,
-      reviewCount: 25,
-      newCount: 17,
-      difficulty: 'Advanced',
-      estimatedTime: 40,
-      nextReview: '4 hours',
-      streakDays: 6,
-      accuracy: 83
+      id: 'deck-4',
+      title: "Biology Cell Functions",
+      subject: "Biology",
+      chapter: "Cell Biology",
+      description: "Flashcards on cell structures and their functions",
+      cardCount: 20,
+      difficulty: "Easy",
+      timeEstimate: 18,
+      tags: ["Cells", "Organelles", "Functions"],
+      masteredCards: 20,
+      lastReviewed: "1 week ago",
+      accuracy: 100
+    },
+    {
+      id: 'deck-5',
+      title: "Organic Chemistry Reactions",
+      subject: "Chemistry",
+      chapter: "Organic Chemistry",
+      description: "Key organic chemistry reaction mechanisms",
+      cardCount: 35,
+      difficulty: "Hard",
+      timeEstimate: 30,
+      tags: ["Organic", "Reactions", "Mechanisms"],
+      masteredCards: 14,
+      lastReviewed: "2 days ago",
+      accuracy: 68
+    },
+    {
+      id: 'deck-6',
+      title: "Physics Laws",
+      subject: "Physics",
+      chapter: "Modern Physics",
+      description: "Fundamental laws of physics with their applications",
+      cardCount: 18,
+      difficulty: "Medium",
+      timeEstimate: 15,
+      tags: ["Laws", "Applications", "Modern Physics"],
+      masteredCards: 0,
+      accuracy: 0
     }
   ];
 
+  // Filter decks based on tab and search
+  const getFilteredDecks = () => {
+    let filtered = flashcardDecks;
+    
+    // Filter by tab
+    if (activeTab === 'due-today') {
+      filtered = filtered.filter(deck => deck.dueDate === 'today');
+    } else if (activeTab === 'mastered') {
+      filtered = filtered.filter(deck => deck.masteredCards === deck.cardCount && deck.cardCount > 0);
+    } else if (activeTab === 'in-progress') {
+      filtered = filtered.filter(deck => deck.masteredCards > 0 && deck.masteredCards < deck.cardCount);
+    } else if (activeTab === 'not-started') {
+      filtered = filtered.filter(deck => deck.masteredCards === 0);
+    } else if (activeTab === 'recommended') {
+      filtered = filtered.filter(deck => deck.isRecommended);
+    } else if (activeTab !== 'all') {
+      // Filter by subject
+      filtered = filtered.filter(deck => deck.subject.toLowerCase() === activeTab);
+    }
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(deck => 
+        deck.title.toLowerCase().includes(query) || 
+        deck.subject.toLowerCase().includes(query) ||
+        deck.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+    
+    return filtered;
+  };
+
+  const filteredDecks = getFilteredDecks();
+  
+  // Get list of unique subjects
+  const subjects = Array.from(new Set(flashcardDecks.map(deck => deck.subject.toLowerCase())));
+  
+  // Handle card click to navigate to flashcard interactive page
+  const handleDeckClick = (deckId: string) => {
+    navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
+  };
+
+  // Difficulty badge color
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Beginner': return 'bg-green-50 text-green-700 border-green-200';
-      case 'Intermediate': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-      case 'Advanced': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'Easy': return 'bg-green-100 text-green-800 border-green-200';
+      case 'Medium': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'Hard': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-blue-100 text-blue-800 border-blue-200';
     }
   };
 
-  const getUrgencyColor = (nextReview: string) => {
-    if (nextReview === 'Now') return 'text-red-600';
-    if (nextReview.includes('hour')) return 'text-orange-600';
-    return 'text-green-600';
-  };
-
-  const handleStartSession = (deckId: string) => {
-    // Navigate to interactive flashcard session
-    navigate(`/dashboard/student/flashcards/${deckId}`);
-  };
-
-  const totalStats = {
-    totalCards: flashcardDecks.reduce((sum, deck) => sum + deck.cardCount, 0),
-    totalMastered: flashcardDecks.reduce((sum, deck) => sum + deck.masteredCount, 0),
-    averageAccuracy: Math.round(flashcardDecks.reduce((sum, deck) => sum + deck.accuracy, 0) / flashcardDecks.length),
-    longestStreak: Math.max(...flashcardDecks.map(deck => deck.streakDays))
+  // Get mastery status
+  const getMasteryStatus = (deck: FlashcardDeck) => {
+    if (deck.masteredCards === 0) return { label: 'Not Started', color: 'text-gray-500' };
+    if (deck.masteredCards === deck.cardCount) return { label: 'Mastered', color: 'text-green-600' };
+    
+    const percentage = (deck.masteredCards / deck.cardCount) * 100;
+    if (percentage < 30) return { label: 'Just Started', color: 'text-blue-600' };
+    if (percentage < 70) return { label: 'Learning', color: 'text-amber-600' };
+    return { label: 'Almost Mastered', color: 'text-emerald-600' };
   };
 
   return (
     <SharedPageLayout
-      title="Interactive Flashcards"
-      subtitle="Master concepts with AI-powered spaced repetition"
-      showBackButton={true}
-      backButtonUrl="/dashboard/student"
+      title="Flashcards"
+      subtitle="Reinforce your memory with smart, adaptive flashcards"
     >
       <div className="space-y-6">
-        {/* Stats Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200/50">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">{totalStats.totalCards}</div>
-                  <div className="text-sm text-gray-600">Total Cards</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{totalStats.totalMastered}</div>
-                  <div className="text-sm text-gray-600">Mastered</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{totalStats.averageAccuracy}%</div>
-                  <div className="text-sm text-gray-600">Avg Accuracy</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">{totalStats.longestStreak}</div>
-                  <div className="text-sm text-gray-600">Best Streak</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* Search and filter bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input 
+            placeholder="Search flashcards by title, subject, or tag..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 w-full"
+          />
+        </div>
 
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-yellow-500" />
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-                  <Clock className="h-6 w-6 text-blue-500" />
-                  <div className="text-center">
-                    <div className="font-medium">Due Now</div>
-                    <div className="text-sm text-gray-600">23 cards ready</div>
-                  </div>
-                </Button>
-                <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-                  <Brain className="h-6 w-6 text-purple-500" />
-                  <div className="text-center">
-                    <div className="font-medium">Random Review</div>
-                    <div className="text-sm text-gray-600">Mixed subjects</div>
-                  </div>
-                </Button>
-                <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-                  <Target className="h-6 w-6 text-green-500" />
-                  <div className="text-center">
-                    <div className="font-medium">Weak Areas</div>
-                    <div className="text-sm text-gray-600">Focus practice</div>
-                  </div>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* Tabs for filtering */}
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full overflow-x-auto flex flex-nowrap justify-start">
+            <TabsTrigger value="all">All Decks</TabsTrigger>
+            <TabsTrigger value="due-today">Due Today</TabsTrigger>
+            <TabsTrigger value="recommended">Recommended</TabsTrigger>
+            <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+            <TabsTrigger value="not-started">Not Started</TabsTrigger>
+            <TabsTrigger value="mastered">Mastered</TabsTrigger>
+            {subjects.map(subject => (
+              <TabsTrigger key={subject} value={subject} className="capitalize">
+                {subject}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* Flashcard Decks */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-indigo-500" />
-                Your Flashcard Decks
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {flashcardDecks.map((deck, index) => (
-                  <motion.div
+          <TabsContent value={activeTab} className="mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredDecks.map(deck => {
+                const masteryStatus = getMasteryStatus(deck);
+                const masteryPercentage = deck.cardCount > 0 ? Math.round((deck.masteredCards / deck.cardCount) * 100) : 0;
+                
+                return (
+                  <Card 
                     key={deck.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                    className={`p-5 border-2 rounded-xl transition-all hover:shadow-md cursor-pointer ${
-                      selectedDeck === deck.id ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                    className={`cursor-pointer transition-all hover:shadow-md overflow-hidden border-l-4 ${
+                      masteryPercentage === 100 
+                        ? 'border-l-green-500' 
+                        : masteryPercentage > 0 
+                          ? 'border-l-blue-500' 
+                          : deck.isRecommended 
+                            ? 'border-l-violet-500' 
+                            : 'border-l-gray-300'
                     }`}
-                    onClick={() => setSelectedDeck(selectedDeck === deck.id ? null : deck.id)}
+                    onClick={() => handleDeckClick(deck.id)}
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{deck.title}</h3>
-                          <Badge variant="outline">{deck.subject}</Badge>
-                          <Badge className={getDifficultyColor(deck.difficulty)}>
-                            {deck.difficulty}
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start mb-1">
+                        <Badge variant="outline" className={getDifficultyColor(deck.difficulty)}>
+                          {deck.difficulty}
+                        </Badge>
+                        {deck.dueDate === 'today' && (
+                          <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
+                            Due Today
                           </Badge>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-blue-600">{deck.cardCount}</div>
-                            <div className="text-xs text-gray-600">Total Cards</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-green-600">{deck.masteredCount}</div>
-                            <div className="text-xs text-gray-600">Mastered</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-orange-600">{deck.reviewCount}</div>
-                            <div className="text-xs text-gray-600">Due Review</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-purple-600">{deck.newCount}</div>
-                            <div className="text-xs text-gray-600">New Cards</div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span>Progress</span>
-                            <span>{Math.round((deck.masteredCount / deck.cardCount) * 100)}%</span>
-                          </div>
-                          <Progress value={(deck.masteredCount / deck.cardCount) * 100} className="h-2" />
-                        </div>
+                        )}
                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {deck.estimatedTime} min
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <RotateCcw className="h-4 w-4" />
-                          <span className={getUrgencyColor(deck.nextReview)}>
-                            Next: {deck.nextReview}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Award className="h-4 w-4" />
-                          {deck.streakDays} day streak
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Target className="h-4 w-4" />
-                          {deck.accuracy}% accuracy
-                        </div>
+                      <CardTitle className="text-lg">{deck.title}</CardTitle>
+                    </CardHeader>
+                    
+                    <CardContent className="pb-2">
+                      <div className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        {deck.description}
                       </div>
                       
-                      <Button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStartSession(deck.id);
-                        }}
-                        className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                      >
-                        <Play className="h-4 w-4 mr-2" />
-                        Start Session
-                      </Button>
-                    </div>
-
-                    {selectedDeck === deck.id && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mt-4 pt-4 border-t border-gray-200"
-                      >
-                        <div className="grid md:grid-cols-3 gap-4">
-                          <div className="text-center p-3 bg-blue-50 rounded-lg">
-                            <TrendingUp className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-                            <div className="text-sm font-medium">Trending Up</div>
-                            <div className="text-xs text-gray-600">+5% this week</div>
-                          </div>
-                          <div className="text-center p-3 bg-green-50 rounded-lg">
-                            <CheckCircle className="h-5 w-5 text-green-600 mx-auto mb-1" />
-                            <div className="text-sm font-medium">Strong Areas</div>
-                            <div className="text-xs text-gray-600">Basics, Formulas</div>
-                          </div>
-                          <div className="text-center p-3 bg-orange-50 rounded-lg">
-                            <Star className="h-5 w-5 text-orange-600 mx-auto mb-1" />
-                            <div className="text-sm font-medium">Focus Needed</div>
-                            <div className="text-xs text-gray-600">Complex problems</div>
-                          </div>
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {deck.tags.map(tag => (
+                          <Badge key={tag} variant="secondary" className="text-xs">
+                            <Tag className="h-3 w-3 mr-1" />
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center">
+                          <Book className="h-4 w-4 mr-1" />
+                          <span>{deck.subject}</span>
                         </div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                ))}
+                        <div className="flex items-center">
+                          <Brain className="h-4 w-4 mr-1" />
+                          <span>{deck.cardCount} cards</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1" />
+                          <span>~{deck.timeEstimate} min</span>
+                        </div>
+                        {deck.accuracy > 0 && (
+                          <div className="flex items-center">
+                            <BarChart className="h-4 w-4 mr-1" />
+                            <span>{deck.accuracy}% accuracy</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="mt-3">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className={masteryStatus.color}>{masteryStatus.label}</span>
+                          <span>{deck.masteredCards}/{deck.cardCount} cards</span>
+                        </div>
+                        <Progress value={masteryPercentage} className="h-1.5" />
+                      </div>
+                      
+                      {deck.lastReviewed && (
+                        <div className="mt-2 text-xs text-muted-foreground flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          <span>Last reviewed: {deck.lastReviewed}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                    
+                    <CardFooter>
+                      <Button variant="outline" className="w-full">
+                        {masteryPercentage === 100 
+                          ? 'Review Again' 
+                          : masteryPercentage > 0 
+                            ? 'Continue Learning' 
+                            : 'Start Learning'
+                        }
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
+            
+            {filteredDecks.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <Brain className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-20" />
+                <h3 className="text-lg font-medium mb-1">No flashcard decks found</h3>
+                <p>Try adjusting your filter or search criteria</p>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Voice Assistant */}
-      <FloatingVoiceButton 
-        userName="Student"
-        language="en-US"
-        onNavigationCommand={(route) => navigate(route)}
-      />
     </SharedPageLayout>
   );
 };
