@@ -1,17 +1,17 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import PremiumTodaysPlanView from './PremiumTodaysPlanView';
+import LearningPageVoiceAssistant from '@/components/voice/LearningPageVoiceAssistant';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -88,26 +88,20 @@ const EnhancedTodaysPlan: React.FC = () => {
         <title>Today's Plan - PREPZR</title>
       </Helmet>
       
-      <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
-        {/* Smart suggestions section - enhanced and moved to top */}
-        <SmartSuggestionsSection 
-          planData={planData}
-          onActionClick={handleSuggestionAction}
-          isMobile={isMobile}
-        />
-        
-        {/* Enhanced task breakdown with premium styling - keep existing design */}
-        <EnhancedTaskBreakdown 
-          planData={planData}
-          onConceptClick={handleConceptClick}
-          isMobile={isMobile}
-        />
-      </div>
+      {/* Premium Today's Plan View */}
+      <PremiumTodaysPlanView
+        planData={planData}
+        userName={userProfile?.name || "Student"}
+        onConceptClick={handleConceptClick}
+        onActionClick={handleSuggestionAction}
+        isMobile={isMobile}
+      />
       
-      {/* Voice assistant for learning support */}
-      <FloatingVoiceButton 
+      {/* Learning Page Voice Assistant */}
+      <LearningPageVoiceAssistant 
         userName={planData?.userName || userProfile?.name}
-        language="en-US"
+        context="learning"
+        pageType="academic-advisor"
       />
     </SharedPageLayout>
   );

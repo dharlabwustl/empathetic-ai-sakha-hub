@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Mic, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import useVoiceAssistant from '@/hooks/useVoiceAssistant';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import UnifiedVoiceAssistant from './UnifiedVoiceAssistant';
+import { useLocation } from 'react-router-dom';
 
 interface InteractiveVoiceAssistantProps {
   userName?: string;
@@ -19,172 +19,85 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   onNavigationCommand,
   position = 'bottom-right'
 }) => {
-  const { toast } = useToast();
-  const [isActive, setIsActive] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  
-  const {
-    settings,
-    isListening,
-    isSpeaking,
-    transcript,
-    speakText,
-    startListening,
-    stopListening,
-    processCommand,
-    toggleMute,
-    updateSettings
-  } = useVoiceAssistant({
-    userName,
-    initialSettings: {
-      language,
-      volume: 0.8,
-      rate: 1.0,
-      pitch: 1.0,
-      enabled: true,
-      muted: false
-    }
-  });
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const location = useLocation();
 
-  const handleVoiceToggle = () => {
-    if (isListening) {
-      stopListening();
-      setIsActive(false);
-    } else {
-      startListening();
-      setIsActive(true);
-      speakText(`Hello ${userName}, I'm your PREP ZER assistant. How can I help you today?`);
-    }
+  // Determine context based on current route
+  const getContext = () => {
+    if (location.pathname === '/') return 'homepage';
+    if (location.pathname.includes('/dashboard')) return 'dashboard';
+    if (location.pathname.includes('/concepts') || 
+        location.pathname.includes('/flashcards') || 
+        location.pathname.includes('/practice-exam')) return 'learning';
+    return 'homepage';
   };
-
-  const handleMuteToggle = () => {
-    toggleMute();
-  };
-
-  // Process voice commands
-  useEffect(() => {
-    if (transcript) {
-      const commands = {
-        'show study plan': () => onNavigationCommand?.('/dashboard/student/today'),
-        'open concepts': () => onNavigationCommand?.('/dashboard/student/concepts'),
-        'practice exam': () => onNavigationCommand?.('/dashboard/student/practice-exam'),
-        'flashcards': () => onNavigationCommand?.('/dashboard/student/flashcards'),
-        'dashboard': () => onNavigationCommand?.('/dashboard/student'),
-        'home': () => onNavigationCommand?.('/'),
-        'help me study': () => {
-          speakText('I can help you navigate to your study plan, concepts, practice exams, or flashcards. Just tell me what you need!');
-        },
-        'what can you do': () => {
-          speakText('I can help you navigate PREP ZER, answer questions about your study plan, and provide study guidance. Try saying "show study plan" or "open concepts".');
-        }
-      };
-
-      const processed = processCommand(commands, true);
-      
-      if (processed) {
-        setIsActive(false);
-        stopListening();
-      }
-    }
-  }, [transcript, processCommand, onNavigationCommand, speakText, stopListening]);
 
   const positionClasses = position === 'bottom-right' 
-    ? 'bottom-6 right-6' 
-    : 'bottom-6 left-6';
+    ? 'bottom-4 sm:bottom-6 right-4 sm:right-6' 
+    : 'bottom-4 sm:bottom-6 left-4 sm:left-6';
+
+  // Don't show on auth pages
+  if (location.pathname.includes('/login') || 
+      location.pathname.includes('/signup') || 
+      location.pathname.includes('/admin')) {
+    return null;
+  }
 
   return (
-    <div className={`fixed ${positionClasses} z-50`}>
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border max-w-xs"
-          >
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Voice Assistant</span>
-                <Button
-                  onClick={handleMuteToggle}
-                  variant="ghost"
-                  size="sm"
-                  className="p-1 h-6 w-6"
-                >
-                  {settings.muted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
-                </Button>
-              </div>
-              
-              {isListening && (
-                <div className="text-xs text-blue-600 dark:text-blue-400">
-                  Listening... Say "show study plan" or "open concepts"
-                </div>
-              )}
-              
-              {transcript && (
-                <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-2 rounded">
-                  "{transcript}"
-                </div>
-              )}
-              
-              {isSpeaking && (
-                <div className="text-xs text-green-600 dark:text-green-400">
-                  Speaking...
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      <div className="flex flex-col items-center space-y-2">
+    <>
+      <div className={`fixed ${positionClasses} z-40`}>
         <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+          className="relative"
         >
           <Button
-            onClick={handleVoiceToggle}
-            onMouseEnter={() => setIsExpanded(true)}
-            onMouseLeave={() => setIsExpanded(false)}
-            className={`h-14 w-14 rounded-full shadow-lg transition-all duration-300 ${
-              isActive || isListening
-                ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
-            }`}
+            onClick={() => setIsAssistantOpen(true)}
+            className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl border-0 relative overflow-hidden group"
           >
-            {isListening ? (
-              <MicOff className="h-6 w-6 text-white" />
-            ) : (
-              <Mic className="h-6 w-6 text-white" />
-            )}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            />
+            
+            <Mic className="h-5 w-5 sm:h-6 sm:w-6 relative z-10" />
+            
+            {/* Pulsing indicator */}
+            <motion.div
+              className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-green-400 rounded-full"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            
+            {/* Ripple effect */}
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-white/30"
+              animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </Button>
+          
+          {/* Tooltip - only show on larger screens */}
+          <div className="hidden sm:block absolute bottom-full right-0 mb-2 px-3 py-2 bg-black/80 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            Sakha AI Assistant
+            <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80" />
+          </div>
         </motion.div>
-        
-        {(isListening || isSpeaking) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex space-x-1"
-          >
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-1 h-3 bg-blue-500 rounded-full"
-                animate={{
-                  height: [12, 20, 12],
-                  opacity: [0.5, 1, 0.5]
-                }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  delay: i * 0.2
-                }}
-              />
-            ))}
-          </motion.div>
-        )}
       </div>
-    </div>
+
+      {/* Unified Voice Assistant */}
+      <UnifiedVoiceAssistant
+        isOpen={isAssistantOpen}
+        onClose={() => setIsAssistantOpen(false)}
+        userName={userName}
+        language={language}
+        context={getContext()}
+        onNavigationCommand={onNavigationCommand}
+      />
+    </>
   );
 };
 
