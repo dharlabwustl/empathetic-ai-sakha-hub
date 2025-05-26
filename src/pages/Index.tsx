@@ -54,8 +54,8 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
-      {/* Speech Recognition Button for Homepage - Fixed positioning */}
-      <div className="fixed top-20 right-6 z-50">
+      {/* Voice Assistant Icon - Fixed positioning at top right */}
+      <div className="fixed top-24 right-6 z-50">
         <SpeechRecognitionButton 
           context="homepage"
           size="lg"
@@ -118,6 +118,7 @@ const Index = () => {
       {/* Enhanced Voice Assistant for Homepage */}
       <EnhancedHomePageVoiceAssistant 
         language="en-US"
+        onNavigationCommand={handleNavigationCommand}
       />
     </div>
   );
