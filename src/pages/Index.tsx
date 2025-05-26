@@ -18,7 +18,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
+import EnhancedVoiceAssistant from '@/components/voice/EnhancedVoiceAssistant';
+import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -34,6 +35,22 @@ const Index = () => {
   
   const handleNavigationCommand = (route: string) => {
     navigate(route);
+  };
+
+  const handleVoiceCommand = (command: string, confidence: number) => {
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('sign up') || lowerCommand.includes('signup') || lowerCommand.includes('register')) {
+      navigate('/signup');
+    } else if (lowerCommand.includes('trial') || lowerCommand.includes('free trial')) {
+      navigate('/signup');
+    } else if (lowerCommand.includes('readiness') || lowerCommand.includes('test') || lowerCommand.includes('exam test')) {
+      setShowExamAnalyzer(true);
+    } else if (lowerCommand.includes('login') || lowerCommand.includes('sign in')) {
+      navigate('/login');
+    } else if (lowerCommand.includes('features') || lowerCommand.includes('about')) {
+      document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   // Listen for events
@@ -52,6 +69,15 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
+      
+      {/* Speech Recognition Button */}
+      <div className="fixed top-20 right-4 z-40">
+        <SpeechRecognitionButton
+          onCommand={handleVoiceCommand}
+          context="homepage"
+          className="shadow-lg"
+        />
+      </div>
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
@@ -86,7 +112,9 @@ const Index = () => {
         
         <EcosystemAnimation />
         
-        <FeaturesSection />
+        <div id="features">
+          <FeaturesSection />
+        </div>
         
         <ExamPreparationSection />
         
@@ -105,12 +133,13 @@ const Index = () => {
       
       <Footer />
       
-      {/* Interactive Voice Assistant */}
-      <InteractiveVoiceAssistant 
+      {/* Enhanced Voice Assistant */}
+      <EnhancedVoiceAssistant 
         userName="Visitor"
         language="en-US"
         onNavigationCommand={handleNavigationCommand}
         position="bottom-right"
+        context="homepage"
       />
     </div>
   );
