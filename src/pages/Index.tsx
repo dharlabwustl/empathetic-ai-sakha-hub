@@ -18,7 +18,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced responsive hero section */}
+        {/* Enhanced 3D hero section with voice interaction */}
         <HeroSection />
         
         {/* Smart Data section with animation and KPI stats */}
@@ -105,10 +105,12 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced Floating Voice Assistant with Settings */}
-      <FloatingVoiceButton 
+      {/* Interactive Voice Assistant */}
+      <InteractiveVoiceAssistant 
         userName="Visitor"
         language="en-US"
+        onNavigationCommand={handleNavigationCommand}
+        position="bottom-right"
       />
     </div>
   );
