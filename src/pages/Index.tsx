@@ -59,18 +59,23 @@ const Index = () => {
       
       {/* NEET 2026 Live Button - Top positioned */}
       <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
-        <Button 
-          className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold px-6 py-3 rounded-full shadow-lg animate-pulse"
-          onClick={() => navigate('/neet-2026-live')}
-        >
-          🏆 Take NEET 2026 Live Test - India's #1 Platform
-        </Button>
+        <div className="flex items-center gap-3 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-full px-6 py-3 shadow-lg">
+          <span className="text-sm font-medium text-gray-700">
+            🏆 India's #1 AI-Powered Exam Prep Platform
+          </span>
+          <Button 
+            className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold px-4 py-2 rounded-full"
+            onClick={() => navigate('/neet-2026-live')}
+          >
+            Take NEET 2026 Live Test
+          </Button>
+        </div>
       </div>
       
       {/* Voice Recognition and Assistant positioned together */}
       <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-3 items-end">
-        {/* Speech Recognition Button - on top */}
-        <div className="relative">
+        {/* Speech Recognition Button - positioned in front */}
+        <div className="relative z-50">
           <SpeechRecognitionButton 
             context="homepage"
             className="shadow-lg bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full"
@@ -81,8 +86,8 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Voice Assistant positioned below */}
-        <div className="relative">
+        {/* Voice Assistant positioned behind */}
+        <div className="relative z-40">
           <EnhancedHomePageVoiceAssistant language="en-US" />
           <InteractiveVoiceAssistant 
             userName="Visitor"
