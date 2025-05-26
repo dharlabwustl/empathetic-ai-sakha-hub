@@ -130,8 +130,8 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
   };
 
   const positionStyles = position === 'homepage' 
-    ? 'fixed bottom-24 left-6 z-40' 
-    : 'fixed bottom-6 left-6 z-40';
+    ? 'fixed bottom-44 left-6 z-50' 
+    : 'fixed bottom-32 left-6 z-50';
 
   return (
     <div className={`${positionStyles} ${className}`}>

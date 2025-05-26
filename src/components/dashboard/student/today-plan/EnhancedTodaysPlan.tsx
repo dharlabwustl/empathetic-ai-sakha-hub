@@ -26,8 +26,8 @@ import {
   Sparkles,
   Play,
   ChevronRight,
-  TrendingUp,
-  Flame
+  Flame,
+  Trophy
 } from 'lucide-react';
 
 const EnhancedTodaysPlan: React.FC = () => {
@@ -50,7 +50,7 @@ const EnhancedTodaysPlan: React.FC = () => {
     day: 'numeric' 
   });
 
-  // Consolidated today's data
+  // Simplified today's data without repetition
   const todaysData = {
     overallProgress: 68,
     studyStreak: 12,
@@ -163,7 +163,7 @@ const EnhancedTodaysPlan: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Daily Smart Suggestions - Moved below header */}
+        {/* Daily Smart Suggestions - Below header as requested */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -192,7 +192,7 @@ const EnhancedTodaysPlan: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Progress Stats */}
+        {/* Consolidated Progress Overview */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -229,7 +229,7 @@ const EnhancedTodaysPlan: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Subject Tasks */}
+        {/* Subject-wise Task List */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -243,7 +243,7 @@ const EnhancedTodaysPlan: React.FC = () => {
                   <CardTitle className="text-lg">{subject.name}</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-sm text-gray-600">{subject.progress}% complete</div>
-                    <TrendingUp className="h-4 w-4 text-green-500" />
+                    <Trophy className="h-4 w-4 text-yellow-500" />
                   </div>
                 </div>
                 <Progress value={subject.progress} className="h-2" />
