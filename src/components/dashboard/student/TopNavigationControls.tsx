@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause } from 'lucide-react';
+import { Calendar, Clock, Globe, Settings, Crown } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
+import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
 
 interface TopNavigationControlsProps {
   hideSidebar?: boolean;
@@ -50,10 +51,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
-  const [isMicActive, setIsMicActive] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
-  const [isContinuousListening, setIsContinuousListening] = useState(false);
   
   const handleLogout = async () => {
     await logout();
@@ -64,14 +62,6 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     setIsVoiceAssistantOpen(true);
   };
 
-  const handleMicToggle = () => {
-    setIsMicActive(!isMicActive);
-  };
-
-  const handleMuteToggle = () => {
-    setIsMuted(!isMuted);
-  };
-
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
   };
@@ -80,24 +70,8 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     navigate('/dashboard/student/subscription');
   };
 
-  const handleContinuousListening = () => {
-    setIsContinuousListening(!isContinuousListening);
-    console.log('Continuous listening:', !isContinuousListening);
-  };
-
   const getCurrentPlan = () => {
-    if (!user?.subscription) return 'Free';
-    
-    if (typeof user.subscription === 'string') {
-      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
-             user.subscription === 'pro_annual' ? 'Pro Annual' :
-             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
-    }
-    
-    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
-           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
-           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
-           (user.subscription.planType || 'Free').slice(1);
+    return 'Free'; // Simplified for now
   };
   
   return (
@@ -158,22 +132,19 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Voice Assistant Button */}
+        {/* Speech Recognition Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleVoiceAssistant}
-                className="relative bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 hover:from-purple-600 hover:to-blue-600"
-              >
-                <Volume2 className="h-4 w-4" />
-                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
-              </Button>
+              <div>
+                <SpeechRecognitionButton 
+                  context="dashboard"
+                  className="h-8 w-8"
+                />
+              </div>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>Sakha AI Voice Assistant</p>
+              <p>Voice Commands</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

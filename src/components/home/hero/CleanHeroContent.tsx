@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Users, TrendingUp, Award } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, TrendingUp, Award, Zap } from 'lucide-react';
 
 interface CleanHeroContentProps {
   onAnalyzeClick: () => void;
@@ -17,14 +17,18 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
     navigate('/signup');
   };
 
+  const handleNeetPrep = () => {
+    navigate('/signup?exam=neet');
+  };
+
   const keyBenefits = [
-    "Save Your Time",
-    "Stress Free",
-    "Develop Study Habits", 
-    "Syllabus Linked",
+    "Save Valuable Time",
+    "Stress-Free Learning",
+    "Build Strong Habits", 
+    "Syllabus-Aligned Content",
     "Boost Your Confidence",
-    "Smart Analytics",
-    "Exam Ready"
+    "Smart Performance Analytics",
+    "Exam-Ready Preparation"
   ];
 
   const stats = [
@@ -78,6 +82,22 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-lg leading-relaxed">
           Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
         </p>
+      </motion.div>
+
+      {/* NEET 2026 Live Button */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="inline-block"
+      >
+        <Button
+          onClick={handleNeetPrep}
+          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
+        >
+          <Zap className="w-4 h-4 mr-2" />
+          NEET 2026 Prep is LIVE!
+        </Button>
       </motion.div>
 
       {/* Dynamic Key Benefits Slider */}
