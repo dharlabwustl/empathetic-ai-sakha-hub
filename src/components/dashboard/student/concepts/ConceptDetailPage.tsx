@@ -16,7 +16,6 @@ import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();

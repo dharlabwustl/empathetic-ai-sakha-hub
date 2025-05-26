@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -50,20 +51,16 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         const voices = window.speechSynthesis.getVoices();
         setAvailableVoices(voices);
         
-        // Prioritize female voices for consistent experience
-        const femaleVoiceKeywords = [
-          'female', 'woman', 'samantha', 'zira', 'aria', 'sarah', 'alex', 'karen', 'moira',
-          'google us english female', 'microsoft zira', 'microsoft aria'
-        ];
+        // Try to find a vibrant voice by default (US English preferred)
+        const preferredVoiceTypes = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US', 'en-GB'];
         
-        // Find best matching female voice
+        // Find best matching voice
         let selectedVoice: SpeechSynthesisVoice | null = null;
         
-        // First, try to find voices with explicit female indicators
-        for (const keyword of femaleVoiceKeywords) {
+        for (const preferredType of preferredVoiceTypes) {
           const foundVoice = voices.find(voice => 
-            voice.name?.toLowerCase().includes(keyword) || 
-            voice.lang?.toLowerCase().includes('en-us') && voice.name?.toLowerCase().includes(keyword)
+            voice.name?.toLowerCase().includes(preferredType.toLowerCase()) || 
+            voice.lang?.toLowerCase().includes(preferredType.toLowerCase())
           );
           
           if (foundVoice) {
@@ -72,15 +69,7 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
           }
         }
         
-        // If no female voice found, try US English voices (often female by default)
-        if (!selectedVoice) {
-          selectedVoice = voices.find(voice => 
-            voice.lang?.toLowerCase().includes('en-us') && 
-            !voice.name?.toLowerCase().includes('male')
-          );
-        }
-        
-        // Fallback to first available voice
+        // If no preferred voice is found, use the first available voice
         if (!selectedVoice && voices.length > 0) {
           selectedVoice = voices[0];
         }
@@ -239,13 +228,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Correct PREPZR pronunciation to "prep... zer" with pause
+    // Always use "PREPZR" not "PREP-zer"
     const correctedText = text
-      .replace(/PREPZR/gi, 'prep, zer')
-      .replace(/Prepzr/g, 'prep, zer')
-      .replace(/prepzr/gi, 'prep, zer')
-      .replace(/PREP ZER/gi, 'prep zer')
-      .replace(/Prep Zer/g, 'prep zer');
+      .replace(/PREP-zer/gi, 'PREPZR')
+      .replace(/Prepzr/g, 'PREPZR')
+      .replace(/prepzr/gi, 'PREPZR');
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     
