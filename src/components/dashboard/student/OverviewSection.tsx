@@ -179,12 +179,12 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         </motion.div>
       </div>
 
-      {/* Progress Overview */}
+      {/* Subject Progress Overview */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5 text-indigo-600" />
-            Subject Progress Overview
+            NEET Subject Progress Overview
           </CardTitle>
         </CardHeader>
         <CardContent>

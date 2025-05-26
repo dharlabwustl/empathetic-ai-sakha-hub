@@ -54,12 +54,15 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
-      {/* Speech Recognition Button for Homepage */}
-      <div className="fixed top-20 right-6 z-50">
+      {/* Voice Assistant and Speech Recognition - Properly positioned */}
+      <div className="fixed top-20 right-6 z-50 flex flex-col gap-3">
         <SpeechRecognitionButton 
           context="homepage"
           size="lg"
-          className="shadow-lg"
+          className="shadow-lg bg-white/90 backdrop-blur-sm border border-gray-200 hover:shadow-xl transition-all duration-300"
+        />
+        <EnhancedHomePageVoiceAssistant 
+          language="en-US"
         />
       </div>
       
@@ -114,11 +117,6 @@ const Index = () => {
       </main>
       
       <Footer />
-      
-      {/* Enhanced Voice Assistant for Homepage */}
-      <EnhancedHomePageVoiceAssistant 
-        language="en-US"
-      />
     </div>
   );
 };
