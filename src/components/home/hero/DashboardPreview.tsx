@@ -1,224 +1,220 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Play, Pause, Sparkles, Zap, TrendingUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Card } from '@/components/ui/card';
+import { 
+  BookOpen, 
+  Brain, 
+  Target, 
+  TrendingUp, 
+  Calendar,
+  Clock,
+  Award,
+  Zap
+} from 'lucide-react';
 
 const DashboardPreview = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Enhanced concept mastery data
+  const conceptMasteryData = [
+    { 
+      subject: 'Physics', 
+      mastered: 18, 
+      total: 25, 
+      percentage: 72,
+      concepts: ['Mechanics', 'Optics', 'Thermodynamics', 'Electromagnetism'],
+      recentConcept: 'Wave Motion'
+    },
+    { 
+      subject: 'Chemistry', 
+      mastered: 15, 
+      total: 22, 
+      percentage: 68,
+      concepts: ['Organic Chemistry', 'Physical Chemistry', 'Inorganic Chemistry'],
+      recentConcept: 'Chemical Bonding'
+    },
+    { 
+      subject: 'Biology', 
+      mastered: 20, 
+      total: 23, 
+      percentage: 87,
+      concepts: ['Cell Biology', 'Genetics', 'Plant Physiology', 'Human Physiology'],
+      recentConcept: 'Photosynthesis'
+    }
+  ];
 
   const slides = [
     {
-      id: 'dynamic-plans',
-      title: 'AI-Powered Dynamic Study Plans',
-      subtitle: 'Plans that evolve with your learning style',
-      gradient: 'from-blue-500 via-purple-500 to-indigo-600',
+      title: 'Concept Mastery Dashboard',
       content: (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-xl"></div>
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-5 w-5 text-blue-600" />
-              <h4 className="font-semibold text-blue-900">Your AI Learning Profile</h4>
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-blue-700">Learning Style:</span>
-                <span className="font-medium text-blue-900 bg-blue-100 px-2 py-1 rounded-full text-xs">Visual + Analytical</span>
+          {/* NEET 2026 Exam Ready Badge */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Your Progress</h3>
+            <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1">
+              NEET 2026 Ready: 75%
+            </Badge>
+          </div>
+          
+          {conceptMasteryData.map((subject, index) => (
+            <motion.div
+              key={subject.subject}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white rounded-lg p-4 shadow-sm border"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-blue-600" />
+                  <span className="font-medium text-gray-700">{subject.subject}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-600">
+                  {subject.mastered}/{subject.total}
+                </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-blue-700">Optimal Pace:</span>
-                <div className="w-20 h-2 bg-blue-200 rounded-full">
-                  <div className="w-3/4 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+              <Progress value={subject.percentage} className="h-2 mb-2" />
+              <div className="flex flex-wrap gap-1">
+                {subject.concepts.slice(0, 3).map((concept, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs">
+                    {concept}
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Recent: {subject.recentConcept}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      )
+    },
+    {
+      title: 'Study Analytics',
+      content: (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-600" />
+                <div>
+                  <p className="text-lg font-bold text-blue-700">24h</p>
+                  <p className="text-xs text-blue-600">This Week</p>
                 </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-blue-700">Peak Hours:</span>
-                <span className="font-medium text-blue-900">🌅 Morning</span>
+            </Card>
+            <Card className="p-3 bg-gradient-to-br from-green-50 to-emerald-50">
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4 text-green-600" />
+                <div>
+                  <p className="text-lg font-bold text-green-700">89%</p>
+                  <p className="text-xs text-green-600">Accuracy</p>
+                </div>
               </div>
-            </div>
+            </Card>
           </div>
-          <motion.div 
-            className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200"
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <p className="text-sm text-green-800 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-green-600" />
-              AI adjusts your plan in real-time based on performance
-            </p>
-          </motion.div>
-        </div>
-      )
-    },
-    {
-      id: 'adaptive-daily',
-      title: 'Smart Daily Adaptive Plans',
-      subtitle: 'Every day perfectly tailored to your needs',
-      gradient: 'from-purple-500 via-pink-500 to-rose-500',
-      content: (
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
-            <h4 className="font-semibold text-purple-900 mb-3">Today's Personalized Schedule</h4>
-            <div className="space-y-3">
-              {[
-                { subject: 'Physics: Newton\'s Laws', time: '30 min', color: 'purple', progress: 75 },
-                { subject: 'Chemistry: Molecular Bonds', time: '25 min', color: 'blue', progress: 50 },
-                { subject: 'Math: Algebra Practice', time: '20 min', color: 'green', progress: 90 }
-              ].map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <div className={`w-3 h-3 bg-${item.color}-500 rounded-full animate-pulse`}></div>
-                  <div className="flex-1">
-                    <span className="text-sm font-medium text-gray-800">{item.subject}</span>
-                    <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                      <div 
-                        className={`bg-gradient-to-r from-${item.color}-400 to-${item.color}-600 h-1 rounded-full transition-all duration-1000`}
-                        style={{width: `${item.progress}%`}}
-                      ></div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-gray-600">{item.time}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-3 rounded-lg border border-amber-200">
-            <p className="text-sm text-amber-800 flex items-center gap-2">
-              🎯 <span className="font-medium">Mood-Adapted:</span> Optimized for your focused state
-            </p>
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'concept-mastery',
-      title: 'Multi-Modal Concept Mastery',
-      subtitle: 'Learn through 3D visuals, videos, and AI summaries',
-      gradient: 'from-emerald-500 via-teal-500 to-cyan-500',
-      content: (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { icon: '🧊', label: '3D Models', color: 'blue' },
-              { icon: '👁️', label: 'Visual Diagrams', color: 'green' },
-              { icon: '🎥', label: 'Video Lessons', color: 'purple' },
-              { icon: '🤖', label: 'AI Summaries', color: 'orange' }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                className={`bg-gradient-to-br from-${item.color}-50 to-${item.color}-100 p-4 rounded-xl text-center border border-${item.color}-200 relative overflow-hidden`}
-                whileHover={{ scale: 1.05 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <div className="text-3xl mb-2">{item.icon}</div>
-                <span className="text-xs font-semibold text-gray-700">{item.label}</span>
-                <div className={`absolute inset-0 bg-gradient-to-r from-${item.color}-400/10 to-transparent rounded-xl`}></div>
-              </motion.div>
-            ))}
-          </div>
-          <motion.div 
-            className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 rounded-xl border border-indigo-200"
-            animate={{ boxShadow: ['0 0 0 0 rgba(99, 102, 241, 0)', '0 0 0 10px rgba(99, 102, 241, 0.1)', '0 0 0 0 rgba(99, 102, 241, 0)'] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <p className="text-sm text-indigo-800 flex items-center gap-2">
-              💡 <span className="font-medium">Smart AI:</span> Chooses the best learning method for each concept
-            </p>
-          </motion.div>
-        </div>
-      )
-    },
-    {
-      id: 'spaced-repetition',
-      title: 'AI Spaced Repetition System',
-      subtitle: 'Never forget with intelligent recall scheduling',
-      gradient: 'from-rose-500 via-pink-500 to-purple-500',
-      content: (
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-xl border border-pink-200">
-            <h4 className="font-semibold text-rose-900 mb-3 flex items-center gap-2">
-              🧠 Smart Recall Schedule
+          
+          <div className="bg-white rounded-lg p-4 border">
+            <h4 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Weekly Progress
             </h4>
             <div className="space-y-2">
-              {[
-                { topic: 'Thermodynamics', status: 'Due now', color: 'red', urgency: 'high' },
-                { topic: 'Atomic Structure', status: 'In 2 days', color: 'blue', urgency: 'medium' },
-                { topic: 'Kinematics', status: 'In 1 week', color: 'gray', urgency: 'low' }
-              ].map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className="flex justify-between items-center p-2 bg-white rounded-lg shadow-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.15 }}
-                >
-                  <span className="text-sm font-medium text-gray-800">{item.topic}</span>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    item.urgency === 'high' ? 'bg-red-100 text-red-700' :
-                    item.urgency === 'medium' ? 'bg-blue-100 text-blue-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {item.status}
-                  </span>
-                </motion.div>
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day, index) => (
+                <div key={day} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{day}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-gray-200 rounded-full h-1">
+                      <div 
+                        className="bg-blue-500 h-1 rounded-full"
+                        style={{ width: `${Math.random() * 80 + 20}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500">{Math.floor(Math.random() * 4 + 2)}h</span>
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-          <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-3 rounded-lg border border-emerald-200">
-            <p className="text-sm text-emerald-800 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              <span className="font-bold">98.5%</span> retention rate achieved with our system
-            </p>
           </div>
         </div>
       )
     },
     {
-      id: 'exam-readiness',
-      title: 'Real-Time Exam Readiness',
-      subtitle: 'Track your preparation progress with AI insights',
-      gradient: 'from-green-500 via-emerald-500 to-teal-500',
+      title: 'Smart Recommendations',
       content: (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl border border-emerald-200 relative">
-            <div className="absolute top-2 right-2 text-2xl animate-bounce">🎯</div>
-            <h4 className="font-semibold text-emerald-900 mb-3">Current Readiness Score</h4>
-            <div className="text-center">
-              <motion.div 
-                className="text-4xl font-bold text-emerald-700 mb-1"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                87%
-              </motion.div>
-              <p className="text-sm text-emerald-600 font-medium">Ready for NEET 2024</p>
-              <div className="w-full bg-emerald-200 rounded-full h-3 mt-3">
-                <motion.div 
-                  className="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: '87%' }}
-                  transition={{ duration: 2, ease: "easeInOut" }}
-                ></motion.div>
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+            <h4 className="font-medium text-purple-800 mb-2 flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              AI Suggestions
+            </h4>
+            <div className="space-y-2">
+              <div className="bg-white rounded p-2 border-l-2 border-purple-400">
+                <p className="text-sm text-gray-700">Focus on Organic Chemistry - 2h daily</p>
+              </div>
+              <div className="bg-white rounded p-2 border-l-2 border-blue-400">
+                <p className="text-sm text-gray-700">Review Physics formulas before practice</p>
+              </div>
+              <div className="bg-white rounded p-2 border-l-2 border-green-400">
+                <p className="text-sm text-gray-700">Take Biology mock test this weekend</p>
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-              <div className="font-medium text-green-700 text-sm mb-1">Strong Areas</div>
-              <div className="text-green-600 text-xs">Physics • Math</div>
+          
+          <div className="bg-white rounded-lg p-4 border">
+            <h4 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Today's Plan
+            </h4>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Physics - Waves</span>
+                <Badge variant="outline" className="text-xs">45 min</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Chemistry - Reactions</span>
+                <Badge variant="outline" className="text-xs">30 min</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Biology - Genetics</span>
+                <Badge variant="outline" className="text-xs">40 min</Badge>
+              </div>
             </div>
-            <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-              <div className="font-medium text-orange-700 text-sm mb-1">Focus Areas</div>
-              <div className="text-orange-600 text-xs">Organic Chemistry</div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Achievements',
+      content: (
+        <div className="space-y-4">
+          <div className="text-center">
+            <Award className="h-12 w-12 text-yellow-500 mx-auto mb-2" />
+            <h4 className="font-semibold text-gray-800">NEET 2026 Warrior</h4>
+            <p className="text-sm text-gray-600">75% Ready for NEET 2026</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200 text-center">
+              <p className="text-2xl font-bold text-yellow-700">128</p>
+              <p className="text-xs text-yellow-600">Concepts Mastered</p>
+            </div>
+            <div className="bg-green-50 rounded-lg p-3 border border-green-200 text-center">
+              <p className="text-2xl font-bold text-green-700">45</p>
+              <p className="text-xs text-green-600">Tests Completed</p>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg p-4 border">
+            <h4 className="font-medium text-gray-700 mb-3">Recent Badges</h4>
+            <div className="flex flex-wrap gap-2">
+              <Badge className="bg-blue-100 text-blue-800">Physics Pro</Badge>
+              <Badge className="bg-green-100 text-green-800">Bio Expert</Badge>
+              <Badge className="bg-purple-100 text-purple-800">Study Streak</Badge>
+              <Badge className="bg-orange-100 text-orange-800">Quick Learner</Badge>
             </div>
           </div>
         </div>
@@ -227,173 +223,81 @@ const DashboardPreview = () => {
   ];
 
   useEffect(() => {
-    if (isAutoPlaying) {
-      const interval = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
-      }, 4000);
-      return () => clearInterval(interval);
-    }
-  }, [isAutoPlaying, slides.length]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <div className="relative flex justify-center items-center">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, delay: 0.2 }}
+      className="relative"
+    >
+      {/* Dashboard Container */}
+      <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md mx-auto border">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <BookOpen className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-800">PREPZR Dashboard</h3>
+              <p className="text-xs text-gray-500">Smart Learning Platform</p>
+            </div>
+          </div>
+          <Badge className="bg-green-100 text-green-800 text-xs">Live</Badge>
+        </div>
+
+        {/* Sliding Content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="h-80 overflow-hidden"
+          >
+            <h4 className="font-medium text-gray-800 mb-4">{slides[currentSlide].title}</h4>
+            {slides[currentSlide].content}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Slide Indicators */}
+        <div className="flex justify-center gap-2 mt-4">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                currentSlide === index ? 'bg-blue-500' : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Floating Elements */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
-        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-        style={{ 
-          width: '700px', 
-          height: '500px',
-          transform: 'perspective(1200px) rotateY(-5deg) rotateX(2deg)',
-          transformStyle: 'preserve-3d'
-        }}
+        className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg"
+        animate={{ y: [0, -5, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
       >
-        {/* Animated background glow */}
-        <motion.div 
-          className="absolute inset-0 opacity-20"
-          animate={{
-            background: [
-              'linear-gradient(45deg, #3b82f6, #8b5cf6)',
-              'linear-gradient(45deg, #8b5cf6, #ec4899)',
-              'linear-gradient(45deg, #ec4899, #10b981)',
-              'linear-gradient(45deg, #10b981, #3b82f6)'
-            ]
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-
-        {/* Enhanced browser header */}
-        <div className="h-10 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center px-4 border-b border-gray-200 dark:border-gray-600 relative">
-          <div className="flex space-x-2">
-            <motion.div 
-              className="w-3 h-3 bg-red-500 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            <motion.div 
-              className="w-3 h-3 bg-yellow-500 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-            />
-            <motion.div 
-              className="w-3 h-3 bg-green-500 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-            />
-          </div>
-          <div className="ml-4 flex-1 text-sm text-gray-600 dark:text-gray-300 font-mono">
-            student.prepzr.com/dashboard
-          </div>
-          <div className="flex items-center gap-1">
-            <motion.div 
-              className="w-2 h-2 bg-green-500 rounded-full"
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 1, repeat: Infinity }}
-            />
-            <span className="text-xs text-green-600">Live</span>
-          </div>
-        </div>
-
-        {/* Enhanced dashboard content */}
-        <div className="h-[calc(100%-2.5rem)] relative overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentSlide}
-              initial={{ opacity: 0, x: 300, rotateY: 90 }}
-              animate={{ opacity: 1, x: 0, rotateY: 0 }}
-              exit={{ opacity: 0, x: -300, rotateY: -90 }}
-              transition={{ duration: 0.6, ease: "easeInOut" }}
-              className="h-full p-6"
-            >
-              {/* Slide header with gradient */}
-              <div className="text-center space-y-3 mb-6">
-                <motion.div
-                  className={`inline-block px-4 py-2 rounded-full bg-gradient-to-r ${slides[currentSlide].gradient} text-white text-sm font-medium shadow-lg`}
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                >
-                  {slides[currentSlide].title}
-                </motion.div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                  {slides[currentSlide].subtitle}
-                </p>
-              </div>
-              
-              <div className="max-h-80 overflow-y-auto">
-                {slides[currentSlide].content}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Enhanced navigation controls */}
-          <div className="absolute bottom-4 right-4 flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9 bg-white/80 backdrop-blur-sm hover:bg-white shadow-lg"
-              onClick={prevSlide}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9 bg-white/80 backdrop-blur-sm hover:bg-white shadow-lg"
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-            >
-              {isAutoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9 bg-white/80 backdrop-blur-sm hover:bg-white shadow-lg"
-              onClick={nextSlide}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Enhanced slide indicators */}
-          <div className="absolute bottom-4 left-4 flex space-x-2">
-            {slides.map((slide, index) => (
-              <motion.button
-                key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide 
-                    ? 'w-8 bg-gradient-to-r from-blue-500 to-purple-500' 
-                    : 'w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
-                }`}
-                onClick={() => setCurrentSlide(index)}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-              />
-            ))}
-          </div>
-        </div>
+        NEET 2026 Ready!
       </motion.div>
-
-      {/* Enhanced 3D effect shadows */}
-      <div 
-        className="absolute inset-0 rounded-3xl -z-10"
-        style={{
-          background: `linear-gradient(135deg, ${slides[currentSlide].gradient.replace('from-', '').replace('via-', '').replace('to-', '').split(' ').map(c => `var(--${c})`).join(', ')})`,
-          transform: 'perspective(1200px) rotateY(-5deg) rotateX(2deg) translateZ(-30px)',
-          filter: 'blur(25px)',
-          opacity: 0.3
-        }}
-      />
-    </div>
+      
+      <motion.div
+        className="absolute -bottom-4 -left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg"
+        animate={{ y: [0, 5, 0] }}
+        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+      >
+        AI Powered
+      </motion.div>
+    </motion.div>
   );
 };
 

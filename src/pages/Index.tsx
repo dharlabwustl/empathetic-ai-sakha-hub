@@ -55,12 +55,25 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
-      {/* Speech Recognition Button - Homepage */}
-      <div className="fixed top-20 right-4 z-50">
+      {/* Voice Recognition and Assistant positioned together */}
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-3 items-end">
+        {/* Speech Recognition Button */}
         <SpeechRecognitionButton 
           context="homepage"
           className="shadow-lg"
+          onCommand={handleNavigationCommand}
         />
+        
+        {/* Voice Assistant positioned right below */}
+        <div className="relative">
+          <EnhancedHomePageVoiceAssistant language="en-US" />
+          <InteractiveVoiceAssistant 
+            userName="Visitor"
+            language="en-US"
+            onNavigationCommand={handleNavigationCommand}
+            position="bottom-right"
+          />
+        </div>
       </div>
       
       <main>
@@ -114,17 +127,6 @@ const Index = () => {
       </main>
       
       <Footer />
-      
-      {/* Enhanced Voice Assistant */}
-      <EnhancedHomePageVoiceAssistant language="en-US" />
-      
-      {/* Interactive Voice Assistant */}
-      <InteractiveVoiceAssistant 
-        userName="Visitor"
-        language="en-US"
-        onNavigationCommand={handleNavigationCommand}
-        position="bottom-right"
-      />
     </div>
   );
 };
