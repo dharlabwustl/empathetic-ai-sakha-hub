@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
-import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import useVoiceAssistant from '@/hooks/useVoiceAssistant';
+import VoiceSettingsPanel from './VoiceSettingsPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface InteractiveVoiceAssistantProps {
@@ -22,17 +22,18 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   const { toast } = useToast();
   const [isActive, setIsActive] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   const {
     settings,
     isListening,
     isSpeaking,
     transcript,
+    availableVoices,
     speakText,
     startListening,
     stopListening,
     processCommand,
-    toggleMute,
     updateSettings
   } = useVoiceAssistant({
     userName,
@@ -58,7 +59,7 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   };
 
   const handleMuteToggle = () => {
-    toggleMute();
+    updateSettings({ muted: !settings.muted });
   };
 
   // Process voice commands

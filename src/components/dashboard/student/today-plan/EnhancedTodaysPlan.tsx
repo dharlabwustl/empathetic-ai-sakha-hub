@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import NewTodaysPlanHeader from './NewTodaysPlanHeader';
+import OverviewSection from '../OverviewSection';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -29,6 +32,24 @@ const EnhancedTodaysPlan: React.FC = () => {
     addBookmark,
     addNote
   } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
+
+  // Mock overview data for today's plan
+  const todaysOverview = {
+    subjects: [
+      { name: 'Physics', completed: 2, total: 4, progress: 50, efficiency: 85, studyTime: 90 },
+      { name: 'Chemistry', completed: 1, total: 3, progress: 33, efficiency: 70, studyTime: 60 },
+      { name: 'Biology', completed: 3, total: 3, progress: 100, efficiency: 95, studyTime: 75 },
+      { name: 'Mathematics', completed: 1, total: 2, progress: 50, efficiency: 80, studyTime: 45 }
+    ],
+    totalStudyTime: 270,
+    overallProgress: 58,
+    suggestions: [
+      'You\'re doing great with Biology today! 🎉',
+      'Focus on Chemistry next - only 2 tasks remaining',
+      'Take a 10-minute break before Physics numericals',
+      'Your morning session efficiency is above 80% ⚡'
+    ]
+  };
   
   if (loading) {
     return <LoadingState message="Loading your study plan..." />;
@@ -79,8 +100,8 @@ const EnhancedTodaysPlan: React.FC = () => {
 
   return (
     <SharedPageLayout
-      title="Today's Study Plan"
-      subtitle="Your personalized daily study schedule"
+      title=""
+      subtitle=""
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
@@ -89,6 +110,21 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
+        {/* Premium Header */}
+        <NewTodaysPlanHeader 
+          userName={planData?.userName || userProfile?.name}
+          isMobile={isMobile}
+        />
+
+        {/* Today's Overview Section */}
+        <OverviewSection 
+          title="Today's Progress"
+          subjects={todaysOverview.subjects}
+          totalStudyTime={todaysOverview.totalStudyTime}
+          overallProgress={todaysOverview.overallProgress}
+          suggestions={todaysOverview.suggestions}
+        />
+        
         {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
