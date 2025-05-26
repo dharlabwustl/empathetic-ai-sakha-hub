@@ -52,24 +52,23 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       transition={{ duration: 0.8 }}
       className="space-y-6 md:space-y-8 px-4 md:px-0"
     >
-      {/* Badges and NEET Button Row */}
+      {/* Badges and NEET Button Row - Side by Side */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4"
+        className="flex flex-col md:flex-row items-center gap-3 md:gap-4 justify-center"
       >
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-300 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium border border-blue-200/50 dark:border-blue-800/50">
           <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="hidden sm:inline">India's #1 AI-Powered Exam Prep Platform</span>
-          <span className="sm:hidden">#1 AI Exam Prep</span>
+          <span>India's #1 AI-Powered Exam Prep Platform</span>
         </div>
 
         {/* NEET 2026 Prep Button with Pulsing Animation */}
         <Button
           onClick={handleNEETPrep}
-          className="relative bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 hover:from-emerald-700 hover:via-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-lg shadow-2xl overflow-hidden group"
+          className="relative bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 hover:from-emerald-700 hover:via-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-base shadow-2xl overflow-hidden group"
         >
           {/* Pulsing animation background */}
           <motion.div
@@ -104,7 +103,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
                 ease: "easeInOut"
               }}
             >
-              <Rocket className="w-4 h-4 md:w-6 md:h-6" />
+              <Rocket className="w-4 h-4 md:w-5 md:h-5" />
             </motion.div>
             <span>NEET 2026 PREP - JOIN NOW!</span>
             <motion.div
@@ -227,7 +226,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
             </div>
           </div>
         ))}
-      </motion.div>
+      </div>
     </motion.div>
   );
 };

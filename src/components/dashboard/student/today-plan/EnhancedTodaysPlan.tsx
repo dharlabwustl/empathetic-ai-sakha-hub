@@ -16,7 +16,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 import { motion } from 'framer-motion';
 import { 
-  Calendar, 
   Clock, 
   Target, 
   BookOpen, 
@@ -50,7 +49,7 @@ const EnhancedTodaysPlan: React.FC = () => {
     day: 'numeric' 
   });
 
-  // Simplified today's data without repetition
+  // Simplified today's data
   const todaysData = {
     overallProgress: 68,
     studyStreak: 12,
@@ -163,7 +162,7 @@ const EnhancedTodaysPlan: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Daily Smart Suggestions - Below header as requested */}
+        {/* Daily Smart Suggestions - Moved below header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -192,7 +191,7 @@ const EnhancedTodaysPlan: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Consolidated Progress Overview */}
+        {/* Progress Overview */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

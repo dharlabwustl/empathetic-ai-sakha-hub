@@ -60,10 +60,8 @@ const Index = () => {
       <Header />
       
       <main>
-        {/* Enhanced 3D hero section with voice interaction */}
         <HeroSection />
         
-        {/* Smart Data section with animation and KPI stats */}
         <motion.section 
           className="container mx-auto px-4 py-16 mb-20"
           initial={{ opacity: 0 }}
@@ -79,15 +77,12 @@ const Index = () => {
           <KpiStats />
         </motion.section>
         
-        {/* Backed By Section with partner logos */}
         <BackedBySection />
         
-        {/* Add proper spacing between sections */}
         <div className="pt-12"></div>
                 
         <WhatIsSection />
         
-        {/* Champion Methodology Section */}
         <ChampionMethodologySection />
         
         <EcosystemAnimation />
@@ -115,7 +110,7 @@ const Index = () => {
       <SpeechRecognitionButton
         position="homepage"
         onCommand={handleSpeechCommand}
-        className="fixed bottom-44 left-6 z-50"
+        className="fixed bottom-20 right-6 z-50"
       />
 
       {/* Interactive Voice Assistant - positioned below speech recognition */}
@@ -124,7 +119,6 @@ const Index = () => {
         language="en-US"
         onNavigationCommand={handleNavigationCommand}
         position="bottom-right"
-        className="fixed bottom-20 left-6 z-40"
       />
     </div>
   );
