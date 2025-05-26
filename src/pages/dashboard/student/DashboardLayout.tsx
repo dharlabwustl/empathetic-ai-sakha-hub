@@ -206,7 +206,7 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      {/* Speech Recognition Button for Dashboard */}
+      {/* Speech Recognition Button positioned above voice assistant */}
       <SpeechRecognitionButton
         position="dashboard"
         onCommand={handleSpeechCommand}
