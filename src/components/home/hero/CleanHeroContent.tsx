@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Users, TrendingUp, Award } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, TrendingUp, Award, Mic, Play } from 'lucide-react';
 
 interface CleanHeroContentProps {
   onAnalyzeClick: () => void;
@@ -12,19 +12,24 @@ interface CleanHeroContentProps {
 const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) => {
   const navigate = useNavigate();
   const [currentBenefit, setCurrentBenefit] = useState(0);
+  const [isListening, setIsListening] = useState(false);
   
   const handleGetStarted = () => {
     navigate('/signup');
   };
 
+  const handleNEETPrep = () => {
+    navigate('/dashboard/student');
+  };
+
   const keyBenefits = [
-    "Save Your Time",
-    "Stress Free",
-    "Develop Study Habits", 
-    "Syllabus Linked",
+    "Save Valuable Time",
+    "Stress-Free Learning", 
+    "Build Strong Habits",
+    "Syllabus-Aligned Content",
     "Boost Your Confidence",
-    "Smart Analytics",
-    "Exam Ready"
+    "Smart Performance Analytics",
+    "Exam-Ready Preparation"
   ];
 
   const stats = [
@@ -40,6 +45,55 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleSpeechRecognition = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Speech recognition not supported in this browser');
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      console.log('Speech recognized:', transcript);
+      
+      // Process voice commands
+      if (transcript.includes('start') || transcript.includes('begin') || transcript.includes('signup')) {
+        handleGetStarted();
+      } else if (transcript.includes('neet') || transcript.includes('preparation')) {
+        handleNEETPrep();
+      } else if (transcript.includes('test') || transcript.includes('analyze')) {
+        onAnalyzeClick();
+      } else {
+        // Use speech synthesis to respond
+        const utterance = new SpeechSynthesisUtterance(
+          `I heard "${transcript}". You can say "start preparation", "NEET prep", or "take test" to navigate.`
+        );
+        speechSynthesis.speak(utterance);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
 
   return (
     <motion.div
@@ -60,11 +114,27 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         <span className="sm:hidden">#1 AI Exam Prep</span>
       </motion.div>
 
+      {/* NEET 2026 Prep Button */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="inline-block"
+      >
+        <Button
+          onClick={handleNEETPrep}
+          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
+        >
+          <Play className="w-4 h-4 mr-2" />
+          NEET 2026 Prep is Live!
+        </Button>
+      </motion.div>
+
       {/* Main Heading */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
         className="space-y-3 md:space-y-4"
       >
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
@@ -84,7 +154,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
         className="space-y-3 md:space-y-4"
       >
         <h3 className="text-base md:text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -123,7 +193,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.7 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
         className="flex flex-col sm:flex-row gap-3 md:gap-4"
       >
         <Button
@@ -143,13 +213,28 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         >
           Take Readiness Test
         </Button>
+
+        {/* Speech Recognition Button */}
+        <Button
+          onClick={handleSpeechRecognition}
+          variant="outline"
+          size="lg"
+          className={`border-2 px-6 py-3 md:px-8 md:py-4 rounded-xl font-semibold text-base md:text-lg w-full sm:w-auto transition-all duration-300 ${
+            isListening 
+              ? 'border-red-500 bg-red-50 text-red-600 hover:bg-red-100' 
+              : 'border-orange-300 hover:border-orange-400 text-orange-600 hover:bg-orange-50'
+          }`}
+        >
+          <Mic className={`w-4 h-4 md:w-5 md:h-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
+          {isListening ? 'Listening...' : 'Voice Commands'}
+        </Button>
       </motion.div>
 
       {/* Stats */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.9 }}
+        transition={{ duration: 0.6, delay: 1.0 }}
         className="grid grid-cols-3 gap-3 md:gap-6 pt-6 md:pt-8 border-t border-gray-200 dark:border-gray-800"
       >
         {stats.map((stat, index) => (

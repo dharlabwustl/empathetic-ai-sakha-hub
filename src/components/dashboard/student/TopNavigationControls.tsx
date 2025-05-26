@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Mic, MicOff, Volume2, VolumeX, Clock, Globe, Settings, Crown, Play, Pause } from 'lucide-react';
+import { Calendar, Volume2, Clock, Globe, Settings, Crown } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
+import SpeechRecognitionButton from './SpeechRecognitionButton';
 
 interface TopNavigationControlsProps {
   hideSidebar?: boolean;
@@ -50,10 +51,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
-  const [isMicActive, setIsMicActive] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
-  const [isContinuousListening, setIsContinuousListening] = useState(false);
   
   const handleLogout = async () => {
     await logout();
@@ -64,25 +62,12 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     setIsVoiceAssistantOpen(true);
   };
 
-  const handleMicToggle = () => {
-    setIsMicActive(!isMicActive);
-  };
-
-  const handleMuteToggle = () => {
-    setIsMuted(!isMuted);
-  };
-
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
   };
 
   const handleSubscriptionClick = () => {
     navigate('/dashboard/student/subscription');
-  };
-
-  const handleContinuousListening = () => {
-    setIsContinuousListening(!isContinuousListening);
-    console.log('Continuous listening:', !isContinuousListening);
   };
 
   const getCurrentPlan = () => {
@@ -154,6 +139,24 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Voice Language</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Speech Recognition Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <SpeechRecognitionButton 
+                  context="dashboard"
+                  size="md"
+                  userName={userName || user?.name}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Voice Commands - Click to speak</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
