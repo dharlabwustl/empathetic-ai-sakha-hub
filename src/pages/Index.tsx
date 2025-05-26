@@ -55,8 +55,8 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
-      {/* Voice Controls Container - Both buttons together */}
-      <div className="fixed top-20 right-4 z-50 flex flex-col gap-2">
+      {/* Speech Recognition Button - Homepage */}
+      <div className="fixed top-20 right-4 z-50">
         <SpeechRecognitionButton 
           context="homepage"
           className="shadow-lg"
