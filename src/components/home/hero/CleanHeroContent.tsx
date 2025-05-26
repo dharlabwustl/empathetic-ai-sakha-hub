@@ -52,12 +52,12 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       transition={{ duration: 0.8 }}
       className="space-y-6 md:space-y-8 px-4 md:px-0"
     >
-      {/* Badges and NEET Button Row - Now side by side */}
+      {/* Badges and NEET Button Row */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
+        className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4"
       >
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-300 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium border border-blue-200/50 dark:border-blue-800/50">
