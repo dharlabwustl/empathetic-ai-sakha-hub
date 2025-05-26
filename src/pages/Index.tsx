@@ -20,6 +20,7 @@ import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
 import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
+import { Mic } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -54,13 +55,28 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
-      {/* Speech Recognition Button for Homepage */}
-      <div className="fixed top-20 right-6 z-50">
-        <SpeechRecognitionButton 
-          context="homepage"
-          size="lg"
-          className="shadow-lg"
-        />
+      {/* Speech Recognition and Voice Assistant - Fixed positioning */}
+      <div className="fixed top-24 right-6 z-50 flex flex-col gap-3">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <SpeechRecognitionButton 
+            context="homepage"
+            size="lg"
+            className="shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          />
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-white dark:bg-gray-800 rounded-full p-3 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+        >
+          <Mic className="h-6 w-6 text-indigo-600 group-hover:text-indigo-700 transition-colors" />
+        </motion.div>
       </div>
       
       <main>
@@ -115,10 +131,12 @@ const Index = () => {
       
       <Footer />
       
-      {/* Enhanced Voice Assistant for Homepage */}
-      <EnhancedHomePageVoiceAssistant 
-        language="en-US"
-      />
+      {/* Enhanced Voice Assistant for Homepage - positioned at bottom right */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <EnhancedHomePageVoiceAssistant 
+          language="en-US"
+        />
+      </div>
     </div>
   );
 };

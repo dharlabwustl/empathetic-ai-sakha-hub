@@ -11,10 +11,10 @@ import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 import NewTodaysPlanHeader from './NewTodaysPlanHeader';
 import OverviewSection from '../OverviewSection';
+import ModernTodaysPlan from './ModernTodaysPlan';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -125,15 +125,8 @@ const EnhancedTodaysPlan: React.FC = () => {
           suggestions={todaysOverview.suggestions}
         />
         
-        {/* Smart suggestions section - enhanced and moved to top */}
-        <SmartSuggestionsSection 
-          planData={planData}
-          onActionClick={handleSuggestionAction}
-          isMobile={isMobile}
-        />
-        
-        {/* Enhanced task breakdown with premium styling - keep existing design */}
-        <EnhancedTaskBreakdown 
+        {/* Modern Today's Plan with comprehensive layout */}
+        <ModernTodaysPlan 
           planData={planData}
           onConceptClick={handleConceptClick}
           isMobile={isMobile}
