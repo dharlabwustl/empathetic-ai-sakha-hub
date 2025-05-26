@@ -1,176 +1,313 @@
 
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Star, Sparkles } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, ArrowRight, Volume2, VolumeX } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface EnhancedWelcomeScreenProps {
   userName: string;
   isReturningUser?: boolean;
+  lastActivity?: string;
   onComplete: () => void;
 }
 
 const EnhancedWelcomeScreen: React.FC<EnhancedWelcomeScreenProps> = ({
   userName,
   isReturningUser = false,
+  lastActivity,
   onComplete
 }) => {
-  const [currentFeature, setCurrentFeature] = useState(0);
-  const [hasSpoken, setHasSpoken] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const navigate = useNavigate();
 
-  const features = [
+  const welcomeSteps = isReturningUser ? [
     {
-      icon: <Star className="w-6 h-6" />,
-      title: "AI-Powered Learning",
-      description: "Personalized study plans that adapt to your learning style"
+      title: `Welcome Back, ${userName}!`,
+      subtitle: "Your learning journey continues",
+      message: `Hello ${userName}! Welcome back to PREPZR. I'm your AI learning companion, and I'm excited to help you continue your exam preparation journey. ${lastActivity ? `I see you were last working on ${lastActivity}.` : ''} Let's pick up where you left off and make today even more productive than before.`
     },
     {
-      icon: <CheckCircle className="w-6 h-6" />,
-      title: "Comprehensive Coverage",
-      description: "Complete NEET, JEE, and competitive exam preparation"
+      title: "Ready to Continue Learning?",
+      subtitle: "Your personalized dashboard awaits",
+      message: `I've prepared your personalized study plan and daily activities based on your progress. I'm here to guide you through your exam preparation with confidence and support. Let's achieve your goals together!`
+    }
+  ] : [
+    {
+      title: `Welcome to PREPZR, ${userName}!`,
+      subtitle: "Your AI-powered learning journey begins",
+      message: `Congratulations ${userName} on joining PREPZR! I'm your AI learning companion, and I'm thrilled to guide you on your exam preparation journey. PREPZR is designed to adapt to your learning style and help you achieve your academic goals with confidence.`
     },
     {
-      icon: <Sparkles className="w-6 h-6" />,
-      title: "Smart Analytics",
-      description: "Track your progress with detailed performance insights"
+      title: "Your Personalized Learning Experience",
+      subtitle: "Tailored just for you",
+      message: `I've created a completely personalized study plan just for you. From concept cards to practice exams, from daily plans to progress tracking - everything is designed to help you succeed. I'll be with you every step of the way, providing guidance and motivation.`
+    },
+    {
+      title: "Ready to Begin Your Success Story?",
+      subtitle: "Let's start achieving your dreams",
+      message: `Your journey to exam success starts now! I'm here to support you with intelligent study plans, mood-adaptive learning, and personalized guidance. Together, we'll turn your preparation into achievement. Let's make it happen!`
     }
   ];
 
-  // Cycle through features
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentFeature((prev) => (prev + 1) % features.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    // Auto-start speaking the current step
+    speakMessage(welcomeSteps[currentStep].message);
+    
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [currentStep]);
 
-  // Enhanced welcome voice announcement - only with user name, no repetition
-  useEffect(() => {
-    if (!hasSpoken && userName && userName !== 'Student') {
-      const timer = setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(
-          `Welcome to PREPZR, ${userName}! I'm Sakha AI, your intelligent study companion. Let's begin your personalized learning journey to exam success together.`
-        );
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        utterance.volume = 0.85;
-
-        // Try to use a pleasant female voice
-        const voices = speechSynthesis.getVoices();
-        const femaleVoice = voices.find(voice => 
-          voice.name?.toLowerCase().includes('female') || 
-          voice.name?.toLowerCase().includes('zira') ||
-          voice.name?.toLowerCase().includes('samantha')
-        );
-        
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-        }
-
-        speechSynthesis.speak(utterance);
-        setHasSpoken(true);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
+  const speakMessage = (text: string) => {
+    if (isAudioMuted || !('speechSynthesis' in window)) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    speechRef.current = new SpeechSynthesisUtterance();
+    speechRef.current.text = text;
+    speechRef.current.rate = 0.9;
+    speechRef.current.pitch = 1.1; // Higher pitch for female voice
+    speechRef.current.volume = 0.8;
+    
+    // Select female voice
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoices = voices.filter(voice => 
+      voice.name.toLowerCase().includes('female') || 
+      voice.name.toLowerCase().includes('zira') ||
+      voice.name.toLowerCase().includes('samantha') ||
+      (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
+    );
+    
+    if (femaleVoices.length > 0) {
+      speechRef.current.voice = femaleVoices[0];
     }
-  }, [userName, hasSpoken]);
+    
+    speechRef.current.onstart = () => setIsSpeaking(true);
+    speechRef.current.onend = () => setIsSpeaking(false);
+    speechRef.current.onerror = () => setIsSpeaking(false);
+    
+    window.speechSynthesis.speak(speechRef.current);
+  };
+
+  const handleNext = () => {
+    if (currentStep < welcomeSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Cancel speech before completing
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      onComplete();
+    }
+  };
+
+  const toggleAudio = () => {
+    if (isAudioMuted) {
+      setIsAudioMuted(false);
+      speakMessage(welcomeSteps[currentStep].message);
+    } else {
+      setIsAudioMuted(true);
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setIsSpeaking(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8 }}
-        className="max-w-md w-full space-y-8 text-center"
-      >
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+      {/* 3D Background Effect */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-indigo-600/20" />
+        
+        {/* Floating 3D Elements */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium border border-blue-200/50 dark:border-blue-800/50 mb-6">
-            <Sparkles className="w-4 h-4" />
-            Welcome to PREPZR
-          </div>
-          
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {isReturningUser ? `Welcome back, ${userName}!` : `Hello ${userName}!`}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            {isReturningUser 
-              ? "Ready to continue your learning journey?" 
-              : "Let's begin your personalized learning journey"
-            }
-          </p>
-        </motion.div>
+          className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 blur-xl"
+          animate={{
+            y: [0, -20, 0],
+            x: [0, 10, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <motion.div
+          className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-25 blur-lg"
+          animate={{
+            y: [0, 15, 0],
+            x: [0, -15, 0],
+            scale: [1, 0.9, 1],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        />
+        
+        <motion.div
+          className="absolute bottom-32 left-1/3 w-20 h-20 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-30 blur-lg"
+          animate={{
+            y: [0, -25, 0],
+            x: [0, 20, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        />
+      </div>
 
-        {/* Feature showcase */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700"
-        >
-          <motion.div
-            key={currentFeature}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center space-x-4"
-          >
-            <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg">
-              {features[currentFeature].icon}
+      {/* Main Content */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
+        <Card className="w-full max-w-2xl bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
+          <CardContent className="p-8">
+            {/* Audio Control */}
+            <div className="absolute top-4 right-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleAudio}
+                className="text-white hover:bg-white/20"
+              >
+                {isAudioMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              </Button>
             </div>
-            <div className="text-left flex-1">
-              <h3 className="font-semibold text-gray-900 dark:text-white">
-                {features[currentFeature].title}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {features[currentFeature].description}
-              </p>
+
+            {/* Progress Indicator */}
+            <div className="flex justify-center mb-6">
+              <div className="flex space-x-2">
+                {welcomeSteps.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index <= currentStep ? 'bg-white' : 'bg-white/30'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
-          </motion.div>
 
-          {/* Feature indicators */}
-          <div className="flex justify-center gap-2 mt-4">
-            {features.map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                  index === currentFeature ? 'bg-blue-600' : 'bg-gray-300'
-                }`}
-              />
-            ))}
-          </div>
-        </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+                className="text-center"
+              >
+                {/* Icon */}
+                <motion.div
+                  className="flex justify-center mb-6"
+                  animate={isSpeaking ? {
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  } : {}}
+                  transition={{
+                    duration: 1,
+                    repeat: isSpeaking ? Infinity : 0
+                  }}
+                >
+                  <div className="p-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full">
+                    <CheckCircle className="h-12 w-12 text-white" />
+                  </div>
+                </motion.div>
 
-        {/* CTA Button */}
+                {/* Title */}
+                <motion.h1
+                  className="text-4xl font-bold text-white mb-2"
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {welcomeSteps[currentStep].title}
+                </motion.h1>
+
+                {/* Subtitle */}
+                <motion.p
+                  className="text-xl text-white/80 mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  {welcomeSteps[currentStep].subtitle}
+                </motion.p>
+
+                {/* Message */}
+                <motion.p
+                  className="text-lg text-white/90 leading-relaxed mb-8 max-w-lg mx-auto"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  {welcomeSteps[currentStep].message}
+                </motion.p>
+
+                {/* Continue Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <Button
+                    onClick={handleNext}
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg"
+                  >
+                    {currentStep < welcomeSteps.length - 1 ? (
+                      <>
+                        Continue <ArrowRight className="ml-2 h-5 w-5" />
+                      </>
+                    ) : (
+                      isReturningUser ? "Go to Dashboard" : "Start Learning"
+                    )}
+                  </Button>
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Speaking Indicator */}
+      {isSpeaking && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <Button
-            onClick={onComplete}
-            size="lg"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            {isReturningUser ? "Continue Learning" : "Start Learning"}
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </motion.div>
-
-        {/* Additional info */}
-        <motion.p
+          className="absolute bottom-6 left-6 flex items-center space-x-2 text-white/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-xs text-gray-500 dark:text-gray-400"
+          exit={{ opacity: 0 }}
         >
-          Your AI-powered study companion is ready to help you succeed
-        </motion.p>
-      </motion.div>
+          <motion.div
+            className="w-2 h-2 bg-white rounded-full"
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [1, 0.5, 1]
+            }}
+            transition={{
+              duration: 1,
+              repeat: Infinity
+            }}
+          />
+          <span className="text-sm">Sakha AI speaking...</span>
+        </motion.div>
+      )}
     </div>
   );
 };

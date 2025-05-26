@@ -12,16 +12,12 @@ import {
   Brain,
   Lightbulb,
   CheckCircle,
-  AlertTriangle,
+  AlertCircle,
   Zap,
   Award,
-  Calendar,
-  BarChart3,
-  Users,
-  Mic
+  Calendar
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import SpeechRecognitionButton from './SpeechRecognitionButton';
 
 interface SubjectProgress {
   name: string;
@@ -38,8 +34,6 @@ interface OverviewSectionProps {
   totalStudyTime: number;
   overallProgress: number;
   suggestions: string[];
-  userName?: string;
-  pageContext?: 'concepts' | 'flashcards' | 'practice-exam' | 'formula-practice';
 }
 
 const OverviewSection: React.FC<OverviewSectionProps> = ({
@@ -47,9 +41,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   subjects,
   totalStudyTime,
   overallProgress,
-  suggestions,
-  userName = 'Student',
-  pageContext = 'concepts'
+  suggestions
 }) => {
   const totalCompleted = subjects.reduce((sum, subject) => sum + subject.completed, 0);
   const totalPending = subjects.reduce((sum, subject) => sum + (subject.total - subject.completed), 0);
@@ -62,40 +54,15 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
     return 'text-red-600';
   };
 
-  const getContextIcon = () => {
-    switch (pageContext) {
-      case 'flashcards':
-        return <Zap className="h-5 w-5 text-purple-600" />;
-      case 'practice-exam':
-        return <Target className="h-5 w-5 text-blue-600" />;
-      case 'formula-practice':
-        return <BarChart3 className="h-5 w-5 text-green-600" />;
-      default:
-        return <Brain className="h-5 w-5 text-indigo-600" />;
-    }
+  const getProgressColor = (progress: number) => {
+    if (progress >= 80) return 'bg-green-500';
+    if (progress >= 60) return 'bg-blue-500';
+    if (progress >= 40) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
   return (
     <div className="space-y-6 mb-8">
-      {/* Header with Voice Assistant */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          {getContextIcon()}
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          <SpeechRecognitionButton 
-            context="dashboard"
-            size="md"
-            userName={userName}
-          />
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Voice Assistant
-          </Button>
-        </div>
-      </div>
-
       {/* Main Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <motion.div
@@ -127,7 +94,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-orange-100 dark:bg-orange-800 rounded-lg">
-                  <AlertTriangle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                  <AlertCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{totalPending}</p>
@@ -237,12 +204,12 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         </CardContent>
       </Card>
 
-      {/* Smart AI Suggestions */}
+      {/* Smart Suggestions */}
       <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5 text-amber-600" />
-            Smart AI Suggestions for {pageContext.charAt(0).toUpperCase() + pageContext.slice(1).replace('-', ' ')}
+            Smart AI Suggestions
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -275,10 +242,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
               <Button variant="outline" size="sm" className="text-xs">
                 <Target className="h-3 w-3 mr-1" />
                 Set Goals
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs flex items-center gap-1">
-                <Mic className="h-3 w-3" />
-                Ask Voice Assistant
               </Button>
             </div>
           </div>
