@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,8 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import EnhancedVoiceAssistant from '@/components/voice/EnhancedVoiceAssistant';
+import OverviewSection from '../shared/OverviewSection';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -77,10 +79,39 @@ const EnhancedTodaysPlan: React.FC = () => {
     }
   };
 
+  // Mock data for overview section
+  const subjectProgress = [
+    { subject: 'Physics', completed: 8, total: 12, percentage: 67, difficulty: 'medium' as const },
+    { subject: 'Chemistry', completed: 5, total: 10, percentage: 50, difficulty: 'hard' as const },
+    { subject: 'Mathematics', completed: 15, total: 18, percentage: 83, difficulty: 'easy' as const },
+    { subject: 'Biology', completed: 3, total: 8, percentage: 38, difficulty: 'medium' as const }
+  ];
+
+  const smartSuggestions = [
+    {
+      title: "Focus on Chemistry Weak Areas",
+      description: "You're behind on chemistry concepts. Prioritize organic chemistry today.",
+      action: "chemistry-focus",
+      priority: 'high' as const
+    },
+    {
+      title: "Quick Physics Review",
+      description: "15-minute review of Newton's laws before practice problems.",
+      action: "physics-review",
+      priority: 'medium' as const
+    },
+    {
+      title: "Math Problem Practice",
+      description: "You're doing great! Try some advanced calculus problems.",
+      action: "math-advanced",
+      priority: 'low' as const
+    }
+  ];
+
   return (
     <SharedPageLayout
       title="Today's Study Plan"
-      subtitle="Your personalized daily study schedule"
+      subtitle="Your personalized daily study schedule powered by AI"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
@@ -89,6 +120,15 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
+        {/* Overview Section with Progress and Smart Suggestions */}
+        <OverviewSection
+          pageType="concepts"
+          subjectProgress={subjectProgress}
+          smartSuggestions={smartSuggestions}
+          overallProgress={65}
+          onSuggestionClick={handleSuggestionAction}
+        />
+
         {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
@@ -104,10 +144,11 @@ const EnhancedTodaysPlan: React.FC = () => {
         />
       </div>
       
-      {/* Voice assistant for learning support */}
-      <FloatingVoiceButton 
+      {/* Enhanced Voice assistant for learning support */}
+      <EnhancedVoiceAssistant 
         userName={planData?.userName || userProfile?.name}
-        language="en-US"
+        context="todays-plan"
+        onNavigationCommand={(route) => navigate(route)}
       />
     </SharedPageLayout>
   );

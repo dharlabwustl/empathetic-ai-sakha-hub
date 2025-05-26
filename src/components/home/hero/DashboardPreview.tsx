@@ -1,485 +1,394 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { 
   BookOpen, 
-  Calendar, 
+  Target, 
   Brain, 
-  RotateCcw, 
-  Calculator, 
-  FileText, 
   TrendingUp, 
-  Trophy,
+  CheckCircle2,
   Play,
-  Eye,
-  Video,
-  FileBarChart,
-  Star,
-  Target,
-  Activity,
-  Zap
+  Users,
+  Award,
+  Calendar,
+  Clock,
+  BarChart3,
+  Lightbulb
 } from 'lucide-react';
-import { Progress } from "@/components/ui/progress";
-import { RadialProgress } from "@/components/ui/radial-progress";
 
 const DashboardPreview = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [animatedProgress, setAnimatedProgress] = useState(0);
-  const [liveMetrics, setLiveMetrics] = useState({
-    readinessScore: 0,
-    conceptMastery: 0,
-    practiceAccuracy: 0,
-    streakDays: 0
-  });
-  
-  const dashboardSlides = [
-    {
-      id: 1,
-      title: "Dynamic Plan As Per Your Learning Profile",
-      description: "AI analyzes your learning style, pace, and preferences to create a personalized study roadmap",
-      icon: <BookOpen className="w-8 h-8" />,
-      gradient: "from-blue-500 to-indigo-600",
-      features: ["Learning Style Analysis", "Personalized Roadmap", "Adaptive Pacing"],
-      metrics: { readiness: 85, mastery: 78, accuracy: 92 }
-    },
-    {
-      id: 2,
-      title: "Daily Adaptive Plans", 
-      description: "Smart daily schedules that adjust based on your progress, mood, and available time",
-      icon: <Calendar className="w-8 h-8" />,
-      gradient: "from-purple-500 to-pink-600",
-      features: ["Smart Scheduling", "Mood-Based Adaptation", "Progress Tracking"],
-      metrics: { readiness: 88, mastery: 82, accuracy: 89 }
-    },
-    {
-      id: 3,
-      title: "Concept Mastery with Multi Techniques",
-      description: "Learn concepts through 3D visuals, videos, summaries, and interactive content",
-      icon: <Brain className="w-8 h-8" />,
-      gradient: "from-green-500 to-teal-600",
-      features: ["3D Visualizations", "Video Lessons", "Interactive Summaries"],
-      subIcons: [<Eye className="w-4 h-4" />, <Video className="w-4 h-4" />, <FileBarChart className="w-4 h-4" />],
-      metrics: { readiness: 90, mastery: 85, accuracy: 94 }
-    },
-    {
-      id: 4,
-      title: "Recall Accuracy with Interactive Spaced Repetition",
-      description: "Advanced spaced repetition system that optimizes memory retention and recall",
-      icon: <RotateCcw className="w-8 h-8" />,
-      gradient: "from-orange-500 to-red-600",
-      features: ["Spaced Repetition", "Memory Optimization", "Recall Testing"],
-      metrics: { readiness: 87, mastery: 88, accuracy: 96 }
-    },
-    {
-      id: 5,
-      title: "Formula Practice",
-      description: "Interactive formula lab with step-by-step derivations and practice problems",
-      icon: <Calculator className="w-8 h-8" />,
-      gradient: "from-cyan-500 to-blue-600",
-      features: ["Interactive Formulas", "Step-by-step Derivations", "Practice Problems"],
-      metrics: { readiness: 83, mastery: 79, accuracy: 91 }
-    },
-    {
-      id: 6,
-      title: "Practice Exam",
-      description: "Comprehensive practice tests with real-time analysis and performance insights",
-      icon: <FileText className="w-8 h-8" />,
-      gradient: "from-violet-500 to-purple-600",
-      features: ["Mock Tests", "Real-time Analysis", "Performance Insights"],
-      metrics: { readiness: 91, mastery: 86, accuracy: 93 }
-    },
-    {
-      id: 7,
-      title: "Improve Exam Readiness Everyday",
-      description: "Daily readiness tracking with actionable insights to boost your exam preparation",
-      icon: <TrendingUp className="w-8 h-8" />,
-      gradient: "from-emerald-500 to-green-600",
-      features: ["Daily Tracking", "Readiness Score", "Actionable Insights"],
-      metrics: { readiness: 94, mastery: 90, accuracy: 97 }
-    },
-    {
-      id: 8,
-      title: "Become Exam Champion",
-      description: "Achieve your dream score with our comprehensive preparation system and support",
-      icon: <Trophy className="w-8 h-8" />,
-      gradient: "from-yellow-500 to-orange-600",
-      features: ["Dream Score Achievement", "Champion Status", "Success Guarantee"],
-      metrics: { readiness: 98, mastery: 95, accuracy: 99 }
-    }
-  ];
 
-  // Auto-advance slides every 3 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % dashboardSlides.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Animate progress and metrics when slide changes
-  useEffect(() => {
-    const currentMetrics = dashboardSlides[currentSlide].metrics;
-    setAnimatedProgress(0);
-    setLiveMetrics({
-      readinessScore: 0,
-      conceptMastery: 0,
-      practiceAccuracy: 0,
-      streakDays: 0
-    });
-
-    const animateMetrics = () => {
-      const duration = 1500;
-      const steps = 60;
-      const stepDuration = duration / steps;
-      let step = 0;
-
-      const timer = setInterval(() => {
-        step++;
-        const progress = step / steps;
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-
-        setAnimatedProgress(((currentSlide + 1) / dashboardSlides.length) * 100 * easeOut);
-        setLiveMetrics({
-          readinessScore: Math.round(currentMetrics.readiness * easeOut),
-          conceptMastery: Math.round(currentMetrics.mastery * easeOut),
-          practiceAccuracy: Math.round(currentMetrics.accuracy * easeOut),
-          streakDays: Math.round((currentSlide + 5) * easeOut)
-        });
-
-        if (step >= steps) {
-          clearInterval(timer);
-        }
-      }, stepDuration);
-    };
-
-    const timeout = setTimeout(animateMetrics, 200);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [currentSlide]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.8, delay: 0.4 }}
-      className="relative"
-    >
-      {/* Dashboard Container - Much Larger Size */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden w-[750px] h-[550px] relative">
-        {/* Premium Glow Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl" />
-        
-        {/* Dashboard Header */}
-        <div className={`bg-gradient-to-r ${dashboardSlides[currentSlide].gradient} text-white p-6 relative overflow-hidden`}>
-          {/* Animated Background Pattern */}
-          <motion.div
-            className="absolute inset-0 opacity-20"
-            animate={{
-              backgroundPosition: ["0% 0%", "100% 100%"],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, white 2px, transparent 2px)`,
-              backgroundSize: '30px 30px'
-            }}
-          />
-          
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 bg-red-400 rounded-full animate-pulse" />
-                <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+  const slides = [
+    {
+      title: "Dynamic Plan as per Your Learner Profile",
+      description: "AI analyzes your learning style and creates personalized study plans",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <Users className="h-4 w-4 text-white" />
               </div>
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="flex items-center gap-2"
-              >
-                <Zap className="w-5 h-5" />
-                <span className="text-sm font-medium">Live Dashboard</span>
-              </motion.div>
+              <div>
+                <h4 className="font-semibold text-sm">Visual Learner Profile</h4>
+                <p className="text-xs text-gray-600">Analytical • Fast-paced • Visual</p>
+              </div>
             </div>
-            <motion.h3
-              key={currentSlide}
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="text-xl font-bold"
-            >
-              PREPZR Dashboard
-            </motion.h3>
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 animate-pulse" />
-              <span className="text-sm opacity-90">Smart Learning</span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-white p-2 rounded">
+                <span className="text-blue-600 font-medium">4-6 hrs/day</span>
+                <p className="text-gray-500">Study Duration</p>
+              </div>
+              <div className="bg-white p-2 rounded">
+                <span className="text-purple-600 font-medium">Evening</span>
+                <p className="text-gray-500">Peak Hours</p>
+              </div>
             </div>
           </div>
         </div>
+      )
+    },
+    {
+      title: "Daily Adaptive Plans",
+      description: "Smart scheduling that adapts to your progress and performance",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-sm flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-green-600" />
+                Today's Plan
+              </h4>
+              <Badge className="bg-green-100 text-green-700 text-xs">75% Complete</Badge>
+            </div>
+            <div className="space-y-2">
+              {[
+                { subject: "Physics", time: "45 min", status: "completed" },
+                { subject: "Mathematics", time: "60 min", status: "active" },
+                { subject: "Chemistry", time: "30 min", status: "pending" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between p-2 bg-white rounded text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      item.status === 'completed' ? 'bg-green-500' :
+                      item.status === 'active' ? 'bg-blue-500' : 'bg-gray-300'
+                    }`} />
+                    <span className="font-medium">{item.subject}</span>
+                  </div>
+                  <span className="text-gray-500">{item.time}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Concept Mastery with Multi-Techniques",
+      description: "3D visuals, videos, summaries - learn through multiple methods",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+              <Brain className="h-4 w-4 text-purple-600" />
+              Newton's Laws of Motion
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { type: "3D Visual", icon: "🎯", color: "bg-blue-100 text-blue-700" },
+                { type: "Video", icon: "📹", color: "bg-red-100 text-red-700" },
+                { type: "Summary", icon: "📝", color: "bg-green-100 text-green-700" },
+                { type: "Practice", icon: "⚡", color: "bg-yellow-100 text-yellow-700" }
+              ].map((method, i) => (
+                <div key={i} className={`p-2 rounded text-xs ${method.color} text-center`}>
+                  <div className="text-lg mb-1">{method.icon}</div>
+                  <span className="font-medium">{method.type}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Recall Accuracy with Interactive Spaced Repetition",
+      description: "AI-powered spaced repetition for optimal memory retention",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-orange-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-sm flex items-center gap-2">
+                <Target className="h-4 w-4 text-orange-600" />
+                Recall Performance
+              </h4>
+              <Badge className="bg-orange-100 text-orange-700 text-xs">89% Accuracy</Badge>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span>Overall Retention</span>
+                  <span className="font-medium">89%</span>
+                </div>
+                <Progress value={89} className="h-2" />
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="bg-white p-2 rounded text-center">
+                  <div className="font-bold text-green-600">92%</div>
+                  <div className="text-gray-500">Physics</div>
+                </div>
+                <div className="bg-white p-2 rounded text-center">
+                  <div className="font-bold text-blue-600">87%</div>
+                  <div className="text-gray-500">Math</div>
+                </div>
+                <div className="bg-white p-2 rounded text-center">
+                  <div className="font-bold text-purple-600">88%</div>
+                  <div className="text-gray-500">Chemistry</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Formula Practice",
+      description: "Interactive formula practice with step-by-step guidance",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-indigo-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-indigo-600" />
+              Formula Mastery
+            </h4>
+            <div className="bg-white p-3 rounded border-2 border-dashed border-indigo-200">
+              <div className="text-center mb-2">
+                <div className="text-sm font-mono bg-gray-100 p-2 rounded">
+                  F = ma
+                </div>
+              </div>
+              <div className="text-xs space-y-1">
+                <div className="flex justify-between">
+                  <span>F = Force</span>
+                  <span className="text-green-600">✓</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>m = Mass</span>
+                  <span className="text-green-600">✓</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>a = Acceleration</span>
+                  <span className="text-blue-600">?</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Practice Exam",
+      description: "Realistic exam simulations with detailed performance analytics",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-cyan-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-sm flex items-center gap-2">
+                <Award className="h-4 w-4 text-cyan-600" />
+                Mock Test Results
+              </h4>
+              <Badge className="bg-cyan-100 text-cyan-700 text-xs">85/100</Badge>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span>Physics: 32/40</span>
+                <span className="text-green-600 font-medium">80%</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span>Chemistry: 28/30</span>
+                <span className="text-blue-600 font-medium">93%</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span>Mathematics: 25/30</span>
+                <span className="text-orange-600 font-medium">83%</span>
+              </div>
+              <div className="mt-3 p-2 bg-white rounded text-xs">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-3 w-3 text-green-500" />
+                  <span className="text-green-600 font-medium">+5% improvement</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Improve Exam Readiness Everyday",
+      description: "Track your daily progress and readiness score",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-teal-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-sm flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-teal-600" />
+                Exam Readiness
+              </h4>
+              <Badge className="bg-teal-100 text-teal-700 text-xs">72% Ready</Badge>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span>Current Readiness</span>
+                  <span className="font-medium">72%</span>
+                </div>
+                <Progress value={72} className="h-2" />
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-white p-2 rounded">
+                  <div className="font-bold text-green-600">+3%</div>
+                  <div className="text-gray-500">This Week</div>
+                </div>
+                <div className="bg-white p-2 rounded">
+                  <div className="font-bold text-blue-600">45 days</div>
+                  <div className="text-gray-500">To Exam</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Become Exam Champion",
+      description: "Achieve your target score with our proven methodology",
+      content: (
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg">
+            <div className="text-center mb-3">
+              <div className="text-3xl mb-2">🏆</div>
+              <h4 className="font-semibold text-sm text-orange-800">Champion Path</h4>
+            </div>
+            <div className="space-y-2">
+              {[
+                { milestone: "Foundation Strong", progress: 100, color: "bg-green-500" },
+                { milestone: "Concept Mastery", progress: 85, color: "bg-blue-500" },
+                { milestone: "Speed & Accuracy", progress: 70, color: "bg-orange-500" },
+                { milestone: "Exam Readiness", progress: 45, color: "bg-purple-500" }
+              ].map((item, i) => (
+                <div key={i} className="bg-white p-2 rounded">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="font-medium">{item.milestone}</span>
+                    <span>{item.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div 
+                      className={`h-1.5 rounded-full ${item.color}`}
+                      style={{ width: `${item.progress}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    }
+  ];
 
-        {/* Dashboard Content */}
-        <div className="p-8 h-[470px] flex flex-col relative">
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="relative w-full max-w-2xl mx-auto"
+    >
+      <Card className="w-full h-[400px] bg-white dark:bg-gray-900 shadow-2xl border-0 overflow-hidden">
+        <CardContent className="p-0 h-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="flex-1 flex flex-col"
+              initial={{ opacity: 0, x: 300 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -300 }}
+              transition={{ duration: 0.5 }}
+              className="h-full flex flex-col"
             >
-              {/* Slide Header with Premium Styling */}
-              <div className="flex items-start gap-6 mb-8">
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className={`p-4 rounded-2xl bg-gradient-to-br ${dashboardSlides[currentSlide].gradient} text-white shadow-lg relative overflow-hidden`}
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-white/20"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.3, 0.1, 0.3],
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                  {dashboardSlides[currentSlide].icon}
-                </motion.div>
-                <div className="flex-1">
-                  <motion.h4
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-                  >
-                    {dashboardSlides[currentSlide].title}
-                  </motion.h4>
-                  <motion.p
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="text-gray-600 dark:text-gray-400 text-base leading-relaxed"
-                  >
-                    {dashboardSlides[currentSlide].description}
-                  </motion.p>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <Lightbulb className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm">PREPZR Dashboard</h3>
+                      <p className="text-xs opacity-90">Your Personalized Learning Hub</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-white/20 text-white text-xs">
+                    AI-Powered
+                  </Badge>
                 </div>
               </div>
 
-              {/* Live Metrics Dashboard */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="grid grid-cols-3 gap-4 mb-6"
-              >
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-4 border border-blue-200/50 dark:border-blue-800/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Readiness</span>
-                    <Target className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <RadialProgress
-                      value={liveMetrics.readinessScore}
-                      size="sm"
-                      colorClassName="stroke-blue-600"
-                      showValue={false}
-                    />
-                    <div>
-                      <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                        {liveMetrics.readinessScore}%
-                      </div>
-                    </div>
-                  </div>
+              {/* Content */}
+              <div className="flex-1 p-6">
+                <div className="mb-4">
+                  <h4 className="font-bold text-lg text-gray-800 dark:text-white mb-2">
+                    {slides[currentSlide].title}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {slides[currentSlide].description}
+                  </p>
                 </div>
-
-                <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-4 border border-green-200/50 dark:border-green-800/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-green-700 dark:text-green-300">Mastery</span>
-                    <Brain className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <RadialProgress
-                      value={liveMetrics.conceptMastery}
-                      size="sm"
-                      colorClassName="stroke-green-600"
-                      showValue={false}
-                    />
-                    <div>
-                      <div className="text-2xl font-bold text-green-700 dark:text-green-300">
-                        {liveMetrics.conceptMastery}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/20 dark:to-violet-900/20 rounded-2xl p-4 border border-purple-200/50 dark:border-purple-800/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Accuracy</span>
-                    <Star className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <RadialProgress
-                      value={liveMetrics.practiceAccuracy}
-                      size="sm"
-                      colorClassName="stroke-purple-600"
-                      showValue={false}
-                    />
-                    <div>
-                      <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                        {liveMetrics.practiceAccuracy}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Features Grid with Premium Animation */}
-              <div className="grid grid-cols-1 gap-3 mb-6">
-                {dashboardSlides[currentSlide].features.map((feature, index) => (
-                  <motion.div
-                    key={feature}
-                    initial={{ opacity: 0, x: -30, scale: 0.9 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    transition={{ 
-                      duration: 0.4, 
-                      delay: 0.6 + index * 0.1,
-                      type: "spring",
-                      stiffness: 100
-                    }}
-                    className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-all duration-300"
-                  >
-                    {dashboardSlides[currentSlide].subIcons?.[index] && (
-                      <motion.div
-                        initial={{ scale: 0, rotate: -90 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                        className="text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded-lg"
-                      >
-                        {dashboardSlides[currentSlide].subIcons[index]}
-                      </motion.div>
-                    )}
-                    <span className="text-gray-700 dark:text-gray-300 font-medium flex-1">
-                      {feature}
-                    </span>
-                    <motion.div
-                      className="w-2 h-2 rounded-full bg-green-500"
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.7, 1, 0.7],
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity,
-                        delay: index * 0.3
-                      }}
-                    />
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Enhanced Progress Visualization */}
-              <div className="mt-auto">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                    Learning Journey Progress
-                  </span>
-                  <motion.span
-                    key={currentSlide}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.8 }}
-                    className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-                  >
-                    {Math.round(animatedProgress)}%
-                  </motion.span>
-                </div>
-                <div className="relative">
-                  <Progress
-                    value={animatedProgress}
-                    className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
-                    indicatorClassName={`bg-gradient-to-r ${dashboardSlides[currentSlide].gradient} transition-all duration-1000 ease-out relative`}
-                  />
-                  <motion.div
-                    className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                    animate={{
-                      x: ["-100%", "100%"],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    style={{ width: `${animatedProgress}%` }}
-                  />
-                </div>
+                
+                {slides[currentSlide].content}
               </div>
             </motion.div>
           </AnimatePresence>
-        </div>
-      </div>
 
-      {/* Enhanced Slide Indicators */}
-      <div className="flex justify-center mt-6 space-x-3">
-        {dashboardSlides.map((_, index) => (
-          <motion.button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`relative overflow-hidden rounded-full transition-all duration-300 ${
-              index === currentSlide 
-                ? 'w-8 h-3 bg-gradient-to-r from-blue-600 to-purple-600' 
-                : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
-            }`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {index === currentSlide && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-50"
-                animate={{
-                  x: ["-100%", "100%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
+          {/* Slide Indicators */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide 
+                    ? 'bg-purple-600 w-6' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
               />
-            )}
-          </motion.button>
-        ))}
-      </div>
+            ))}
+          </div>
 
-      {/* Premium Floating Elements */}
-      <motion.div
-        className="absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-60 blur-sm"
-        animate={{
-          y: [0, -15, 0],
-          rotate: [0, 180, 360],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{ duration: 6, repeat: Infinity }}
-      />
-      
-      <motion.div
-        className="absolute -bottom-8 -left-8 w-10 h-10 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-60 blur-sm"
-        animate={{
-          y: [0, 15, 0],
-          rotate: [360, 180, 0],
-          scale: [1, 0.9, 1],
-        }}
-        transition={{ duration: 8, repeat: Infinity }}
-      />
-
-      <motion.div
-        className="absolute top-1/2 -right-4 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full opacity-40"
-        animate={{
-          x: [0, 10, 0],
-          opacity: [0.4, 0.8, 0.4],
-        }}
-        transition={{ duration: 4, repeat: Infinity }}
-      />
+          {/* Navigation Arrows */}
+          <button
+            onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all"
+          >
+            →
+          </button>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 };
