@@ -26,13 +26,11 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
     if (location.pathname.includes('/dashboard')) return 'dashboard';
     if (location.pathname.includes('/concepts') || 
         location.pathname.includes('/flashcards') || 
-        location.pathname.includes('/practice-exam') ||
-        location.pathname.includes('/academic') ||
-        location.pathname.includes('/today')) return 'learning';
+        location.pathname.includes('/practice-exam')) return 'learning';
     return 'homepage';
   };
 
-  // Auto-play intelligent greeting on page load with female voice preference
+  // Auto-play intelligent greeting on page load
   useEffect(() => {
     const context = getContext();
     const hasSeenGreeting = sessionStorage.getItem(`voice_greeting_${context}`);
@@ -42,7 +40,7 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
         playContextualGreeting(context);
         sessionStorage.setItem(`voice_greeting_${context}`, 'true');
         setHasPlayedGreeting(true);
-      }, 2000);
+      }, 2000); // Wait 2 seconds after page load
       
       return () => clearTimeout(timer);
     }
@@ -62,23 +60,15 @@ const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
       speech.pitch = 1.1;
       speech.volume = 0.8;
 
-      // Prioritize female voices
+      // Try to find a good voice
       const voices = window.speechSynthesis.getVoices();
       const femaleVoice = voices.find(voice => 
         voice.name.toLowerCase().includes('female') || 
-        voice.name.toLowerCase().includes('zira') ||
-        voice.name.toLowerCase().includes('samantha') ||
-        (voice.name.toLowerCase().includes('english') && !voice.name.toLowerCase().includes('male'))
+        (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
       );
       
       if (femaleVoice) {
         speech.voice = femaleVoice;
-      } else {
-        // Fallback to first available English voice
-        const englishVoice = voices.find(voice => voice.lang.includes('en'));
-        if (englishVoice) {
-          speech.voice = englishVoice;
-        }
       }
 
       window.speechSynthesis.speak(speech);
