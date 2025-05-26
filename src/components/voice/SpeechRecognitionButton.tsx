@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff, Volume2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
@@ -129,8 +129,12 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
     }
   };
 
+  const positionStyles = position === 'homepage' 
+    ? 'fixed bottom-44 left-6 z-50' 
+    : 'fixed bottom-32 left-6 z-50';
+
   return (
-    <div className={`fixed bottom-32 right-6 z-50 ${className}`}>
+    <div className={`${positionStyles} ${className}`}>
       <div className="flex flex-col items-center space-y-2">
         {/* Transcript Display */}
         <AnimatePresence>
