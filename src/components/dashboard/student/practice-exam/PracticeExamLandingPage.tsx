@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, FileText, Clock, Calendar, ChevronRight, Tag, BarChart, Medal, AlertCircle } from 'lucide-react';
+import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 
 interface PracticeExam {
   id: string;
@@ -320,6 +320,13 @@ const PracticeExamLandingPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Add Floating Voice Assistant */}
+      <FloatingVoiceButton 
+        userName="Student"
+        language="en-US"
+        onNavigationCommand={(route) => navigate(route)}
+      />
     </SharedPageLayout>
   );
 };

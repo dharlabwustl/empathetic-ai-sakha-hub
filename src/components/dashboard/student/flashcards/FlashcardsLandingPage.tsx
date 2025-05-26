@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -9,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Book, Search, Brain, Clock, Calendar, ChevronRight, Tag, BarChart } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 
 interface FlashcardDeck {
   id: string;
@@ -190,8 +190,8 @@ const FlashcardsLandingPage = () => {
 
   return (
     <SharedPageLayout
-      title="Flashcards"
-      subtitle="Reinforce your memory with smart, adaptive flashcards"
+      title="Interactive Flashcards"
+      subtitle="Smart spaced repetition for maximum retention"
     >
       <div className="space-y-6">
         {/* Search and filter bar */}
@@ -332,6 +332,13 @@ const FlashcardsLandingPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Add Floating Voice Assistant */}
+      <FloatingVoiceButton 
+        userName="Student"
+        language="en-US"
+        onNavigationCommand={(route) => navigate(route)}
+      />
     </SharedPageLayout>
   );
 };

@@ -50,16 +50,20 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
         const voices = window.speechSynthesis.getVoices();
         setAvailableVoices(voices);
         
-        // Try to find a vibrant voice by default (US English preferred)
-        const preferredVoiceTypes = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US', 'en-GB'];
+        // Prioritize female voices for consistent experience
+        const femaleVoiceKeywords = [
+          'female', 'woman', 'samantha', 'zira', 'aria', 'sarah', 'alex', 'karen', 'moira',
+          'google us english female', 'microsoft zira', 'microsoft aria'
+        ];
         
-        // Find best matching voice
+        // Find best matching female voice
         let selectedVoice: SpeechSynthesisVoice | null = null;
         
-        for (const preferredType of preferredVoiceTypes) {
+        // First, try to find voices with explicit female indicators
+        for (const keyword of femaleVoiceKeywords) {
           const foundVoice = voices.find(voice => 
-            voice.name?.toLowerCase().includes(preferredType.toLowerCase()) || 
-            voice.lang?.toLowerCase().includes(preferredType.toLowerCase())
+            voice.name?.toLowerCase().includes(keyword) || 
+            voice.lang?.toLowerCase().includes('en-us') && voice.name?.toLowerCase().includes(keyword)
           );
           
           if (foundVoice) {
@@ -68,7 +72,15 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
           }
         }
         
-        // If no preferred voice is found, use the first available voice
+        // If no female voice found, try US English voices (often female by default)
+        if (!selectedVoice) {
+          selectedVoice = voices.find(voice => 
+            voice.lang?.toLowerCase().includes('en-us') && 
+            !voice.name?.toLowerCase().includes('male')
+          );
+        }
+        
+        // Fallback to first available voice
         if (!selectedVoice && voices.length > 0) {
           selectedVoice = voices[0];
         }
