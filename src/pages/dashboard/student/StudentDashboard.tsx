@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -7,8 +8,8 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
+import SpeechRecognitionButton from "@/components/voice/SpeechRecognitionButton";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -112,6 +113,15 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleVoiceCommand = (command: string) => {
+    console.log('Voice command received:', command);
+    // Handle dashboard-specific voice commands here
+  };
+
+  const handleNavigationCommand = (route: string) => {
+    navigate(route);
+  };
+
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -176,7 +186,16 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Interactive Voice Assistant with enhanced navigation */}
+      {/* Speech Recognition Button for Voice Commands */}
+      <SpeechRecognitionButton 
+        userName={userProfile.name}
+        onCommand={handleVoiceCommand}
+        onNavigationCommand={handleNavigationCommand}
+        position="fixed"
+        className=""
+      />
+      
+      {/* Interactive Voice Assistant for Responses */}
       <InteractiveVoiceAssistant 
         userName={userProfile.name}
         language="en-US"
