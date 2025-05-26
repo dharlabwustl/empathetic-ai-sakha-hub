@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Video, Calculator, Eye, Brain, Lightbulb, FileText, Users, MessageSquare } from 'lucide-react';
@@ -17,8 +16,6 @@ import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
-import ConceptVoiceAssistant from './ConceptVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -60,24 +57,6 @@ const ConceptDetailPage = () => {
     
     localStorage.setItem('bookmarkedConcepts', JSON.stringify(updatedBookmarks));
     setIsBookmarked(!isBookmarked);
-  };
-
-  const handleVoiceCommand = (command: string, confidence: number) => {
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('learn') || lowerCommand.includes('explain')) {
-      setActiveTab('learn');
-    } else if (lowerCommand.includes('interactive') || lowerCommand.includes('visual')) {
-      setActiveTab('interactive');
-    } else if (lowerCommand.includes('3d') || lowerCommand.includes('lab')) {
-      setActiveTab('3d');
-    } else if (lowerCommand.includes('quiz') || lowerCommand.includes('test') || lowerCommand.includes('tools')) {
-      setActiveTab('tools');
-    } else if (lowerCommand.includes('notes')) {
-      setActiveTab('notes');
-    } else if (lowerCommand.includes('back') || lowerCommand.includes('dashboard')) {
-      navigate('/dashboard/student');
-    }
   };
 
   // Update progress when tab changes
@@ -122,7 +101,7 @@ const ConceptDetailPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto p-6">
-        <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-6">
           <Button 
             variant="outline" 
             onClick={() => navigate('/dashboard/student')}
@@ -131,15 +110,6 @@ const ConceptDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
-          
-          {/* Voice Assistant and Speech Recognition */}
-          <div className="flex items-center gap-3">
-            <SpeechRecognitionButton
-              onCommand={handleVoiceCommand}
-              context={`concept-detail-${concept.title}`}
-            />
-            <ConceptVoiceAssistant conceptName={concept.title} />
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">

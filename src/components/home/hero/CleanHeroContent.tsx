@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Users, TrendingUp, Award, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, TrendingUp, Award } from 'lucide-react';
 
 interface CleanHeroContentProps {
   onAnalyzeClick: () => void;
@@ -17,18 +17,14 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
     navigate('/signup');
   };
 
-  const handleNEET2026Click = () => {
-    navigate('/signup?exam=neet&year=2026');
-  };
-
   const keyBenefits = [
-    "Save Valuable Time",
-    "Stress-Free Learning", 
-    "Build Strong Habits",
-    "Syllabus-Aligned Content",
+    "Save Your Time",
+    "Stress Free",
+    "Develop Study Habits", 
+    "Syllabus Linked",
     "Boost Your Confidence",
-    "Smart Performance Analytics",
-    "Exam-Ready Preparation"
+    "Smart Analytics",
+    "Exam Ready"
   ];
 
   const stats = [
@@ -64,27 +60,11 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         <span className="sm:hidden">#1 AI Exam Prep</span>
       </motion.div>
 
-      {/* NEET 2026 Live Button */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="inline-flex"
-      >
-        <Button
-          onClick={handleNEET2026Click}
-          className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-full font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
-        >
-          <Zap className="w-4 h-4 mr-2" />
-          NEET 2026 Prep is Live!
-        </Button>
-      </motion.div>
-
       {/* Main Heading */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
         className="space-y-3 md:space-y-4"
       >
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
@@ -104,7 +84,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
         className="space-y-3 md:space-y-4"
       >
         <h3 className="text-base md:text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -143,7 +123,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.8 }}
+        transition={{ duration: 0.6, delay: 0.7 }}
         className="flex flex-col sm:flex-row gap-3 md:gap-4"
       >
         <Button
@@ -169,7 +149,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.0 }}
+        transition={{ duration: 0.6, delay: 0.9 }}
         className="grid grid-cols-3 gap-3 md:gap-6 pt-6 md:pt-8 border-t border-gray-200 dark:border-gray-800"
       >
         {stats.map((stat, index) => (
