@@ -18,13 +18,13 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
   };
 
   const keyBenefits = [
-    "Transform Your Study Experience",
-    "Accelerate Learning with AI",
-    "Build Unshakeable Confidence", 
-    "Master Every Concept Deeply",
-    "Excel with Personalized Plans",
-    "Achieve Peak Performance",
-    "Unlock Your True Potential"
+    "Save Your Time",
+    "Stress Free",
+    "Develop Study Habits", 
+    "Syllabus Linked",
+    "Boost Your Confidence",
+    "Smart Analytics",
+    "Exam Ready"
   ];
 
   const stats = [

@@ -19,7 +19,6 @@ import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
-import { SpeechRecognitionButton } from '@/components/voice/SpeechRecognitionButton';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -112,15 +111,6 @@ const Index = () => {
         language="en-US"
         onNavigationCommand={handleNavigationCommand}
         position="bottom-right"
-      />
-      
-      {/* Separate Speech Recognition Button */}
-      <SpeechRecognitionButton
-        position="floating"
-        size="lg"
-        userName="Visitor"
-        onCommand={handleNavigationCommand}
-        className="bottom-4 right-20"
       />
     </div>
   );

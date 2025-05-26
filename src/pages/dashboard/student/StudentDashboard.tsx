@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -8,8 +7,8 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
+import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
-import { SpeechRecognitionButton } from "@/components/voice/SpeechRecognitionButton";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -183,15 +182,6 @@ const StudentDashboard = () => {
         language="en-US"
         onNavigationCommand={(route) => navigate(route)}
         position="bottom-right"
-      />
-      
-      {/* Separate Speech Recognition Button */}
-      <SpeechRecognitionButton
-        position="floating"
-        size="lg"
-        userName={userProfile.name}
-        onCommand={(route) => navigate(route)}
-        className="bottom-4 right-20"
       />
     </>
   );
