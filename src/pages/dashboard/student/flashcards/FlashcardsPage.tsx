@@ -8,26 +8,27 @@ import { Helmet } from 'react-helmet';
 import LoadingState from '@/components/common/LoadingState';
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
-import NEETOverviewSection from '@/components/dashboard/student/NEETOverviewSection';
+import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
 const FlashcardsPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
 
-  // Mock data for NEET flashcards overview
-  const neetFlashcardsOverview = {
+  // Mock data for flashcards overview
+  const flashcardsOverview = {
     subjects: [
-      { name: 'Physics' as const, completed: 45, total: 60, progress: 75, efficiency: 88, studyTime: 180 },
-      { name: 'Chemistry' as const, completed: 32, total: 55, progress: 58, efficiency: 82, studyTime: 150 },
-      { name: 'Biology' as const, completed: 38, total: 40, progress: 95, efficiency: 94, studyTime: 135 }
+      { name: 'Physics', completed: 45, total: 60, progress: 75, efficiency: 88, studyTime: 180 },
+      { name: 'Chemistry', completed: 32, total: 55, progress: 58, efficiency: 82, studyTime: 150 },
+      { name: 'Biology', completed: 38, total: 40, progress: 95, efficiency: 94, studyTime: 135 },
+      { name: 'Mathematics', completed: 28, total: 35, progress: 80, efficiency: 90, studyTime: 110 }
     ],
-    totalStudyTime: 465,
-    overallProgress: 76,
+    totalStudyTime: 575,
+    overallProgress: 77,
     suggestions: [
       'Biology flashcards are almost complete! Great work! 🌟',
       'Physics formulas need more repetition. Schedule daily reviews ⚡',
       'Chemistry reactions are improving. Focus on organic chemistry next 🧪',
-      'Use spaced repetition for better retention in all subjects 🧠'
+      'Math concepts are solid. Try advanced problem-solving flashcards 📐'
     ]
   };
 
@@ -47,15 +48,13 @@ const FlashcardsPage: React.FC = () => {
       </Helmet>
       
       <div className="space-y-8">
-        {/* NEET Overview Section */}
-        <NEETOverviewSection 
+        {/* Overview Section */}
+        <OverviewSection 
           title="Flashcards Progress"
-          subjects={neetFlashcardsOverview.subjects}
-          totalStudyTime={neetFlashcardsOverview.totalStudyTime}
-          overallProgress={neetFlashcardsOverview.overallProgress}
-          suggestions={neetFlashcardsOverview.suggestions}
-          userName={userProfile?.name || 'Student'}
-          pageContext="flashcards"
+          subjects={flashcardsOverview.subjects}
+          totalStudyTime={flashcardsOverview.totalStudyTime}
+          overallProgress={flashcardsOverview.overallProgress}
+          suggestions={flashcardsOverview.suggestions}
         />
 
         {/* Flashcards Section */}
