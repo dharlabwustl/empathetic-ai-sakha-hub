@@ -8,7 +8,7 @@ import { Helmet } from 'react-helmet';
 import LoadingState from '@/components/common/LoadingState';
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import { useNavigate } from 'react-router-dom';
-import EnhancedOverviewSection from '@/components/dashboard/student/EnhancedOverviewSection';
+import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
 const ConceptsLandingPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
@@ -47,8 +47,8 @@ const ConceptsLandingPage: React.FC = () => {
       </Helmet>
       
       <div className="space-y-8">
-        {/* Enhanced Overview Section */}
-        <EnhancedOverviewSection 
+        {/* Overview Section */}
+        <OverviewSection 
           title="NEET Concepts Progress"
           subjects={conceptsOverview.subjects}
           totalStudyTime={conceptsOverview.totalStudyTime}

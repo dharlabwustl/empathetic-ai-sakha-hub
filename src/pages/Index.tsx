@@ -20,7 +20,6 @@ import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
 import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -119,14 +118,6 @@ const Index = () => {
       {/* Enhanced Voice Assistant for Homepage */}
       <EnhancedHomePageVoiceAssistant 
         language="en-US"
-      />
-      
-      {/* Interactive Voice Assistant with settings panel */}
-      <InteractiveVoiceAssistant 
-        userName="User"
-        language="en-US"
-        onNavigationCommand={handleNavigationCommand}
-        position="bottom-right"
       />
     </div>
   );
