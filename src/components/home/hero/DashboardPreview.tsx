@@ -264,105 +264,117 @@ const DashboardPreview = () => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+        className="relative overflow-hidden"
         style={{ 
           width: '600px', 
           height: '400px',
-          transform: 'perspective(1000px) rotateY(-8deg) rotateX(4deg)',
+          transform: 'perspective(1200px) rotateY(-12deg) rotateX(6deg)',
           transformStyle: 'preserve-3d'
         }}
       >
-        {/* Mock browser header */}
-        <div className="h-8 bg-gray-100 dark:bg-gray-800 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex space-x-2">
-            <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-            <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-          </div>
-          <div className="ml-4 flex-1 text-xs text-gray-500 dark:text-gray-400">
-            student.prepzr.com/dashboard
-          </div>
-        </div>
-
-        {/* Dashboard content */}
-        <div className="h-[calc(100%-2rem)] relative overflow-hidden">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.5 }}
-            className="h-full p-6"
-          >
-            <div className="space-y-4">
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {slides[currentSlide].title}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {slides[currentSlide].subtitle}
-                </p>
-              </div>
-              
-              <div className="mt-6">
-                {slides[currentSlide].content}
-              </div>
+        {/* Enhanced 3D container with vibrant gradient borders */}
+        <div className="relative w-full h-full bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-purple-950/30 rounded-3xl shadow-2xl border-2 border-transparent bg-clip-padding">
+          {/* Vibrant gradient border effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl opacity-20 blur-sm -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 via-violet-500/20 to-fuchsia-500/20 rounded-3xl -z-5" />
+          
+          {/* Enhanced browser header with vibrant colors */}
+          <div className="h-8 bg-gradient-to-r from-gray-100 via-blue-50 to-purple-50 dark:from-gray-800 dark:via-blue-900/50 dark:to-purple-900/50 flex items-center px-4 border-b border-gradient-to-r from-blue-200 to-purple-200 dark:border-gradient-to-r dark:from-blue-700 dark:to-purple-700 rounded-t-3xl">
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 bg-gradient-to-r from-red-400 to-red-500 rounded-full shadow-lg"></div>
+              <div className="w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg"></div>
+              <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full shadow-lg"></div>
             </div>
-          </motion.div>
-
-          {/* Navigation controls */}
-          <div className="absolute bottom-4 right-4 flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={prevSlide}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-            >
-              {isAutoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={nextSlide}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="ml-4 flex-1 text-xs bg-gradient-to-r from-gray-500 to-blue-600 bg-clip-text text-transparent font-medium">
+              student.prepzr.com/dashboard
+            </div>
           </div>
 
-          {/* Slide indicators */}
-          <div className="absolute bottom-4 left-4 flex space-x-2">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentSlide 
-                    ? 'bg-blue-500' 
-                    : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-                onClick={() => setCurrentSlide(index)}
-              />
-            ))}
+          {/* Enhanced dashboard content with vibrant backgrounds */}
+          <div className="h-[calc(100%-2rem)] relative overflow-hidden bg-gradient-to-br from-white/80 via-blue-50/50 to-purple-50/50 dark:from-gray-900/80 dark:via-blue-950/50 dark:to-purple-950/50 rounded-b-3xl">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0, x: 20, rotateY: 10 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              exit={{ opacity: 0, x: -20, rotateY: -10 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="h-full p-6"
+            >
+              <div className="space-y-4">
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-gray-900 via-blue-700 to-purple-700 bg-clip-text text-transparent dark:from-white dark:via-blue-300 dark:to-purple-300">
+                    {slides[currentSlide].title}
+                  </h3>
+                  <p className="text-sm bg-gradient-to-r from-gray-600 to-blue-600 bg-clip-text text-transparent dark:from-gray-400 dark:to-blue-400">
+                    {slides[currentSlide].subtitle}
+                  </p>
+                </div>
+                
+                <div className="mt-6">
+                  {slides[currentSlide].content}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Enhanced navigation controls with vibrant styling */}
+            <div className="absolute bottom-4 right-4 flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-300 hover:from-blue-500/20 hover:to-purple-500/20 shadow-lg backdrop-blur-sm"
+                onClick={prevSlide}
+              >
+                <ChevronLeft className="h-4 w-4 text-blue-600" />
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-300 hover:from-purple-500/20 hover:to-pink-500/20 shadow-lg backdrop-blur-sm"
+                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+              >
+                {isAutoPlaying ? <Pause className="h-4 w-4 text-purple-600" /> : <Play className="h-4 w-4 text-purple-600" />}
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 bg-gradient-to-r from-pink-500/10 to-red-500/10 border-pink-300 hover:from-pink-500/20 hover:to-red-500/20 shadow-lg backdrop-blur-sm"
+                onClick={nextSlide}
+              >
+                <ChevronRight className="h-4 w-4 text-pink-600" />
+              </Button>
+            </div>
+
+            {/* Enhanced slide indicators with vibrant colors */}
+            <div className="absolute bottom-4 left-4 flex space-x-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 shadow-lg ${
+                    index === currentSlide 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 scale-125 shadow-blue-300' 
+                      : 'bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 hover:from-blue-300 hover:to-purple-300'
+                  }`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </motion.div>
 
-      {/* 3D effect shadow */}
+      {/* Enhanced 3D shadow effects with vibrant colors */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl -z-10"
+        className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/25 to-pink-500/20 rounded-3xl -z-10 blur-xl"
         style={{
-          transform: 'perspective(1000px) rotateY(-8deg) rotateX(4deg) translateZ(-20px)',
-          filter: 'blur(20px)'
+          transform: 'perspective(1200px) rotateY(-12deg) rotateX(6deg) translateZ(-30px)',
+        }}
+      />
+      <div 
+        className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 via-violet-500/15 to-fuchsia-500/10 rounded-3xl -z-20 blur-2xl"
+        style={{
+          transform: 'perspective(1200px) rotateY(-12deg) rotateX(6deg) translateZ(-50px)',
         }}
       />
     </div>

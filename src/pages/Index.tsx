@@ -111,18 +111,20 @@ const Index = () => {
       
       <Footer />
       
-      {/* Interactive Voice Assistant */}
+      {/* Speech Recognition Button - positioned above voice assistant */}
+      <SpeechRecognitionButton
+        position="homepage"
+        onCommand={handleSpeechCommand}
+        className="fixed bottom-44 left-6 z-50"
+      />
+
+      {/* Interactive Voice Assistant - positioned below speech recognition */}
       <InteractiveVoiceAssistant 
         userName="Visitor"
         language="en-US"
         onNavigationCommand={handleNavigationCommand}
         position="bottom-right"
-      />
-
-      {/* Speech Recognition Button - positioned on left side */}
-      <SpeechRecognitionButton
-        position="homepage"
-        onCommand={handleSpeechCommand}
+        className="fixed bottom-20 left-6 z-40"
       />
     </div>
   );
