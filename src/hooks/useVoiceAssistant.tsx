@@ -229,9 +229,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     
     // Correct PREPZR pronunciation to "prep... zer" with pause
     const correctedText = text
-      .replace(/PREPZR/gi, 'prep, zer')
-      .replace(/Prepzr/g, 'prep, zer')
-      .replace(/prepzr/gi, 'prep, zer');
+      .replace(/PREPZR/gi, 'prep.... zer')
+      .replace(/Prepzr/g, 'prep.... zer')
+      .replace(/prepzr/gi, 'prep.... zer')
+      .replace(/prep zer/gi, 'prep.... zer')
+      .replace(/prep-zer/gi, 'prep.... zer');
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     
