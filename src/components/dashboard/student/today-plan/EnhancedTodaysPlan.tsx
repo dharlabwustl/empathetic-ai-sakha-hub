@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -115,13 +116,6 @@ const EnhancedTodaysPlan: React.FC = () => {
           isMobile={isMobile}
         />
 
-        {/* Smart suggestions section - moved below header for maximum visibility */}
-        <SmartSuggestionsSection 
-          planData={planData}
-          onActionClick={handleSuggestionAction}
-          isMobile={isMobile}
-        />
-
         {/* Today's Overview Section */}
         <OverviewSection 
           title="Today's Progress"
@@ -129,6 +123,13 @@ const EnhancedTodaysPlan: React.FC = () => {
           totalStudyTime={todaysOverview.totalStudyTime}
           overallProgress={todaysOverview.overallProgress}
           suggestions={todaysOverview.suggestions}
+        />
+        
+        {/* Smart suggestions section - enhanced and moved to top */}
+        <SmartSuggestionsSection 
+          planData={planData}
+          onActionClick={handleSuggestionAction}
+          isMobile={isMobile}
         />
         
         {/* Enhanced task breakdown with premium styling - keep existing design */}

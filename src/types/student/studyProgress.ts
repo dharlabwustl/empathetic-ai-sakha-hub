@@ -6,16 +6,11 @@ export interface StudyStreak {
 }
 
 export interface SubjectProgress {
-  id: string;
   name: string;
   progress: number;
   color: string;
   masteredConcepts: number;
   totalConcepts: number;
-  completed: number;
-  total: number;
-  efficiency: number;
-  studyTime: number;
 }
 
 export interface StudySession {

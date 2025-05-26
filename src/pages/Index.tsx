@@ -18,8 +18,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
-import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
+import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -53,18 +52,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
-      
-      {/* Voice Assistant and Speech Recognition - Properly positioned */}
-      <div className="fixed top-20 right-6 z-50 flex flex-col gap-3">
-        <SpeechRecognitionButton 
-          context="homepage"
-          size="lg"
-          className="shadow-lg bg-white/90 backdrop-blur-sm border border-gray-200 hover:shadow-xl transition-all duration-300"
-        />
-        <EnhancedHomePageVoiceAssistant 
-          language="en-US"
-        />
-      </div>
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
@@ -117,6 +104,14 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* Interactive Voice Assistant */}
+      <InteractiveVoiceAssistant 
+        userName="Visitor"
+        language="en-US"
+        onNavigationCommand={handleNavigationCommand}
+        position="bottom-right"
+      />
     </div>
   );
 };
