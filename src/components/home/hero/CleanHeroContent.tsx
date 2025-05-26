@@ -22,7 +22,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
     navigate('/dashboard/student');
   };
 
-  // Enhanced key benefits with impactful wording
+  // Enhanced key benefits with improved wording
   const keyBenefits = [
     "Save Valuable Time",
     "Stress-Free Learning", 
@@ -68,12 +68,12 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       const transcript = event.results[0][0].transcript.toLowerCase();
       console.log('Speech recognized:', transcript);
       
-      // Intelligent context-aware responses
+      // Intelligent context-aware responses for homepage
       if (transcript.includes('start') || transcript.includes('free trial') || transcript.includes('signup')) {
         const utterance = new SpeechSynthesisUtterance('Starting your free trial with PREPZR. You\'ll get access to personalized study plans and our AI tutor.');
         speechSynthesis.speak(utterance);
         handleGetStarted();
-      } else if (transcript.includes('neet') || transcript.includes('preparation')) {
+      } else if (transcript.includes('neet') || transcript.includes('preparation') || transcript.includes('prep')) {
         const utterance = new SpeechSynthesisUtterance('Opening NEET 2026 preparation dashboard with adaptive learning plans.');
         speechSynthesis.speak(utterance);
         handleNEETPrep();
@@ -81,17 +81,21 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         const utterance = new SpeechSynthesisUtterance('Opening exam readiness analyzer to evaluate your preparation level.');
         speechSynthesis.speak(utterance);
         onAnalyzeClick();
-      } else if (transcript.includes('features') || transcript.includes('about prepzr')) {
-        const utterance = new SpeechSynthesisUtterance('PREPZR is the world\'s first emotionally intelligent exam platform. We provide adaptive learning, personalized study plans, and emotional support for competitive exams.');
+      } else if (transcript.includes('features') || transcript.includes('about prepzr') || transcript.includes('about prep zer')) {
+        const utterance = new SpeechSynthesisUtterance('PREPZR is the world\'s first emotionally intelligent exam platform. We provide adaptive learning, personalized study plans, and emotional support for competitive exams like NEET, JEE, and UPSC.');
         speechSynthesis.speak(utterance);
       } else if (transcript.includes('subscription') || transcript.includes('plans') || transcript.includes('pricing')) {
-        const utterance = new SpeechSynthesisUtterance('We offer flexible subscription plans including free trial, monthly pro, and annual pro with advanced features and unlimited access.');
+        const utterance = new SpeechSynthesisUtterance('We offer flexible subscription plans including free trial, monthly pro at 499 rupees, and annual pro at 2999 rupees with advanced features and unlimited access.');
         speechSynthesis.speak(utterance);
-      } else if (transcript.includes('why prepzr') || transcript.includes('better')) {
-        const utterance = new SpeechSynthesisUtterance('PREPZR is unique because we understand your emotions and learning style. Our AI adapts to your mood and creates personalized study experiences that traditional platforms cannot offer.');
+      } else if (transcript.includes('why prepzr') || transcript.includes('better') || transcript.includes('unique')) {
+        const utterance = new SpeechSynthesisUtterance('PREPZR is unique because we understand your emotions and learning style. Our AI adapts to your mood and creates personalized study experiences that traditional platforms cannot offer. We combine academic excellence with emotional intelligence.');
         speechSynthesis.speak(utterance);
+      } else if (transcript.includes('exam readiness') || transcript.includes('preparation level')) {
+        const utterance = new SpeechSynthesisUtterance('Our exam readiness analyzer evaluates your current preparation level and provides detailed insights about your strengths and areas for improvement.');
+        speechSynthesis.speak(utterance);
+        onAnalyzeClick();
       } else {
-        const utterance = new SpeechSynthesisUtterance('You can say "start free trial", "NEET prep", "analyze readiness", "about PREPZR", or "subscription plans" to explore our features.');
+        const utterance = new SpeechSynthesisUtterance('I can help you with "start free trial", "NEET prep", "analyze readiness", "about PREPZR", or "subscription plans" to explore our features.');
         speechSynthesis.speak(utterance);
       }
     };
