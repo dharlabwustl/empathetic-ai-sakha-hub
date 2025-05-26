@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import CleanHeroContent from './hero/CleanHeroContent';
-import DashboardPreview from './hero/DashboardPreview';
+import EnhancedDashboardPreview from './hero/EnhancedDashboardPreview';
 import { ExamReadinessAnalyzer } from './ExamReadinessAnalyzer';
 
 const HeroSection = () => {
@@ -38,16 +38,18 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[80vh]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-20 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center min-h-[85vh] lg:min-h-[80vh]">
           {/* Left Content */}
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1 flex items-center">
             <CleanHeroContent onAnalyzeClick={handleOpenExamAnalyzer} />
           </div>
           
           {/* Right Dashboard Preview */}
-          <div className="order-1 lg:order-2">
-            <DashboardPreview />
+          <div className="order-1 lg:order-2 flex items-center justify-center">
+            <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
+              <EnhancedDashboardPreview />
+            </div>
           </div>
         </div>
       </div>
