@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import useVoiceAssistant from '@/hooks/useVoiceAssistant';
+import VoiceAssistantSettings from './VoiceAssistantSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface InteractiveVoiceAssistantProps {
@@ -22,12 +23,14 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   const { toast } = useToast();
   const [isActive, setIsActive] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   
   const {
     settings,
     isListening,
     isSpeaking,
     transcript,
+    availableVoices,
     speakText,
     startListening,
     stopListening,
@@ -95,7 +98,23 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   return (
     <div className={`fixed ${positionClasses} z-50`}>
       <AnimatePresence>
-        {isExpanded && (
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="mb-4"
+          >
+            <VoiceAssistantSettings
+              settings={settings}
+              onSettingsChange={updateSettings}
+              onClose={() => setShowSettings(false)}
+              availableVoices={availableVoices}
+            />
+          </motion.div>
+        )}
+
+        {isExpanded && !showSettings && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -105,14 +124,24 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Voice Assistant</span>
-                <Button
-                  onClick={handleMuteToggle}
-                  variant="ghost"
-                  size="sm"
-                  className="p-1 h-6 w-6"
-                >
-                  {settings.muted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    onClick={() => setShowSettings(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="p-1 h-6 w-6"
+                  >
+                    <Settings className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    onClick={handleMuteToggle}
+                    variant="ghost"
+                    size="sm"
+                    className="p-1 h-6 w-6"
+                  >
+                    {settings.muted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                  </Button>
+                </div>
               </div>
               
               {isListening && (

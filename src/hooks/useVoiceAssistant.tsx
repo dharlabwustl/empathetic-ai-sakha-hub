@@ -231,7 +231,9 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     const correctedText = text
       .replace(/PREPZR/gi, 'prep, zer')
       .replace(/Prepzr/g, 'prep, zer')
-      .replace(/prepzr/gi, 'prep, zer');
+      .replace(/prepzr/gi, 'prep, zer')
+      .replace(/PREP ZER/gi, 'prep zer')
+      .replace(/Prep Zer/g, 'prep zer');
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     

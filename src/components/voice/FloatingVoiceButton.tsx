@@ -1,148 +1,161 @@
 
 import React, { useState, useEffect } from 'react';
-import { Volume2, Settings } from 'lucide-react';
+import { Mic, MicOff, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import useVoiceAssistant from '@/hooks/useVoiceAssistant';
+import VoiceAssistantSettings from './VoiceAssistantSettings';
 import { motion, AnimatePresence } from 'framer-motion';
-import UnifiedVoiceAssistant from './UnifiedVoiceAssistant';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 interface FloatingVoiceButtonProps {
   userName?: string;
   language?: string;
+  onNavigationCommand?: (route: string) => void;
+  position?: 'bottom-right' | 'bottom-left';
 }
 
 const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
   userName = 'Student',
-  language = 'en-US'
+  language = 'en-US',
+  onNavigationCommand,
+  position = 'bottom-right'
 }) => {
-  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  const [hasPlayedGreeting, setHasPlayedGreeting] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showSettings, setShowSettings] = useState(false);
+  
+  const {
+    settings,
+    isListening,
+    isSpeaking,
+    transcript,
+    availableVoices,
+    speakText,
+    startListening,
+    stopListening,
+    processCommand,
+    updateSettings
+  } = useVoiceAssistant({
+    userName,
+    initialSettings: {
+      language,
+      volume: 0.8,
+      rate: 1.0,
+      pitch: 1.0,
+      enabled: true,
+      muted: false
+    }
+  });
 
-  // Determine context based on current route
-  const getContext = () => {
-    if (location.pathname === '/') return 'homepage';
-    if (location.pathname.includes('/dashboard')) return 'dashboard';
-    if (location.pathname.includes('/concepts') || 
-        location.pathname.includes('/flashcards') || 
-        location.pathname.includes('/practice-exam')) return 'learning';
-    return 'homepage';
+  const handleVoiceToggle = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+      speakText(`Hello ${userName}, I'm your PREP ZER study assistant. How can I help you today?`);
+    }
   };
 
-  // Auto-play intelligent greeting on page load
+  // Process voice commands
   useEffect(() => {
-    const context = getContext();
-    const hasSeenGreeting = sessionStorage.getItem(`voice_greeting_${context}`);
-    
-    if (!hasSeenGreeting && !hasPlayedGreeting) {
-      const timer = setTimeout(() => {
-        playContextualGreeting(context);
-        sessionStorage.setItem(`voice_greeting_${context}`, 'true');
-        setHasPlayedGreeting(true);
-      }, 2000); // Wait 2 seconds after page load
-      
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, hasPlayedGreeting]);
-
-  const playContextualGreeting = (context: string) => {
-    if ('speechSynthesis' in window) {
-      const messages = {
-        homepage: `Welcome to PREPZR! I'm Sakha AI, your intelligent study companion. PREPZR is India's first emotionally aware exam preparation platform. We offer personalized learning paths, adaptive study plans, and advanced AI tutoring. Click the voice button to explore our features, start your free trial, or analyze your exam readiness!`,
-        dashboard: `Welcome back ${userName}! I'm here to help you navigate your dashboard and optimize your study sessions. I can guide you through your study plan, concept cards, practice exams, and more. Let me know how I can assist you today!`,
-        learning: `Hello ${userName}! I'm here to support your learning journey. I can help explain concepts, create flashcards, or answer any study-related questions. What would you like to explore?`
+    if (transcript) {
+      const commands = {
+        'show study plan': () => onNavigationCommand?.('/dashboard/student/today'),
+        'open concepts': () => onNavigationCommand?.('/dashboard/student/concepts'),
+        'practice exam': () => onNavigationCommand?.('/dashboard/student/practice-exam'),
+        'flashcards': () => onNavigationCommand?.('/dashboard/student/flashcards'),
+        'dashboard': () => onNavigationCommand?.('/dashboard/student'),
+        'help me study': () => {
+          speakText('I can help you navigate to your study plan, concepts, practice exams, or flashcards. Just tell me what you need!');
+        }
       };
 
-      const speech = new SpeechSynthesisUtterance(messages[context] || messages.homepage);
-      speech.lang = language;
-      speech.rate = 0.9;
-      speech.pitch = 1.1;
-      speech.volume = 0.8;
-
-      // Try to find a good voice
-      const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('female') || 
-        (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
-      );
+      const processed = processCommand(commands, true);
       
-      if (femaleVoice) {
-        speech.voice = femaleVoice;
+      if (processed) {
+        stopListening();
       }
-
-      window.speechSynthesis.speak(speech);
     }
-  };
+  }, [transcript, processCommand, onNavigationCommand, speakText, stopListening]);
 
-  const handleNavigationCommand = (route: string) => {
-    navigate(route);
-  };
-
-  // Don't show on auth pages
-  if (location.pathname.includes('/login') || 
-      location.pathname.includes('/signup') || 
-      location.pathname.includes('/admin')) {
-    return null;
-  }
+  const positionClasses = position === 'bottom-right' 
+    ? 'bottom-6 right-6' 
+    : 'bottom-6 left-6';
 
   return (
-    <>
-      <motion.div
-        className="fixed bottom-6 right-6 z-50"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3, delay: 1 }}
-      >
-        <Button
-          onClick={() => setIsAssistantOpen(true)}
-          className="h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl border-0 relative overflow-hidden group"
-        >
+    <div className={`fixed ${positionClasses} z-40 flex flex-col items-end gap-2`}>
+      <AnimatePresence>
+        {showSettings && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
-            initial={{ x: '-100%' }}
-            animate={{ x: '100%' }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          />
-          
-          <Volume2 className="h-6 w-6 relative z-10" />
-          
-          {/* Pulsing indicator */}
-          <motion.div
-            className="absolute top-1 right-1 h-3 w-3 bg-green-400 rounded-full"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-          
-          {/* Ripple effect */}
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-white/30"
-            animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        </Button>
-        
-        {/* Tooltip */}
-        <motion.div
-          className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-black/80 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity"
-          initial={{ opacity: 0, y: 10 }}
-          whileHover={{ opacity: 1, y: 0 }}
-        >
-          Sakha AI Assistant
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80" />
-        </motion.div>
-      </motion.div>
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+          >
+            <VoiceAssistantSettings
+              settings={settings}
+              onSettingsChange={updateSettings}
+              onClose={() => setShowSettings(false)}
+              availableVoices={availableVoices}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Unified Voice Assistant */}
-      <UnifiedVoiceAssistant
-        isOpen={isAssistantOpen}
-        onClose={() => setIsAssistantOpen(false)}
-        userName={userName}
-        language={language}
-        context={getContext()}
-        onNavigationCommand={handleNavigationCommand}
-      />
-    </>
+      <div className="flex gap-2">
+        {/* Settings Button */}
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          <Button
+            onClick={() => setShowSettings(!showSettings)}
+            variant="outline"
+            size="sm"
+            className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 shadow-lg"
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
+        </motion.div>
+
+        {/* Voice Button */}
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          <Button
+            onClick={handleVoiceToggle}
+            className={`h-12 w-12 rounded-full shadow-lg transition-all duration-300 ${
+              isListening
+                ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
+            }`}
+          >
+            {isListening ? (
+              <MicOff className="h-5 w-5 text-white" />
+            ) : (
+              <Mic className="h-5 w-5 text-white" />
+            )}
+          </Button>
+        </motion.div>
+      </div>
+      
+      {(isListening || isSpeaking) && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex space-x-1 mr-2"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="w-1 h-3 bg-blue-500 rounded-full"
+              animate={{
+                height: [12, 20, 12],
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                delay: i * 0.2
+              }}
+            />
+          ))}
+        </motion.div>
+      )}
+    </div>
   );
 };
 
