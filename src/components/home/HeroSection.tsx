@@ -58,10 +58,12 @@ const HeroSection = () => {
         <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />
       )}
       
-      {/* Voice Assistant for Homepage */}
-      <EnhancedHomePageVoiceAssistant 
-        language="en-US"
-      />
+      {/* Voice Assistant for Homepage - Fixed positioning */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <EnhancedHomePageVoiceAssistant 
+          language="en-US"
+        />
+      </div>
     </section>
   );
 };
