@@ -18,8 +18,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
+import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -115,12 +115,9 @@ const Index = () => {
       
       <Footer />
       
-      {/* Interactive Voice Assistant */}
-      <InteractiveVoiceAssistant 
-        userName="Visitor"
+      {/* Enhanced Voice Assistant for Homepage */}
+      <EnhancedHomePageVoiceAssistant 
         language="en-US"
-        onNavigationCommand={handleNavigationCommand}
-        position="bottom-right"
       />
     </div>
   );
