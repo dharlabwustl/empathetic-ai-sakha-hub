@@ -58,7 +58,7 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
     const lowerCommand = command.toLowerCase();
     console.log('Processing command:', lowerCommand);
 
-    // Speak response
+    // Speak response function
     const speak = (message: string) => {
       const utterance = new SpeechSynthesisUtterance(message);
       utterance.rate = 0.9;
@@ -66,47 +66,60 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
       speechSynthesis.speak(utterance);
     };
 
-    // Navigation commands
-    if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
-      speak('Opening your dashboard');
-      navigate('/dashboard/student');
-    } else if (lowerCommand.includes('concept') || lowerCommand.includes('study material')) {
-      speak('Opening concept cards');
-      navigate('/dashboard/student/concepts');
-    } else if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card')) {
-      speak('Opening flashcards');
-      navigate('/dashboard/student/flashcards');
-    } else if (lowerCommand.includes('practice exam') || lowerCommand.includes('test')) {
-      speak('Opening practice exams');
-      navigate('/dashboard/student/practice-exam');
-    } else if (lowerCommand.includes('study plan') || lowerCommand.includes('today')) {
-      speak('Opening your study plan');
-      navigate('/dashboard/student/today');
-    } else if (lowerCommand.includes('tutor') || lowerCommand.includes('chat')) {
-      speak('Opening AI tutor');
-      navigate('/dashboard/student/tutor');
-    } else if (lowerCommand.includes('profile') || lowerCommand.includes('account')) {
-      speak('Opening your profile');
-      navigate('/dashboard/student/profile');
-    } else if (lowerCommand.includes('feel good') || lowerCommand.includes('motivation')) {
-      speak('Opening Feel Good Corner');
-      navigate('/dashboard/student/feel-good-corner');
-    } else if (context === 'homepage') {
-      // Homepage specific commands
-      if (lowerCommand.includes('start') || lowerCommand.includes('sign up') || lowerCommand.includes('register')) {
-        speak('Redirecting to sign up');
+    if (context === 'homepage') {
+      // Homepage intelligent responses
+      if (lowerCommand.includes('start') || lowerCommand.includes('free trial') || lowerCommand.includes('signup')) {
+        speak('Starting your free trial with PREPZR. You will get access to personalized study plans and our AI tutor.');
         navigate('/signup');
       } else if (lowerCommand.includes('login') || lowerCommand.includes('sign in')) {
-        speak('Redirecting to login');
+        speak('Taking you to login page');
         navigate('/login');
-      } else if (lowerCommand.includes('learn more') || lowerCommand.includes('about')) {
-        speak('Here you can learn about PREPZR features and start your preparation journey');
+      } else if (lowerCommand.includes('readiness') || lowerCommand.includes('analyze')) {
+        speak('Opening exam readiness analyzer to evaluate your preparation level');
+        window.dispatchEvent(new Event('open-exam-analyzer'));
+      } else if (lowerCommand.includes('features') || lowerCommand.includes('about prepzr')) {
+        speak('PREPZR is the world\'s first emotionally intelligent exam platform providing adaptive learning and emotional support');
+      } else if (lowerCommand.includes('subscription') || lowerCommand.includes('plans')) {
+        speak('We offer flexible subscription plans including free trial, monthly pro, and annual pro with advanced features');
       } else {
-        speak(`Hello! I'm Sakha AI. You can say "start preparation", "learn more", or "sign up" to get started.`);
+        speak('You can say "start free trial", "analyze readiness", "about PREPZR", or "subscription plans" to explore our features');
       }
     } else {
-      // Dashboard context - provide helpful suggestions
-      speak(`Hello ${userName}! You can say things like "open concepts", "show study plan", "practice exam", or "chat with tutor" to navigate.`);
+      // Dashboard intelligent responses with academic guidance
+      if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
+        speak('Opening your personalized dashboard with today\'s study plan');
+        navigate('/dashboard/student');
+      } else if (lowerCommand.includes('today') || lowerCommand.includes('study plan') || lowerCommand.includes('todays plan')) {
+        speak('Opening today\'s adaptive study plan based on your learning profile');
+        navigate('/dashboard/student/today');
+      } else if (lowerCommand.includes('concept') || lowerCommand.includes('concept card')) {
+        speak('Opening concept cards for comprehensive topic understanding');
+        navigate('/dashboard/student/concepts');
+      } else if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card')) {
+        speak('Opening interactive flashcards for quick revision');
+        navigate('/dashboard/student/flashcards');
+      } else if (lowerCommand.includes('practice exam') || lowerCommand.includes('mock test') || lowerCommand.includes('test')) {
+        speak('Opening practice exams to test your preparation level');
+        navigate('/dashboard/student/practice-exam');
+      } else if (lowerCommand.includes('formula') || lowerCommand.includes('formula practice')) {
+        speak('Opening formula practice for mathematical concepts');
+        navigate('/dashboard/student/formula-practice');
+      } else if (lowerCommand.includes('tutor') || lowerCommand.includes('ai tutor') || lowerCommand.includes('chat')) {
+        speak('Opening AI tutor for personalized academic support');
+        navigate('/dashboard/student/tutor');
+      } else if (lowerCommand.includes('feel good') || lowerCommand.includes('motivation') || lowerCommand.includes('wellness')) {
+        speak('Opening Feel Good Corner for emotional support and motivation');
+        navigate('/dashboard/student/feel-good-corner');
+      } else if (lowerCommand.includes('profile') || lowerCommand.includes('account')) {
+        speak('Opening your profile and academic settings');
+        navigate('/dashboard/student/profile');
+      } else if (lowerCommand.includes('advisor') || lowerCommand.includes('academic advisor')) {
+        speak('Connecting you with academic advisor for guidance');
+      } else if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
+        speak('I can help you navigate your studies. Say "today\'s plan", "concept cards", "practice exam", "AI tutor", or "feel good corner"');
+      } else {
+        speak(`Hello ${userName}! I can help you with "today\'s plan", "concept cards", "flashcards", "practice exams", "AI tutor", or "feel good corner"`);
+      }
     }
   };
 
@@ -117,14 +130,12 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
     }
 
     if (isListening) {
-      // Stop listening
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       return;
     }
 
-    // Start listening
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
@@ -137,15 +148,6 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
       setIsListening(true);
       setShowTranscript(true);
       setTranscript('Listening...');
-      
-      // Speak greeting
-      const greeting = context === 'homepage' 
-        ? "Hi! I'm listening. You can ask me to navigate or get started with PREPZR."
-        : `Hi ${userName}! I'm listening. What would you like to do?`;
-      
-      const utterance = new SpeechSynthesisUtterance(greeting);
-      utterance.rate = 0.9;
-      speechSynthesis.speak(utterance);
     };
 
     recognition.onresult = (event) => {

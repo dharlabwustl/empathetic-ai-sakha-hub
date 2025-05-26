@@ -12,81 +12,94 @@ import {
   Brain,
   Award,
   Zap,
-  ChevronRight,
-  Users,
-  Calculator,
-  Trophy,
   CheckCircle,
-  BarChart3
+  BarChart3,
+  Heart,
+  Calendar,
+  Trophy
 } from 'lucide-react';
 
 const DashboardPreview = () => {
   const [activeSection, setActiveSection] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Enhanced sections with dynamic learning content
   const sections = [
     {
-      title: "Concept Mastery",
-      icon: <Brain className="w-5 h-5" />,
+      title: "Dynamic Exam Plan",
+      icon: <Target className="w-5 h-5" />,
       color: "from-blue-500 to-indigo-600",
       slides: [
-        { title: "Physics Concepts", progress: 75, items: 42 },
-        { title: "Chemistry Formulas", progress: 68, items: 38 },
-        { title: "Math Theorems", progress: 82, items: 51 },
-        { title: "Recall Practice", progress: 90, items: 67 },
-        { title: "Practice Exams", progress: 65, items: 34 },
-        { title: "Formula Practice", progress: 78, items: 45 },
-        { title: "Exam Champions", progress: 88, items: 23 }
+        { title: "Personalized Learning Path", progress: 78, items: "Active" },
+        { title: "Weekly Goal Tracking", progress: 85, items: "On Track" },
+        { title: "Performance Metrics", progress: 72, items: "Improving" },
+        { title: "Study Schedule", progress: 90, items: "Optimized" }
       ]
     },
     {
-      title: "Study Analytics",
-      icon: <BarChart3 className="w-5 h-5" />,
+      title: "Adaptive Daily Plan",
+      icon: <Calendar className="w-5 h-5" />,
       color: "from-green-500 to-emerald-600",
       slides: [
-        { title: "Daily Progress", progress: 85, items: 7 },
-        { title: "Weekly Trends", progress: 72, items: 4 },
-        { title: "Performance Insights", progress: 91, items: 12 }
+        { title: "Today's Focus Areas", progress: 82, items: "3 Topics" },
+        { title: "Time Allocation", progress: 75, items: "4 Hours" },
+        { title: "Break Intervals", progress: 95, items: "Scheduled" },
+        { title: "Energy Optimization", progress: 88, items: "High" }
       ]
     },
     {
-      title: "Practice Tests",
-      icon: <Target className="w-5 h-5" />,
+      title: "Mood Based Changes",
+      icon: <Heart className="w-5 h-5" />,
+      color: "from-pink-500 to-rose-600",
+      slides: [
+        { title: "Emotional State", progress: 85, items: "Positive" },
+        { title: "Stress Level", progress: 65, items: "Moderate" },
+        { title: "Motivation Boost", progress: 92, items: "Active" },
+        { title: "Wellness Check", progress: 78, items: "Good" }
+      ]
+    },
+    {
+      title: "Multimodal Concept Master",
+      icon: <Brain className="w-5 h-5" />,
       color: "from-purple-500 to-violet-600",
       slides: [
-        { title: "Mock Exams", progress: 70, items: 15 },
-        { title: "Topic Tests", progress: 88, items: 28 },
-        { title: "Previous Years", progress: 76, items: 19 }
+        { title: "Visual Learning", progress: 88, items: "42 Cards" },
+        { title: "Audio Concepts", progress: 76, items: "28 Lessons" },
+        { title: "Interactive Demos", progress: 84, items: "15 Active" },
+        { title: "Practice Exercises", progress: 79, items: "56 Done" }
       ]
     },
     {
-      title: "Time Management",
-      icon: <Clock className="w-5 h-5" />,
-      color: "from-orange-500 to-red-600",
+      title: "Recall Practice",
+      icon: <Zap className="w-5 h-5" />,
+      color: "from-orange-500 to-amber-600",
       slides: [
-        { title: "Study Schedule", progress: 80, items: 5 },
-        { title: "Break Reminders", progress: 95, items: 8 },
-        { title: "Focus Sessions", progress: 73, items: 12 }
+        { title: "Memory Techniques", progress: 91, items: "8 Methods" },
+        { title: "Spaced Repetition", progress: 87, items: "Daily" },
+        { title: "Quick Recall Tests", progress: 73, items: "24 Tests" },
+        { title: "Long-term Retention", progress: 95, items: "Excellent" }
       ]
     },
     {
-      title: "Achievement Center",
-      icon: <Trophy className="w-5 h-5" />,
-      color: "from-yellow-500 to-amber-600",
-      slides: [
-        { title: "Badges Earned", progress: 60, items: 18 },
-        { title: "Milestones", progress: 85, items: 7 },
-        { title: "Leaderboard", progress: 92, items: 3 }
-      ]
-    },
-    {
-      title: "AI Tutor Chat",
-      icon: <Users className="w-5 h-5" />,
+      title: "Exam Practice",
+      icon: <BarChart3 className="w-5 h-5" />,
       color: "from-cyan-500 to-blue-600",
       slides: [
-        { title: "Doubt Solving", progress: 89, items: 156 },
-        { title: "Concept Clarity", progress: 94, items: 89 },
-        { title: "Study Tips", progress: 87, items: 67 }
+        { title: "Mock Exams", progress: 82, items: "12 Taken" },
+        { title: "Time Management", progress: 88, items: "Improving" },
+        { title: "Question Analysis", progress: 76, items: "Detailed" },
+        { title: "Weak Areas", progress: 69, items: "3 Topics" }
+      ]
+    },
+    {
+      title: "Become Exam Champion",
+      icon: <Trophy className="w-5 h-5" />,
+      color: "from-yellow-500 to-orange-600",
+      slides: [
+        { title: "Champion Mindset", progress: 94, items: "Developing" },
+        { title: "Success Strategies", progress: 86, items: "Applied" },
+        { title: "Confidence Level", progress: 89, items: "High" },
+        { title: "Readiness Score", progress: 92, items: "Excellent" }
       ]
     }
   ];
@@ -95,7 +108,7 @@ const DashboardPreview = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveSection((prev) => (prev + 1) % sections.length);
-      setCurrentSlide(0); // Reset slide when section changes
+      setCurrentSlide(0);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -146,7 +159,7 @@ const DashboardPreview = () => {
               Welcome back, Student!
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Your personalized learning dashboard
+              Your adaptive learning dashboard
             </p>
           </div>
 
@@ -177,7 +190,7 @@ const DashboardPreview = () => {
                       {currentSlideData.title}
                     </span>
                     <Badge variant="secondary" className="text-xs">
-                      {currentSlideData.items} items
+                      {currentSlideData.items}
                     </Badge>
                   </div>
                   <Progress 
