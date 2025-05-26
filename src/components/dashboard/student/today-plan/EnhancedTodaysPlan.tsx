@@ -1,20 +1,38 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { Button } from "@/components/ui/button";
+import { useTodaysPlan } from "@/hooks/useTodaysPlan";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import SmartSuggestionsSection from '../todays-plan/SmartSuggestionsSection';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
-import ModernTodaysPlan from './ModernTodaysPlan';
+import NewTodaysPlanHeader from './NewTodaysPlanHeader';
 import OverviewSection from '../OverviewSection';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
   
+  // Get today's plan data
+  const {
+    loading,
+    error,
+    planData,
+    refreshData,
+    markTaskCompleted,
+    addBookmark,
+    addNote
+  } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
+
   // Mock overview data for today's plan
   const todaysOverview = {
     subjects: [
@@ -32,6 +50,53 @@ const EnhancedTodaysPlan: React.FC = () => {
       'Your morning session efficiency is above 80% ⚡'
     ]
   };
+  
+  if (loading) {
+    return <LoadingState message="Loading your study plan..." />;
+  }
+  
+  if (error) {
+    return (
+      <ErrorState 
+        title="Could not load study plan" 
+        message={error} 
+        action={
+          <Button onClick={refreshData}>
+            Try Again
+          </Button>
+        }
+      />
+    );
+  }
+
+  // Handle concept click to navigate to concept study page
+  const handleConceptClick = (conceptId: string) => {
+    console.log("Navigating to concept detail page:", conceptId);
+    navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
+  // Handle smart suggestion actions
+  const handleSuggestionAction = (action: string) => {
+    switch (action) {
+      case 'concepts':
+        navigate('/dashboard/student/concepts');
+        break;
+      case 'flashcards':
+        navigate('/dashboard/student/flashcards');
+        break;
+      case 'practice-exam':
+        navigate('/dashboard/student/practice-exam');
+        break;
+      case 'break':
+        navigate('/dashboard/student/feel-good-corner');
+        break;
+      case 'bonus':
+        navigate('/dashboard/student/feel-good-corner');
+        break;
+      default:
+        console.log('Suggestion action:', action);
+    }
+  };
 
   return (
     <SharedPageLayout
@@ -45,6 +110,12 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
+        {/* Premium Header */}
+        <NewTodaysPlanHeader 
+          userName={planData?.userName || userProfile?.name}
+          isMobile={isMobile}
+        />
+
         {/* Today's Overview Section */}
         <OverviewSection 
           title="Today's Progress"
@@ -52,16 +123,26 @@ const EnhancedTodaysPlan: React.FC = () => {
           totalStudyTime={todaysOverview.totalStudyTime}
           overallProgress={todaysOverview.overallProgress}
           suggestions={todaysOverview.suggestions}
-          userName={userProfile?.name || 'Student'}
         />
         
-        {/* Modern Today's Plan Component */}
-        <ModernTodaysPlan />
+        {/* Smart suggestions section - enhanced and moved to top */}
+        <SmartSuggestionsSection 
+          planData={planData}
+          onActionClick={handleSuggestionAction}
+          isMobile={isMobile}
+        />
+        
+        {/* Enhanced task breakdown with premium styling - keep existing design */}
+        <EnhancedTaskBreakdown 
+          planData={planData}
+          onConceptClick={handleConceptClick}
+          isMobile={isMobile}
+        />
       </div>
       
       {/* Voice assistant for learning support */}
       <FloatingVoiceButton 
-        userName={userProfile?.name || 'Student'}
+        userName={planData?.userName || userProfile?.name}
         language="en-US"
       />
     </SharedPageLayout>

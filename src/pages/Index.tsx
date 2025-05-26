@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
+import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -53,12 +54,12 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
-      {/* Fixed Voice Assistant Button for Homepage */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Speech Recognition Button for Homepage */}
+      <div className="fixed top-20 right-6 z-50">
         <SpeechRecognitionButton 
           context="homepage"
           size="lg"
-          className="shadow-2xl border-2 border-white/20 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+          className="shadow-lg"
         />
       </div>
       
@@ -113,6 +114,11 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* Enhanced Voice Assistant for Homepage */}
+      <EnhancedHomePageVoiceAssistant 
+        language="en-US"
+      />
     </div>
   );
 };
