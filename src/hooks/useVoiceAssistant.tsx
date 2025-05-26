@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -228,11 +227,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Always use "PREPZR" not "PREP-zer"
+    // Correct PREPZR pronunciation to "prep... zer" with pause
     const correctedText = text
-      .replace(/PREP-zer/gi, 'PREPZR')
-      .replace(/Prepzr/g, 'PREPZR')
-      .replace(/prepzr/gi, 'PREPZR');
+      .replace(/PREPZR/gi, 'prep, zer')
+      .replace(/Prepzr/g, 'prep, zer')
+      .replace(/prepzr/gi, 'prep, zer');
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     

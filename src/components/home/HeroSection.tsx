@@ -38,13 +38,17 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 py-20 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[80vh]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[80vh]">
           {/* Left Content */}
-          <CleanHeroContent onAnalyzeClick={handleOpenExamAnalyzer} />
+          <div className="order-2 lg:order-1">
+            <CleanHeroContent onAnalyzeClick={handleOpenExamAnalyzer} />
+          </div>
           
           {/* Right Dashboard Preview */}
-          <DashboardPreview />
+          <div className="order-1 lg:order-2">
+            <DashboardPreview />
+          </div>
         </div>
       </div>
 
