@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Users, TrendingUp, Award } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, TrendingUp, Award, Mic } from 'lucide-react';
 
 interface CleanHeroContentProps {
   onAnalyzeClick: () => void;
@@ -12,19 +12,30 @@ interface CleanHeroContentProps {
 const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) => {
   const navigate = useNavigate();
   const [currentBenefit, setCurrentBenefit] = useState(0);
+  const [isListening, setIsListening] = useState(false);
   
   const handleGetStarted = () => {
     navigate('/signup');
+  };
+
+  const handleVoiceCommand = () => {
+    if (!isListening) {
+      setIsListening(true);
+      // Simulate voice recognition
+      setTimeout(() => {
+        setIsListening(false);
+      }, 3000);
+    }
   };
 
   const keyBenefits = [
     "Save Your Time",
     "Stress Free",
     "Develop Study Habits", 
-    "Syllabus Linked",
+    "Syllabus Mastery",
     "Boost Your Confidence",
     "Smart Analytics",
-    "Exam Ready"
+    "Exam Champion"
   ];
 
   const stats = [
@@ -46,18 +57,25 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="space-y-6 md:space-y-8 px-4 md:px-0"
+      className="space-y-4 md:space-y-6 px-4 md:px-0"
     >
-      {/* Badge */}
+      {/* NEET 2026 Live Badge */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-300 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium border border-blue-200/50 dark:border-blue-800/50"
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="flex flex-col sm:flex-row gap-2"
       >
-        <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
-        <span className="hidden sm:inline">India's #1 AI-Powered Exam Prep Platform</span>
-        <span className="sm:hidden">#1 AI Exam Prep</span>
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-800 dark:text-green-300 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-bold border border-green-200/50 dark:border-green-800/50">
+          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+          <span className="font-extrabold">NEET 2026 PREP IS LIVE!</span>
+        </div>
+        
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-300 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium border border-blue-200/50 dark:border-blue-800/50">
+          <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
+          <span className="hidden sm:inline">India's #1 AI-Powered Exam Prep Platform</span>
+          <span className="sm:hidden">#1 AI Exam Prep</span>
+        </div>
       </motion.div>
 
       {/* Main Heading */}
@@ -78,6 +96,34 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-lg leading-relaxed">
           Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
         </p>
+      </motion.div>
+
+      {/* Voice Command Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="flex items-center gap-4"
+      >
+        <Button
+          onClick={handleVoiceCommand}
+          variant="outline"
+          size="sm"
+          className={`flex items-center gap-2 rounded-full transition-all duration-300 ${
+            isListening 
+              ? 'bg-red-50 border-red-300 text-red-700 hover:bg-red-100' 
+              : 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100'
+          }`}
+        >
+          <Mic className={`w-4 h-4 ${isListening ? 'animate-pulse' : ''}`} />
+          <span className="text-sm font-medium">
+            {isListening ? 'Listening...' : 'Ask me anything'}
+          </span>
+        </Button>
+        
+        <span className="text-xs text-gray-500">
+          Try: "Show me NEET prep" or "I need help with Physics"
+        </span>
       </motion.div>
 
       {/* Dynamic Key Benefits Slider */}

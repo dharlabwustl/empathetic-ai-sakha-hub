@@ -25,7 +25,7 @@ interface SubjectProgress {
   total: number;
   progress: number;
   efficiency: number;
-  studyTime: number; // in minutes
+  studyTime: number;
 }
 
 interface OverviewSectionProps {
@@ -52,13 +52,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
     if (efficiency >= 70) return 'text-blue-600';
     if (efficiency >= 50) return 'text-orange-600';
     return 'text-red-600';
-  };
-
-  const getProgressColor = (progress: number) => {
-    if (progress >= 80) return 'bg-green-500';
-    if (progress >= 60) return 'bg-blue-500';
-    if (progress >= 40) return 'bg-orange-500';
-    return 'bg-red-500';
   };
 
   return (
