@@ -43,28 +43,28 @@ const FlashcardsPage: React.FC = () => {
       backButtonUrl="/dashboard/student"
     >
       <Helmet>
-        <title>Flashcards - PREPZR</title>
+        <title>Smart Flashcards - PREPZR</title>
       </Helmet>
       
       <div className="space-y-8">
-        {/* Overview Section for Flashcards */}
+        {/* Overview Section */}
         <OverviewSection 
-          title="Flashcards Progress"
+          title="NEET Flashcards Progress"
           subjects={flashcardsOverview.subjects}
           totalStudyTime={flashcardsOverview.totalStudyTime}
           overallProgress={flashcardsOverview.overallProgress}
           suggestions={flashcardsOverview.suggestions}
-          userName={userProfile?.name}
+          userName={userProfile?.name || 'Student'}
           pageContext="flashcards"
         />
-        
+
         {/* Flashcards Section */}
         <FlashcardsSection />
       </div>
-      
-      {/* Interactive Voice Assistant */}
+
+      {/* Voice Assistant */}
       <InteractiveVoiceAssistant 
-        userName={userProfile?.name || "Student"}
+        userName={userProfile?.name || 'Student'}
         language="en-US"
         onNavigationCommand={(route) => navigate(route)}
         position="bottom-right"

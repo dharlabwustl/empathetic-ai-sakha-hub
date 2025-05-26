@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import CleanHeroContent from './hero/CleanHeroContent';
 import DashboardPreview from './hero/DashboardPreview';
 import { ExamReadinessAnalyzer } from './ExamReadinessAnalyzer';
+import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
 
 const HeroSection = () => {
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
@@ -56,6 +57,11 @@ const HeroSection = () => {
       {showExamAnalyzer && (
         <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />
       )}
+      
+      {/* Voice Assistant for Homepage */}
+      <EnhancedHomePageVoiceAssistant 
+        language="en-US"
+      />
     </section>
   );
 };

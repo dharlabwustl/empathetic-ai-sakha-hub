@@ -17,17 +17,18 @@ const PracticeExamPage: React.FC = () => {
   // Mock data for practice exams overview for NEET
   const practiceExamsOverview = {
     subjects: [
-      { name: 'Physics', completed: 12, total: 20, progress: 60, efficiency: 82, studyTime: 360 },
-      { name: 'Chemistry', completed: 8, total: 15, progress: 53, efficiency: 75, studyTime: 240 },
-      { name: 'Biology', completed: 14, total: 16, progress: 88, efficiency: 91, studyTime: 280 }
+      { name: 'Physics', completed: 12, total: 20, progress: 60, efficiency: 75, studyTime: 240 },
+      { name: 'Chemistry', completed: 8, total: 15, progress: 53, efficiency: 68, studyTime: 180 },
+      { name: 'Biology', completed: 14, total: 18, progress: 78, efficiency: 85, studyTime: 210 }
     ],
-    totalStudyTime: 880,
-    overallProgress: 67,
+    totalStudyTime: 630,
+    overallProgress: 64,
     suggestions: [
-      'Biology mock tests show excellent performance! Keep it up! 🎯',
-      'Physics numerical problems need more practice. Focus on mechanics 📐',
-      'Chemistry theory questions improving. Work on inorganic chemistry ⚗️',
-      'Use voice commands to quickly review incorrect answers 🗣️'
+      'Your Biology exam scores are consistently high! Keep it up! 🏆',
+      'Physics needs more practice. Focus on numerical problems ⚡',
+      'Chemistry organic reactions need attention. Take targeted tests 🧪',
+      'Try timed mini-tests to improve your speed and accuracy ⏱️',
+      'Overall performance is good. Aim for 80%+ in weak areas 🎯'
     ]
   };
 
@@ -38,7 +39,7 @@ const PracticeExamPage: React.FC = () => {
   return (
     <SharedPageLayout
       title="Practice Exams"
-      subtitle="NEET mock tests and question practice"
+      subtitle="AI-generated tests that mirror real NEET exam patterns"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
@@ -47,24 +48,24 @@ const PracticeExamPage: React.FC = () => {
       </Helmet>
       
       <div className="space-y-8">
-        {/* Overview Section for Practice Exams */}
+        {/* Overview Section */}
         <OverviewSection 
-          title="Practice Exams Progress"
+          title="NEET Practice Exams Progress"
           subjects={practiceExamsOverview.subjects}
           totalStudyTime={practiceExamsOverview.totalStudyTime}
           overallProgress={practiceExamsOverview.overallProgress}
           suggestions={practiceExamsOverview.suggestions}
-          userName={userProfile?.name}
+          userName={userProfile?.name || 'Student'}
           pageContext="practice-exam"
         />
-        
+
         {/* Practice Exams Section */}
         <PracticeExamsSection />
       </div>
-      
-      {/* Interactive Voice Assistant */}
+
+      {/* Voice Assistant */}
       <InteractiveVoiceAssistant 
-        userName={userProfile?.name || "Student"}
+        userName={userProfile?.name || 'Student'}
         language="en-US"
         onNavigationCommand={(route) => navigate(route)}
         position="bottom-right"
