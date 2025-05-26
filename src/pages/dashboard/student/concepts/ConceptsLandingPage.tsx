@@ -14,20 +14,21 @@ const ConceptsLandingPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
 
-  // Mock data for concepts overview based on NEET exam goal
+  // Mock data for concepts overview
   const conceptsOverview = {
     subjects: [
       { name: 'Physics', completed: 15, total: 25, progress: 60, efficiency: 85, studyTime: 120 },
       { name: 'Chemistry', completed: 8, total: 20, progress: 40, efficiency: 78, studyTime: 90 },
-      { name: 'Biology', completed: 18, total: 22, progress: 82, efficiency: 92, studyTime: 105 }
+      { name: 'Biology', completed: 18, total: 22, progress: 82, efficiency: 92, studyTime: 105 },
+      { name: 'Mathematics', completed: 12, total: 18, progress: 67, efficiency: 88, studyTime: 85 }
     ],
-    totalStudyTime: 315,
+    totalStudyTime: 400,
     overallProgress: 62,
     suggestions: [
-      'Focus on Chemistry concepts - you have great potential to improve quickly! 🧪',
+      'Focus on Chemistry - you have great potential to improve quickly! 🧪',
       'Your Biology concepts are strong. Consider advanced topics next 🔬',
-      'Physics numericals need practice. Try 15 min daily concept reviews ⚡',
-      'Overall concept mastery is good. Focus on weak areas for balanced preparation 📊'
+      'Physics numericals need practice. Try 15 min daily sessions ⚡',
+      'Math formulas are well-memorized. Time for application problems 📊'
     ]
   };
 

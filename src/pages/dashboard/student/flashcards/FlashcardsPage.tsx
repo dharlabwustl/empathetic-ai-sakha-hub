@@ -14,20 +14,21 @@ const FlashcardsPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
 
-  // Mock data for flashcards overview based on NEET exam goal
+  // Mock data for flashcards overview
   const flashcardsOverview = {
     subjects: [
       { name: 'Physics', completed: 45, total: 60, progress: 75, efficiency: 88, studyTime: 180 },
       { name: 'Chemistry', completed: 32, total: 55, progress: 58, efficiency: 82, studyTime: 150 },
-      { name: 'Biology', completed: 38, total: 40, progress: 95, efficiency: 94, studyTime: 135 }
+      { name: 'Biology', completed: 38, total: 40, progress: 95, efficiency: 94, studyTime: 135 },
+      { name: 'Mathematics', completed: 28, total: 35, progress: 80, efficiency: 90, studyTime: 110 }
     ],
-    totalStudyTime: 465,
-    overallProgress: 76,
+    totalStudyTime: 575,
+    overallProgress: 77,
     suggestions: [
       'Biology flashcards are almost complete! Great work! 🌟',
       'Physics formulas need more repetition. Schedule daily reviews ⚡',
       'Chemistry reactions are improving. Focus on organic chemistry next 🧪',
-      'Overall flashcard retention is excellent. Keep up the momentum! 🚀'
+      'Math concepts are solid. Try advanced problem-solving flashcards 📐'
     ]
   };
 
