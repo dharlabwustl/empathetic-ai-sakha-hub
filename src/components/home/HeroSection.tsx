@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import CleanHeroContent from './hero/CleanHeroContent';
 import DashboardPreview from './hero/DashboardPreview';
 import { ExamReadinessAnalyzer } from './ExamReadinessAnalyzer';
-import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
+import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
 
 const HeroSection = () => {
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
@@ -39,6 +39,15 @@ const HeroSection = () => {
         />
       </div>
 
+      {/* Fixed Voice Assistant and Speech Recognition */}
+      <div className="fixed top-20 right-6 z-50 flex gap-3">
+        <SpeechRecognitionButton 
+          context="homepage"
+          size="lg"
+          className="shadow-lg"
+        />
+      </div>
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[80vh]">
           {/* Left Content */}
@@ -57,11 +66,6 @@ const HeroSection = () => {
       {showExamAnalyzer && (
         <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />
       )}
-      
-      {/* Voice Assistant for Homepage */}
-      <EnhancedHomePageVoiceAssistant 
-        language="en-US"
-      />
     </section>
   );
 };
