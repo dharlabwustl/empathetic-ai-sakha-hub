@@ -11,10 +11,10 @@ import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 import NewTodaysPlanHeader from './NewTodaysPlanHeader';
 import OverviewSection from '../OverviewSection';
-import ModernTodaysPlan from './ModernTodaysPlan';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -110,17 +110,32 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
-        {/* Modern Today's Plan Component */}
-        <ModernTodaysPlan 
-          planData={planData}
-          onConceptClick={handleConceptClick}
+        {/* Premium Header */}
+        <NewTodaysPlanHeader 
+          userName={planData?.userName || userProfile?.name}
           isMobile={isMobile}
         />
 
-        {/* Smart suggestions section at the bottom */}
+        {/* Today's Overview Section */}
+        <OverviewSection 
+          title="Today's Progress"
+          subjects={todaysOverview.subjects}
+          totalStudyTime={todaysOverview.totalStudyTime}
+          overallProgress={todaysOverview.overallProgress}
+          suggestions={todaysOverview.suggestions}
+        />
+        
+        {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
+          isMobile={isMobile}
+        />
+        
+        {/* Enhanced task breakdown with premium styling - keep existing design */}
+        <EnhancedTaskBreakdown 
+          planData={planData}
+          onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
       </div>
