@@ -11,10 +11,10 @@ import { UserRole } from '@/types/user/base';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import EnhancedTaskBreakdown from './EnhancedTaskBreakdown';
 import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
 import NewTodaysPlanHeader from './NewTodaysPlanHeader';
 import OverviewSection from '../OverviewSection';
-import RedesignedTodaysPlan from './RedesignedTodaysPlan';
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
@@ -110,6 +110,12 @@ const EnhancedTodaysPlan: React.FC = () => {
       </Helmet>
       
       <div className={`space-y-8 ${isMobile ? 'px-0' : ''}`}>
+        {/* Premium Header */}
+        <NewTodaysPlanHeader 
+          userName={planData?.userName || userProfile?.name}
+          isMobile={isMobile}
+        />
+
         {/* Today's Overview Section */}
         <OverviewSection 
           title="Today's Progress"
@@ -117,21 +123,19 @@ const EnhancedTodaysPlan: React.FC = () => {
           totalStudyTime={todaysOverview.totalStudyTime}
           overallProgress={todaysOverview.overallProgress}
           suggestions={todaysOverview.suggestions}
-          userName={userProfile?.name || 'Student'}
-          pageContext="concepts"
         />
         
-        {/* Redesigned Today's Plan */}
-        <RedesignedTodaysPlan 
-          planData={planData}
-          onConceptClick={handleConceptClick}
-          isMobile={isMobile}
-        />
-        
-        {/* Smart suggestions section */}
+        {/* Smart suggestions section - enhanced and moved to top */}
         <SmartSuggestionsSection 
           planData={planData}
           onActionClick={handleSuggestionAction}
+          isMobile={isMobile}
+        />
+        
+        {/* Enhanced task breakdown with premium styling - keep existing design */}
+        <EnhancedTaskBreakdown 
+          planData={planData}
+          onConceptClick={handleConceptClick}
           isMobile={isMobile}
         />
       </div>
