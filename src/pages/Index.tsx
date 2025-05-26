@@ -19,7 +19,6 @@ import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -35,11 +34,6 @@ const Index = () => {
   
   const handleNavigationCommand = (route: string) => {
     navigate(route);
-  };
-
-  const handleVoiceCommand = (command: string) => {
-    console.log('Voice command received:', command);
-    // Handle other voice commands here
   };
 
   // Listen for events
@@ -111,16 +105,7 @@ const Index = () => {
       
       <Footer />
       
-      {/* Speech Recognition Button for Voice Commands */}
-      <SpeechRecognitionButton 
-        userName="Visitor"
-        onCommand={handleVoiceCommand}
-        onNavigationCommand={handleNavigationCommand}
-        position="fixed"
-        className=""
-      />
-      
-      {/* Interactive Voice Assistant for Responses */}
+      {/* Interactive Voice Assistant */}
       <InteractiveVoiceAssistant 
         userName="Visitor"
         language="en-US"
