@@ -4,12 +4,9 @@ import { motion } from 'framer-motion';
 import CleanHeroContent from './hero/CleanHeroContent';
 import DashboardPreview from './hero/DashboardPreview';
 import { ExamReadinessAnalyzer } from './ExamReadinessAnalyzer';
-import EnhancedVoiceAssistant from '@/components/voice/EnhancedVoiceAssistant';
-import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
-  const navigate = useNavigate();
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -17,10 +14,6 @@ const HeroSection = () => {
   
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
-  };
-
-  const handleNavigationCommand = (route: string) => {
-    navigate(route);
   };
 
   return (
@@ -45,7 +38,7 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-20 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[80vh]">
           {/* Left Content */}
           <div className="order-2 lg:order-1">
@@ -63,16 +56,6 @@ const HeroSection = () => {
       {showExamAnalyzer && (
         <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />
       )}
-
-      {/* Enhanced Voice Assistant for Home Page */}
-      <EnhancedVoiceAssistant 
-        userName="Visitor"
-        language="en-US"
-        onNavigationCommand={handleNavigationCommand}
-        position="bottom-right"
-        size="medium"
-        page="home"
-      />
     </section>
   );
 };
