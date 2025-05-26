@@ -14,21 +14,20 @@ const ConceptsLandingPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
 
-  // Mock data for concepts overview
+  // Mock data for concepts overview - specifically for NEET
   const conceptsOverview = {
     subjects: [
       { name: 'Physics', completed: 15, total: 25, progress: 60, efficiency: 85, studyTime: 120 },
       { name: 'Chemistry', completed: 8, total: 20, progress: 40, efficiency: 78, studyTime: 90 },
-      { name: 'Biology', completed: 18, total: 22, progress: 82, efficiency: 92, studyTime: 105 },
-      { name: 'Mathematics', completed: 12, total: 18, progress: 67, efficiency: 88, studyTime: 85 }
+      { name: 'Biology', completed: 18, total: 22, progress: 82, efficiency: 92, studyTime: 105 }
     ],
-    totalStudyTime: 400,
+    totalStudyTime: 315,
     overallProgress: 62,
     suggestions: [
       'Focus on Chemistry - you have great potential to improve quickly! 🧪',
       'Your Biology concepts are strong. Consider advanced topics next 🔬',
-      'Physics numericals need practice. Try 15 min daily sessions ⚡',
-      'Math formulas are well-memorized. Time for application problems 📊'
+      'Physics numerical problems need more practice. Try 15 min daily sessions ⚡',
+      'Try linking concepts across subjects for better understanding 🔄'
     ]
   };
 
@@ -50,11 +49,13 @@ const ConceptsLandingPage: React.FC = () => {
       <div className="space-y-8">
         {/* Overview Section */}
         <OverviewSection 
-          title="Concepts Progress"
+          title="NEET Concepts Progress"
           subjects={conceptsOverview.subjects}
           totalStudyTime={conceptsOverview.totalStudyTime}
           overallProgress={conceptsOverview.overallProgress}
           suggestions={conceptsOverview.suggestions}
+          userName={userProfile?.name || 'Student'}
+          pageContext="concepts"
         />
 
         {/* Enhanced Concept Landing Page */}
