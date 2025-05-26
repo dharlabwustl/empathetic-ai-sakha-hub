@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Globe, Settings, Crown } from 'lucide-react';
+import { Calendar, Volume2, Clock, Globe, Settings, Crown } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
+import SpeechRecognitionButton from './SpeechRecognitionButton';
 
 interface TopNavigationControlsProps {
   hideSidebar?: boolean;
@@ -71,7 +71,18 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const getCurrentPlan = () => {
-    return 'Free'; // Simplified for now
+    if (!user?.subscription) return 'Free';
+    
+    if (typeof user.subscription === 'string') {
+      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
+             user.subscription === 'pro_annual' ? 'Pro Annual' :
+             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
+    }
+    
+    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
+           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
+           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
+           (user.subscription.planType || 'Free').slice(1);
   };
   
   return (
@@ -139,12 +150,33 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
               <div>
                 <SpeechRecognitionButton 
                   context="dashboard"
-                  className="h-8 w-8"
+                  size="md"
+                  userName={userName || user?.name}
                 />
               </div>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>Voice Commands</p>
+              <p>Voice Commands - Click to speak</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Voice Assistant Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleVoiceAssistant}
+                className="relative bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 hover:from-purple-600 hover:to-blue-600"
+              >
+                <Volume2 className="h-4 w-4" />
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Sakha AI Voice Assistant</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

@@ -18,11 +18,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
+import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
 import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import { Button } from '@/components/ui/button';
-import { Mic } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -57,45 +54,13 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
       
-      {/* NEET 2026 Live Button - Top positioned */}
-      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="flex items-center gap-3 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-full px-6 py-3 shadow-lg">
-          <span className="text-sm font-medium text-gray-700">
-            🏆 India's #1 AI-Powered Exam Prep Platform
-          </span>
-          <Button 
-            className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold px-4 py-2 rounded-full"
-            onClick={() => navigate('/neet-2026-live')}
-          >
-            Take NEET 2026 Live Test
-          </Button>
-        </div>
-      </div>
-      
-      {/* Voice Recognition and Assistant positioned together */}
-      <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-3 items-end">
-        {/* Speech Recognition Button - positioned in front */}
-        <div className="relative z-50">
-          <SpeechRecognitionButton 
-            context="homepage"
-            className="shadow-lg bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full"
-            onCommand={handleNavigationCommand}
-          />
-          <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-            Voice
-          </div>
-        </div>
-        
-        {/* Voice Assistant positioned behind */}
-        <div className="relative z-40">
-          <EnhancedHomePageVoiceAssistant language="en-US" />
-          <InteractiveVoiceAssistant 
-            userName="Visitor"
-            language="en-US"
-            onNavigationCommand={handleNavigationCommand}
-            position="bottom-right"
-          />
-        </div>
+      {/* Speech Recognition Button for Homepage */}
+      <div className="fixed top-20 right-6 z-50">
+        <SpeechRecognitionButton 
+          context="homepage"
+          size="lg"
+          className="shadow-lg"
+        />
       </div>
       
       <main>
@@ -149,6 +114,11 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* Enhanced Voice Assistant for Homepage */}
+      <EnhancedHomePageVoiceAssistant 
+        language="en-US"
+      />
     </div>
   );
 };

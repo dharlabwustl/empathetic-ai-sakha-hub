@@ -1,180 +1,159 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Rocket, Star, TrendingUp, Users, Award, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Sparkles, Users, Award, TrendingUp } from 'lucide-react';
 
 const CallToAction = () => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate('/auth');
+    navigate('/signup');
   };
 
-  const handleTakeDemo = () => {
-    navigate('/demo');
-  };
-
-  const handleNeetLiveTest = () => {
-    navigate('/neet-2026-live');
-  };
+  const testimonials = [
+    {
+      name: "Aarav Sharma",
+      exam: "JEE Main 2024",
+      score: "98.2 percentile",
+      quote: "PREPZR's AI understood exactly where I was struggling and helped me improve systematically."
+    },
+    {
+      name: "Priya Patel", 
+      exam: "NEET 2024",
+      score: "685/720",
+      quote: "The personalized study plans and emotional support made all the difference in my preparation."
+    },
+    {
+      name: "Rohit Kumar",
+      exam: "CAT 2023", 
+      score: "99.8 percentile",
+      quote: "Best investment I made for my exam prep. The adaptive learning is revolutionary."
+    }
+  ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+    <section className="py-24 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Header Section */}
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center max-w-4xl mx-auto mb-16">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mb-12"
+            className="space-y-6"
           >
-            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-4 py-2 mb-6 text-sm font-bold">
-              🚀 Join 500,000+ Students Already Succeeding
-            </Badge>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium">
+              <Sparkles className="w-4 h-4" />
+              Join the Success Revolution
+            </div>
             
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Ready to Become a
-              <span className="bg-gradient-to-r from-yellow-400 to-pink-400 bg-clip-text text-transparent block">
-                NEET 2026 Champion?
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+              Ready to Transform Your
+              <br />
+              <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                Exam Results?
               </span>
             </h2>
             
-            <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-              Don't let another day pass without giving your dreams the preparation they deserve. 
-              Your NEET success story starts today.
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+              Join over 2 million students who have already achieved their dream scores with PREPZR's AI-powered platform.
             </p>
           </motion.div>
 
-          {/* Stats Cards */}
+          {/* Stats */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 mb-12"
           >
             {[
-              { icon: <Users className="h-6 w-6" />, value: "500K+", label: "Active Students" },
-              { icon: <Award className="h-6 w-6" />, value: "95%", label: "Success Rate" },
-              { icon: <TrendingUp className="h-6 w-6" />, value: "50+", label: "Point Avg Increase" },
-              { icon: <Clock className="h-6 w-6" />, value: "24/7", label: "AI Support" }
+              { icon: <Users className="w-6 h-6" />, value: "2M+", label: "Active Students" },
+              { icon: <Award className="w-6 h-6" />, value: "95%", label: "Success Rate" },
+              { icon: <TrendingUp className="w-6 h-6" />, value: "40%", label: "Average Score Improvement" }
             ].map((stat, index) => (
               <motion.div
                 key={index}
-                whileHover={{ scale: 1.05 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-6"
               >
-                <div className="text-yellow-400 mb-2 flex justify-center">{stat.icon}</div>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-sm text-gray-300">{stat.label}</div>
+                <div className="flex justify-center mb-3 text-yellow-300">
+                  {stat.icon}
+                </div>
+                <div className="text-3xl font-bold mb-1">{stat.value}</div>
+                <div className="text-blue-100">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* CTA Buttons - Prominently Positioned */}
+          {/* CTA Button */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mb-16"
           >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <Button
+              onClick={handleGetStarted}
+              size="lg"
+              className="bg-white text-purple-600 hover:bg-gray-100 px-12 py-6 rounded-2xl font-bold text-xl shadow-2xl hover:shadow-3xl transition-all duration-300 group"
             >
-              <Button
-                onClick={handleNeetLiveTest}
-                size="lg"
-                className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold px-8 py-4 text-lg rounded-full shadow-2xl transform transition-all duration-300"
-              >
-                <Rocket className="h-5 w-5 mr-2" />
-                Take NEET 2026 Live Test
-              </Button>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={handleGetStarted}
-                size="lg"
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-8 py-4 text-lg rounded-full shadow-2xl transform transition-all duration-300"
-              >
-                <Star className="h-5 w-5 mr-2" />
-                Start Free Today
-              </Button>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={handleTakeDemo}
-                variant="outline"
-                size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-purple-900 font-bold px-8 py-4 text-lg rounded-full backdrop-blur-sm"
-              >
-                Watch Demo
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Urgency Message */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="bg-gradient-to-r from-yellow-400/20 to-orange-500/20 backdrop-blur-sm rounded-2xl p-6 border border-yellow-400/30"
-          >
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Clock className="h-6 w-6 text-yellow-400" />
-              </motion.div>
-              <h3 className="text-xl font-bold text-white">NEET 2026 is just 156 days away!</h3>
-            </div>
-            <p className="text-gray-200 mb-4">
-              Every day counts in your NEET preparation. Join thousands of students who are already ahead in their preparation.
+              Start Your Success Journey Today
+              <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <p className="text-blue-100 mt-4 text-sm">
+              7-day free trial • No credit card required • Cancel anytime
             </p>
-            <div className="flex items-center justify-center gap-2 text-sm text-yellow-400">
-              <Star className="h-4 w-4 fill-current" />
-              <span>Free account setup takes less than 2 minutes</span>
-              <Star className="h-4 w-4 fill-current" />
-            </div>
-          </motion.div>
-
-          {/* Social Proof */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-8 text-center"
-          >
-            <p className="text-gray-300 text-sm mb-2">Trusted by students from</p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
-              <span>AIIMS • IIT • NEET Toppers • State Board • CBSE • ICSE</span>
-            </div>
           </motion.div>
         </div>
+
+        {/* Testimonials */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="grid md:grid-cols-3 gap-8"
+        >
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 + index * 0.2 }}
+              className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+            >
+              <div className="mb-4">
+                <div className="flex items-center gap-1 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className="text-yellow-300 text-lg">★</span>
+                  ))}
+                </div>
+                <p className="text-blue-100 italic">"{testimonial.quote}"</p>
+              </div>
+              <div className="border-t border-white/20 pt-4">
+                <div className="font-semibold">{testimonial.name}</div>
+                <div className="text-sm text-blue-200">{testimonial.exam}</div>
+                <div className="text-sm text-yellow-300 font-medium">Score: {testimonial.score}</div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

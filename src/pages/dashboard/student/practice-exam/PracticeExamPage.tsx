@@ -14,21 +14,22 @@ const PracticeExamPage: React.FC = () => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
 
-  // Mock data for practice exams overview - NEET subjects only
+  // Mock data for practice exams overview
   const practiceExamsOverview = {
     subjects: [
       { name: 'Physics', completed: 12, total: 20, progress: 60, efficiency: 75, studyTime: 240 },
       { name: 'Chemistry', completed: 8, total: 15, progress: 53, efficiency: 68, studyTime: 180 },
-      { name: 'Biology', completed: 14, total: 18, progress: 78, efficiency: 85, studyTime: 210 }
+      { name: 'Biology', completed: 14, total: 18, progress: 78, efficiency: 85, studyTime: 210 },
+      { name: 'Mathematics', completed: 10, total: 16, progress: 63, efficiency: 80, studyTime: 160 }
     ],
-    totalStudyTime: 630,
+    totalStudyTime: 790,
     overallProgress: 64,
     suggestions: [
       'Your Biology exam scores are consistently high! Keep it up! 🏆',
       'Physics needs more practice. Focus on numerical problems ⚡',
       'Chemistry organic reactions need attention. Take targeted tests 🧪',
-      'Overall performance is good. Aim for 80%+ in weak areas 🎯',
-      'Take timed practice tests to improve speed and accuracy ⏱️'
+      'Math speed can improve. Try timed mini-tests daily ⏱️',
+      'Overall performance is good. Aim for 80%+ in weak areas 🎯'
     ]
   };
 

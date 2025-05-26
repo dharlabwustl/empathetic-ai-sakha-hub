@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Users, TrendingUp, Award, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, TrendingUp, Award, Mic, Play } from 'lucide-react';
 
 interface CleanHeroContentProps {
   onAnalyzeClick: () => void;
@@ -12,19 +12,21 @@ interface CleanHeroContentProps {
 const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) => {
   const navigate = useNavigate();
   const [currentBenefit, setCurrentBenefit] = useState(0);
+  const [isListening, setIsListening] = useState(false);
   
   const handleGetStarted = () => {
     navigate('/signup');
   };
 
-  const handleNeetPrep = () => {
-    navigate('/signup?exam=neet');
+  const handleNEETPrep = () => {
+    navigate('/dashboard/student');
   };
 
+  // Enhanced key benefits with improved wording
   const keyBenefits = [
     "Save Valuable Time",
-    "Stress-Free Learning",
-    "Build Strong Habits", 
+    "Stress-Free Learning", 
+    "Build Strong Habits",
     "Syllabus-Aligned Content",
     "Boost Your Confidence",
     "Smart Performance Analytics",
@@ -45,12 +47,77 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
     return () => clearInterval(interval);
   }, []);
 
+  const handleSpeechRecognition = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Speech recognition not supported in this browser');
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      console.log('Speech recognized:', transcript);
+      
+      // Intelligent context-aware responses for homepage
+      if (transcript.includes('start') || transcript.includes('free trial') || transcript.includes('signup')) {
+        const utterance = new SpeechSynthesisUtterance('Starting your free trial with PREPZR. You\'ll get access to personalized study plans and our AI tutor.');
+        speechSynthesis.speak(utterance);
+        handleGetStarted();
+      } else if (transcript.includes('neet') || transcript.includes('preparation') || transcript.includes('prep')) {
+        const utterance = new SpeechSynthesisUtterance('Opening NEET 2026 preparation dashboard with adaptive learning plans.');
+        speechSynthesis.speak(utterance);
+        handleNEETPrep();
+      } else if (transcript.includes('test') || transcript.includes('analyze') || transcript.includes('readiness')) {
+        const utterance = new SpeechSynthesisUtterance('Opening exam readiness analyzer to evaluate your preparation level.');
+        speechSynthesis.speak(utterance);
+        onAnalyzeClick();
+      } else if (transcript.includes('features') || transcript.includes('about prepzr') || transcript.includes('about prep zer')) {
+        const utterance = new SpeechSynthesisUtterance('PREPZR is the world\'s first emotionally intelligent exam platform. We provide adaptive learning, personalized study plans, and emotional support for competitive exams like NEET, JEE, and UPSC.');
+        speechSynthesis.speak(utterance);
+      } else if (transcript.includes('subscription') || transcript.includes('plans') || transcript.includes('pricing')) {
+        const utterance = new SpeechSynthesisUtterance('We offer flexible subscription plans including free trial, monthly pro at 499 rupees, and annual pro at 2999 rupees with advanced features and unlimited access.');
+        speechSynthesis.speak(utterance);
+      } else if (transcript.includes('why prepzr') || transcript.includes('better') || transcript.includes('unique')) {
+        const utterance = new SpeechSynthesisUtterance('PREPZR is unique because we understand your emotions and learning style. Our AI adapts to your mood and creates personalized study experiences that traditional platforms cannot offer. We combine academic excellence with emotional intelligence.');
+        speechSynthesis.speak(utterance);
+      } else if (transcript.includes('exam readiness') || transcript.includes('preparation level')) {
+        const utterance = new SpeechSynthesisUtterance('Our exam readiness analyzer evaluates your current preparation level and provides detailed insights about your strengths and areas for improvement.');
+        speechSynthesis.speak(utterance);
+        onAnalyzeClick();
+      } else {
+        const utterance = new SpeechSynthesisUtterance('I can help you with "start free trial", "NEET prep", "analyze readiness", "about PREPZR", or "subscription plans" to explore our features.');
+        speechSynthesis.speak(utterance);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="space-y-6 md:space-y-8 px-4 md:px-0"
+      className="space-y-4 md:space-y-6 px-4 md:px-0"
     >
       {/* Badge */}
       <motion.div
@@ -64,11 +131,27 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         <span className="sm:hidden">#1 AI Exam Prep</span>
       </motion.div>
 
+      {/* NEET 2026 Prep Button */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="inline-block"
+      >
+        <Button
+          onClick={handleNEETPrep}
+          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
+        >
+          <Play className="w-4 h-4 mr-2" />
+          NEET 2026 Prep is Live!
+        </Button>
+      </motion.div>
+
       {/* Main Heading */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
         className="space-y-3 md:space-y-4"
       >
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
@@ -84,27 +167,11 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         </p>
       </motion.div>
 
-      {/* NEET 2026 Live Button */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="inline-block"
-      >
-        <Button
-          onClick={handleNeetPrep}
-          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
-        >
-          <Zap className="w-4 h-4 mr-2" />
-          NEET 2026 Prep is LIVE!
-        </Button>
-      </motion.div>
-
-      {/* Dynamic Key Benefits Slider */}
+      {/* Enhanced Key Benefits Slider */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
         className="space-y-3 md:space-y-4"
       >
         <h3 className="text-base md:text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -139,11 +206,11 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         </div>
       </motion.div>
 
-      {/* CTA Buttons */}
+      {/* CTA Buttons with Speech Recognition */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.7 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
         className="flex flex-col sm:flex-row gap-3 md:gap-4"
       >
         <Button
@@ -163,13 +230,27 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         >
           Take Readiness Test
         </Button>
+
+        {/* Speech Recognition Microphone */}
+        <Button
+          onClick={handleSpeechRecognition}
+          variant="outline"
+          size="lg"
+          className={`border-2 px-4 py-3 md:px-6 md:py-4 rounded-xl font-semibold text-base md:text-lg w-full sm:w-auto transition-all duration-300 ${
+            isListening 
+              ? 'border-red-500 bg-red-50 text-red-600 hover:bg-red-100 animate-pulse' 
+              : 'border-orange-400 hover:border-orange-500 text-orange-600 hover:bg-orange-50'
+          }`}
+        >
+          <Mic className={`w-4 h-4 md:w-5 md:h-5 ${isListening ? 'animate-pulse' : ''}`} />
+        </Button>
       </motion.div>
 
       {/* Stats */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.9 }}
+        transition={{ duration: 0.6, delay: 1.0 }}
         className="grid grid-cols-3 gap-3 md:gap-6 pt-6 md:pt-8 border-t border-gray-200 dark:border-gray-800"
       >
         {stats.map((stat, index) => (

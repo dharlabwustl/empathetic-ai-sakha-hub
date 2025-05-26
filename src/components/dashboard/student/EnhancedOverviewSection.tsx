@@ -12,7 +12,7 @@ import {
   Brain,
   Lightbulb,
   CheckCircle,
-  AlertTriangle,
+  AlertCircle,
   Zap,
   Award,
   Calendar,
@@ -32,7 +32,7 @@ interface SubjectProgress {
   studyTime: number; // in minutes
 }
 
-interface OverviewSectionProps {
+interface EnhancedOverviewSectionProps {
   title: string;
   subjects: SubjectProgress[];
   totalStudyTime: number;
@@ -42,7 +42,7 @@ interface OverviewSectionProps {
   pageContext?: 'concepts' | 'flashcards' | 'practice-exam' | 'formula-practice';
 }
 
-const OverviewSection: React.FC<OverviewSectionProps> = ({
+const EnhancedOverviewSection: React.FC<EnhancedOverviewSectionProps> = ({
   title,
   subjects,
   totalStudyTime,
@@ -127,7 +127,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-orange-100 dark:bg-orange-800 rounded-lg">
-                  <AlertTriangle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                  <AlertCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{totalPending}</p>
@@ -288,4 +288,4 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   );
 };
 
-export default OverviewSection;
+export default EnhancedOverviewSection;

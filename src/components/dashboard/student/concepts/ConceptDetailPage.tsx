@@ -16,8 +16,6 @@ import NotesSection from './NotesSection';
 import TabAIAssistant from '../ai-assistant/TabAIAssistant';
 import TabProgressMeter from '../progress/TabProgressMeter';
 import { useTabProgress } from '@/hooks/useTabProgress';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import { Volume2 } from 'lucide-react';
 
 const ConceptDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -112,31 +110,6 @@ const ConceptDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
-          
-          {/* Voice Assistant Controls for Concept Study */}
-          <div className="flex items-center gap-2 ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const explanation = `Let me explain ${concept?.title}. This concept covers key principles and applications. I can help you understand specific parts, practice problems, or review important formulas. What would you like to focus on?`;
-                if ('speechSynthesis' in window) {
-                  const utterance = new SpeechSynthesisUtterance(explanation);
-                  utterance.rate = 0.9;
-                  window.speechSynthesis.speak(utterance);
-                }
-              }}
-              className="flex items-center gap-2"
-            >
-              <Volume2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Explain Concept</span>
-            </Button>
-            
-            <SpeechRecognitionButton 
-              context="concept"
-              className="h-8 w-8"
-            />
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
