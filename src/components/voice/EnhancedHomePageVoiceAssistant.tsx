@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 interface EnhancedHomePageVoiceAssistantProps {
@@ -10,124 +10,161 @@ interface EnhancedHomePageVoiceAssistantProps {
 const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantProps> = ({ 
   language = 'en-US'
 }) => {
-  const [greetingPlayed, setGreetingPlayed] = useState(false);
-  const [audioMuted, setAudioMuted] = useState(false);
-  const [lastInteractionTime, setLastInteractionTime] = useState(0);
-  const [conversationContext, setConversationContext] = useState<string>('welcome');
+  const [hasGreeted, setHasGreeted] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
-  const navigate = useNavigate();
   
+  // Refs for cleanup
   const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<number | null>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
   const lastCommandTimeRef = useRef<number>(0);
   
-  const shouldPlayGreeting = location.pathname === '/';
-  
-  // Intelligent context-aware responses
-  const getContextualResponse = (transcript: string, context: string) => {
-    const lowerTranscript = transcript.toLowerCase();
-    
-    // Free trial related
-    if (lowerTranscript.includes('free') || lowerTranscript.includes('trial') || lowerTranscript.includes('start')) {
-      setConversationContext('free-trial');
-      return "Perfect! PREPZR offers a comprehensive 7-day free trial. You'll get access to our AI-powered study plans, concept mastery tools, practice exams, and emotional intelligence features. Ready to transform your exam preparation journey?";
-    }
-    
-    // About PREPZR and features
-    if (lowerTranscript.includes('about') || lowerTranscript.includes('features') || lowerTranscript.includes('what is')) {
-      setConversationContext('features');
-      return "PREPZR is the world's first emotionally intelligent exam platform. Unlike traditional coaching or EdTech platforms, we understand your mindset, not just the exam content. Our AI adapts to your learning style, mood, and progress in real-time. We offer personalized study plans, interactive concept mastery, mood-based learning adjustments, and comprehensive analytics.";
-    }
-    
-    // Why PREPZR is better
-    if (lowerTranscript.includes('why') || lowerTranscript.includes('better') || lowerTranscript.includes('different') || lowerTranscript.includes('unique')) {
-      setConversationContext('advantages');
-      return "Here's what makes PREPZR revolutionary: We're the only platform that combines academic excellence with emotional intelligence. While others focus just on content delivery, we understand your stress, motivation levels, and learning patterns. Our AI creates truly personalized experiences that traditional coaching institutes and EdTech platforms simply cannot match.";
-    }
-    
-    // Exam readiness
-    if (lowerTranscript.includes('exam') || lowerTranscript.includes('readiness') || lowerTranscript.includes('test') || lowerTranscript.includes('analyze')) {
-      setConversationContext('exam-readiness');
-      return "Our exam readiness analyzer is a game-changer! It evaluates your current preparation level across all subjects, identifies knowledge gaps, and provides detailed insights about your strengths and improvement areas. This helps create a laser-focused study strategy tailored just for you.";
-    }
-    
-    // Signup process
-    if (lowerTranscript.includes('signup') || lowerTranscript.includes('join') || lowerTranscript.includes('register')) {
-      setConversationContext('signup');
-      return "Excellent choice! Signing up with PREPZR gives you access to adaptive learning technology, personalized study plans, emotional support systems, practice exams, flashcards, formula practice, and our AI tutor. You'll experience a completely new way of exam preparation that understands both your academic and emotional needs.";
-    }
-    
-    // After signup benefits
-    if (lowerTranscript.includes('after signup') || lowerTranscript.includes('what will i get') || lowerTranscript.includes('benefits')) {
-      setConversationContext('benefits');
-      return "After joining PREPZR, you'll get a personalized dashboard with adaptive daily study plans, concept mastery tools, interactive flashcards, comprehensive practice exams, formula practice sessions, mood-based learning adjustments, progress analytics, and access to our AI tutor for instant doubt resolution. Everything adapts to your unique learning profile!";
-    }
-    
-    // Default contextual response based on current context
-    switch (context) {
-      case 'welcome':
-        return "I'm here to help you discover how PREPZR can transform your exam preparation. You can ask me about our free trial, unique features, exam readiness test, or why we're different from traditional coaching platforms.";
-      case 'free-trial':
-        return "The free trial includes full access to our adaptive learning system. Would you like me to help you get started, or do you have questions about our features?";
-      case 'features':
-        return "Our key features include emotional intelligence integration, adaptive study plans, and personalized learning paths. Would you like to know more about any specific feature or start your free trial?";
-      default:
-        return "I can help you with information about PREPZR's features, free trial, exam readiness test, or guide you through getting started. What interests you most?";
-    }
-  };
-  
-  // Initial intelligent greeting
-  const getIntelligentGreeting = () => {
-    const currentHour = new Date().getHours();
-    let timeGreeting = '';
-    
-    if (currentHour < 12) timeGreeting = 'Good morning';
-    else if (currentHour < 17) timeGreeting = 'Good afternoon';
-    else timeGreeting = 'Good evening';
-    
-    return `${timeGreeting}! Welcome to PREPZR, India's first emotionally intelligent exam preparation platform. I'm your AI guide. Unlike traditional coaching or EdTech platforms, PREPZR understands your mindset and adapts to your unique learning style. We're here to revolutionize how you prepare for competitive exams like NEET, JEE, and UPSC. How can I help you explore our transformative approach today?`;
-  };
-  
+  // Check if current page should have voice assistant
+  const shouldActivate = location.pathname === '/' || 
+                        location.pathname.includes('/signup') ||
+                        location.pathname.includes('/login') ||
+                        location.pathname.includes('/exam-readiness');
+
   // Cleanup function
-  const cleanupVoiceResources = () => {
+  const cleanup = () => {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.onresult = null;
-        recognitionRef.current.onerror = null;
-        recognitionRef.current.onend = null;
-        recognitionRef.current.onstart = null;
         recognitionRef.current.abort();
         recognitionRef.current.stop();
       } catch (error) {
         // Ignore cleanup errors
-      } finally {
-        recognitionRef.current = null;
       }
+      recognitionRef.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
     }
   };
-  
-  // Setup voice recognition with intelligent responses
-  const setupVoiceRecognition = () => {
-    if (recognitionRef.current || audioMuted || !shouldPlayGreeting) {
-      return;
+
+  // Get contextual greeting based on page
+  const getContextualGreeting = (pathname: string): string => {
+    const hour = new Date().getHours();
+    const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    
+    if (pathname === '/') {
+      return `${timeGreeting}! Welcome to PREP-zer, the world's first emotionally intelligent exam preparation platform. I'm Sakha AI, your adaptive learning companion. I can help you navigate our features or answer questions about your exam preparation journey. Try saying "Sign up", "Take demo", or "Analyze my readiness".`;
+    } else if (pathname.includes('/signup')) {
+      return `${timeGreeting}! Welcome to PREP-zer signup. I'm Sakha AI, and I can assist you through the registration process. You can use voice commands like "Next", "Continue", or ask me questions anytime.`;
+    } else if (pathname.includes('/login')) {
+      return `${timeGreeting}! Welcome back to PREP-zer. I'm here to help you access your personalized learning dashboard. Say "Demo login" for a quick preview or ask me anything about our features.`;
+    } else if (pathname.includes('/exam-readiness')) {
+      return `${timeGreeting}! Our AI-powered exam readiness analyzer will evaluate your preparation level and create a personalized study plan. I'll guide you through the assessment process.`;
     }
     
+    return `${timeGreeting}! Welcome to PREP-zer. I'm Sakha AI, your intelligent exam preparation assistant.`;
+  };
+
+  // Speak with female voice preference and correct pronunciation
+  const speakMessage = (message: string) => {
+    if (isMuted || !('speechSynthesis' in window)) return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    // Create utterance with correct PREP-zer pronunciation
+    const speech = new SpeechSynthesisUtterance();
+    speech.text = message.replace(/PREPZR/g, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
+    speech.lang = language;
+    speech.rate = 1.0; // Natural speed
+    speech.pitch = 1.15; // Pleasant, confident female tone
+    speech.volume = 0.9;
+
+    // Get available voices and prefer female voices
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Priority list for female voices with pleasant, confident tone
+    const preferredFemaleVoices = [
+      'Google US English Female',
+      'Microsoft Zira Desktop',
+      'Microsoft Zira',
+      'Samantha',
+      'Karen',
+      'Victoria',
+      'Alice',
+      'Emma',
+      'Moira'
+    ];
+
+    // Find best female voice
+    let selectedVoice = null;
+    for (const voiceName of preferredFemaleVoices) {
+      const voice = voices.find(v => 
+        v.name?.toLowerCase().includes(voiceName.toLowerCase())
+      );
+      if (voice) {
+        selectedVoice = voice;
+        break;
+      }
+    }
+
+    // Fallback to any available female voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => 
+        v.name?.toLowerCase().includes('female') && 
+        !v.name?.toLowerCase().includes('male')
+      );
+    }
+
+    // Final fallback to first available voice
+    if (!selectedVoice && voices.length > 0) {
+      selectedVoice = voices[0];
+    }
+
+    if (selectedVoice) {
+      speech.voice = selectedVoice;
+    }
+
+    // Event handlers
+    speech.onstart = () => console.log('Voice greeting started');
+    speech.onend = () => {
+      console.log('Voice greeting completed');
+      // Start listening after greeting with smart delay
+      setTimeout(() => {
+        if (!isMuted && shouldActivate) {
+          startVoiceRecognition();
+        }
+      }, 1000);
+    };
+    speech.onerror = (e) => {
+      console.error('Speech error:', e);
+      // Try to start recognition anyway with smart delay
+      setTimeout(() => {
+        if (!isMuted && shouldActivate) {
+          startVoiceRecognition();
+        }
+      }, 1500);
+    };
+
+    speechRef.current = speech;
+    window.speechSynthesis.speak(speech);
+  };
+
+  // Voice recognition setup with intelligent command handling
+  const startVoiceRecognition = () => {
+    if (!shouldActivate || isMuted || recognitionRef.current) return;
+
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      console.error("Speech recognition not supported");
+      console.error('Speech recognition not supported');
       return;
     }
-    
+
     try {
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       const recognition = new SpeechRecognition();
@@ -136,164 +173,233 @@ const EnhancedHomePageVoiceAssistant: React.FC<EnhancedHomePageVoiceAssistantPro
       recognition.interimResults = false;
       recognition.lang = language;
       
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        console.log("Voice command recognized:", transcript);
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+        recognitionRef.current = null;
         
+        // Smart breaks - auto-restart with appropriate delays
+        if (!isMuted && shouldActivate && document.visibilityState === 'visible') {
+          retryTimeoutRef.current = window.setTimeout(() => {
+            startVoiceRecognition();
+          }, 3000); // 3 second break between recognition sessions
+        }
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        recognitionRef.current = null;
+        
+        // Smart retry based on error type
+        const retryDelay = event.error === 'network' ? 8000 : 
+                          event.error === 'audio' ? 6000 : 5000;
+        
+        if (event.error !== 'aborted' && !isMuted && shouldActivate) {
+          retryTimeoutRef.current = window.setTimeout(() => {
+            startVoiceRecognition();
+          }, retryDelay);
+        }
+      };
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        console.log('Voice command:', transcript);
+        
+        // Prevent rapid commands
         const now = Date.now();
         if (now - lastCommandTimeRef.current < 3000) {
           return;
         }
         lastCommandTimeRef.current = now;
-        setLastInteractionTime(now);
         
-        // Get intelligent response
-        const response = getContextualResponse(transcript, conversationContext);
-        speakIntelligently(response);
-        
-        // Handle navigation commands
-        if (transcript.includes('signup') || transcript.includes('sign up') || transcript.includes('register')) {
-          setTimeout(() => navigate('/signup'), 2000);
-        } else if (transcript.includes('login') || transcript.includes('log in')) {
-          setTimeout(() => navigate('/login'), 2000);
-        } else if (transcript.includes('analyze') || transcript.includes('readiness') || transcript.includes('test')) {
-          setTimeout(() => {
-            window.dispatchEvent(new Event('open-exam-analyzer'));
-          }, 2000);
-        } else if (transcript.includes('free trial') || transcript.includes('start trial')) {
-          setTimeout(() => navigate('/signup'), 2000);
-        }
-      };
-      
-      recognition.onend = () => {
-        // Intelligent restart based on recent interaction
-        const timeSinceLastInteraction = Date.now() - lastInteractionTime;
-        
-        if (shouldPlayGreeting && !audioMuted && document.visibilityState === 'visible' && timeSinceLastInteraction > 10000) {
-          timeoutRef.current = window.setTimeout(() => {
-            recognitionRef.current = null;
-            setupVoiceRecognition();
-          }, 5000);
-        }
-      };
-      
-      recognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
-        
-        if (shouldPlayGreeting && !audioMuted && document.visibilityState === 'visible') {
-          timeoutRef.current = window.setTimeout(() => {
-            recognitionRef.current = null;
-            setupVoiceRecognition();
-          }, 8000);
-        }
+        // Handle intelligent voice commands
+        handleVoiceCommand(transcript);
       };
       
       recognition.start();
       recognitionRef.current = recognition;
+      
     } catch (error) {
-      console.error("Error setting up recognition:", error);
+      console.error('Error starting recognition:', error);
+      // Retry with longer delay on error
+      retryTimeoutRef.current = window.setTimeout(() => {
+        startVoiceRecognition();
+      }, 6000);
     }
   };
-  
-  // Intelligent speech function
-  const speakIntelligently = (message: string) => {
-    if (!('speechSynthesis' in window) || audioMuted) {
+
+  // Handle intelligent voice commands with smart routing
+  const handleVoiceCommand = (command: string) => {
+    // Navigation commands
+    if (command.includes('sign up') || command.includes('signup') || command.includes('register')) {
+      window.location.href = '/signup';
+      speakMessage('Taking you to sign up page.');
+    } else if (command.includes('login') || command.includes('log in')) {
+      window.location.href = '/login';
+      speakMessage('Taking you to login page.');
+    } else if (command.includes('demo') || command.includes('try demo') || command.includes('take demo')) {
+      window.location.href = '/login';
+      speakMessage('Opening demo access.');
+    } else if (command.includes('home') || command.includes('go home')) {
+      window.location.href = '/';
+      speakMessage('Going to home page.');
+    } else if (command.includes('analyze') || command.includes('readiness') || command.includes('assessment') || command.includes('analyze my readiness')) {
+      // Trigger exam readiness analyzer
+      window.dispatchEvent(new Event('open-exam-analyzer'));
+      speakMessage('Opening your exam readiness analysis.');
+    } else if (command.includes('help') || command.includes('what can you do')) {
+      const helpMessage = `I can help you navigate PREP-zer. Try saying: Sign up, Login, Demo, Analyze readiness, or ask me about our features.`;
+      speakMessage(helpMessage);
+    } else if (command.includes('features') || command.includes('what is prepzr') || command.includes('what is prep-zer')) {
+      const featuresMessage = `PREP-zer is an AI-powered exam preparation platform that adapts to your learning style and emotional state. We provide personalized study plans, concept cards, practice exams, and emotional support for competitive exams like JEE, NEET, UPSC, and CAT.`;
+      speakMessage(featuresMessage);
+    } else if (command.includes('mute') || command.includes('stop') || command.includes('quiet')) {
+      setIsMuted(true);
+      localStorage.setItem('voice_assistant_muted', 'true');
+      cleanup();
+      speakMessage('Voice assistant muted. You can unmute in settings.');
+    } else {
+      // Smart response for unrecognized commands
+      const responses = [
+        "I didn't catch that. Try saying 'Sign up', 'Demo', or 'Help' for assistance.",
+        "Please repeat that. You can say commands like 'Login', 'Analyze readiness', or ask about our features.",
+        "Could you try again? Say 'Help' to hear what I can do for you."
+      ];
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      speakMessage(randomResponse);
+    }
+  };
+
+  // Initialize voices separately to ensure they're loaded
+  useEffect(() => {
+    if (window.speechSynthesis) {
+      // Force voice loading
+      window.speechSynthesis.getVoices();
+      
+      // Setup event listener for when voices are loaded
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => {
+          console.log("Voices loaded:", window.speechSynthesis.getVoices().length);
+        };
+      }
+    }
+  }, []);
+
+  // Main effect for instant greeting and page changes
+  useEffect(() => {
+    // Better cleanup on page changes
+    cleanup();
+    setHasGreeted(false);
+    setIsListening(false);
+
+    // Check mute preference
+    const mutePref = localStorage.getItem('voice_assistant_muted');
+    if (mutePref === 'true') {
+      setIsMuted(true);
       return;
     }
-    
-    window.speechSynthesis.cancel();
-    
-    const speech = new SpeechSynthesisUtterance();
-    speech.text = message.replace(/PREPZR/gi, 'prep zer');
-    speech.lang = language;
-    speech.rate = 0.95;
-    speech.pitch = 1.05;
-    speech.volume = 0.9;
-    
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
-      v.name?.toLowerCase().includes('google') && 
-      v.lang?.toLowerCase().includes('en')
-    ) || voices[0];
-    
-    if (preferredVoice) {
-      speech.voice = preferredVoice;
-    }
-    
-    speech.onend = () => {
-      setTimeout(() => {
-        if (!audioMuted) {
-          setupVoiceRecognition();
+
+    // Only activate on valid pages
+    if (!shouldActivate) return;
+
+    // Instant greeting with minimal delay for page loading
+    const initializeVoice = () => {
+      if (window.speechSynthesis && !hasGreeted && !isMuted) {
+        const voices = window.speechSynthesis.getVoices();
+        
+        if (voices.length > 0) {
+          setHasGreeted(true);
+          const greeting = getContextualGreeting(location.pathname);
+          
+          // Very short delay to ensure page has loaded
+          timeoutRef.current = window.setTimeout(() => {
+            speakMessage(greeting);
+            
+            // Show helpful toast
+            toast({
+              title: "Sakha AI Voice Assistant Active",
+              description: "Say 'Help' to hear available commands",
+              duration: 4000,
+            });
+          }, 500); // Just 0.5 second delay for immediate greeting
         }
-      }, 1000);
+      }
+    };
+
+    // Load voices and initialize
+    if (window.speechSynthesis) {
+      // Force voices to load
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          initializeVoice();
+        } else {
+          // Retry if voices not loaded yet
+          setTimeout(loadVoices, 50);
+        }
+      };
+
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.onvoiceschanged = null;
+        initializeVoice();
+      };
+      
+      // Trigger voice loading
+      loadVoices();
+    }
+
+    // Cleanup on unmount
+    return cleanup;
+  }, [location.pathname, shouldActivate, hasGreeted, isMuted]);
+
+  // Listen for mute/unmute events
+  useEffect(() => {
+    const handleMute = () => {
+      setIsMuted(true);
+      cleanup();
     };
     
-    speechRef.current = speech;
-    window.speechSynthesis.speak(speech);
-  };
-  
-  // Setup initial greeting
-  const setupVoiceGreeting = () => {
-    if (greetingPlayed || audioMuted || !shouldPlayGreeting) {
-      return;
-    }
-    
-    const message = getIntelligentGreeting();
-    speakIntelligently(message);
-    setGreetingPlayed(true);
-    setConversationContext('welcome');
-    setLastInteractionTime(Date.now());
-    
-    toast({
-      title: "PREPZR Voice Assistant",
-      description: "Ask about features, free trial, exam readiness, or why PREPZR is better!",
-      duration: 6000,
-    });
-  };
-  
-  // Route change handler
+    const handleUnmute = () => {
+      setIsMuted(false);
+      if (shouldActivate && !hasGreeted) {
+        const greeting = getContextualGreeting(location.pathname);
+        setTimeout(() => speakMessage(greeting), 500);
+      }
+    };
+
+    document.addEventListener('voice-assistant-mute', handleMute);
+    document.addEventListener('voice-assistant-unmute', handleUnmute);
+
+    return () => {
+      document.removeEventListener('voice-assistant-mute', handleMute);
+      document.removeEventListener('voice-assistant-unmute', handleUnmute);
+    };
+  }, [shouldActivate, hasGreeted, location.pathname]);
+
+  // Handle page visibility changes for better cleanup
   useEffect(() => {
-    cleanupVoiceResources();
-    
-    if (shouldPlayGreeting && !audioMuted) {
-      const setupTimer = setTimeout(() => {
-        setupVoiceGreeting();
-      }, 2000);
-      
-      return () => clearTimeout(setupTimer);
-    }
-  }, [location.pathname]);
-  
-  // Load mute preference
-  useEffect(() => {
-    const muteSetting = localStorage.getItem('voice_assistant_muted');
-    if (muteSetting === 'true') {
-      setAudioMuted(true);
-    }
-    
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        cleanupVoiceResources();
-      } else if (document.visibilityState === 'visible' && !audioMuted && shouldPlayGreeting) {
+        cleanup();
+      } else if (document.visibilityState === 'visible' && shouldActivate && !isMuted) {
+        // Smart restart when page becomes visible
         setTimeout(() => {
-          if (!greetingPlayed) {
-            setupVoiceGreeting();
-          } else {
-            setupVoiceRecognition();
+          if (!recognitionRef.current && hasGreeted) {
+            startVoiceRecognition();
           }
         }, 1000);
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      cleanupVoiceResources();
-    };
-  }, []);
-  
-  return null;
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [shouldActivate, isMuted, hasGreeted]);
+
+  return null; // This component renders no UI
 };
 
 export default EnhancedHomePageVoiceAssistant;

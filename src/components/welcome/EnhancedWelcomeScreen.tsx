@@ -44,23 +44,20 @@ const EnhancedWelcomeScreen: React.FC<EnhancedWelcomeScreenProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Welcome voice announcement - only with user name, no repetition
+  // Welcome voice announcement - only with user name
   useEffect(() => {
-    if (!hasSpoken && userName && userName !== 'Student' && userName.trim() !== '') {
+    if (!hasSpoken && userName && userName !== 'Student') {
       const timer = setTimeout(() => {
         const utterance = new SpeechSynthesisUtterance(
-          `Welcome to PREPZR, ${userName}! I'm your AI study companion ready to help you succeed in your exam preparation journey. Let's get started!`
+          `Welcome to PREPZR, ${userName}! I'm your AI study companion. Let's start your journey to exam success together.`
         );
         utterance.rate = 0.9;
         utterance.pitch = 1;
         speechSynthesis.speak(utterance);
         setHasSpoken(true);
-      }, 1500);
+      }, 1000);
       
       return () => clearTimeout(timer);
-    } else if (userName === 'Student' || !userName || userName.trim() === '') {
-      // Don't speak if no proper user name is available
-      setHasSpoken(true);
     }
   }, [userName, hasSpoken]);
 
