@@ -18,6 +18,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import SpeechRecognitionButton from '@/components/dashboard/student/SpeechRecognitionButton';
 import EnhancedHomePageVoiceAssistant from '@/components/voice/EnhancedHomePageVoiceAssistant';
 
 const Index = () => {
@@ -52,6 +53,15 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
+      
+      {/* Speech Recognition Button for Homepage */}
+      <div className="fixed top-20 right-6 z-50">
+        <SpeechRecognitionButton 
+          context="homepage"
+          size="lg"
+          className="shadow-lg"
+        />
+      </div>
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
