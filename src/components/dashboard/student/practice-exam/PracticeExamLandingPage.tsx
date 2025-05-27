@@ -106,6 +106,14 @@ const PracticeExamLandingPage = () => {
     window.history.pushState({}, '', url.toString());
   };
 
+  const handleSubjectClick = (subjectName: string) => {
+    // Navigate to available exams tab when subject card is clicked
+    setActiveTab('available-exams');
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'available-exams');
+    window.history.pushState({}, '', url.toString());
+  };
+
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -126,7 +134,7 @@ const PracticeExamLandingPage = () => {
               <p className="text-gray-600 dark:text-gray-400">Test your knowledge and track your progress</p>
             </div>
             <div className="flex gap-2">
-              <Button>
+              <Button onClick={() => handleStartExam('4')}>
                 <Play className="mr-2 h-4 w-4" />
                 Quick Test
               </Button>
@@ -140,7 +148,7 @@ const PracticeExamLandingPage = () => {
           {/* Subject Practice Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {overviewData.subjects.map((subject) => (
-              <Card key={subject.name} className="hover:shadow-md transition-shadow">
+              <Card key={subject.name} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleSubjectClick(subject.name)}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">{subject.name}</h3>
@@ -169,7 +177,10 @@ const PracticeExamLandingPage = () => {
                     className="w-full" 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleStartExam('4')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartExam('4');
+                    }}
                   >
                     <Play className="mr-2 h-4 w-4" />
                     Take Practice Test

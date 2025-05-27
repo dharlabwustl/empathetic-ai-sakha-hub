@@ -114,7 +114,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       {/* Subject Progress Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {subjects.map((subject) => (
-          <Card key={subject.name} className="border-2 hover:shadow-lg transition-shadow">
+          <Card key={subject.name} className="border-2 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleSubjectStudy(subject.name)}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{subject.name}</CardTitle>
@@ -147,7 +147,10 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
                 className="w-full" 
                 variant="outline" 
                 size="sm" 
-                onClick={() => handleSubjectStudy(subject.name)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSubjectStudy(subject.name);
+                }}
               >
                 <Play className="mr-2 h-4 w-4" />
                 Study {subject.name}
@@ -162,7 +165,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-orange-800">
             <Lightbulb className="h-5 w-5" />
-            PREPZR AI Study Suggestions
+            Prep-Zer AI Study Suggestions
           </CardTitle>
         </CardHeader>
         <CardContent>

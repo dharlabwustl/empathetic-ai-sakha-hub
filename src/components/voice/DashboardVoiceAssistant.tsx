@@ -77,7 +77,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     }
 
     if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
-      speakMessage(`Hi ${userName}! I'm PREPZR AI, your intelligent study companion. I can help you navigate to different sections like concepts, flashcards, and practice exams. I can also check your progress, provide study motivation, suggest breaks, and answer questions about your NEET preparation. What would you like to do?`);
+      speakMessage(`Hi ${userName}! I'm Prep-Zer AI, your intelligent study companion. I can help you navigate to different sections like concepts, flashcards, and practice exams. I can also check your progress, provide study motivation, suggest breaks, and answer questions about your NEET preparation. What would you like to do?`);
       return;
     }
 
@@ -101,7 +101,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     }
 
     // Default response
-    speakMessage(`I heard you say: "${command}". I'm PREPZR AI, here to help with your NEET preparation. You can ask me to navigate to different sections, check your progress, or get study guidance. How can I assist you today?`);
+    speakMessage(`I heard you say: "${command}". I'm Prep-Zer AI, here to help with your NEET preparation. You can ask me to navigate to different sections, check your progress, or get study guidance. How can I assist you today?`);
   };
 
   const {
@@ -126,8 +126,8 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
             ? "I can sense your motivation today - that's the spirit we love to see!" 
             : "";
           
-          // Fix pronunciation of PREPZR by breaking it down phonetically
-          const greeting = `Welcome back, ${userName}! I'm your PREP ZR AI assistant, ready to support your NEET preparation journey. ${moodMessage} How can I help you study effectively today?`;
+          // Use phonetic pronunciation guide for PREPZR
+          const greeting = `Welcome back, ${userName}! I'm your Prep-Zer AI assistant, ready to support your NEET preparation journey. ${moodMessage} How can I help you study effectively today?`;
           speakMessage(greeting);
           sessionStorage.setItem('prepzr_voice_greeted', 'true');
         }, 2000);

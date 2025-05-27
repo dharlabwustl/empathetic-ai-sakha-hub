@@ -19,7 +19,7 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   onNavigationCommand,
   position = 'bottom-right',
   className = '',
-  assistantName = 'PREPZR AI'
+  assistantName = 'Prep-Zer AI'
 }) => {
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
@@ -32,7 +32,7 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     // Initial greeting when component mounts
     if (!hasGreetedRef.current && !isMuted) {
       setTimeout(() => {
-        const greeting = `Hello ${userName}! I'm PREPZR AI, your intelligent learning companion. I'm here to help you navigate through your studies and answer any questions you have about your exam preparation.`;
+        const greeting = `Hello ${userName}! I'm Prep-Zer AI, your intelligent learning companion. I'm here to help you navigate through your studies and answer any questions you have about your exam preparation.`;
         speakMessage(greeting);
         hasGreetedRef.current = true;
       }, 2000);
@@ -43,11 +43,11 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     if (isMuted || !('speechSynthesis' in window)) return;
 
     const speech = new SpeechSynthesisUtterance();
-    // Fix pronunciation of PREPZR by breaking it down phonetically
+    // Use phonetic pronunciation for PREPZR
     speech.text = message
-      .replace(/PREPZR/gi, 'PREP ZR')
-      .replace(/Prepzr/gi, 'Prep zr')
-      .replace(/prepzr/gi, 'prep zr');
+      .replace(/PREPZR/gi, 'Prep-Zer')
+      .replace(/Prepzr/gi, 'Prep-Zer')
+      .replace(/prepzr/gi, 'prep-zer');
     speech.lang = language;
     speech.rate = 0.9;
     speech.pitch = 1.0;
@@ -115,7 +115,7 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   };
 
   const handleVoiceCommand = (command: string) => {
-    console.log('PREPZR AI processing command:', command);
+    console.log('Prep-Zer AI processing command:', command);
 
     // Navigation commands
     if (command.includes('dashboard') || command.includes('home')) {
@@ -143,12 +143,12 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     }
 
     if (command.includes('help') || command.includes('what can you do')) {
-      speakMessage(`Hi ${userName}! I'm PREPZR AI, your intelligent study companion. I can help you navigate to different sections, check your progress, provide study tips, and answer questions about your exam preparation. What would you like to do?`);
+      speakMessage(`Hi ${userName}! I'm Prep-Zer AI, your intelligent study companion. I can help you navigate to different sections, check your progress, provide study tips, and answer questions about your exam preparation. What would you like to do?`);
       return;
     }
 
     // Default response
-    speakMessage(`I heard "${command}". I'm PREPZR AI, here to assist with your studies. You can ask me to navigate to different sections or help with your learning. How can I help you today?`);
+    speakMessage(`I heard "${command}". I'm Prep-Zer AI, here to assist with your studies. You can ask me to navigate to different sections or help with your learning. How can I help you today?`);
   };
 
   const positionClasses = {
@@ -159,11 +159,11 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   };
 
   return (
-    <div className={`fixed ${positionClasses[position]} z-50 ${className}`}>
+    <div className={`fixed ${positionClasses[position]} z-40 ${className}`}>
       {isExpanded ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border p-4 w-80 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-sm">PREPZR AI Assistant</h3>
+            <h3 className="font-semibold text-sm">Prep-Zer AI Assistant</h3>
             <Button
               variant="ghost"
               size="sm"
