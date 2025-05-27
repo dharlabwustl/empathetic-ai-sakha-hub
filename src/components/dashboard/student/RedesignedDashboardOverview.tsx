@@ -1,500 +1,324 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
-import { UserProfileBase } from '@/types/user/base';
-import { KpiData } from '@/hooks/useKpiTracking';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
-  Brain, FileText, Bell, TrendingUp, Target, Check, Clock, Calendar
+  BookOpen, 
+  Brain, 
+  TrendingUp, 
+  Trophy, 
+  Target, 
+  Clock,
+  Star,
+  Calendar,
+  Zap,
+  Award,
+  Lightbulb,
+  Fire,
+  BarChart3
 } from 'lucide-react';
-
-import StudyStatsSection from './dashboard-sections/StudyStatsSection';
-import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
-import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
-import ProgressTrackerSection from './dashboard-sections/ProgressTrackerSection';
-import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
-import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
-import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
-import { MoodType } from '@/types/user/base';
-import { Progress } from '@/components/ui/progress';
-import UpcomingTasks from './UpcomingTasks';
+import { motion } from 'framer-motion';
+import { UserProfile } from '@/types/user/base';
+import { DashboardKPIs } from '@/types/dashboard/base';
 
 interface RedesignedDashboardOverviewProps {
-  userProfile: UserProfileBase;
-  kpis: KpiData[];
+  userProfile: UserProfile;
+  kpis: DashboardKPIs;
 }
 
-const dummyTasks = [
-  {
-    id: "task-1",
-    title: "Review Newton's Laws of Motion",
-    subject: "Physics",
-    type: "concept" as const,
-    timeEstimate: 30,
-    dueDate: "Today",
-    priority: "high" as const
-  },
-  {
-    id: "task-2",
-    title: "Complete Organic Chemistry Flashcards",
-    subject: "Chemistry",
-    type: "flashcard" as const,
-    timeEstimate: 20,
-    dueDate: "Today",
-    priority: "medium" as const
-  },
-  {
-    id: "task-3",
-    title: "Take Practice Test on Algebra",
-    subject: "Mathematics",
-    type: "exam" as const,
-    timeEstimate: 60,
-    dueDate: "Tomorrow",
-    priority: "low" as const
-  }
-];
+const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = ({
+  userProfile,
+  kpis
+}) => {
+  const [selectedTimeframe, setSelectedTimeframe] = useState('week');
 
-export default function RedesignedDashboardOverview({ userProfile, kpis }: RedesignedDashboardOverviewProps) {
-  const { loading, dashboardData, refreshData } = useStudentDashboardData();
-  const [currentMood, setCurrentMood] = useState<MoodType>();
-  const navigate = useNavigate();
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 260,
-        damping: 20
-      }
-    }
-  };
-
-  const handleMoodSelect = (mood: MoodType) => {
-    setCurrentMood(mood);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.mood = mood;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
-  };
-
-  // Get dynamic smart suggestions based on current state
-  const getDynamicSmartSuggestions = () => {
-    const currentHour = new Date().getHours();
-    const dayOfWeek = new Date().getDay();
-    const currentDay = new Date().getDate();
-    
-    // Suggestions that change based on time, day, and performance
-    const suggestions = [];
-    
-    if (currentHour >= 6 && currentHour < 12) {
-      suggestions.push({
-        title: "Morning Focus Session",
-        description: "Your brain is fresh! Perfect time for complex concepts.",
-        action: "Study Core Concepts",
-        link: "/dashboard/student/concepts",
-        priority: "high",
-        icon: "🌅"
-      });
-    } else if (currentHour >= 12 && currentHour < 18) {
-      suggestions.push({
-        title: "Afternoon Practice",
-        description: "Great time for active recall and practice questions.",
-        action: "Take Practice Quiz",
-        link: "/dashboard/student/practice-exam",
-        priority: "medium",
-        icon: "📝"
-      });
-    } else if (currentHour >= 18 && currentHour < 22) {
-      suggestions.push({
-        title: "Evening Review",
-        description: "Perfect for reviewing and reinforcing today's learning.",
-        action: "Review Flashcards",
-        link: "/dashboard/student/flashcards",
-        priority: "medium",
-        icon: "🌆"
-      });
-    }
-
-    // Weekend suggestions
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      suggestions.push({
-        title: "Weekend Deep Dive",
-        description: "Use extra time for comprehensive chapter reviews.",
-        action: "Extended Study Session",
-        link: "/dashboard/student/today",
-        priority: "low",
-        icon: "📚"
-      });
-    }
-
-    // Performance-based suggestions
-    if (currentDay % 3 === 0) {
-      suggestions.push({
-        title: "Progress Check",
-        description: "Time to assess your learning and adjust study plan.",
-        action: "View Analytics",
-        link: "/dashboard/student/academic",
-        priority: "medium",
-        icon: "📊"
-      });
-    }
-
-    // Mood-based suggestions
-    if (currentMood === MoodType.STRESSED) {
-      suggestions.push({
-        title: "Stress Relief Study",
-        description: "Try lighter topics and take more breaks today.",
-        action: "Easy Concepts",
-        link: "/dashboard/student/concepts",
-        priority: "high",
-        icon: "😌"
-      });
-    }
-
-    return suggestions.slice(0, 3); // Return top 3 suggestions
-  };
-
-  if (loading || !dashboardData) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Enhanced KPIs with icons
-  const enhancedKpis = [
+  // Mock data for smart suggestions
+  const smartSuggestions = [
     {
-      id: "1",
-      title: "Concepts Completed",
-      value: 45,
-      unit: "/60",
-      icon: <BookOpen className="h-6 w-6 text-blue-500" />,
-      change: 5,
-      changeType: "positive" as const
+      id: 'sg1',
+      title: 'Focus on Physics Today',
+      description: 'Your Physics performance needs attention. Start with Laws of Motion.',
+      type: 'priority',
+      icon: <Target className="h-4 w-4" />,
+      urgency: 'high'
     },
     {
-      id: "2",
-      title: "Quiz Average Score",
-      value: 82,
-      unit: "%",
-      icon: <FileText className="h-6 w-6 text-green-500" />,
-      change: 3,
-      changeType: "positive" as const
+      id: 'sg2', 
+      title: 'Quick Chemistry Review',
+      description: 'Review organic reactions before starting new concepts.',
+      type: 'review',
+      icon: <Brain className="h-4 w-4" />,
+      urgency: 'medium'
     },
     {
-      id: "3",
-      title: "Flashcard Recall",
-      value: 78,
-      unit: "%",
-      icon: <Brain className="h-6 w-6 text-purple-500" />,
-      change: 7,
-      changeType: "positive" as const
+      id: 'sg3',
+      title: 'Take Practice Test',
+      description: 'Your Biology scores show improvement. Take a practice test!',
+      type: 'practice',
+      icon: <Award className="h-4 w-4" />,
+      urgency: 'medium'
     },
     {
-      id: "4",
-      title: "Practice Tests",
-      value: 12,
-      icon: <Check className="h-6 w-6 text-amber-500" />,
-      change: 2,
-      changeType: "positive" as const
-    },
-    {
-      id: "5",
-      title: "Daily Study Goal",
-      value: 4.5,
-      unit: "hrs",
-      icon: <Clock className="h-6 w-6 text-indigo-500" />,
-      change: 0.5,
-      changeType: "positive" as const
+      id: 'sg4',
+      title: 'Study Break Reminder',
+      description: 'You\'ve been studying for 2 hours. Take a 15-minute break.',
+      type: 'wellness',
+      icon: <Clock className="h-4 w-4" />,
+      urgency: 'low'
     }
   ];
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
-    <motion.div
-      className="space-y-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.div variants={itemVariants}>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-          <div>
-            <h2 className="text-2xl font-bold">Study Dashboard</h2>
-            <div className="flex items-center mt-1">
-              <span className="text-sm text-muted-foreground mr-2">Exam Goal:</span>
-              <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-3 py-1 rounded-full text-lg font-semibold">
-                {dashboardData.examGoal}
-              </span>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Enhanced Welcome Header */}
+      <motion.div 
+        className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-8 rounded-2xl shadow-xl relative overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">
+                {getGreeting()}, {userProfile.firstName || userProfile.name}! 🌟
+              </h1>
+              <p className="text-blue-100 text-lg">
+                Ready to excel in your PREPZR journey today?
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <div className="flex items-center gap-2 mb-1">
+                  <Fire className="h-5 w-5 text-orange-300" />
+                  <span className="text-2xl font-bold">7</span>
+                </div>
+                <p className="text-xs text-blue-200">Day Streak</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center gap-2 mb-1">
+                  <Trophy className="h-5 w-5 text-yellow-300" />
+                  <span className="text-2xl font-bold">1,247</span>
+                </div>
+                <p className="text-xs text-blue-200">Total Points</p>
+              </div>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* KPI section above surrounding influences */}
-      <motion.div variants={itemVariants} className="mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {enhancedKpis.map((kpi) => (
-            <Card 
-              key={kpi.id} 
-              className="bg-white dark:bg-gray-800/50 border-0 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>{kpi.icon}</div>
-                  {kpi.changeType && (
-                    <div className={`text-xs ${
-                      kpi.changeType === 'positive' ? 'text-green-500' : 'text-red-500'
-                    }`}>
-                      {kpi.changeType === 'positive' ? '+' : '-'}{kpi.change}{typeof kpi.change === 'number' && kpi.change % 1 === 0 ? '' : '%'}
-                    </div>
-                  )}
-                </div>
-                <div className="mt-2">
-                  <div className="text-xl font-bold">
-                    {kpi.value}{kpi.unit ? ` ${kpi.unit}` : ''}
-                  </div>
-                  <div className="text-xs text-gray-500">{kpi.title}</div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Exam Readiness Score - Without Tips Section */}
-      <motion.div variants={itemVariants} className="mb-6">
-        <Card className="overflow-hidden border-0 shadow-md">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-              <div className="flex items-center mb-4 md:mb-0">
-                <Target className="h-6 w-6 text-violet-600 mr-3" />
-                <h3 className="text-xl font-bold">Exam Readiness Score</h3>
+      {/* Smart Daily Suggestions - Moved below header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
+        <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-yellow-800">
+              <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full">
+                <Lightbulb className="h-5 w-5 text-white" />
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">Target Exam:</span>
-                <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-2 py-1 rounded-full text-sm font-medium">
-                  {dashboardData.examGoal}
-                </span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col md:flex-row md:items-center gap-8">
-              <div className="relative flex-shrink-0">
-                <div className="w-32 h-32 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                  <div className="w-28 h-28 rounded-full bg-white dark:bg-gray-900 flex items-center justify-center flex-col">
-                    <span className="text-3xl font-bold text-violet-600">72%</span>
-                    <span className="text-xs text-gray-500">Readiness</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex-grow space-y-4">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Progress</span>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">72%</span>
-                  </div>
-                  <Progress value={72} className="h-2" />
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                    <div className="text-sm text-muted-foreground">Concept Mastery</div>
-                    <div className="text-xl font-bold text-blue-600 dark:text-blue-400">75%</div>
-                  </div>
-                  
-                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                    <div className="text-sm text-muted-foreground">Recall Accuracy</div>
-                    <div className="text-xl font-bold text-green-600 dark:text-green-400">68%</div>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-                    <div className="text-sm text-muted-foreground">Exam Score</div>
-                    <div className="text-xl font-bold text-purple-600 dark:text-purple-400">82%</div>
-                  </div>
-                  
-                  <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
-                    <div className="text-sm text-muted-foreground">Days to Exam</div>
-                    <div className="text-xl font-bold text-amber-600 dark:text-amber-400">85</div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  <Button 
-                    onClick={() => navigate('/dashboard/student/today')}
-                    size="sm"
-                    className="bg-violet-600 hover:bg-violet-700"
-                  >
-                    Complete Today's Tasks
-                  </Button>
-                  
-                  <Button 
-                    onClick={() => navigate('/dashboard/student/concepts')}
-                    size="sm"
-                    variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
-                  >
-                    View Upcoming Tasks
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Dynamic Smart Suggestions Section - Replaces Tips */}
-      <motion.div variants={itemVariants} className="mb-6">
-        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <Brain className="h-6 w-6 text-indigo-600" />
-              <h3 className="text-xl font-bold">Daily Smart Suggestions</h3>
-              <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">
-                Updated {new Date().toLocaleDateString()}
+              <span className="bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent font-bold text-xl">
+                PREPZR AI Smart Daily Recommendations
               </span>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {getDynamicSmartSuggestions().map((suggestion, index) => (
-                <div 
-                  key={index}
-                  className={`p-4 rounded-lg border-l-4 ${
-                    suggestion.priority === 'high' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' :
-                    suggestion.priority === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
-                    'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  } hover:shadow-md transition-shadow cursor-pointer`}
-                  onClick={() => navigate(suggestion.link)}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {smartSuggestions.map((suggestion) => (
+                <motion.div 
+                  key={suggestion.id} 
+                  className="p-4 bg-white rounded-lg border border-yellow-200 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+                  whileHover={{ scale: 1.02 }}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">{suggestion.icon}</span>
+                    <div className={`p-2 rounded-full ${
+                      suggestion.urgency === 'high' ? 'bg-red-100 text-red-600' :
+                      suggestion.urgency === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+                      'bg-blue-100 text-blue-600'
+                    }`}>
+                      {suggestion.icon}
+                    </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                        {suggestion.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        {suggestion.description}
-                      </p>
-                      <Button size="sm" variant="outline" className="text-xs">
-                        {suggestion.action}
-                      </Button>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-gray-800">{suggestion.title}</h4>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs ${
+                            suggestion.urgency === 'high' ? 'border-red-300 text-red-700' :
+                            suggestion.urgency === 'medium' ? 'border-yellow-300 text-yellow-700' :
+                            'border-blue-300 text-blue-700'
+                          }`}
+                        >
+                          {suggestion.urgency}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600">{suggestion.description}</p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Today's Plan and Mood Based Suggestions side by side */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
-        <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
-      </motion.div>
-
-      {/* Learning Profile and Upcoming Tasks side by side */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Learning Profile - Compact Design */}
-        <Card className="overflow-hidden border-0 shadow-md">
-          <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <Brain className="h-5 w-5 text-violet-600 mr-2" />
-              <h3 className="text-lg font-medium">Your Learning Status</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                <div className="text-sm text-muted-foreground">Concepts Mastered</div>
-                <div className="text-2xl font-bold">45/60</div>
-                <div className="text-xs text-blue-600 dark:text-blue-400">75% completed</div>
+      {/* Enhanced Quick Stats */}
+      <motion.div 
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-blue-500 rounded-full shadow-lg">
+                <BookOpen className="h-6 w-6 text-white" />
               </div>
-              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                <div className="text-sm text-muted-foreground">Total Study Time</div>
-                <div className="text-2xl font-bold">126 hrs</div>
-                <div className="text-xs text-green-600 dark:text-green-400">+12 this week</div>
+              <div>
+                <p className="text-sm text-blue-600 font-medium">Study Time</p>
+                <p className="text-2xl font-bold text-blue-800">{kpis.totalStudyTime || 0}h</p>
               </div>
-            </div>
-              
-            <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800/50">
-              <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Daily Streak</h4>
-              <div className="grid grid-cols-7 gap-1 mb-3">
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`h-6 rounded ${i < 5 ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'} flex items-center justify-center text-xs text-white`}
-                  >
-                    {i < 5 && <Check className="h-3 w-3" />}
-                  </div>
-                ))}
-              </div>
-              <div className="text-sm text-center">
-                <span className="font-medium">5 days</span> study streak! Keep it going!
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <Button 
-                onClick={() => navigate('/dashboard/student/academic')}
-                size="sm" 
-                variant="outline"
-                className="w-full"
-              >
-                View Complete Learning Profile
-              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Upcoming Tasks */}
-        <UpcomingTasks tasks={dummyTasks} />
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-green-500 rounded-full shadow-lg">
+                <Target className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-green-600 font-medium">Accuracy</p>
+                <p className="text-2xl font-bold text-green-800">{kpis.accuracy || 0}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-purple-500 rounded-full shadow-lg">
+                <Brain className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-purple-600 font-medium">Concepts</p>
+                <p className="text-2xl font-bold text-purple-800">{kpis.conceptsLearned || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-lg transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-orange-500 rounded-full shadow-lg">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-orange-600 font-medium">Progress</p>
+                <p className="text-2xl font-bold text-orange-800">{kpis.overallProgress || 0}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
-      {/* Smart Suggestions and Surrounding Influences */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SmartSuggestionsCenter 
-          performance={{
-            accuracy: 85,
-            quizScores: 90,
-            conceptProgress: 75,
-            streak: 7
-          }}
-        />
-        
-        <SubjectBreakdownSection subjects={dashboardData.subjects} />
-      </motion.div>
+      {/* Rest of the dashboard content */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Performance Overview */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                Performance Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm font-medium mb-1">
+                    <span>Physics</span>
+                    <span>85%</span>
+                  </div>
+                  <Progress value={85} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm font-medium mb-1">
+                    <span>Chemistry</span>
+                    <span>78%</span>
+                  </div>
+                  <Progress value={78} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm font-medium mb-1">
+                    <span>Biology</span>
+                    <span>92%</span>
+                  </div>
+                  <Progress value={92} className="h-2" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      <motion.div variants={itemVariants}>
-        <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
-      </motion.div>
-    </motion.div>
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-purple-600" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  <span className="text-xs">Start Learning</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Brain className="h-5 w-5" />
+                  <span className="text-xs">Practice Tests</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Calendar className="h-5 w-5" />
+                  <span className="text-xs">Study Plan</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Trophy className="h-5 w-5" />
+                  <span className="text-xs">Achievements</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
   );
-}
+};
+
+export default RedesignedDashboardOverview;
