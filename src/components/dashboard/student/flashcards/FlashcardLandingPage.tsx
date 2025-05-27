@@ -55,12 +55,13 @@ const FlashcardLandingPage = () => {
 
   const handleStartPractice = () => {
     console.log('Starting flashcard practice for deck:', deckId);
-    // Navigate to the interactive flashcard page
+    // Navigate to the interactive flashcard page - FIXED ROUTE
     navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
   };
 
   const handleQuickReview = () => {
     console.log('Starting quick review for deck:', deckId);
+    // Navigate to the interactive flashcard page with review mode - FIXED ROUTE
     navigate(`/dashboard/student/flashcards/${deckId}/interactive?mode=review`);
   };
 

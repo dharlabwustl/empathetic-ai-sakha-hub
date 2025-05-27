@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import DailySmartSuggestions from '../DailySmartSuggestions';
 import { 
   BookOpen, 
   Brain, 
@@ -15,8 +16,8 @@ import {
   Star,
   Zap,
   Calendar,
-  TrendingUp,
-  Award
+  Award,
+  ChevronRight
 } from 'lucide-react';
 
 interface TodaysPlanProps {
@@ -31,7 +32,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
   // Mock data for today's plan
   const todayData = {
     streak: 7,
-    totalTasks: 12,
+    totalTasks: 8,
     timeAllocation: {
       concepts: 90,
       flashcards: 60,
@@ -114,7 +115,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto p-6">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
         <div className="flex items-center justify-between">
@@ -141,6 +142,9 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
           <Progress value={progressPercentage} className="h-3 bg-white/20" />
         </div>
       </div>
+
+      {/* Daily Smart Suggestions */}
+      <DailySmartSuggestions userName={userName} />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -272,7 +276,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
         <CardContent className="p-6">
           <div className="flex items-center gap-3 mb-4">
             <Zap className="h-6 w-6 text-indigo-600" />
-            <h3 className="text-xl font-bold text-indigo-900">Stay Motivated!</h3>
+            <h3 className="text-xl font-bold text-indigo-900">Keep Going!</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-white rounded-lg border border-indigo-200">

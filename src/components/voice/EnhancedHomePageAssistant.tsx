@@ -68,9 +68,13 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
     };
   }, [language]);
 
-  // Initial greeting - only once per session
+  // Initial greeting - only once per session with session storage check
   useEffect(() => {
-    if (hasInitializedRef.current || hasSpokenGreetingRef.current) return;
+    const hasGreetedThisSession = sessionStorage.getItem('voice_assistant_greeted');
+    
+    if (hasInitializedRef.current || hasSpokenGreetingRef.current || hasGreetedThisSession) {
+      return;
+    }
     
     const speakGreeting = () => {
       if (!isVoiceEnabled || isMuted || hasSpokenGreetingRef.current) return;
@@ -83,6 +87,7 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
         () => {
           setIsSpeaking(true);
           hasSpokenGreetingRef.current = true;
+          sessionStorage.setItem('voice_assistant_greeted', 'true');
           console.log('🔊 Home Voice Assistant: Started speaking initial greeting');
         },
         () => {
@@ -161,17 +166,17 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
           onClick={() => setShowPanel(!showPanel)}
           className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg hover:shadow-xl relative overflow-hidden group"
         >
-          {/* Vibration/Wave effect when speaking */}
+          {/* Enhanced vibration/wave effect when speaking */}
           {isSpeaking && (
             <>
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full"
                 animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.3, 0.1, 0.3]
+                  scale: [1, 1.4, 1],
+                  opacity: [0.4, 0.1, 0.4]
                 }}
                 transition={{
-                  duration: 0.8,
+                  duration: 0.6,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
@@ -179,11 +184,11 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-pink-400 rounded-full"
                 animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0.2, 0.05, 0.2]
+                  scale: [1, 1.6, 1],
+                  opacity: [0.3, 0.05, 0.3]
                 }}
                 transition={{
-                  duration: 1.2,
+                  duration: 0.8,
                   repeat: Infinity,
                   ease: "easeInOut",
                   delay: 0.2
@@ -192,11 +197,11 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-indigo-400 rounded-full"
                 animate={{
-                  scale: [1, 1.7, 1],
-                  opacity: [0.1, 0.03, 0.1]
+                  scale: [1, 1.8, 1],
+                  opacity: [0.2, 0.03, 0.2]
                 }}
                 transition={{
-                  duration: 1.6,
+                  duration: 1.0,
                   repeat: Infinity,
                   ease: "easeInOut",
                   delay: 0.4
@@ -225,12 +230,19 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
               className="text-[10px] font-bold text-transparent bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 bg-clip-text"
               animate={{ 
                 backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                scale: isSpeaking ? [1, 1.2, 1] : [1, 1.1, 1]
+                scale: isSpeaking ? [1, 1.3, 1] : [1, 1.1, 1]
               }}
               transition={{ 
-                duration: isSpeaking ? 0.5 : 2,
-                repeat: Infinity,
-                ease: "easeInOut"
+                backgroundPosition: {
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "linear"
+                },
+                scale: {
+                  duration: isSpeaking ? 0.4 : 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }
               }}
               style={{
                 backgroundSize: '200% auto'
@@ -240,17 +252,17 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
             </motion.span>
           </div>
 
-          {/* Speaking wave indicator */}
+          {/* Enhanced speaking wave indicator */}
           {isSpeaking && (
             <motion.div
               className="absolute inset-0 rounded-full border-3 border-yellow-400"
               animate={{ 
-                scale: [1, 1.15, 1],
-                opacity: [1, 0.3, 1],
-                borderWidth: ['3px', '2px', '3px']
+                scale: [1, 1.2, 1],
+                opacity: [1, 0.2, 1],
+                borderWidth: ['3px', '1px', '3px']
               }}
               transition={{ 
-                duration: 0.6,
+                duration: 0.5,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
