@@ -22,7 +22,7 @@ const StudentAppRoutes = () => {
       <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
-      {/* CRITICAL FIX: Only interactive route for flashcards */}
+      {/* FIXED: Only interactive route, no practice route */}
       <Route path="/flashcards/:setId/interactive" element={<FlashcardInteractivePage />} />
       <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />

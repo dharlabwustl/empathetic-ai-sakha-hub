@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
@@ -74,18 +73,12 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* CRITICAL FIX: All flashcard routes MUST go to interactive */}
-      <Route path="/flashcards/1/interactive" element={
-        <SidebarLayout>
-          <InteractiveFlashcard />
-        </SidebarLayout>
-      } />
+      {/* FIXED: Remove /practice route completely, only interactive */}
       <Route path="/flashcards/:id/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
         </SidebarLayout>
       } />
-      {/* REMOVE any /practice routes to prevent wrong navigation */}
       <Route path="/practice-exam" element={
         <SidebarLayout>
           <PracticeExamsList />
