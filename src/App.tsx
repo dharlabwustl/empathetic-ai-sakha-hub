@@ -208,7 +208,14 @@ function App() {
               <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
               <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
               <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
-              <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
+              
+              {/* Exam Syllabus route - Fixed to prevent double sidebar */}
+              <Route path="/dashboard/student/syllabus" element={
+                <ProtectedRoute>
+                  <ExamSyllabusPage />
+                </ProtectedRoute>
+              } />
+              
               <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
               <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
               
