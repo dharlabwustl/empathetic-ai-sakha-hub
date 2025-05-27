@@ -31,7 +31,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
   }, [benefits.length]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20 overflow-hidden pt-8">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
       
@@ -61,14 +61,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
         }}
       />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-5xl mx-auto">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+        <div className="text-center max-w-5xl mx-auto space-y-6">
           {/* India's #1 Platform Text */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-4"
+            className="mb-3"
           >
             <p className="text-lg text-gray-600 dark:text-gray-400 font-semibold">
               India's #1 AI-Powered Exam Prep Platform
@@ -80,8 +80,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-4"
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-4 leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 leading-tight">
               Master Exam Preparation with AI-Powered Precision
             </h1>
           </motion.div>
@@ -96,7 +97,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             <p className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">
               We understand your mindset, not just the exam
             </p>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-4 max-w-4xl mx-auto">
               Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
             </p>
           </motion.div>

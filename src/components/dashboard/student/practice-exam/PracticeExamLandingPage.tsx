@@ -33,7 +33,7 @@ const PracticeExamLandingPage = () => {
 
   const availableExams = [
     {
-      id: '1',
+      id: '4',
       title: 'NEET Full Length Mock Test 1',
       subject: 'All Subjects',
       questions: 180,
@@ -44,7 +44,7 @@ const PracticeExamLandingPage = () => {
       avgScore: 68
     },
     {
-      id: '2', 
+      id: '6', 
       title: 'Physics Chapter Test - Mechanics',
       subject: 'Physics',
       questions: 45,
@@ -55,7 +55,7 @@ const PracticeExamLandingPage = () => {
       avgScore: 76
     },
     {
-      id: '3',
+      id: '7',
       title: 'Chemistry Organic Reactions Test',
       subject: 'Chemistry', 
       questions: 30,
