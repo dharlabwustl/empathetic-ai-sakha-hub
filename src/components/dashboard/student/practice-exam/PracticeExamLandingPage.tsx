@@ -90,12 +90,12 @@ const PracticeExamLandingPage = () => {
   ];
 
   const handleStartExam = (examId: string) => {
-    console.log('Navigating to exam start:', `/dashboard/student/practice-exam/${examId}/start`);
+    console.log('Starting exam with ID:', examId);
     navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
 
   const handleViewResults = (examId: string) => {
-    console.log('Navigating to exam review:', `/dashboard/student/practice-exam/${examId}/review`);
+    console.log('Viewing results for exam ID:', examId);
     navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
 

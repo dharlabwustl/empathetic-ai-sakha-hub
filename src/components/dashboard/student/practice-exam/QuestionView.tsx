@@ -1,20 +1,20 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Flag } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { CheckCircle, Flag } from 'lucide-react';
+
+interface ExamQuestion {
+  id: string;
+  text: string;
+  options: { id: string; text: string; }[];
+  correctOptionId: string;
+  explanation: string;
+  difficulty: string;
+}
 
 interface QuestionViewProps {
-  question: {
-    id: string;
-    text: string;
-    options: {
-      id: string;
-      text: string;
-    }[];
-  };
+  question: ExamQuestion;
   selectedOptionId?: string;
   onAnswerSelect: (optionId: string) => void;
   questionNumber: number;
@@ -26,45 +26,61 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   selectedOptionId,
   onAnswerSelect,
   questionNumber,
-  isFlagged = false,
+  isFlagged = false
 }) => {
   return (
-    <Card className="relative">
-      {isFlagged && (
-        <Badge 
-          variant="outline" 
-          className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 border-yellow-300 flex items-center"
-        >
-          <Flag className="h-3.5 w-3.5 mr-1 fill-yellow-500" /> Flagged
-        </Badge>
-      )}
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
-          <span className="bg-gray-100 dark:bg-gray-800 rounded-full w-6 h-6 flex items-center justify-center text-sm">
-            {questionNumber}
-          </span>
-          <h3 className="font-medium text-lg">{question.text}</h3>
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg">
+            Question {questionNumber}
+          </CardTitle>
+          <div className="flex gap-2">
+            <Badge variant={question.difficulty === 'easy' ? 'default' : question.difficulty === 'medium' ? 'secondary' : 'destructive'}>
+              {question.difficulty}
+            </Badge>
+            {isFlagged && (
+              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                <Flag className="h-3 w-3 mr-1 fill-yellow-500" />
+                Flagged
+              </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <RadioGroup 
-          value={selectedOptionId} 
-          onValueChange={onAnswerSelect}
-          className="space-y-3"
-        >
-          {question.options.map((option) => (
-            <div 
-              key={option.id}
-              className="flex items-center space-x-2 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-              onClick={() => onAnswerSelect(option.id)}
-            >
-              <RadioGroupItem value={option.id} id={`option-${option.id}`} />
-              <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
-                {option.text}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
+      <CardContent className="space-y-4">
+        <p className="text-lg leading-relaxed">{question.text}</p>
+        
+        <div className="space-y-3">
+          {question.options.map((option, index) => {
+            const isSelected = selectedOptionId === option.id;
+            
+            return (
+              <div
+                key={option.id}
+                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                  isSelected
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+                onClick={() => onAnswerSelect(option.id)}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-500'
+                      : 'border-gray-300'
+                  } flex items-center justify-center`}>
+                    {isSelected && <CheckCircle className="h-3 w-3 text-white" />}
+                  </div>
+                  <span className={`text-sm ${isSelected ? 'font-medium text-blue-900' : 'text-gray-700'}`}>
+                    {String.fromCharCode(65 + index)}. {option.text}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );
