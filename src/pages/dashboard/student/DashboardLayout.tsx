@@ -133,85 +133,144 @@ const DashboardLayout = ({
   const subscriptionDetails = getSubscriptionDetails();
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-      <div className="flex min-h-screen">
-        <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
-          {/* Top Navigation Controls with all voice controls and features */}
-          <TopNavigationControls 
-            hideSidebar={hideSidebar}
-            onToggleSidebar={onToggleSidebar}
-            formattedDate={formattedDate}
-            formattedTime={formattedTime}
-            onOpenTour={handleOpenTour}
-            userName={userProfile.name}
-            mood={currentMood}
-            isFirstTimeUser={isFirstTimeUser}
-            onViewStudyPlan={onViewStudyPlan}
-          />
-
-          {/* Subscription Banner */}
-          <SubscriptionBanner 
-            planType={subscriptionDetails.planType}
-            expiryDate={subscriptionDetails.expiryDate}
-            isExpired={subscriptionDetails.isExpired}
-          />
-
-          {/* Enhanced Dashboard Header without theme toggle (moved to top nav) */}
-          <div className="mb-6">
-            <EnhancedDashboardHeader 
-              userProfile={userProfile}
-              formattedTime={formattedTime}
-              formattedDate={formattedDate}
-              onViewStudyPlan={onViewStudyPlan}
-              currentMood={currentMood}
-              onMoodChange={onMoodChange}
-              upcomingEvents={upcomingEvents}
+    <div className={`min-h-screen relative overflow-hidden ${currentMood ? `mood-${currentMood}` : ''}`}>
+      {/* Premium Animated Background */}
+      <div className="fixed inset-0 z-0">
+        {/* Primary gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-50/50 via-white to-purple-50/30 dark:from-violet-950/20 dark:via-gray-900 dark:to-purple-950/20" />
+        
+        {/* Dynamic gradient meshes */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-transparent rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/4 right-0 w-80 h-80 bg-gradient-to-br from-blue-400/15 to-transparent rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-gradient-to-br from-indigo-400/10 to-transparent rounded-full blur-3xl animate-pulse delay-2000" />
+        
+        {/* Floating particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-purple-300/20 dark:bg-purple-500/10 rounded-full animate-float-subtle"
+              style={{
+                width: Math.random() * 8 + 4 + 'px',
+                height: Math.random() * 8 + 4 + 'px',
+                left: Math.random() * 100 + '%',
+                top: Math.random() * 100 + '%',
+                animationDelay: Math.random() * 5 + 's',
+                animationDuration: (Math.random() * 3 + 4) + 's'
+              }}
             />
-          </div>
+          ))}
+        </div>
+      </div>
 
-          {/* Surrounding Influences Section */}
-          <SurroundingInfluencesSection 
-            influenceMeterCollapsed={influenceMeterCollapsed}
-            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-          />
-          
-          {isMobile && (
-            <div className="mb-6">
-              <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-            </div>
-          )}
-          
-          {/* Main Content */}
-          {children ? (
-            <div className="mt-6">{children}</div>
-          ) : (
-            <div className="mt-4 sm:mt-6">
-              <DashboardContent
-                activeTab={activeTab}
-                onTabChange={onTabChange}
-                userProfile={userProfile}
-                kpis={kpis}
-                nudges={nudges}
-                markNudgeAsRead={markNudgeAsRead}
-                features={features}
-                showWelcomeTour={showTour}
-                handleSkipTour={onSkipTour}
-                handleCompleteTour={onCompleteTour}
-                hideTabsNav={hideTabsNav || isMobile}
-                lastActivity={lastActivity}
-                suggestedNextAction={suggestedNextAction}
+      <div className="relative z-10 flex min-h-screen">
+        <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6 backdrop-blur-sm`}>
+          {/* Top Navigation with Premium Glass Effect */}
+          <div className="mb-6 relative">
+            <div className="absolute inset-0 bg-white/20 dark:bg-gray-900/20 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-gray-700/30 shadow-2xl" />
+            <div className="relative z-10 p-1">
+              <TopNavigationControls 
+                hideSidebar={hideSidebar}
+                onToggleSidebar={onToggleSidebar}
+                formattedDate={formattedDate}
+                formattedTime={formattedTime}
+                onOpenTour={handleOpenTour}
+                userName={userProfile.name}
+                mood={currentMood}
+                isFirstTimeUser={isFirstTimeUser}
+                onViewStudyPlan={onViewStudyPlan}
               />
             </div>
+          </div>
+
+          {/* Premium Subscription Banner */}
+          <div className="mb-6 relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-indigo-500/10 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative">
+              <SubscriptionBanner 
+                planType={subscriptionDetails.planType}
+                expiryDate={subscriptionDetails.expiryDate}
+                isExpired={subscriptionDetails.isExpired}
+              />
+            </div>
+          </div>
+
+          {/* Enhanced Dashboard Header with Premium Styling */}
+          <div className="mb-6 relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-purple-50/40 to-blue-50/40 dark:from-gray-800/40 dark:via-purple-900/20 dark:to-blue-900/20 rounded-3xl backdrop-blur-xl border border-white/50 dark:border-gray-700/50 shadow-2xl group-hover:shadow-3xl transition-all duration-500" />
+            <div className="relative z-10 p-1">
+              <EnhancedDashboardHeader 
+                userProfile={userProfile}
+                formattedTime={formattedTime}
+                formattedDate={formattedDate}
+                onViewStudyPlan={onViewStudyPlan}
+                currentMood={currentMood}
+                onMoodChange={onMoodChange}
+                upcomingEvents={upcomingEvents}
+              />
+            </div>
+          </div>
+
+          {/* Premium Surrounding Influences Section */}
+          <div className="mb-6 relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-50/50 via-white/60 to-purple-50/50 dark:from-indigo-950/30 dark:via-gray-800/60 dark:to-purple-950/30 rounded-2xl backdrop-blur-sm border border-indigo-100/60 dark:border-indigo-800/30 shadow-xl group-hover:shadow-2xl transition-all duration-300" />
+            <div className="relative z-10 p-1">
+              <SurroundingInfluencesSection 
+                influenceMeterCollapsed={influenceMeterCollapsed}
+                setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+              />
+            </div>
+          </div>
+          
+          {isMobile && (
+            <div className="mb-6 relative">
+              <div className="glass-card rounded-2xl p-1 shadow-xl">
+                <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+              </div>
+            </div>
           )}
+          
+          {/* Main Content with Premium Container */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-purple-50/40 to-blue-50/60 dark:from-gray-800/60 dark:via-purple-900/20 dark:to-blue-900/40 rounded-3xl backdrop-blur-xl border border-white/60 dark:border-gray-700/40 shadow-2xl group-hover:shadow-3xl transition-all duration-500" />
+            <div className="relative z-10 p-6">
+              {children ? (
+                <div className="mt-6">{children}</div>
+              ) : (
+                <div className="mt-4 sm:mt-6">
+                  <DashboardContent
+                    activeTab={activeTab}
+                    onTabChange={onTabChange}
+                    userProfile={userProfile}
+                    kpis={kpis}
+                    nudges={nudges}
+                    markNudgeAsRead={markNudgeAsRead}
+                    features={features}
+                    showWelcomeTour={showTour}
+                    handleSkipTour={onSkipTour}
+                    handleCompleteTour={onCompleteTour}
+                    hideTabsNav={hideTabsNav || isMobile}
+                    lastActivity={lastActivity}
+                    suggestedNextAction={suggestedNextAction}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </main>
       </div>
       
-      {/* Speech Recognition Button positioned above voice assistant with higher z-index */}
-      <SpeechRecognitionButton
-        position="dashboard"
-        onCommand={handleSpeechCommand}
-        className="fixed bottom-32 right-6 z-50"
-      />
+      {/* Premium Speech Recognition Button */}
+      <div className="fixed bottom-32 right-6 z-50 group">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity animate-pulse" />
+        <div className="relative">
+          <SpeechRecognitionButton
+            position="dashboard"
+            onCommand={handleSpeechCommand}
+            className="relative z-10 shadow-2xl border-2 border-white/20 backdrop-blur-sm"
+          />
+        </div>
+      </div>
       
       {showStudyPlan && (
         <StudyPlanDialog 
