@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Clock, Target, TrendingUp, Play, ChevronRight, BarChart, Plus } from 'lucide-react';
+import { FileText, Plus, Play, ChevronRight, Clock, Target, TrendingUp, Users } from 'lucide-react';
 import OverviewSection from '../OverviewSection';
 
 const PracticeExamLandingPage = () => {
@@ -17,66 +17,62 @@ const PracticeExamLandingPage = () => {
     type: "Practice Exams" as const,
     title: "NEET Practice Exams Overview",
     subjects: [
-      { name: "Physics", completed: 18, total: 25, progress: 72, efficiency: 76, studyTime: 15 },
-      { name: "Chemistry", completed: 22, total: 30, progress: 73, efficiency: 82, studyTime: 18 },
-      { name: "Biology", completed: 25, total: 35, progress: 71, efficiency: 79, studyTime: 22 }
+      { name: "Physics", completed: 12, total: 20, progress: 60, efficiency: 78, studyTime: 24 },
+      { name: "Chemistry", completed: 15, total: 22, progress: 68, efficiency: 82, studyTime: 28 },
+      { name: "Biology", completed: 18, total: 25, progress: 72, efficiency: 75, studyTime: 35 }
     ],
-    totalStudyTime: 55,
-    overallProgress: 72,
+    totalStudyTime: 87,
+    overallProgress: 67,
     suggestions: [
-      "Focus on Physics mechanics - your weakest area needs attention",
-      "Take more Chemistry organic practice tests to boost confidence",
-      "Biology scores are improving - maintain the momentum!",
-      "Consider full-length NEET mock tests to build endurance"
+      "Take more Physics mock tests to improve speed and accuracy",
+      "Focus on Chemistry organic reactions in practice exams", 
+      "Biology ecology questions need more practice attempts",
+      "Try full-length practice exams to build exam stamina"
     ]
   };
 
-  const recentExams = [
+  const availableExams = [
     {
       id: '1',
-      title: 'NEET Physics Mock Test 3',
-      subject: 'Physics',
-      questions: 45,
-      duration: 180,
-      score: 82,
-      status: 'completed',
+      title: 'NEET Full Length Mock Test 1',
+      subject: 'All Subjects',
+      questions: 180,
+      duration: '3 hours',
       difficulty: 'Medium',
-      takenAt: '2 days ago'
+      attempts: 2,
+      bestScore: 75,
+      avgScore: 68
     },
     {
-      id: '2',
-      title: 'Organic Chemistry Practice',
-      subject: 'Chemistry',
-      questions: 30,
-      duration: 120,
-      score: null,
-      status: 'available',
+      id: '2', 
+      title: 'Physics Chapter Test - Mechanics',
+      subject: 'Physics',
+      questions: 45,
+      duration: '45 mins',
       difficulty: 'Hard',
-      takenAt: null
+      attempts: 3,
+      bestScore: 82,
+      avgScore: 76
     },
     {
       id: '3',
-      title: 'Human Physiology Test',
-      subject: 'Biology',
-      questions: 40,
-      duration: 150,
-      score: 78,
-      status: 'completed',
+      title: 'Chemistry Organic Reactions Test',
+      subject: 'Chemistry', 
+      questions: 30,
+      duration: '30 mins',
       difficulty: 'Medium',
-      takenAt: '1 week ago'
+      attempts: 1,
+      bestScore: 65,
+      avgScore: 65
     }
   ];
 
-  const handleExamAction = (exam: any) => {
-    if (exam.status === 'completed') {
-      navigate('/dashboard/student/practice-exam/6/review');
-    } else {
-      navigate('/dashboard/student/practice-exam/4/start');
-    }
+  const handleStartExam = (examId: string) => {
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
 
-  const handleTakePracticeTest = () => {
-    setActiveTab('all-exams');
+  const handleViewResults = (examId: string) => {
+    navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
 
   return (
@@ -84,33 +80,33 @@ const PracticeExamLandingPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="all-exams">All Exams</TabsTrigger>
+          <TabsTrigger value="available-exams">Available Exams</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
           <OverviewSection {...overviewData} />
         </TabsContent>
 
-        <TabsContent value="all-exams" className="space-y-6 mt-6">
+        <TabsContent value="available-exams" className="space-y-6 mt-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Practice Exams</h1>
-              <p className="text-gray-600 dark:text-gray-400">Test your knowledge with comprehensive mock exams</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Available Practice Exams</h1>
+              <p className="text-gray-600 dark:text-gray-400">Test your knowledge and track your progress</p>
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => navigate('/dashboard/student/practice-exam/4/start')}>
+              <Button>
                 <Play className="mr-2 h-4 w-4" />
-                Take Practice Test
+                Quick Test
               </Button>
               <Button variant="outline">
                 <Plus className="mr-2 h-4 w-4" />
-                Create Custom Exam
+                Create Custom Test
               </Button>
             </div>
           </div>
 
-          {/* Subject Practice Buttons */}
+          {/* Subject Practice Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {overviewData.subjects.map((subject) => (
               <Card key={subject.name} className="hover:shadow-md transition-shadow">
@@ -121,27 +117,32 @@ const PracticeExamLandingPage = () => {
                   </div>
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
-                      <span>{subject.completed}/{subject.total} Exams</span>
+                      <span>{subject.completed}/{subject.total} Tests</span>
                       <span>{subject.studyTime}h practiced</span>
                     </div>
                     <Progress value={subject.progress} className="h-2" />
                   </div>
-                  <Button 
-                    className="w-full" 
-                    onClick={() => navigate('/dashboard/student/practice-exam/4/start')}
-                  >
-                    Practice {subject.name}
-                  </Button>
+                  
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="p-2 bg-blue-50 rounded text-center">
+                      <p className="text-sm font-bold text-blue-700">{subject.efficiency}%</p>
+                      <p className="text-xs text-blue-600">Avg Score</p>
+                    </div>
+                    <div className="p-2 bg-green-50 rounded text-center">
+                      <p className="text-sm font-bold text-green-700">{subject.studyTime}h</p>
+                      <p className="text-xs text-green-600">Practice Time</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* Recent Exams */}
+          {/* Available Exams List */}
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Recent Practice Exams</CardTitle>
+                <CardTitle>Practice Exams</CardTitle>
                 <Button variant="ghost" size="sm">
                   View All <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -149,8 +150,8 @@ const PracticeExamLandingPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentExams.map((exam) => (
-                  <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer">
+                {availableExams.map((exam) => (
+                  <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-medium">{exam.title}</h4>
@@ -158,35 +159,25 @@ const PracticeExamLandingPage = () => {
                         <Badge variant={exam.difficulty === 'Easy' ? 'default' : exam.difficulty === 'Medium' ? 'secondary' : 'destructive'}>
                           {exam.difficulty}
                         </Badge>
-                        {exam.score && (
-                          <Badge variant={exam.score >= 80 ? 'default' : exam.score >= 60 ? 'secondary' : 'destructive'}>
-                            {exam.score}%
-                          </Badge>
-                        )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span>{exam.questions} questions</span>
-                        <span>{exam.duration} min</span>
-                        {exam.takenAt && <span>Taken: {exam.takenAt}</span>}
+                        <span>{exam.duration}</span>
+                        <span>Best: {exam.bestScore}%</span>
+                        <span>{exam.attempts} attempts</span>
                       </div>
                     </div>
-                    <Button 
-                      size="sm" 
-                      variant={exam.status === 'completed' ? 'outline' : 'default'}
-                      onClick={() => handleExamAction(exam)}
-                    >
-                      {exam.status === 'completed' ? (
-                        <>
-                          <BarChart className="h-4 w-4 mr-1" />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => handleStartExam(exam.id)}>
+                        <Play className="h-4 w-4 mr-1" />
+                        Start Exam
+                      </Button>
+                      {exam.attempts > 0 && (
+                        <Button size="sm" variant="outline" onClick={() => handleViewResults(exam.id)}>
                           View Results
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4 mr-1" />
-                          Start Exam
-                        </>
+                        </Button>
                       )}
-                    </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -198,28 +189,28 @@ const PracticeExamLandingPage = () => {
             <Card>
               <CardContent className="p-4 text-center">
                 <FileText className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                <p className="text-2xl font-bold">90</p>
+                <p className="text-2xl font-bold">67</p>
                 <p className="text-sm text-gray-600">Total Exams</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <Target className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                <p className="text-2xl font-bold">65</p>
+                <p className="text-2xl font-bold">45</p>
                 <p className="text-sm text-gray-600">Completed</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <Clock className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                <p className="text-2xl font-bold">56h</p>
+                <p className="text-2xl font-bold">87h</p>
                 <p className="text-sm text-gray-600">Practice Time</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                <p className="text-2xl font-bold">79%</p>
+                <p className="text-2xl font-bold">76%</p>
                 <p className="text-sm text-gray-600">Avg Score</p>
               </CardContent>
             </Card>

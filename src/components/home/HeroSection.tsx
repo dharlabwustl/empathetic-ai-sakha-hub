@@ -63,12 +63,50 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-5xl mx-auto">
-          {/* Top Banner - Separate and Highlighted */}
+          {/* India's #1 Platform Text */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-4"
+          >
+            <p className="text-lg text-gray-600 dark:text-gray-400 font-semibold">
+              India's #1 AI-Powered Exam Prep Platform
+            </p>
+          </motion.div>
+
+          {/* Main Headline - Compact One Row */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-4 leading-tight">
+              Master Exam Preparation with AI-Powered Precision
+            </h1>
+          </motion.div>
+
+          {/* Enhanced Subtitle */}
+          <motion.div
+            className="mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <p className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">
+              We understand your mindset, not just the exam
+            </p>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+              Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
+            </p>
+          </motion.div>
+
+          {/* NEET 2026 Banner - Separate and Highlighted */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-4"
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mb-6"
           >
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full text-sm font-bold shadow-lg border-2 border-white/20">
               <Star className="h-4 w-4 fill-current animate-pulse" />
@@ -76,68 +114,30 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* India's #1 Platform Text */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-6"
-          >
-            <p className="text-lg text-gray-600 dark:text-gray-400 font-semibold">
-              India's #1 AI-Powered Exam Prep Platform
-            </p>
-          </motion.div>
-
-          {/* Main Headline - One Row */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-6 leading-tight">
-              Master Exam Preparation with AI-Powered Precision
-            </h1>
-          </motion.div>
-
-          {/* Enhanced Subtitle */}
-          <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <p className="text-2xl sm:text-3xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
-              We understand your mindset, not just the exam
-            </p>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-              Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
-            </p>
-          </motion.div>
-
           {/* Animated Key Benefits */}
           <motion.div
-            className="mb-12"
+            className="mb-8"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
               7 Key Benefits That Transform Your Journey
             </h3>
             
             {/* Dynamic Benefit Display */}
-            <div className="min-h-[120px] flex items-center justify-center">
+            <div className="min-h-[80px] flex items-center justify-center">
               <motion.div
                 key={currentBenefitIndex}
                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: -20 }}
                 transition={{ duration: 0.6 }}
-                className="bg-white/80 dark:bg-gray-800/80 rounded-xl p-6 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg max-w-md mx-auto"
+                className="bg-white/80 dark:bg-gray-800/80 rounded-xl p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg max-w-md mx-auto"
               >
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0" />
-                  <span className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                     {benefits[currentBenefitIndex]}
                   </span>
                 </div>
@@ -145,7 +145,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
 
             {/* Progress Dots */}
-            <div className="flex justify-center gap-2 mt-4">
+            <div className="flex justify-center gap-2 mt-3">
               {benefits.map((_, index) => (
                 <div
                   key={index}
