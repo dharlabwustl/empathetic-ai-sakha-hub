@@ -6,16 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Play, Clock, Target, Star, Users, ChevronRight, Filter, Search } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { BookOpen, Play, Clock, Target, Star, Users, ChevronRight } from 'lucide-react';
 import OverviewSection from '../OverviewSection';
 
 const ConceptsLandingPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
-  const [statusFilter, setStatusFilter] = useState<'today' | 'upcoming' | 'completed'>('today');
-  const [subjectFilter, setSubjectFilter] = useState('all');
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -53,9 +50,7 @@ const ConceptsLandingPage = () => {
       rating: 4.8,
       studentsStudied: 1250,
       description: 'Newton\'s three laws of motion and their applications',
-      topics: ['Inertia', 'Force and Acceleration', 'Action-Reaction'],
-      status: 'today',
-      completed: false
+      topics: ['Inertia', 'Force and Acceleration', 'Action-Reaction']
     },
     {
       id: '2',
@@ -67,9 +62,7 @@ const ConceptsLandingPage = () => {
       rating: 4.7,
       studentsStudied: 980,
       description: 'Ionic, covalent, and metallic bonds formation',
-      topics: ['Ionic Bonds', 'Covalent Bonds', 'Hybridization'],
-      status: 'upcoming',
-      completed: false
+      topics: ['Ionic Bonds', 'Covalent Bonds', 'Hybridization']
     },
     {
       id: '3',
@@ -81,9 +74,7 @@ const ConceptsLandingPage = () => {
       rating: 4.9,
       studentsStudied: 1100,
       description: 'Mitosis and meiosis processes in detail',
-      topics: ['Mitosis', 'Meiosis', 'Cell Cycle'],
-      status: 'completed',
-      completed: true
+      topics: ['Mitosis', 'Meiosis', 'Cell Cycle']
     },
     {
       id: '4',
@@ -95,27 +86,9 @@ const ConceptsLandingPage = () => {
       rating: 4.6,
       studentsStudied: 850,
       description: 'Laws of thermodynamics and their applications',
-      topics: ['First Law', 'Second Law', 'Entropy'],
-      status: 'today',
-      completed: false
+      topics: ['First Law', 'Second Law', 'Entropy']
     }
   ];
-
-  const subjects = ['all', 'Physics', 'Chemistry', 'Biology'];
-  
-  // Filter concepts based on status and subject
-  const filteredConcepts = allConcepts.filter(concept => {
-    const statusMatch = concept.status === statusFilter || (statusFilter === 'completed' && concept.completed);
-    const subjectMatch = subjectFilter === 'all' || concept.subject === subjectFilter;
-    return statusMatch && subjectMatch;
-  });
-
-  // Count concepts by status
-  const statusCounts = {
-    today: allConcepts.filter(c => c.status === 'today').length,
-    upcoming: allConcepts.filter(c => c.status === 'upcoming').length,
-    completed: allConcepts.filter(c => c.completed).length
-  };
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -150,234 +123,157 @@ const ConceptsLandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30 dark:from-blue-900/10 dark:via-gray-900 dark:to-purple-900/10">
-      <div className="space-y-6 p-6">
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="all-concepts">All Concepts</TabsTrigger>
-          </TabsList>
+    <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="all-concepts">All Concepts</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="overview" className="space-y-6 mt-6">
-            <OverviewSection 
-              {...overviewData} 
-              onContinueLearning={handleContinueLearning}
-            />
-          </TabsContent>
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          <OverviewSection 
+            {...overviewData} 
+            onContinueLearning={handleContinueLearning}
+          />
+        </TabsContent>
 
-          <TabsContent value="all-concepts" className="space-y-6 mt-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">All Concepts</h1>
-                <p className="text-gray-600 dark:text-gray-400">Master key concepts across all subjects</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Filter
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </Button>
-              </div>
+        <TabsContent value="all-concepts" className="space-y-6 mt-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Concepts</h1>
+              <p className="text-gray-600 dark:text-gray-400">Master key concepts across all subjects</p>
             </div>
+            <Button variant="outline">
+              View All <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
+          </div>
 
-            {/* Status Filter Tabs with Count Indicators */}
-            <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-              <TabsList>
-                <TabsTrigger value="today" className="flex items-center gap-2">
-                  Today
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {statusCounts.today}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="upcoming" className="flex items-center gap-2">
-                  Upcoming
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {statusCounts.upcoming}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="completed" className="flex items-center gap-2">
-                  Completed
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {statusCounts.completed}
-                  </Badge>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+          {/* Subject Progress Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {overviewData.subjects.map((subject) => (
+              <Card key={subject.name} className="hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-blue-300" onClick={() => handleContinueLearning()}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{subject.name}</h3>
+                    <Badge variant="outline" className={getSubjectColor(subject.name)}>
+                      {subject.progress}% Complete
+                    </Badge>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span>{subject.completed}/{subject.total} Concepts</span>
+                      <span>{subject.studyTime}h studied</span>
+                    </div>
+                    <Progress value={subject.progress} className="h-2" />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="p-2 bg-blue-50 rounded text-center">
+                      <p className="text-sm font-bold text-blue-700">{subject.efficiency}%</p>
+                      <p className="text-xs text-blue-600">Mastery</p>
+                    </div>
+                    <div className="p-2 bg-green-50 rounded text-center">
+                      <p className="text-sm font-bold text-green-700">{subject.studyTime}h</p>
+                      <p className="text-xs text-green-600">Study Time</p>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    className="w-full" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleContinueLearning();
+                    }}
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Study {subject.name}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-            {/* Subject Filter */}
-            <div className="flex gap-2">
-              {subjects.map((subject) => (
-                <Button
-                  key={subject}
-                  variant={subjectFilter === subject ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSubjectFilter(subject)}
-                  className="capitalize"
-                >
-                  {subject}
-                </Button>
-              ))}
-            </div>
-
-            {/* Subject Progress Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {overviewData.subjects.map((subject) => (
-                <motion.div
-                  key={subject.name}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-blue-300 bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/20" onClick={() => handleContinueLearning()}>
+          {/* All Concepts List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Featured Concepts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {allConcepts.map((concept) => (
+                  <Card key={concept.id} className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 cursor-pointer" onClick={() => handleStudyConcept(concept.id)}>
                     <CardContent className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">{subject.name}</h3>
-                        <Badge variant="outline" className={getSubjectColor(subject.name)}>
-                          {subject.progress}% Complete
-                        </Badge>
-                      </div>
-                      <div className="space-y-2 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span>{subject.completed}/{subject.total} Concepts</span>
-                          <span>{subject.studyTime}h studied</span>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-semibold text-lg">{concept.title}</h4>
+                            <Badge variant="outline" className={getSubjectColor(concept.subject)}>
+                              {concept.subject}
+                            </Badge>
+                            <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+                              {concept.difficulty}
+                            </Badge>
+                          </div>
+                          
+                          <p className="text-gray-600 mb-3">{concept.description}</p>
+                          
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {concept.topics.map((topic, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {topic}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              {concept.studyTime}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                              {concept.rating}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              {concept.studentsStudied.toLocaleString()} students
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Your Progress</span>
+                              <span>{concept.progress}%</span>
+                            </div>
+                            <Progress value={concept.progress} className="h-2" />
+                          </div>
                         </div>
-                        <Progress value={subject.progress} className="h-2" />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 mb-4">
-                        <div className="p-2 bg-blue-50 rounded text-center">
-                          <p className="text-sm font-bold text-blue-700">{subject.efficiency}%</p>
-                          <p className="text-xs text-blue-600">Mastery</p>
+                        
+                        <div className="ml-4">
+                          <Button 
+                            size="sm" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStudyConcept(concept.id);
+                            }}
+                            className="min-w-[120px]"
+                          >
+                            <Play className="h-4 w-4 mr-1" />
+                            Study Concept
+                          </Button>
                         </div>
-                        <div className="p-2 bg-green-50 rounded text-center">
-                          <p className="text-sm font-bold text-green-700">{subject.studyTime}h</p>
-                          <p className="text-xs text-green-600">Study Time</p>
-                        </div>
                       </div>
-                      
-                      <Button 
-                        className="w-full" 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleContinueLearning();
-                        }}
-                      >
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        Study {subject.name}
-                      </Button>
                     </CardContent>
                   </Card>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Filtered Concepts List */}
-            <Card className="bg-gradient-to-r from-white via-blue-50/30 to-purple-50/30 dark:from-gray-800 dark:via-blue-900/10 dark:to-purple-900/10">
-              <CardHeader>
-                <CardTitle>
-                  {statusFilter === 'today' ? 'Today\'s Concepts' : 
-                   statusFilter === 'upcoming' ? 'Upcoming Concepts' : 
-                   'Completed Concepts'} ({filteredConcepts.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {filteredConcepts.map((concept, index) => (
-                    <motion.div
-                      key={concept.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800/50" onClick={() => handleStudyConcept(concept.id)}>
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h4 className="font-semibold text-lg">{concept.title}</h4>
-                                <Badge variant="outline" className={getSubjectColor(concept.subject)}>
-                                  {concept.subject}
-                                </Badge>
-                                <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
-                                  {concept.difficulty}
-                                </Badge>
-                                {concept.completed && (
-                                  <Badge className="bg-green-100 text-green-800 border-green-200">
-                                    Completed
-                                  </Badge>
-                                )}
-                              </div>
-                              
-                              <p className="text-gray-600 mb-3">{concept.description}</p>
-                              
-                              <div className="flex flex-wrap gap-2 mb-3">
-                                {concept.topics.map((topic, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
-                                    {topic}
-                                  </Badge>
-                                ))}
-                              </div>
-                              
-                              <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-4 w-4" />
-                                  {concept.studyTime}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                                  {concept.rating}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Users className="h-4 w-4" />
-                                  {concept.studentsStudied.toLocaleString()} students
-                                </span>
-                              </div>
-
-                              <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                  <span>Your Progress</span>
-                                  <span>{concept.progress}%</span>
-                                </div>
-                                <Progress value={concept.progress} className="h-2" />
-                              </div>
-                            </div>
-                            
-                            <div className="ml-4">
-                              <Button 
-                                size="sm" 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleStudyConcept(concept.id);
-                                }}
-                                className="min-w-[120px]"
-                                disabled={concept.completed}
-                              >
-                                <Play className="h-4 w-4 mr-1" />
-                                {concept.completed ? 'Review' : 'Study Concept'}
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-                
-                {filteredConcepts.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No concepts found for the selected filter.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

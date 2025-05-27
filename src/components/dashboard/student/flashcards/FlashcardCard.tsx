@@ -93,7 +93,7 @@ export default function FlashcardCard({
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className={`overflow-hidden border-l-4 ${getBorderColorClass(difficulty)} shadow-sm hover:shadow-md transition-shadow bg-gradient-to-r from-white to-blue-50/30 dark:from-gray-800 dark:to-blue-900/20`}>
+      <Card className={`overflow-hidden border-l-4 ${getBorderColorClass(difficulty)} shadow-sm hover:shadow-md transition-shadow`}>
         <div className="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-950 dark:to-blue-950 p-4">
           <div className="flex items-start justify-between">
             <div className="flex-1">
