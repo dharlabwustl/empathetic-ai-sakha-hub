@@ -60,7 +60,7 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
 
   return (
     <div className="flex min-h-screen">
-      {/* Universal Sidebar */}
+      {/* Universal Sidebar - Only render on non-syllabus pages*/}
       {!isMobile && <UniversalSidebar collapsed={hideSidebar} />}
       
       <main className={`transition-all duration-300 flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
