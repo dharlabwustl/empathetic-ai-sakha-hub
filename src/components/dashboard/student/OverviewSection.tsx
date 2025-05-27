@@ -13,8 +13,7 @@ import {
   TrendingUp, 
   Target,
   Lightbulb,
-  Play,
-  Zap
+  Play
 } from 'lucide-react';
 
 interface SubjectProgress {
@@ -46,107 +45,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   onContinueLearning
 }) => {
   const navigate = useNavigate();
-
-  // Smart suggestions based on type
-  const getSmartSuggestions = () => {
-    switch (type) {
-      case 'Flashcards':
-        return [
-          {
-            id: 'sg1',
-            title: 'Focus on Chemistry Flashcards',
-            description: 'Your Chemistry flashcard accuracy is below 75%. Review organic reactions.',
-            type: 'priority',
-            priority: 'high'
-          },
-          {
-            id: 'sg2',
-            title: 'Physics Quick Review',
-            description: 'Spend 15 minutes on mechanics flashcards for better retention.',
-            type: 'review',
-            priority: 'medium'
-          },
-          {
-            id: 'sg3',
-            title: 'Biology Vocabulary',
-            description: 'Practice cell biology terms for upcoming tests.',
-            type: 'improvement',
-            priority: 'high'
-          },
-          {
-            id: 'sg4',
-            title: 'Daily Flashcard Routine',
-            description: 'Complete 20 flashcards daily for consistent progress.',
-            type: 'routine',
-            priority: 'low'
-          }
-        ];
-      case 'Practice Exams':
-        return [
-          {
-            id: 'sg1',
-            title: 'Take Physics Mock Test',
-            description: 'Your last physics score was 68%. Take a focused test on mechanics.',
-            type: 'priority',
-            priority: 'high'
-          },
-          {
-            id: 'sg2',
-            title: 'Chemistry Weak Areas',
-            description: 'Focus on organic chemistry practice questions.',
-            type: 'improvement',
-            priority: 'high'
-          },
-          {
-            id: 'sg3',
-            title: 'Biology Full Test',
-            description: 'Complete a full biology mock test to assess progress.',
-            type: 'assessment',
-            priority: 'medium'
-          },
-          {
-            id: 'sg4',
-            title: 'Time Management Practice',
-            description: 'Take timed tests to improve your exam speed.',
-            type: 'skill',
-            priority: 'medium'
-          }
-        ];
-      default: // Concepts
-        return [
-          {
-            id: 'sg1',
-            title: 'Focus on Physics Today',
-            description: 'Your Physics performance needs attention. Start with Laws of Motion.',
-            type: 'priority',
-            priority: 'high'
-          },
-          {
-            id: 'sg2',
-            title: 'Quick Chemistry Review',
-            description: 'Review organic reactions before starting new concepts.',
-            type: 'review',
-            priority: 'medium'
-          },
-          {
-            id: 'sg3',
-            title: 'Biology Weak Areas',
-            description: 'Focus on Cell Biology and Genetics for better scores.',
-            type: 'improvement',
-            priority: 'high'
-          },
-          {
-            id: 'sg4',
-            title: 'Daily Concept Review',
-            description: 'Spend 30 minutes reviewing yesterday\'s concepts.',
-            type: 'routine',
-            priority: 'low'
-          }
-        ];
-    }
-  };
-
-  const smartSuggestions = getSmartSuggestions();
 
   const getTypeIcon = () => {
     switch (type) {
@@ -224,52 +122,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         </Button>
       </div>
 
-      {/* Smart Daily Suggestions */}
-      <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-yellow-800">
-            <Lightbulb className="h-5 w-5" />
-            PREPZR AI Daily Smart Recommendations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {smartSuggestions.slice(0, 4).map((suggestion) => (
-              <div key={suggestion.id} className="p-3 bg-white rounded-lg border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-2">
-                  <div className={`p-1.5 rounded-full ${
-                    suggestion.priority === 'high' ? 'bg-red-100 text-red-600' :
-                    suggestion.priority === 'medium' ? 'bg-orange-100 text-orange-600' :
-                    'bg-green-100 text-green-600'
-                  }`}>
-                    {suggestion.type === 'priority' ? <Target className="h-3 w-3" /> : 
-                     suggestion.type === 'review' ? <Brain className="h-3 w-3" /> :
-                     suggestion.type === 'improvement' ? <Zap className="h-3 w-3" /> :
-                     suggestion.type === 'assessment' ? <FileText className="h-3 w-3" /> :
-                     suggestion.type === 'skill' ? <TrendingUp className="h-3 w-3" /> :
-                     <Clock className="h-3 w-3" />}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800">{suggestion.title}</p>
-                    <p className="text-xs text-gray-600 mt-1">{suggestion.description}</p>
-                  </div>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-xs ${
-                      suggestion.priority === 'high' ? 'border-red-200 text-red-700' :
-                      suggestion.priority === 'medium' ? 'border-orange-200 text-orange-700' :
-                      'border-green-200 text-green-700'
-                    }`}
-                  >
-                    {suggestion.priority}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Enhanced Subject Progress Cards - Similar to Flashcard Design */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {subjects.map((subject) => (
@@ -320,6 +172,25 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
           </Card>
         ))}
       </div>
+
+      {/* AI Suggestions */}
+      <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-orange-800">
+            <Lightbulb className="h-5 w-5" />
+            PREPZR AI Study Suggestions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {suggestions.map((suggestion, index) => (
+              <div key={index} className="p-3 bg-white rounded-lg border border-orange-200">
+                <p className="text-sm text-gray-700">{suggestion}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Overall Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
