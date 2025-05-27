@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -116,11 +117,10 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // FIXED: Route to interactive flashcard page - MUST GO TO /interactive
-  const navigateToFlashcard = (setId: number) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
+  // FIXED: Route to interactive flashcard page - MUST GO TO /1/interactive
+  const navigateToFlashcard = () => {
+    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
     console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE FLASHCARDS: ${targetRoute}`);
-    console.log(`🔥🔥🔥 SET ID: ${setId}`);
     navigate(targetRoute);
   };
 
@@ -227,7 +227,7 @@ const FlashcardLandingPage: React.FC = () => {
                 className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
                 onClick={() => {
                   console.log(`🔥🔥🔥 CARD CLICKED - SET ID: ${set.id}`);
-                  navigateToFlashcard(set.id);
+                  navigateToFlashcard();
                 }}
               >
                 <CardHeader className="pb-3">
@@ -284,8 +284,8 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log(`🔥🔥🔥 QUICK REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
-                        navigateToFlashcard(set.id);
+                        console.log(`🔥🔥🔥 QUICK REVIEW BUTTON CLICKED`);
+                        navigateToFlashcard();
                       }}
                     >
                       Quick Review
@@ -294,8 +294,8 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log(`🔥🔥🔥 STUDY CARDS BUTTON CLICKED - SET ID: ${set.id}`);
-                        navigateToFlashcard(set.id);
+                        console.log(`🔥🔥🔥 STUDY CARDS BUTTON CLICKED`);
+                        navigateToFlashcard();
                       }}
                     >
                       Study Cards
@@ -307,8 +307,8 @@ const FlashcardLandingPage: React.FC = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(`🔥🔥🔥 START REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
-                      navigateToFlashcard(set.id);
+                      console.log(`🔥🔥🔥 START REVIEW BUTTON CLICKED`);
+                      navigateToFlashcard();
                     }}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />

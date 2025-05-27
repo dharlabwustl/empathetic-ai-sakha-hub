@@ -325,7 +325,7 @@ const FlashcardsView = () => {
               </CardContent>
               <CardFooter className="p-4 pt-0">
                 <Button asChild variant="ghost" className="w-full justify-between">
-                  <Link to={`/dashboard/student/flashcards/${deck.id}/interactive`}>
+                  <Link to={`/dashboard/student/flashcards/1/interactive`}>
                     Practice Now
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
