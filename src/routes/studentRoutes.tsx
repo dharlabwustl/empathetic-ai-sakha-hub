@@ -24,6 +24,8 @@ import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTak
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 
 const StudentRoutes = () => {
+  console.log('🚨 STUDENT ROUTES - Component loaded');
+  
   return (
     <Routes>
       <Route path="/" element={<StudentDashboard />} />
@@ -72,13 +74,12 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* ENSURE INTERACTIVE ROUTE IS PROPERLY MAPPED */}
+      {/* CRITICAL: INTERACTIVE FLASHCARD ROUTE - MUST BE EXACT MATCH */}
       <Route path="/flashcards/:id/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
         </SidebarLayout>
       } />
-      {/* REMOVE ANY PRACTICE ROUTES - SHOULD NOT EXIST */}
       <Route path="/practice-exam" element={
         <SidebarLayout>
           <PracticeExamsList />

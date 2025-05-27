@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,9 @@ const FlashcardLandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
+
+  console.log('🚨 FLASHCARD LANDING PAGE - Component loaded');
+  console.log('🚨 Current window location:', window.location.href);
 
   const overviewData = {
     type: "Flashcards" as const,
@@ -113,37 +117,39 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // CRITICAL: ALL FUNCTIONS MUST ROUTE TO INTERACTIVE - NEVER TO PRACTICE
-  const handleStartReview = (setId: number) => {
+  // CRITICAL NAVIGATION FUNCTIONS - ALL MUST GO TO INTERACTIVE
+  const navigateToInteractive = (setId: number, source: string) => {
     const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log('🚨 START REVIEW - ROUTING TO:', targetRoute);
-    console.log('🚨 Current location before navigation:', window.location.href);
-    navigate(targetRoute);
-    console.log('🚨 Navigate called for START REVIEW');
+    console.log(`🚨🚨🚨 NAVIGATION FROM ${source.toUpperCase()}`);
+    console.log(`🚨🚨🚨 TARGET ROUTE: ${targetRoute}`);
+    console.log(`🚨🚨🚨 CURRENT LOCATION BEFORE NAVIGATE: ${window.location.href}`);
+    console.log(`🚨🚨🚨 SET ID: ${setId}`);
+    
+    // Force navigation with replace to ensure clean routing
+    navigate(targetRoute, { replace: false });
+    
+    console.log(`🚨🚨🚨 NAVIGATE CALLED SUCCESSFULLY FROM ${source.toUpperCase()}`);
+    
+    // Additional check after navigation attempt
+    setTimeout(() => {
+      console.log(`🚨🚨🚨 POST-NAVIGATION CHECK - Current location: ${window.location.href}`);
+    }, 100);
+  };
+
+  const handleStartReview = (setId: number) => {
+    navigateToInteractive(setId, 'START_REVIEW_BUTTON');
   };
 
   const handleCardClick = (setId: number) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log('🚨 CARD CLICK - ROUTING TO:', targetRoute);
-    console.log('🚨 Current location before navigation:', window.location.href);
-    navigate(targetRoute);
-    console.log('🚨 Navigate called for CARD CLICK');
+    navigateToInteractive(setId, 'CARD_CLICK');
   };
 
   const handleQuickReview = (setId: number) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log('🚨 QUICK REVIEW - ROUTING TO:', targetRoute);
-    console.log('🚨 Current location before navigation:', window.location.href);
-    navigate(targetRoute);
-    console.log('🚨 Navigate called for QUICK REVIEW');
+    navigateToInteractive(setId, 'QUICK_REVIEW_BUTTON');
   };
 
   const handleStudyCards = (setId: number) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log('🚨 STUDY CARDS - ROUTING TO:', targetRoute);
-    console.log('🚨 Current location before navigation:', window.location.href);
-    navigate(targetRoute);
-    console.log('🚨 Navigate called for STUDY CARDS');
+    navigateToInteractive(setId, 'STUDY_CARDS_BUTTON');
   };
 
   return (
@@ -245,8 +251,15 @@ const FlashcardLandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <Card className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
-                    onClick={() => handleCardClick(set.id)}>
+              <Card 
+                className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
+                onClick={(e) => {
+                  console.log(`🚨🚨🚨 CARD CLICKED - SET ID: ${set.id}`);
+                  console.log(`🚨🚨🚨 EVENT TARGET:`, e.target);
+                  console.log(`🚨🚨🚨 EVENT CURRENT TARGET:`, e.currentTarget);
+                  handleCardClick(set.id);
+                }}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
@@ -295,14 +308,14 @@ const FlashcardLandingPage: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  {/* CRITICAL: ALL BUTTONS MUST GO TO INTERACTIVE */}
+                  {/* CRITICAL BUTTONS - ALL MUST GO TO INTERACTIVE */}
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log('🚨 QUICK REVIEW BUTTON CLICKED FOR SET:', set.id);
+                        console.log(`🚨🚨🚨 QUICK REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
                         handleQuickReview(set.id);
                       }}
                     >
@@ -312,7 +325,7 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log('🚨 STUDY CARDS BUTTON CLICKED FOR SET:', set.id);
+                        console.log(`🚨🚨🚨 STUDY CARDS BUTTON CLICKED - SET ID: ${set.id}`);
                         handleStudyCards(set.id);
                       }}
                     >
@@ -325,7 +338,7 @@ const FlashcardLandingPage: React.FC = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log('🚨 START REVIEW BUTTON CLICKED FOR SET:', set.id);
+                      console.log(`🚨🚨🚨 START REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
                       handleStartReview(set.id);
                     }}
                   >
@@ -338,7 +351,7 @@ const FlashcardLandingPage: React.FC = () => {
           ))}
         </motion.div>
 
-        {/* no flashcard sets found section */}
+        {/* No flashcard sets found section */}
         {filteredSets.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
