@@ -21,6 +21,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   const timeoutRef = useRef<number | null>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const lastCommandTimeRef = useRef<number>(0);
+  const sessionGreetingKeyRef = useRef<string>('');
   
   // Check if the current location is appropriate for voice greeting
   const shouldPlayGreeting = location.pathname === '/' || 
@@ -47,6 +48,11 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     }
     
     return formatTextForSpeech("Welcome to Prep-Zer. I'm your emotionally intelligent exam preparation assistant.");
+  };
+
+  // Create session key to prevent repeated greetings
+  const getSessionKey = () => {
+    return `voice_greeting_${location.pathname}_${Date.now().toString().slice(0, -5)}`;
   };
   
   // Cleanup function to ensure proper resource management
@@ -85,17 +91,31 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   useEffect(() => {
     cleanupVoiceResources();
     
-    // Restart with delay to prevent overlapping speech/recognition
-    const restartTimer = setTimeout(() => {
-      if (shouldPlayGreeting && !audioMuted) {
-        setupVoiceGreeting();
-      }
-    }, 1000);
+    // Create new session key for this route
+    const currentSessionKey = getSessionKey();
+    const lastSessionKey = sessionStorage.getItem('last_voice_session');
     
-    return () => {
-      clearTimeout(restartTimer);
-      cleanupVoiceResources();
-    };
+    // Only play greeting if this is a new session or different route
+    if (currentSessionKey !== lastSessionKey && shouldPlayGreeting && !audioMuted) {
+      sessionGreetingKeyRef.current = currentSessionKey;
+      sessionStorage.setItem('last_voice_session', currentSessionKey);
+      
+      // Restart with delay to prevent overlapping speech/recognition
+      const restartTimer = setTimeout(() => {
+        setupVoiceGreeting();
+      }, 1000);
+      
+      return () => clearTimeout(restartTimer);
+    } else {
+      // If greeting shouldn't play, start recognition directly
+      const recognitionTimer = setTimeout(() => {
+        if (!audioMuted && shouldPlayGreeting) {
+          setupVoiceRecognition();
+        }
+      }, 1000);
+      
+      return () => clearTimeout(recognitionTimer);
+    }
   }, [location.pathname]);
   
   // Setup voice recognition with improved error handling
@@ -201,8 +221,17 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
   
   // Setup voice greeting with better error handling
   const setupVoiceGreeting = () => {
-    // Skip if already played, muted, or on wrong page
+    // Skip if already played, muted, or on wrong page, or if session already greeted
     if (greetingPlayed || audioMuted || !shouldPlayGreeting || !('speechSynthesis' in window)) {
+      return;
+    }
+    
+    // Check if we already greeted in this session
+    const currentSessionKey = sessionGreetingKeyRef.current;
+    const completedSessions = sessionStorage.getItem('completed_voice_sessions') || '';
+    if (completedSessions.includes(currentSessionKey)) {
+      console.log("Greeting already played in this session");
+      setupVoiceRecognition();
       return;
     }
     
@@ -255,6 +284,10 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       speech.onend = () => {
         setGreetingPlayed(true);
         console.log("Voice greeting completed");
+        
+        // Mark this session as completed
+        const completedSessions = sessionStorage.getItem('completed_voice_sessions') || '';
+        sessionStorage.setItem('completed_voice_sessions', completedSessions + currentSessionKey + ',');
         
         // Start voice recognition after greeting ends
         setTimeout(() => {
@@ -346,13 +379,6 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
     const muteSetting = localStorage.getItem('voice_assistant_muted');
     if (muteSetting === 'true') {
       setAudioMuted(true);
-    } else if (!audioMuted && shouldPlayGreeting && !greetingPlayed) {
-      // Initial setup if not muted
-      const initialSetupTimer = setTimeout(() => {
-        setupVoiceGreeting();
-      }, 2000);
-      
-      return () => clearTimeout(initialSetupTimer);
     }
     
     document.addEventListener('voice-assistant-mute', handleMuteEvent);
