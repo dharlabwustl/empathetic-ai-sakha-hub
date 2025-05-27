@@ -115,7 +115,7 @@ const Index = () => {
       <SpeechRecognitionButton
         position="homepage"
         onCommand={handleSpeechCommand}
-        className="fixed bottom-24 left-6 z-50"
+        className="fixed bottom-24 right-6 z-50"
       />
 
       {/* PREPZR AI Voice Assistant - positioned below speech recognition */}
@@ -124,7 +124,7 @@ const Index = () => {
         language="en-US"
         onNavigationCommand={handleNavigationCommand}
         position="bottom-right"
-        className="fixed bottom-6 left-6 z-40"
+        className="fixed bottom-6 right-6 z-40"
         assistantName="PREPZR AI"
       />
     </div>

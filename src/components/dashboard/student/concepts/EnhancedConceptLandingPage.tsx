@@ -1,307 +1,338 @@
-import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  Book, 
-  BookOpen, 
-  Search, 
-  Plus, 
-  Filter, 
-  Lightbulb,
-  Clock,
-  Target,
-  TrendingUp
-} from 'lucide-react';
-import OverviewSection from '@/components/dashboard/student/OverviewSection';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { BookOpen, Clock, Target, TrendingUp, Play, ChevronRight, Brain, Star } from 'lucide-react';
 
-interface Concept {
-  id: string;
-  title: string;
-  subject: string;
-  topic: string;
-  description: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  estimatedTime: number;
-  lastStudied: string;
-}
-
-const EnhancedConceptLandingPage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('all');
+const EnhancedConceptLandingPage = () => {
   const navigate = useNavigate();
 
-  const overviewData = {
-    type: "Concepts" as const,
-    title: "NEET Concepts Overview",
-    subjects: [
-      { name: "Physics", completed: 45, total: 60, progress: 75, efficiency: 88, studyTime: 180 },
-      { name: "Chemistry", completed: 32, total: 55, progress: 58, efficiency: 72, studyTime: 150 },
-      { name: "Biology", completed: 55, total: 65, progress: 85, efficiency: 92, studyTime: 200 }
-    ],
-    totalStudyTime: 530,
-    overallProgress: 73,
-    suggestions: [
-      "Focus on Organic Chemistry - showing improvement trend",
-      "Physics mechanics concepts need review",
-      "Biology cell structure mastery is excellent - maintain pace"
-    ]
+  // Enhanced NEET subject data with more detailed metrics
+  const subjectProgress = [
+    {
+      subject: 'Physics',
+      totalConcepts: 120,
+      masteredConcepts: 85,
+      inProgressConcepts: 20,
+      newConcepts: 15,
+      studyTime: '32h 45m',
+      efficiency: 82,
+      improvement: '+18%',
+      color: 'bg-blue-500',
+      chapters: [
+        { name: 'Mechanics', progress: 90, concepts: 25 },
+        { name: 'Thermodynamics', progress: 75, concepts: 18 },
+        { name: 'Electromagnetism', progress: 65, concepts: 22 }
+      ]
+    },
+    {
+      subject: 'Chemistry', 
+      totalConcepts: 150,
+      masteredConcepts: 110,
+      inProgressConcepts: 25,
+      newConcepts: 15,
+      studyTime: '41h 20m',
+      efficiency: 88,
+      improvement: '+22%',
+      color: 'bg-green-500',
+      chapters: [
+        { name: 'Organic Chemistry', progress: 85, concepts: 45 },
+        { name: 'Inorganic Chemistry', progress: 70, concepts: 35 },
+        { name: 'Physical Chemistry', progress: 80, concepts: 30 }
+      ]
+    },
+    {
+      subject: 'Biology',
+      totalConcepts: 180,
+      masteredConcepts: 125,
+      inProgressConcepts: 35,
+      newConcepts: 20,
+      studyTime: '48h 15m',
+      efficiency: 79,
+      improvement: '+15%',
+      color: 'bg-purple-500',
+      chapters: [
+        { name: 'Cell Biology', progress: 95, concepts: 30 },
+        { name: 'Genetics', progress: 70, concepts: 25 },
+        { name: 'Ecology', progress: 60, concepts: 20 }
+      ]
+    }
+  ];
+
+  const recentConcepts = [
+    {
+      id: '1',
+      title: 'Newton\'s Laws of Motion',
+      subject: 'Physics',
+      chapter: 'Mechanics',
+      difficulty: 'Medium',
+      progress: 85,
+      timeSpent: '45m',
+      status: 'mastered',
+      lastStudied: '2 hours ago',
+      tags: ['Fundamental', 'Important']
+    },
+    {
+      id: '2',
+      title: 'Organic Reaction Mechanisms',
+      subject: 'Chemistry',
+      chapter: 'Organic Chemistry',
+      difficulty: 'Hard',
+      progress: 60,
+      timeSpent: '1h 20m',
+      status: 'in-progress',
+      lastStudied: '1 day ago',
+      tags: ['Complex', 'NEET Important']
+    },
+    {
+      id: '3',
+      title: 'Photosynthesis Process',
+      subject: 'Biology',
+      chapter: 'Plant Physiology',
+      difficulty: 'Easy',
+      progress: 95,
+      timeSpent: '30m',
+      status: 'mastered',
+      lastStudied: '3 days ago',
+      tags: ['Fundamental', 'Easy']
+    }
+  ];
+
+  const aiSuggestions = [
+    "Focus on Physics Electromagnetism - this topic needs more attention",
+    "Great progress in Chemistry! Keep reviewing organic mechanisms",
+    "Biology genetics concepts are improving - schedule daily practice",
+    "Consider reviewing mastered concepts weekly for better retention"
+  ];
+
+  const handleConceptClick = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/${conceptId}`);
   };
 
-  const conceptCategories = [
-    {
-      id: 1,
-      title: "Mechanics",
-      subject: "Physics",
-      description: "Fundamental laws of motion, gravitation, and energy",
-      conceptCount: 28,
-      icon: <BookOpen className="h-5 w-5 text-blue-500" />
-    },
-    {
-      id: 2,
-      title: "Organic Chemistry",
-      subject: "Chemistry",
-      description: "Reactions, mechanisms, and properties of organic compounds",
-      conceptCount: 35,
-      icon: <BookOpen className="h-5 w-5 text-red-500" />
-    },
-    {
-      id: 3,
-      title: "Cell Biology",
-      subject: "Biology",
-      description: "Structure, function, and life cycle of cells",
-      conceptCount: 42,
-      icon: <BookOpen className="h-5 w-5 text-green-500" />
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'mastered': return 'bg-green-100 text-green-800 border-green-200';
+      case 'in-progress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'new': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-  ];
-
-  const concepts: Concept[] = [
-    {
-      id: "concept-1",
-      title: "Newton's Laws of Motion",
-      subject: "Physics",
-      topic: "Mechanics",
-      description: "Understand the three laws governing motion and their applications",
-      difficulty: "Medium",
-      estimatedTime: 45,
-      lastStudied: "2 days ago"
-    },
-    {
-      id: "concept-2",
-      title: "Chemical Bonding",
-      subject: "Chemistry",
-      topic: "Inorganic Chemistry",
-      description: "Explore ionic, covalent, and metallic bonds",
-      difficulty: "Easy",
-      estimatedTime: 30,
-      lastStudied: "1 week ago"
-    },
-    {
-      id: "concept-3",
-      title: "Cell Structure and Function",
-      subject: "Biology",
-      topic: "Cell Biology",
-      description: "Learn about organelles and their roles",
-      difficulty: "Medium",
-      estimatedTime: 60,
-      lastStudied: "Today"
-    }
-  ];
-
-  const subjects = ['all', 'Physics', 'Chemistry', 'Biology'];
-
-  const filteredConcepts = concepts.filter(concept => {
-    const matchesSearch = concept.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          concept.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSubject = selectedSubject === 'all' || concept.subject === selectedSubject;
-    return matchesSearch && matchesSubject;
-  });
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy': return 'bg-green-100 text-green-700 border-green-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'Hard': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'Easy': return 'bg-green-50 text-green-700 border-green-200';
+      case 'Medium': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      case 'Hard': return 'bg-red-50 text-red-700 border-red-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-blue-900/10 dark:via-gray-900 dark:to-purple-900/10">
-      <Helmet>
-        <title>Enhanced Concepts - PREPZR</title>
-        <meta name="description" content="Interactive concept learning with AI-powered explanations" />
-      </Helmet>
-
-      {/* Overview Section */}
-      <div className="p-6">
-        <OverviewSection {...overviewData} />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Concept Cards</h1>
+          <p className="text-gray-600 dark:text-gray-400">Master NEET concepts with personalized learning paths</p>
+        </div>
+        <Button>
+          <BookOpen className="mr-2 h-4 w-4" />
+          Create Custom Concept
+        </Button>
       </div>
 
-      {/* Rest of existing content */}
-      <div className="container mx-auto px-4 py-6 space-y-8">
-        {/* Hero Section */}
-        <motion.div 
-          className="text-center space-y-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
-              <Book className="h-8 w-8 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Explore Key Concepts
-            </h1>
-          </div>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Dive deep into essential topics with interactive explanations and examples
-          </p>
-        </motion.div>
+      {/* Enhanced NEET Subject Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {subjectProgress.map((subject) => (
+          <Card key={subject.subject} className="border-2 hover:shadow-lg transition-all duration-200">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-bold">{subject.subject}</CardTitle>
+                <div className={`w-4 h-4 rounded-full ${subject.color}`}></div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Overall Progress */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm font-medium">
+                  <span>Overall Progress</span>
+                  <span>{Math.round((subject.masteredConcepts / subject.totalConcepts) * 100)}%</span>
+                </div>
+                <Progress value={(subject.masteredConcepts / subject.totalConcepts) * 100} className="h-3" />
+              </div>
+              
+              {/* Concept Stats */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="p-2 bg-green-50 rounded-lg text-center border border-green-200">
+                  <p className="text-lg font-bold text-green-700">{subject.masteredConcepts}</p>
+                  <p className="text-xs text-green-600 font-medium">Mastered</p>
+                </div>
+                <div className="p-2 bg-yellow-50 rounded-lg text-center border border-yellow-200">
+                  <p className="text-lg font-bold text-yellow-700">{subject.inProgressConcepts}</p>
+                  <p className="text-xs text-yellow-600 font-medium">Learning</p>
+                </div>
+                <div className="p-2 bg-blue-50 rounded-lg text-center border border-blue-200">
+                  <p className="text-lg font-bold text-blue-700">{subject.newConcepts}</p>
+                  <p className="text-xs text-blue-600 font-medium">New</p>
+                </div>
+              </div>
 
-        {/* Search and Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col sm:flex-row gap-4 items-center"
-        >
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input 
-              placeholder="Search concepts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            {subjects.map((subject) => (
-              <Button
-                key={subject}
-                variant={selectedSubject === subject ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedSubject(subject)}
-                className="capitalize"
-              >
-                {subject}
+              {/* Chapter Progress */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-700">Chapter Progress</h4>
+                {subject.chapters.slice(0, 2).map((chapter) => (
+                  <div key={chapter.name} className="flex justify-between items-center">
+                    <span className="text-xs text-gray-600">{chapter.name}</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={chapter.progress} className="h-1 w-16" />
+                      <span className="text-xs font-medium">{chapter.progress}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Performance Metrics */}
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+                <div className="flex items-center gap-1 text-xs">
+                  <Clock className="h-3 w-3 text-gray-500" />
+                  <span className="text-gray-600">{subject.studyTime}</span>
+                </div>
+                <div className="flex items-center gap-1 text-xs">
+                  <TrendingUp className="h-3 w-3 text-green-500" />
+                  <span className="text-green-600 font-medium">{subject.improvement}</span>
+                </div>
+              </div>
+
+              <Button className="w-full" variant="outline" size="sm">
+                <Play className="mr-2 h-4 w-4" />
+                Continue {subject.subject}
               </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* AI Suggestions */}
+      <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-indigo-800">
+            <Brain className="h-5 w-5" />
+            AI Learning Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {aiSuggestions.map((suggestion, index) => (
+              <div key={index} className="p-3 bg-white rounded-lg border border-indigo-200 shadow-sm">
+                <p className="text-sm text-gray-700">{suggestion}</p>
+              </div>
             ))}
           </div>
-          
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Concept
-          </Button>
-        </motion.div>
+        </CardContent>
+      </Card>
 
-        {/* Concept Categories */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {conceptCategories.map((category, index) => (
-            <motion.div
-              key={category.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
-              <Card className="h-full hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg font-semibold line-clamp-2">
-                        {category.title}
-                      </CardTitle>
-                      <p className="text-sm text-gray-600 mt-1">{category.description}</p>
-                    </div>
-                    {category.icon}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">{category.conceptCount} concepts</p>
-                  <Button className="w-full mt-4" size="sm">
-                    Explore
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Concepts List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {filteredConcepts.map((concept, index) => (
-            <motion.div
-              key={concept.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
-              <Card className="h-full hover:shadow-lg transition-all duration-300 border-l-4 border-l-green-500">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg font-semibold line-clamp-2">
-                        {concept.title}
-                      </CardTitle>
-                      <p className="text-sm text-gray-600 mt-1">{concept.topic}</p>
-                    </div>
-                    <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
-                      {concept.difficulty}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600 line-clamp-3">{concept.description}</p>
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <Clock className="h-3 w-3" />
-                      <span>{concept.estimatedTime} min</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <Lightbulb className="h-3 w-3" />
-                      <span>Last: {concept.lastStudied}</span>
-                    </div>
-                  </div>
-                  <Button className="w-full" size="sm">
-                    Start Learning
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {filteredConcepts.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <Book className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No concepts found</h3>
-            <p className="text-gray-500 mb-4">Try adjusting your search terms or filters</p>
-            <Button>
-              Add Your First Concept
+      {/* Enhanced Recent Concepts */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Recent Concept Cards</CardTitle>
+            <Button variant="ghost" size="sm">
+              View All <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
-          </motion.div>
-        )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentConcepts.map((concept) => (
+              <div 
+                key={concept.id} 
+                className="p-4 border-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-blue-200"
+                onClick={() => handleConceptClick(concept.id)}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-semibold text-gray-900">{concept.title}</h4>
+                      <div className="flex gap-1">
+                        {concept.tags.map((tag) => (
+                          <span key={tag} className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <Badge variant="outline" className="text-xs">{concept.subject}</Badge>
+                      <Badge variant="outline" className="text-xs">{concept.chapter}</Badge>
+                      <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+                        {concept.difficulty}
+                      </Badge>
+                      <Badge variant="outline" className={getStatusColor(concept.status)}>
+                        {concept.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-blue-600">{concept.progress}%</div>
+                    <div className="text-xs text-gray-500">Progress</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>{concept.timeSpent}</span>
+                    </div>
+                    <span>Last studied: {concept.lastStudied}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Progress value={concept.progress} className="h-2 w-20" />
+                    <Button size="sm" variant={concept.status === 'mastered' ? 'outline' : 'default'}>
+                      <Play className="h-3 w-3 mr-1" />
+                      {concept.status === 'mastered' ? 'Review' : 'Continue'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Enhanced Quick Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-4 text-center">
+            <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+            <p className="text-2xl font-bold text-blue-800">450</p>
+            <p className="text-sm text-blue-600 font-medium">Total Concepts</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-4 text-center">
+            <Target className="h-8 w-8 mx-auto mb-2 text-green-600" />
+            <p className="text-2xl font-bold text-green-800">320</p>
+            <p className="text-sm text-green-600 font-medium">Mastered</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="p-4 text-center">
+            <Clock className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+            <p className="text-2xl font-bold text-purple-800">122h</p>
+            <p className="text-sm text-purple-600 font-medium">Study Time</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+          <CardContent className="p-4 text-center">
+            <Star className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+            <p className="text-2xl font-bold text-orange-800">83%</p>
+            <p className="text-sm text-orange-600 font-medium">Avg Efficiency</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
