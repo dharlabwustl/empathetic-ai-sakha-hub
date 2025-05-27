@@ -86,7 +86,7 @@ const PredictiveAnalytics: React.FC = () => {
                     stroke="#8884d8" 
                     strokeWidth={2} 
                     dot={{ r: 4 }}
-                    strokeDasharray={(d: any) => d.predicted ? "5 5" : "0"}
+                    strokeDasharray={(entry) => entry.predicted ? "5 5" : "0"}
                   />
                 </LineChart>
               </ResponsiveContainer>
