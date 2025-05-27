@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Clock, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 interface FlashcardCardProps {
@@ -29,6 +29,7 @@ export default function FlashcardCard({
   estimatedTime,
   accuracy
 }: FlashcardCardProps) {
+  const navigate = useNavigate();
   const progressPercentage = (completedCards / totalCards) * 100;
 
   const getDifficultyColor = (diff: string) => {
@@ -47,6 +48,15 @@ export default function FlashcardCard({
       case 'hard': return 'border-l-red-500';
       default: return 'border-l-slate-500';
     }
+  };
+
+  // CRITICAL: ENSURE ALL NAVIGATION GOES TO INTERACTIVE
+  const handleStudyNow = () => {
+    const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
+    console.log('🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
+    console.log('🚨 Current location before navigation:', window.location.href);
+    navigate(targetRoute);
+    console.log('🚨 Navigate called from FlashcardCard');
   };
 
   return (
@@ -99,11 +109,10 @@ export default function FlashcardCard({
             <Button variant="ghost" size="sm">
               View Details
             </Button>
-            <Link to={`/dashboard/student/flashcards/${id}/interactive`}>
-              <Button>
-                Study Now
-              </Button>
-            </Link>
+            {/* CRITICAL: BUTTON MUST GO TO INTERACTIVE, NOT PRACTICE */}
+            <Button onClick={handleStudyNow}>
+              Study Now
+            </Button>
           </div>
         </CardFooter>
       </Card>
