@@ -72,7 +72,7 @@ export default function FlashcardCard({
     }
   };
 
-  // FIXED: ALL FLASHCARD NAVIGATION GOES TO /interactive
+  // FIXED: Ensure ALL navigation goes to INTERACTIVE (not practice)
   const handleStudyNow = () => {
     const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
     console.log('🚨🚨🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
@@ -161,7 +161,7 @@ export default function FlashcardCard({
             <Button variant="ghost" size="sm" onClick={handleQuickReview}>
               Quick Review
             </Button>
-            {/* FIXED: ALL BUTTONS GO TO /interactive */}
+            {/* FIXED: BUTTON MUST GO TO INTERACTIVE, NOT PRACTICE */}
             <Button onClick={handleStudyNow} className="flex-1">
               Study Now
             </Button>
