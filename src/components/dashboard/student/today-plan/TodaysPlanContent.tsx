@@ -1,13 +1,13 @@
 
 import React from 'react';
-import RedesignedTodaysPlan from './RedesignedTodaysPlan';
+import CompleteTodaysPlan from './CompleteTodaysPlan';
 
 interface TodaysPlanContentProps {
   userName?: string;
 }
 
 const TodaysPlanContent: React.FC<TodaysPlanContentProps> = ({ userName }) => {
-  return <RedesignedTodaysPlan userName={userName} />;
+  return <CompleteTodaysPlan userName={userName} />;
 };
 
 export default TodaysPlanContent;
