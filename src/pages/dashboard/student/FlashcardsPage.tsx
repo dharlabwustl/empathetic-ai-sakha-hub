@@ -105,11 +105,8 @@ const FlashcardsPage = () => {
     return colors[subject as keyof typeof colors] || 'bg-gray-50 text-gray-700 border-gray-200';
   };
 
-  // FIXED: Ensure ALL navigation goes to /interactive
   const handleStudySet = (setId: string) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log('🚨🚨🚨 FLASHCARDS PAGE - STUDY SET CLICKED:', targetRoute);
-    navigate(targetRoute);
+    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
   };
 
   const filteredSets = flashcardSets.filter(set => {
@@ -142,7 +139,6 @@ const FlashcardsPage = () => {
               <Plus className="h-4 w-4 mr-2" />
               Create New Set
             </Button>
-            {/* FIXED: Quick Study button goes to interactive */}
             <Button variant="outline" onClick={() => navigate('/dashboard/student/flashcards/1/interactive')}>
               <Play className="h-4 w-4 mr-2" />
               Quick Study
@@ -298,7 +294,6 @@ const FlashcardsPage = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 pt-2">
-                    {/* FIXED: Study Now button goes to interactive */}
                     <Button 
                       size="sm" 
                       className="flex-1 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700"

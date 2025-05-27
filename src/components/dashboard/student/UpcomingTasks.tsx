@@ -40,9 +40,9 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
   const getTaskRoute = (task: Task) => {
     switch (task.type) {
       case 'concept':
+        // Update route to use the enhanced concept detail page
         return `/dashboard/student/concepts/study/${task.id}`;
       case 'flashcard':
-        // FIXED: Always go to interactive for flashcards
         return `/dashboard/student/flashcards/1/interactive`;
       case 'exam':
         return `/dashboard/student/practice-exam`;
@@ -64,12 +64,6 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
     }
   };
 
-  const handleTaskClick = (task: Task) => {
-    const route = getTaskRoute(task);
-    console.log('🚨🚨🚨 UPCOMING TASKS - TASK CLICKED:', route);
-    navigate(route);
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -83,7 +77,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
               className={cn("border rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer", 
                 getPriorityClass(task.priority)
               )}
-              onClick={() => handleTaskClick(task)}
+              onClick={() => navigate(getTaskRoute(task))}
             >
               <div className="flex justify-between items-start">
                 <div className="flex items-center space-x-3">
@@ -107,7 +101,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleTaskClick(task);
+                  navigate(getTaskRoute(task));
                 }}
               >
                 Start Now

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
@@ -73,7 +74,12 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* FIXED: Remove /practice route completely, only interactive */}
+      {/* CRITICAL: INTERACTIVE FLASHCARD ROUTE - MUST BE EXACT MATCH - FIXED TO /1/interactive */}
+      <Route path="/flashcards/1/interactive" element={
+        <SidebarLayout>
+          <InteractiveFlashcard />
+        </SidebarLayout>
+      } />
       <Route path="/flashcards/:id/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
