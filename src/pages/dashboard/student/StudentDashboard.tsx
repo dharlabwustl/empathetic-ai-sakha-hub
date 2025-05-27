@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -8,7 +7,7 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import EnhancedVoiceAssistant from "@/components/voice/EnhancedVoiceAssistant";
+import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
 
 const StudentDashboard = () => {
@@ -113,11 +112,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleSpeechCommand = (command: string) => {
-    console.log('Speech command received:', command);
-    // Commands are processed within the EnhancedVoiceAssistant component
-  };
-
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -182,21 +176,12 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Voice Assistant with Text AI */}
-      <EnhancedVoiceAssistant
-        position="dashboard"
-        onCommand={handleSpeechCommand}
-        className="bottom-24 right-6"
-        userName={userProfile.name || userProfile.firstName || 'Student'}
-      />
-      
       {/* Interactive Voice Assistant with enhanced navigation */}
       <InteractiveVoiceAssistant 
         userName={userProfile.name}
         language="en-US"
         onNavigationCommand={(route) => navigate(route)}
         position="bottom-right"
-        className="fixed bottom-6 right-6 z-40"
       />
     </>
   );
