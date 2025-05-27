@@ -2,7 +2,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import { ThemeProvider } from './components/theme-provider';
+import { ThemeProvider } from './components/ui/theme-provider';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import SidebarLayout from './components/dashboard/SidebarLayout';
