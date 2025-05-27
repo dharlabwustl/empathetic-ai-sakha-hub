@@ -169,30 +169,6 @@ const DashboardLayout = ({
             />
           </div>
 
-          {/* Smart Suggestions moved below name header */}
-          <div className="mb-6">
-            <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border-indigo-200 dark:border-indigo-800">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full">
-                    <Star className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                  </div>
-                  Daily Smart Suggestions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="p-3 bg-white rounded-lg border border-purple-200">
-                  <p className="text-sm font-medium text-gray-800">Focus Today: Physics Mechanics</p>
-                  <p className="text-xs text-gray-600 mt-1">Complete 3 more concepts to stay on track with your study plan.</p>
-                </div>
-                <div className="p-3 bg-white rounded-lg border border-purple-200">
-                  <p className="text-sm font-medium text-gray-800">Quick Win: Chemistry Flashcards</p>
-                  <p className="text-xs text-gray-600 mt-1">15 cards due for review - perfect for a quick study session.</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Surrounding Influences Section */}
           <SurroundingInfluencesSection 
             influenceMeterCollapsed={influenceMeterCollapsed}
