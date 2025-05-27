@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,7 +68,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleContinueLearning = () => {
     switch (type) {
       case 'Concepts':
-        navigate('/dashboard/student/concepts?tab=all-concepts');
+        navigate('/dashboard/student/concepts/all');
         break;
       case 'Flashcards':
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
@@ -83,7 +82,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleSubjectStudy = (subjectName: string) => {
     switch (type) {
       case 'Concepts':
-        // Navigate to concepts page with all concepts view
+        // Navigate to all concepts page
         navigate('/dashboard/student/concepts/all');
         break;
       case 'Flashcards':

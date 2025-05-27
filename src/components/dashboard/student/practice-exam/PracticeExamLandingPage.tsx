@@ -168,7 +168,7 @@ const PracticeExamLandingPage = () => {
                     variant="outline" 
                     size="sm" 
                     onClick={() => {
-                      // Stay on the same page but switch to available-exams tab
+                      // Stay on the same page in available-exams tab
                       handleTabChange('available-exams');
                     }}
                   >
