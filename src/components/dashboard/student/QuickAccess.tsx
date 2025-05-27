@@ -58,7 +58,7 @@ export const QuickAccess: React.FC<QuickAccessProps> = ({ className }) => {
     {
       icon: Brain,
       label: 'Flashcards',
-      path: '/dashboard/student/flashcards/1/interactive',
+      path: '/dashboard/student/flashcards',
       color: 'text-pink-600 dark:text-pink-400',
       bgColor: 'bg-pink-100 dark:bg-pink-900/30',
       priority: 5
