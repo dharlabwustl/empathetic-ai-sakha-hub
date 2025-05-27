@@ -18,8 +18,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
+import HomepageVoiceAssistant from '@/components/voice/HomepageVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -35,11 +34,6 @@ const Index = () => {
   
   const handleNavigationCommand = (route: string) => {
     navigate(route);
-  };
-
-  const handleSpeechCommand = (command: string) => {
-    console.log('Speech command received:', command);
-    // Commands are processed within the SpeechRecognitionButton component
   };
 
   // Listen for events
@@ -111,21 +105,10 @@ const Index = () => {
       
       <Footer />
       
-      {/* Speech Recognition Button - positioned above voice assistant */}
-      <SpeechRecognitionButton
-        position="homepage"
-        onCommand={handleSpeechCommand}
-        className="fixed bottom-24 right-6 z-50"
-      />
-
-      {/* PREPZR AI Voice Assistant - positioned below speech recognition */}
-      <InteractiveVoiceAssistant 
-        userName="Visitor"
+      {/* Enhanced Homepage Voice Assistant with Text AI */}
+      <HomepageVoiceAssistant 
         language="en-US"
         onNavigationCommand={handleNavigationCommand}
-        position="bottom-right"
-        className="fixed bottom-6 right-6 z-40"
-        assistantName="PREPZR AI"
       />
     </div>
   );
