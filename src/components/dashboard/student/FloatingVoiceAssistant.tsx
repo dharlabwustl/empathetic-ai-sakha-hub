@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Volume2, VolumeX, Mic, MicOff, Settings, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -57,7 +56,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
     setIsMuted(!isMuted);
     toast({
       title: isMuted ? "Voice Unmuted" : "Voice Muted",
-      description: isMuted ? "You can now hear Sakha AI responses" : "Sakha AI voice responses are now muted",
+      description: isMuted ? "You can now hear PREPZR AI responses" : "PREPZR AI voice responses are now muted",
     });
   };
   
@@ -66,7 +65,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
     
     if (!isListening) {
       toast({
-        title: "Sakha AI Listening...",
+        title: "PREPZR AI Listening...",
         description: `Hello ${userName}, what can I help you with today?`,
       });
       
@@ -90,23 +89,19 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
       const speech = new SpeechSynthesisUtterance();
       
       // Correct PREPZR pronunciation 
-      speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer');
+      speech.text = message.replace(/PREPZR/gi, 'PREP-zer').replace(/Prepzr/g, 'PREP-zer').replace(/Sakha/gi, 'PREPZR');
       speech.lang = language;
       speech.volume = volume / 100;
       speech.rate = 0.85 + (speed / 100);
       speech.pitch = 0.75 + (pitch / 100) * 0.5;
       
-      // Get available voices
+      // Get available voices and prefer female voices
       const voices = window.speechSynthesis.getVoices();
       
       // Filter by gender preference if possible
       const preferredVoices = voices.filter(voice => {
-        if (voicePreference === "female") {
-          return voice.name.toLowerCase().includes("female") || 
-                !voice.name.toLowerCase().includes("male");
-        } else {
-          return voice.name.toLowerCase().includes("male");
-        }
+        return voice.name.toLowerCase().includes("female") || 
+               !voice.name.toLowerCase().includes("male");
       });
       
       if (preferredVoices.length > 0) {
@@ -122,7 +117,7 @@ const FloatingVoiceAssistant: React.FC<FloatingVoiceAssistantProps> = ({
       <Drawer open={isOpen} onOpenChange={onClose}>
         <DrawerContent className="max-w-md mx-auto">
           <DrawerHeader>
-            <DrawerTitle className="text-xl font-bold">Sakha AI Voice Assistant</DrawerTitle>
+            <DrawerTitle className="text-xl font-bold">PREPZR AI Voice Assistant</DrawerTitle>
             <DrawerDescription>
               PREPZR's core AI engine to help you crack your exams.
             </DrawerDescription>

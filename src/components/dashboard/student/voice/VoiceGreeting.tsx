@@ -8,6 +8,7 @@ interface VoiceGreetingProps {
   isReturningUser?: boolean;
   lastActivity?: string;
   pendingTasks?: string[];
+  language?: string;
 }
 
 const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
@@ -15,7 +16,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   userName,
   isReturningUser = false,
   lastActivity,
-  pendingTasks = []
+  pendingTasks = [],
+  language = 'en-US'
 }) => {
   const hasSpokenRef = useRef(false);
 
@@ -29,7 +31,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       let greeting = '';
       
       if (isReturningUser) {
-        greeting = `Welcome back to PREPZR, ${userName}! I'm Sakha AI, your learning companion. `;
+        greeting = `Welcome back to PREPZR, ${userName}! I'm PREPZR AI, your learning companion. `;
         
         if (lastActivity) {
           greeting += `Last time you were ${lastActivity}. `;
@@ -41,9 +43,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         
         greeting += `I'm here to help you with your study plan, daily activities, and any questions you have. Let's make today productive!`;
       } else if (isFirstTimeUser) {
-        greeting = `Welcome to PREPZR, ${userName}! I'm Sakha AI, your AI-powered learning companion. I'm excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
+        greeting = `Welcome to PREPZR, ${userName}! I'm PREPZR AI, your AI-powered learning companion. I'm excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
       } else {
-        greeting = `Hello ${userName}! I'm Sakha AI, ready to assist you with your studies today. How can I help you achieve your learning goals?`;
+        greeting = `Hello ${userName}! I'm PREPZR AI, ready to assist you with your studies today. How can I help you achieve your learning goals?`;
       }
       
       // Use the centralized female voice function
@@ -78,7 +80,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks]);
+  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks, language]);
 
   // This component doesn't render anything visible
   return null;
