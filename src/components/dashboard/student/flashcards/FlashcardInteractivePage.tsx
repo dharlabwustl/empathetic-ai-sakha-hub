@@ -3,120 +3,136 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, RotateCcw, CheckCircle, X, Brain, Star } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  RotateCcw, 
+  Check, 
+  X, 
+  Star,
+  BookOpen,
+  Clock,
+  Brain
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface FlashcardData {
+interface Flashcard {
   id: string;
   question: string;
   answer: string;
   subject: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  explanation?: string;
+  tags: string[];
 }
 
 const FlashcardInteractivePage: React.FC = () => {
-  const { setId } = useParams<{ setId: string }>();
+  const { setId } = useParams();
   const navigate = useNavigate();
-  
-  const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [completedCards, setCompletedCards] = useState<Set<string>>(new Set());
-  const [sessionComplete, setSessionComplete] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [masteredCards, setMasteredCards] = useState(new Set<string>());
+  const [reviewCards, setReviewCards] = useState(new Set<string>());
+  const [sessionStats, setSessionStats] = useState({
+    correct: 0,
+    incorrect: 0,
+    totalTime: 0
+  });
+  const [startTime] = useState(Date.now());
 
-  // Mock flashcard data based on setId
-  useEffect(() => {
-    const mockFlashcards: FlashcardData[] = [
+  // Mock flashcard data
+  const flashcardSet = {
+    id: setId || '1',
+    title: 'Physics - Laws of Motion',
+    subject: 'Physics',
+    totalCards: 25,
+    flashcards: [
       {
         id: '1',
         question: 'What is Newton\'s First Law of Motion?',
         answer: 'An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.',
         subject: 'Physics',
-        difficulty: 'medium',
-        explanation: 'This is also known as the Law of Inertia.'
+        difficulty: 'medium' as const,
+        tags: ['Newton', 'Laws of Motion', 'Inertia']
       },
       {
         id: '2',
-        question: 'What is the chemical formula for water?',
-        answer: 'H₂O',
-        subject: 'Chemistry',
-        difficulty: 'easy',
-        explanation: 'Water consists of two hydrogen atoms bonded to one oxygen atom.'
+        question: 'State Newton\'s Second Law of Motion',
+        answer: 'The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. F = ma',
+        subject: 'Physics',
+        difficulty: 'medium' as const,
+        tags: ['Newton', 'Force', 'Acceleration']
       },
       {
         id: '3',
-        question: 'What is the powerhouse of the cell?',
-        answer: 'Mitochondria',
-        subject: 'Biology',
-        difficulty: 'easy',
-        explanation: 'Mitochondria produce ATP, the energy currency of the cell.'
+        question: 'What is Newton\'s Third Law of Motion?',
+        answer: 'For every action, there is an equal and opposite reaction.',
+        subject: 'Physics',
+        difficulty: 'easy' as const,
+        tags: ['Newton', 'Action-Reaction', 'Forces']
       },
       {
         id: '4',
-        question: 'What is the derivative of sin(x)?',
-        answer: 'cos(x)',
-        subject: 'Mathematics',
-        difficulty: 'medium',
-        explanation: 'The derivative of sine function is cosine function.'
+        question: 'Define momentum in physics',
+        answer: 'Momentum is the product of an object\'s mass and velocity. p = mv. It is a vector quantity.',
+        subject: 'Physics',
+        difficulty: 'medium' as const,
+        tags: ['Momentum', 'Mass', 'Velocity']
       },
       {
         id: '5',
-        question: 'What is Ohm\'s Law?',
-        answer: 'V = IR (Voltage equals Current times Resistance)',
+        question: 'What is the law of conservation of momentum?',
+        answer: 'The total momentum of a system remains constant if no external forces act on it.',
         subject: 'Physics',
-        difficulty: 'medium',
-        explanation: 'This fundamental law relates voltage, current, and resistance in electrical circuits.'
+        difficulty: 'hard' as const,
+        tags: ['Conservation', 'Momentum', 'System']
       }
-    ];
-
-    setFlashcards(mockFlashcards);
-  }, [setId]);
-
-  const currentCard = flashcards[currentIndex];
-  const progress = flashcards.length > 0 ? ((currentIndex + 1) / flashcards.length) * 100 : 0;
-  const accuracy = flashcards.length > 0 ? (correctCount / Math.max(completedCards.size, 1)) * 100 : 0;
-
-  const handleFlipCard = () => {
-    setShowAnswer(!showAnswer);
+    ]
   };
 
-  const handleCorrect = () => {
-    setCorrectCount(prev => prev + 1);
-    setCompletedCards(prev => new Set([...prev, currentCard.id]));
-    handleNext();
-  };
+  const currentCard = flashcardSet.flashcards[currentIndex];
+  const progress = ((currentIndex + 1) / flashcardSet.flashcards.length) * 100;
 
-  const handleIncorrect = () => {
-    setCompletedCards(prev => new Set([...prev, currentCard.id]));
-    handleNext();
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSessionStats(prev => ({
+        ...prev,
+        totalTime: Math.floor((Date.now() - startTime) / 1000)
+      }));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [startTime]);
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
   };
 
   const handleNext = () => {
-    if (currentIndex < flashcards.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      setShowAnswer(false);
-    } else {
-      setSessionComplete(true);
+    if (currentIndex < flashcardSet.flashcards.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setIsFlipped(false);
     }
   };
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-      setShowAnswer(false);
+      setCurrentIndex(currentIndex - 1);
+      setIsFlipped(false);
     }
   };
 
-  const handleRestart = () => {
-    setCurrentIndex(0);
-    setShowAnswer(false);
-    setCorrectCount(0);
-    setCompletedCards(new Set());
-    setSessionComplete(false);
+  const handleMastered = () => {
+    setMasteredCards(prev => new Set([...prev, currentCard.id]));
+    setSessionStats(prev => ({ ...prev, correct: prev.correct + 1 }));
+    handleNext();
+  };
+
+  const handleNeedsReview = () => {
+    setReviewCards(prev => new Set([...prev, currentCard.id]));
+    setSessionStats(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
+    handleNext();
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -128,225 +144,233 @@ const FlashcardInteractivePage: React.FC = () => {
     }
   };
 
-  if (sessionComplete) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-        <div className="max-w-2xl mx-auto">
-          <Card className="text-center">
-            <CardHeader>
-              <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle className="h-10 w-10 text-green-600" />
-              </div>
-              <CardTitle className="text-2xl">Session Complete!</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{correctCount}/{flashcards.length}</div>
-                  <div className="text-sm text-blue-600">Correct Answers</div>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{accuracy.toFixed(0)}%</div>
-                  <div className="text-sm text-purple-600">Accuracy</div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-6 w-6 ${
-                        i < Math.floor(accuracy / 20) 
-                          ? 'text-yellow-400 fill-current' 
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-600">
-                  {accuracy >= 80 ? "Excellent work!" : 
-                   accuracy >= 60 ? "Good job!" : 
-                   "Keep practicing!"}
-                </p>
-              </div>
-
-              <div className="flex gap-3 justify-center">
-                <Button onClick={handleRestart} variant="outline">
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Restart Session
-                </Button>
-                <Button onClick={() => navigate('/dashboard/student/flashcards')}>
-                  Back to Flashcards
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (!currentCard) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <Card className="w-96">
-          <CardContent className="p-6 text-center">
-            <Brain className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-600">Loading flashcards...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/dashboard/student/flashcards')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Flashcards
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/dashboard/student/flashcards')}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back to Flashcards
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{flashcardSet.title}</h1>
+              <p className="text-gray-600">Interactive Study Session</p>
+            </div>
+          </div>
           
           <div className="flex items-center gap-4">
-            <Badge variant="outline" className={getDifficultyColor(currentCard.difficulty)}>
-              {currentCard.difficulty}
+            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+              <Clock className="h-3 w-3 mr-1" />
+              {formatTime(sessionStats.totalTime)}
             </Badge>
-            <div className="text-sm text-gray-600">
-              {currentIndex + 1} of {flashcards.length}
-            </div>
+            <Badge variant="outline" className="bg-purple-50 text-purple-700">
+              <Brain className="h-3 w-3 mr-1" />
+              {currentIndex + 1} / {flashcardSet.flashcards.length}
+            </Badge>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm mb-2">
             <span>Progress</span>
-            <span>{Math.round(progress)}%</span>
+            <span>{Math.round(progress)}% Complete</span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-3" />
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card>
+          <Card className="bg-green-50 border-green-200">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{correctCount}</div>
-              <div className="text-sm text-gray-600">Correct</div>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Check className="h-4 w-4 text-green-600" />
+                <span className="text-2xl font-bold text-green-700">{sessionStats.correct}</span>
+              </div>
+              <p className="text-sm text-green-600">Mastered</p>
             </CardContent>
           </Card>
-          <Card>
+          
+          <Card className="bg-red-50 border-red-200">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">{completedCards.size - correctCount}</div>
-              <div className="text-sm text-gray-600">Incorrect</div>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <X className="h-4 w-4 text-red-600" />
+                <span className="text-2xl font-bold text-red-700">{sessionStats.incorrect}</span>
+              </div>
+              <p className="text-sm text-red-600">Need Review</p>
             </CardContent>
           </Card>
-          <Card>
+          
+          <Card className="bg-blue-50 border-blue-200">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">{accuracy.toFixed(0)}%</div>
-              <div className="text-sm text-gray-600">Accuracy</div>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Star className="h-4 w-4 text-blue-600" />
+                <span className="text-2xl font-bold text-blue-700">
+                  {Math.round(sessionStats.correct / (sessionStats.correct + sessionStats.incorrect || 1) * 100)}%
+                </span>
+              </div>
+              <p className="text-sm text-blue-600">Accuracy</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Flashcard */}
         <div className="mb-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${currentIndex}-${showAnswer}`}
-              initial={{ rotateY: 90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: -90, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+          <motion.div
+            initial={false}
+            animate={{ rotateY: isFlipped ? 180 : 0 }}
+            transition={{ duration: 0.6 }}
+            style={{ transformStyle: 'preserve-3d' }}
+            className="relative w-full h-96 cursor-pointer"
+            onClick={handleFlip}
+          >
+            {/* Front of card */}
+            <Card 
+              className={`absolute inset-0 w-full h-full shadow-lg hover:shadow-xl transition-shadow ${
+                isFlipped ? 'invisible' : 'visible'
+              }`}
+              style={{ backfaceVisibility: 'hidden' }}
             >
-              <Card className="min-h-[400px] cursor-pointer" onClick={handleFlipCard}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline">{currentCard.subject}</Badge>
-                    <div className="text-sm text-gray-500">
-                      Click to {showAnswer ? 'hide' : 'reveal'} answer
-                    </div>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className={getDifficultyColor(currentCard.difficulty)}>
+                    {currentCard.difficulty}
+                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-500">{currentCard.subject}</span>
                   </div>
-                </CardHeader>
-                <CardContent className="flex items-center justify-center p-8">
-                  <div className="text-center space-y-4">
-                    {!showAnswer ? (
-                      <>
-                        <h2 className="text-xl font-semibold mb-4">Question:</h2>
-                        <p className="text-lg leading-relaxed">{currentCard.question}</p>
-                      </>
-                    ) : (
-                      <>
-                        <h2 className="text-xl font-semibold mb-4 text-green-600">Answer:</h2>
-                        <p className="text-lg leading-relaxed font-medium">{currentCard.answer}</p>
-                        {currentCard.explanation && (
-                          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-blue-700">
-                              <strong>Explanation:</strong> {currentCard.explanation}
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    )}
+                </div>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-900">
+                    {currentCard.question}
+                  </h2>
+                  <p className="text-gray-500 text-sm">Click to reveal answer</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Back of card */}
+            <Card 
+              className={`absolute inset-0 w-full h-full shadow-lg bg-gradient-to-br from-blue-50 to-purple-50 ${
+                isFlipped ? 'visible' : 'invisible'
+              }`}
+              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+            >
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
+                    Answer
+                  </Badge>
+                  <div className="flex flex-wrap gap-1">
+                    {currentCard.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </AnimatePresence>
+                </div>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <p className="text-lg text-gray-800 leading-relaxed">
+                    {currentCard.answer}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
         {/* Controls */}
-        <div className="flex justify-center gap-4">
-          {!showAnswer ? (
-            <Button onClick={handleFlipCard} size="lg" className="px-8">
-              Reveal Answer
-            </Button>
-          ) : (
-            <div className="flex gap-4">
-              <Button
-                onClick={handleIncorrect}
-                variant="outline"
-                size="lg"
-                className="px-6 border-red-200 text-red-600 hover:bg-red-50"
-              >
-                <X className="mr-2 h-4 w-4" />
-                Incorrect
-              </Button>
-              <Button
-                onClick={handleCorrect}
-                size="lg"
-                className="px-6 bg-green-600 hover:bg-green-700"
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Correct
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation */}
-        <div className="flex justify-between mt-6">
-          <Button
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
             onClick={handlePrevious}
-            variant="outline"
             disabled={currentIndex === 0}
           >
+            <ChevronLeft className="h-4 w-4 mr-2" />
             Previous
           </Button>
-          <Button
+
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={handleFlip}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Flip Card
+            </Button>
+            
+            {isFlipped && (
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={handleNeedsReview}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Need Review
+                </Button>
+                <Button 
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={handleMastered}
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  Mastered
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <Button 
+            variant="outline" 
             onClick={handleNext}
-            variant="outline"
-            disabled={currentIndex === flashcards.length - 1 || !showAnswer}
+            disabled={currentIndex === flashcardSet.flashcards.length - 1}
           >
             Next
+            <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
+
+        {/* Completion Message */}
+        {currentIndex === flashcardSet.flashcards.length - 1 && isFlipped && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6"
+          >
+            <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="text-xl font-bold text-green-800 mb-2">
+                  🎉 Session Complete!
+                </h3>
+                <p className="text-green-600 mb-4">
+                  Great job! You've reviewed all {flashcardSet.flashcards.length} flashcards.
+                </p>
+                <div className="flex justify-center gap-4">
+                  <Button onClick={() => navigate('/dashboard/student/flashcards')}>
+                    Back to Flashcards
+                  </Button>
+                  <Button variant="outline" onClick={() => window.location.reload()}>
+                    Review Again
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   );
