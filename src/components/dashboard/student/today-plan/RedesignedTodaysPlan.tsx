@@ -178,6 +178,28 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
     }
   };
 
+  const handleTaskStart = (task: any) => {
+    console.log(`Starting ${task.type}: ${task.title}`);
+    
+    if (task.type === 'concept') {
+      // Navigate to concept page - using concept ID 1 as specified
+      window.location.href = 'https://test.prepzr.com/dashboard/student/concepts/1';
+    } else if (task.type === 'flashcard') {
+      // Navigate to flashcard interactive page - using flashcard ID 1 as specified
+      window.location.href = 'https://test.prepzr.com/dashboard/student/flashcards/1/interactive';
+    } else if (task.type === 'exam') {
+      // Check if it's completed to decide between start or review
+      const isCompleted = completedTasks.has(task.id);
+      if (isCompleted) {
+        // Navigate to exam review page - using exam ID 6 as specified
+        window.location.href = 'https://test.prepzr.com/dashboard/student/practice-exam/6/review';
+      } else {
+        // Navigate to exam start page - using exam ID 4 as specified
+        window.location.href = 'https://test.prepzr.com/dashboard/student/practice-exam/4/start';
+      }
+    }
+  };
+
   const renderTaskCard = (task: any, isCompleted = false, showTime = false) => {
     const completed = completedTasks.has(task.id);
     
@@ -247,7 +269,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
                 className="ml-4"
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log(`Starting ${task.type}: ${task.title}`);
+                  handleTaskStart(task);
                 }}
               >
                 <Play className="h-4 w-4 mr-1" />
