@@ -94,7 +94,8 @@ const PracticeExamLandingPage = () => {
   };
 
   const handleViewResults = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/review`);
+    // Use exam ID 6 for review as specified
+    navigate(`/dashboard/student/practice-exam/6/review`);
   };
 
   const handleTabChange = (value: string) => {
@@ -162,6 +163,16 @@ const PracticeExamLandingPage = () => {
                       <p className="text-xs text-green-600">Practice Time</p>
                     </div>
                   </div>
+                  
+                  <Button 
+                    className="w-full" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleTabChange('available-exams')}
+                  >
+                    <Play className="mr-2 h-4 w-4" />
+                    Take Practice Test
+                  </Button>
                 </CardContent>
               </Card>
             ))}

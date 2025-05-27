@@ -31,7 +31,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
   }, [benefits.length]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900/20 overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900/20 overflow-hidden pt-16">
       {/* Premium Background Elements */}
       <div className="absolute inset-0">
         {/* Gradient mesh background */}
@@ -78,14 +78,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
         }}
       />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
-        <div className="text-center max-w-6xl mx-auto space-y-4">
-          {/* India's #1 Platform Text - with reduced margin */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-4">
+        <div className="text-center max-w-6xl mx-auto space-y-3">
+          {/* India's #1 Platform Text - with reduced top spacing */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="mb-3"
+            className="mb-2"
           >
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50 px-6 py-3 rounded-full backdrop-blur-sm">
               <Star className="h-4 w-4 text-amber-500 fill-current" />
@@ -101,13 +101,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-4"
+            className="mb-3"
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
               <span className="block bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
                 Master Exam Preparation with
               </span>
-              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent break-words">
                 AI-Powered Precision
               </span>
             </h1>
@@ -115,7 +115,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
 
           {/* Enhanced Subtitle - reduced spacing */}
           <motion.div
-            className="mb-4"
+            className="mb-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -133,7 +133,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mb-5"
+            className="mb-4"
           >
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-8 py-4 rounded-full text-sm font-bold shadow-2xl border-2 border-white/30 backdrop-blur-sm">
               <Star className="h-5 w-5 fill-current animate-pulse" />
@@ -144,28 +144,28 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
 
           {/* Animated Key Benefits - compact design */}
           <motion.div
-            className="mb-6"
+            className="mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-3">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">
               7 Key Benefits That Transform Your Journey
             </h3>
             
             {/* Dynamic Benefit Display - reduced height */}
-            <div className="min-h-[70px] flex items-center justify-center">
+            <div className="min-h-[60px] flex items-center justify-center">
               <motion.div
                 key={currentBenefitIndex}
                 initial={{ opacity: 0, scale: 0.8, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: -30 }}
                 transition={{ duration: 0.8 }}
-                className="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-5 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-2xl max-w-md mx-auto"
+                className="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-4 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-2xl max-w-md mx-auto"
               >
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full">
-                    <CheckCircle className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full">
+                    <CheckCircle className="h-4 w-4 text-white" />
                   </div>
                   <span className="text-lg font-bold text-slate-800 dark:text-slate-200">
                     {benefits[currentBenefitIndex]}
@@ -175,7 +175,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
 
             {/* Progress Dots - enhanced */}
-            <div className="flex justify-center gap-3 mt-4">
+            <div className="flex justify-center gap-3 mt-3">
               {benefits.map((_, index) => (
                 <motion.div
                   key={index}
@@ -192,24 +192,24 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
 
           {/* Premium CTA Buttons - ensured visibility */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-2"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-1"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <Button 
               size="lg" 
-              className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800 text-white px-10 py-6 rounded-2xl text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border border-white/20"
+              className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800 text-white px-8 py-5 rounded-2xl text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border border-white/20"
             >
               Start 7 Days Free Trial
-              <ArrowRight className="ml-3 h-6 w-6" />
+              <ArrowRight className="ml-3 h-5 w-5" />
             </Button>
             
             <Button 
               variant="outline" 
               size="lg"
               onClick={onAnalyzeClick}
-              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-10 py-6 rounded-2xl text-lg font-bold transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-8 py-5 rounded-2xl text-lg font-bold transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
             >
               Exam Readiness & Scholarship Test
             </Button>

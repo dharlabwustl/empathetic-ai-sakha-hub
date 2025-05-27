@@ -72,7 +72,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
     switch (type) {
       case 'Concepts':
         if (currentPath.includes('/concepts')) {
-          // If we're on concepts page, switch to all-concepts tab
           const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-concepts');
           window.history.pushState({}, '', url.toString());
@@ -83,7 +82,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         break;
       case 'Flashcards':
         if (currentPath.includes('/flashcards')) {
-          // If we're on flashcards page, switch to all-flashcards tab
           const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-flashcards');
           window.history.pushState({}, '', url.toString());
@@ -94,7 +92,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         break;
       case 'Practice Exams':
         if (currentPath.includes('/practice-exam')) {
-          // If we're on practice exam page, switch to available-exams tab
           const url = new URL(window.location.href);
           url.searchParams.set('tab', 'available-exams');
           window.history.pushState({}, '', url.toString());
@@ -112,7 +109,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
     switch (type) {
       case 'Concepts':
         if (currentPath.includes('/concepts')) {
-          // If we're on concepts page, switch to all-concepts tab
           const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-concepts');
           window.history.pushState({}, '', url.toString());
@@ -123,7 +119,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         break;
       case 'Flashcards':
         if (currentPath.includes('/flashcards')) {
-          // If we're on flashcards page, switch to all-flashcards tab
           const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-flashcards');
           window.history.pushState({}, '', url.toString());
@@ -134,7 +129,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         break;
       case 'Practice Exams':
         if (currentPath.includes('/practice-exam')) {
-          // If we're on practice exam page, switch to available-exams tab
           const url = new URL(window.location.href);
           url.searchParams.set('tab', 'available-exams');
           window.history.pushState({}, '', url.toString());
