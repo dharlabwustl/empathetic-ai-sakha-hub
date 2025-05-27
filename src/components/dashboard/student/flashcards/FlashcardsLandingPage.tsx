@@ -68,15 +68,7 @@ const FlashcardsLandingPage = () => {
   ];
 
   const handleStudyFlashcards = (setId?: string) => {
-    if (setId) {
-      navigate(`/dashboard/student/flashcards/${setId}/interactive`);
-    } else {
-      navigate('/dashboard/student/flashcards/2/interactive');
-    }
-  };
-
-  const handleStudySubject = (subject: string) => {
-    setActiveTab('all-flashcards');
+    navigate('/dashboard/student/flashcards/2/interactive');
   };
 
   return (
@@ -110,7 +102,7 @@ const FlashcardsLandingPage = () => {
             </div>
           </div>
 
-          {/* Subject Study Buttons */}
+          {/* Subject Study Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {overviewData.subjects.map((subject) => (
               <Card key={subject.name} className="hover:shadow-md transition-shadow">
@@ -126,12 +118,18 @@ const FlashcardsLandingPage = () => {
                     </div>
                     <Progress value={subject.progress} className="h-2" />
                   </div>
-                  <Button 
-                    className="w-full" 
-                    onClick={() => handleStudySubject(subject.name)}
-                  >
-                    Study {subject.name}
-                  </Button>
+                  
+                  {/* Additional Stats */}
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="p-2 bg-blue-50 rounded text-center">
+                      <p className="text-sm font-bold text-blue-700">78%</p>
+                      <p className="text-xs text-blue-600">Recall Accuracy</p>
+                    </div>
+                    <div className="p-2 bg-green-50 rounded text-center">
+                      <p className="text-sm font-bold text-green-700">{subject.studyTime}h</p>
+                      <p className="text-xs text-green-600">Study Time</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -158,19 +156,15 @@ const FlashcardsLandingPage = () => {
                         <Badge variant={set.difficulty === 'Easy' ? 'default' : set.difficulty === 'Medium' ? 'secondary' : 'destructive'}>
                           {set.difficulty}
                         </Badge>
-                        {set.recallAccuracy && (
-                          <Badge variant="outline" className="bg-green-50 text-green-700">
-                            {set.recallAccuracy}% Accuracy
-                          </Badge>
-                        )}
+                        <Badge variant="outline" className="bg-green-50 text-green-700">
+                          {set.recallAccuracy}% Accuracy
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span>{set.cards} cards</span>
                         <span>{set.mastered} mastered</span>
                         <span>Last studied: {set.lastStudied}</span>
-                        {set.attempts && (
-                          <span>{set.attempts} attempts</span>
-                        )}
+                        <span>{set.attempts} attempts</span>
                       </div>
                       <div className="mt-2">
                         <Progress value={(set.mastered / set.cards) * 100} className="h-1" />

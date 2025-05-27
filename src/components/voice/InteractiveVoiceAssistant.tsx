@@ -1,28 +1,24 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, X, Mic, MicOff, VolumeX, Settings } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Volume2, VolumeX, Mic, MicOff, X, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
+import useVoiceAssistant from '@/hooks/useVoiceAssistant';
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface InteractiveVoiceAssistantProps {
   userName?: string;
   language?: string;
   onNavigationCommand?: (route: string) => void;
-  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  position?: 'bottom-right' | 'bottom-left';
   className?: string;
   assistantName?: string;
 }
@@ -35,227 +31,197 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   className = '',
   assistantName = 'PREPZR AI'
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [messages, setMessages] = useState<Array<{id: string, text: string, sender: 'user' | 'assistant'}>>([]);
+  const { toast } = useToast();
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [volume, setVolume] = useState(80);
-  const [speed, setSpeed] = useState(50);
-  const [pitch, setPitch] = useState(50);
-  const [voicePreference, setVoicePreference] = useState("female");
-  const [isMuted, setIsMuted] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [conversationHistory, setConversationHistory] = useState<Array<{
+    type: 'user' | 'assistant';
+    message: string;
+    timestamp: Date;
+  }>>([]);
 
-  useEffect(() => {
-    if (!('webkitSpeechRecognition' in window)) {
-      console.log('Speech recognition is not supported in this browser.');
-      return;
-    }
+  const {
+    settings,
+    isListening,
+    isSpeaking,
+    transcript,
+    speakText,
+    startListening,
+    stopListening,
+    toggleMute,
+    updateSettings
+  } = useVoiceAssistant({
+    userName,
+    initialSettings: { language }
+  });
 
-    const recognition = new (window as any).webkitSpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = language;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          setTranscript(event.results[i][0].transcript);
-        } else {
-          interimTranscript += event.results[i][0].transcript;
-        }
-      }
-      setTranscript(interimTranscript);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.stop();
-    };
-  }, [language]);
+  const positionClasses = position === 'bottom-right' 
+    ? 'fixed bottom-6 right-6 z-40' 
+    : 'fixed bottom-6 left-6 z-40';
 
   useEffect(() => {
     if (transcript) {
-      setMessages(prevMessages => [
-        ...prevMessages,
-        {
-          id: Date.now().toString(),
-          text: transcript,
-          sender: 'user'
-        }
-      ]);
+      processVoiceCommand(transcript);
+    }
+  }, [transcript]);
 
-      // Basic command processing
-      if (transcript.toLowerCase().includes('go to')) {
-        const route = transcript.toLowerCase().split('go to')[1].trim();
-        if (onNavigationCommand) {
-          onNavigationCommand(route);
-        }
+  const processVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('hello') || lowerCommand.includes('hi')) {
+      const response = `Hello ${userName}! I'm ${assistantName}, your AI study companion. How can I help you today?`;
+      speakText(response);
+      addToConversation('user', command);
+      addToConversation('assistant', response);
+    } else if (lowerCommand.includes('dashboard')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student');
       }
-
-      // Simulate assistant response
-      setTimeout(() => {
-        setMessages(prevMessages => [
-          ...prevMessages,
-          {
-            id: Date.now().toString(),
-            text: `Okay, I heard: ${transcript}`,
-            sender: 'assistant'
-          }
-        ]);
-        speak(`Okay, I heard: ${transcript}`);
-      }, 1000);
-    }
-  }, [transcript, userName, onNavigationCommand]);
-
-  const speak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = language;
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      console.log('Text-to-speech not supported in this browser.');
+      speakText('Navigating to your dashboard');
+    } else if (lowerCommand.includes('concepts')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student/concepts');
+      }
+      speakText('Opening concepts section');
+    } else if (lowerCommand.includes('practice') || lowerCommand.includes('exam')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student/practice-exam');
+      }
+      speakText('Opening practice exams');
+    } else if (lowerCommand.includes('flashcards')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student/flashcards');
+      }
+      speakText('Opening flashcards');
     }
   };
 
-  const getPositionClasses = () => {
-    switch (position) {
-      case 'bottom-left':
-        return 'bottom-6 left-6';
-      case 'top-right':
-        return 'top-6 right-6';
-      case 'top-left':
-        return 'top-6 left-6';
-      default:
-        return 'bottom-6 right-6';
+  const addToConversation = (type: 'user' | 'assistant', message: string) => {
+    setConversationHistory(prev => [...prev, {
+      type,
+      message,
+      timestamp: new Date()
+    }]);
+  };
+
+  const handleToggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+    if (!isExpanded) {
+      const greeting = `Hello ${userName}! I'm ${assistantName}, ready to help with your studies.`;
+      speakText(greeting);
+      addToConversation('assistant', greeting);
     }
   };
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-  };
-
-  const toggleListening = () => {
+  const handleVoiceToggle = () => {
     if (isListening) {
-      recognitionRef.current?.stop();
+      stopListening();
     } else {
-      recognitionRef.current?.start();
-      setTranscript('');
+      startListening();
     }
   };
 
   return (
-    <div className={`fixed ${getPositionClasses()} z-40 ${className}`}>
+    <div className={`${positionClasses} ${className}`}>
       <AnimatePresence>
-        {isOpen && (
+        {isExpanded && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
             className="mb-4"
           >
-            <Card className="w-80 max-h-96 shadow-lg border-2 border-blue-200 dark:border-blue-800">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="font-medium text-sm">{assistantName}</span>
-                    {isSpeaking && (
-                      <Badge variant="outline" className="text-xs">
-                        Speaking...
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1">
+            <Card className="w-80 shadow-2xl border-2 border-purple-200 dark:border-purple-800">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold text-purple-700 dark:text-purple-300">
+                    {assistantName}
+                  </CardTitle>
+                  <div className="flex gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowSettings(true)}
-                      className="h-6 w-6 p-0"
                     >
-                      <Settings className="h-3 w-3" />
+                      <Settings className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setIsOpen(false)}
-                      className="h-6 w-6 p-0"
+                      onClick={() => setIsExpanded(false)}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-
-                <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
-                  {messages.length === 0 && (
-                    <div className="text-center text-sm text-gray-500 py-4">
-                      Hi {userName}! I'm {assistantName}. Ask me anything about your studies!
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="h-32 overflow-y-auto space-y-2 bg-gray-50 dark:bg-gray-800 rounded p-2">
+                    {conversationHistory.length === 0 ? (
+                      <p className="text-sm text-gray-500 text-center">
+                        Start a conversation by saying "Hello"
+                      </p>
+                    ) : (
+                      conversationHistory.map((item, index) => (
+                        <div
+                          key={index}
+                          className={`text-xs p-2 rounded ${
+                            item.type === 'user'
+                              ? 'bg-blue-100 dark:bg-blue-900 ml-4'
+                              : 'bg-purple-100 dark:bg-purple-900 mr-4'
+                          }`}
+                        >
+                          <span className="font-semibold">
+                            {item.type === 'user' ? 'You' : assistantName}:
+                          </span>
+                          <span className="ml-2">{item.message}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  
+                  <div className="flex justify-center gap-2">
+                    <Button
+                      onClick={handleVoiceToggle}
+                      variant={isListening ? "destructive" : "default"}
+                      size="sm"
+                      className="flex-1"
+                    >
+                      {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+                      {isListening ? 'Stop' : 'Talk'}
+                    </Button>
+                    <Button
+                      onClick={toggleMute}
+                      variant="outline"
+                      size="sm"
+                    >
+                      {settings.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  
+                  {isListening && (
+                    <div className="text-center">
+                      <div className="flex justify-center">
+                        <div className="animate-pulse bg-red-500 rounded-full h-2 w-2 mr-1"></div>
+                        <div className="animate-pulse bg-red-500 rounded-full h-2 w-2 mr-1" style={{animationDelay: '0.1s'}}></div>
+                        <div className="animate-pulse bg-red-500 rounded-full h-2 w-2" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-1">Listening...</p>
                     </div>
                   )}
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`p-2 rounded text-xs ${
-                        message.sender === 'user'
-                          ? 'bg-blue-100 dark:bg-blue-900 ml-4'
-                          : 'bg-gray-100 dark:bg-gray-800 mr-4'
-                      }`}
-                    >
-                      {message.text}
+                  
+                  {isSpeaking && (
+                    <div className="text-center">
+                      <div className="flex justify-center">
+                        <div className="animate-bounce bg-purple-500 rounded-full h-2 w-2 mr-1"></div>
+                        <div className="animate-bounce bg-purple-500 rounded-full h-2 w-2 mr-1" style={{animationDelay: '0.1s'}}></div>
+                        <div className="animate-bounce bg-purple-500 rounded-full h-2 w-2" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-1">{assistantName} is speaking...</p>
                     </div>
-                  ))}
-                </div>
-
-                {transcript && (
-                  <div className="mb-2 p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded text-xs">
-                    Listening: {transcript}
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <Button
-                    variant={isListening ? "destructive" : "default"}
-                    size="sm"
-                    onClick={toggleListening}
-                    className="flex-1"
-                    disabled={isSpeaking}
-                  >
-                    {isListening ? <MicOff className="h-3 w-3 mr-1" /> : <Mic className="h-3 w-3 mr-1" />}
-                    {isListening ? 'Stop' : 'Talk'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={toggleMute}
-                    className="px-2"
-                  >
-                    {isMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
-                  </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -263,90 +229,60 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
         )}
       </AnimatePresence>
 
+      {/* Main Assistant Button */}
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
         <Button
-          onClick={() => setIsOpen(!isOpen)}
-          className="rounded-full w-12 h-12 shadow-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-2 border-white dark:border-gray-800"
+          onClick={handleToggleExpanded}
+          className={`rounded-full w-14 h-14 shadow-lg border-2 border-white dark:border-gray-800 ${
+            isExpanded 
+              ? 'bg-purple-600 hover:bg-purple-700' 
+              : 'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600'
+          }`}
           size="sm"
         >
-          <Volume2 className="h-5 w-5 text-white" />
+          <Volume2 className="h-6 w-6 text-white" />
+          {(isListening || isSpeaking) && (
+            <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-400 animate-pulse"></span>
+          )}
         </Button>
       </motion.div>
 
-      {/* Settings Panel */}
-      <Drawer open={showSettings} onOpenChange={setShowSettings}>
-        <DrawerContent className="max-w-md mx-auto">
-          <DrawerHeader>
-            <DrawerTitle className="text-xl font-bold">{assistantName} Settings</DrawerTitle>
-            <DrawerDescription>
-              Configure your voice assistant preferences.
-            </DrawerDescription>
-          </DrawerHeader>
-          
-          <div className="px-4 space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label htmlFor="voice-volume">Volume</Label>
-                <span className="text-sm text-muted-foreground">{volume}%</span>
-              </div>
-              <Slider 
-                id="voice-volume"
-                min={0} 
-                max={100} 
-                step={1}
-                value={[volume]}
-                onValueChange={(values) => setVolume(values[0])}
-              />
+      {/* Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{assistantName} Settings</DialogTitle>
+            <DialogDescription>
+              Configure your voice assistant preferences
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span>Voice Enabled</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => updateSettings({ enabled: !settings.enabled })}
+              >
+                {settings.enabled ? 'Enabled' : 'Disabled'}
+              </Button>
             </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label htmlFor="voice-speed">Speaking Speed</Label>
-                <span className="text-sm text-muted-foreground">{speed}%</span>
-              </div>
-              <Slider 
-                id="voice-speed"
-                min={0} 
-                max={100} 
-                step={1}
-                value={[speed]}
-                onValueChange={(values) => setSpeed(values[0])}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Voice Preference</Label>
-              <div className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="voice-male"
-                    checked={voicePreference === "male"}
-                    onCheckedChange={() => setVoicePreference("male")}
-                  />
-                  <Label htmlFor="voice-male">Male</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="voice-female"
-                    checked={voicePreference === "female"}
-                    onCheckedChange={() => setVoicePreference("female")}
-                  />
-                  <Label htmlFor="voice-female">Female</Label>
-                </div>
-              </div>
+            <div className="flex items-center justify-between">
+              <span>Audio Output</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleMute}
+              >
+                {settings.muted ? 'Muted' : 'Unmuted'}
+              </Button>
             </div>
           </div>
-          
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

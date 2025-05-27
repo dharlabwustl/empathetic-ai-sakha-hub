@@ -86,18 +86,8 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const getCurrentPlan = () => {
-    if (!user?.subscription) return 'Free';
-    
-    if (typeof user.subscription === 'string') {
-      return user.subscription === 'pro_monthly' ? 'Pro Monthly' : 
-             user.subscription === 'pro_annual' ? 'Pro Annual' :
-             user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
-    }
-    
-    return user.subscription.planType === 'pro_monthly' ? 'Pro Monthly' :
-           user.subscription.planType === 'pro_annual' ? 'Pro Annual' :
-           (user.subscription.planType || 'Free').charAt(0).toUpperCase() + 
-           (user.subscription.planType || 'Free').slice(1);
+    // Simple fallback for subscription display
+    return 'Free';
   };
   
   return (
@@ -173,7 +163,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>Sakha AI Voice Assistant</p>
+              <p>PREPZR AI Voice Assistant</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

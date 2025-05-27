@@ -69,17 +69,13 @@ const PracticeExamLandingPage = () => {
 
   const handleExamAction = (exam: any) => {
     if (exam.status === 'completed') {
-      navigate(`/dashboard/student/practice-exam/${exam.id}/review`);
+      navigate('/dashboard/student/practice-exam/6/review');
     } else {
-      navigate(`/dashboard/student/practice-exam/${exam.id}/start`);
+      navigate('/dashboard/student/practice-exam/4/start');
     }
   };
 
   const handleTakePracticeTest = () => {
-    navigate('/dashboard/student/practice-exam/4/start');
-  };
-
-  const handleStudySubject = (subject: string) => {
     setActiveTab('all-exams');
   };
 
@@ -103,11 +99,11 @@ const PracticeExamLandingPage = () => {
               <p className="text-gray-600 dark:text-gray-400">Test your knowledge with comprehensive mock exams</p>
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleTakePracticeTest}>
+              <Button onClick={() => navigate('/dashboard/student/practice-exam/4/start')}>
                 <Play className="mr-2 h-4 w-4" />
                 Take Practice Test
               </Button>
-              <Button variant="outline" onClick={handleTakePracticeTest}>
+              <Button variant="outline">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Custom Exam
               </Button>
@@ -132,7 +128,7 @@ const PracticeExamLandingPage = () => {
                   </div>
                   <Button 
                     className="w-full" 
-                    onClick={() => handleStudySubject(subject.name)}
+                    onClick={() => navigate('/dashboard/student/practice-exam/4/start')}
                   >
                     Practice {subject.name}
                   </Button>

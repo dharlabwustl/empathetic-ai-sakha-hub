@@ -55,28 +55,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
     }
   };
 
-  const getNavigationPath = () => {
-    switch (type) {
-      case 'Concepts':
-        return '/dashboard/student/concepts';
-      case 'Flashcards':
-        return '/dashboard/student/flashcards';
-      case 'Practice Exams':
-        return '/dashboard/student/practice-exam';
-    }
-  };
-
-  const getAllTabNavigationPath = () => {
-    switch (type) {
-      case 'Concepts':
-        return '/dashboard/student/concepts?tab=all-concepts';
-      case 'Flashcards':
-        return '/dashboard/student/flashcards?tab=all-flashcards';
-      case 'Practice Exams':
-        return '/dashboard/student/practice-exam?tab=all-exams';
-    }
-  };
-
   const getStudyActionText = () => {
     switch (type) {
       case 'Concepts':
@@ -89,12 +67,31 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   };
 
   const handleContinueLearning = () => {
-    navigate(getAllTabNavigationPath());
+    switch (type) {
+      case 'Concepts':
+        navigate('/dashboard/student/concepts?tab=all-concepts');
+        break;
+      case 'Flashcards':
+        navigate('/dashboard/student/flashcards?tab=all-flashcards');
+        break;
+      case 'Practice Exams':
+        navigate('/dashboard/student/practice-exam?tab=all-exams');
+        break;
+    }
   };
 
   const handleSubjectStudy = (subjectName: string) => {
-    const baseUrl = getAllTabNavigationPath();
-    navigate(`${baseUrl}&subject=${subjectName.toLowerCase()}`);
+    switch (type) {
+      case 'Concepts':
+        navigate('/dashboard/student/concepts?tab=all-concepts');
+        break;
+      case 'Flashcards':
+        navigate('/dashboard/student/flashcards?tab=all-flashcards');
+        break;
+      case 'Practice Exams':
+        navigate('/dashboard/student/practice-exam?tab=all-exams');
+        break;
+    }
   };
 
   return (
