@@ -66,7 +66,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
           <span className="sm:hidden">#1 AI Exam Prep</span>
         </motion.div>
 
-        {/* Enhanced NEET 2026 Prep Button with vibrant purple and smaller text */}
+        {/* Enhanced NEET 2026 Prep Button with smaller text and vibrant purple */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -75,7 +75,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         >
           <Button
             onClick={handleNEETPrep}
-            className="relative bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 hover:from-purple-700 hover:via-violet-700 hover:to-purple-800 text-white px-3 py-2 md:px-5 md:py-2.5 rounded-full font-bold text-xs md:text-sm shadow-2xl overflow-hidden group"
+            className="relative bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 hover:from-purple-700 hover:via-violet-700 hover:to-purple-800 text-white px-3 py-2 md:px-4 md:py-2.5 rounded-full font-bold text-xs md:text-sm shadow-2xl overflow-hidden group"
           >
             {/* Dynamic glowing animation background */}
             <motion.div
@@ -164,7 +164,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         </p>
       </motion.div>
 
-      {/* Dynamic Key Benefits Slider */}
+      {/* Enhanced Dynamic Key Benefits Slider with more vibrant animations */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -175,28 +175,97 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
           Key Benefits That Transform Your Journey
         </h3>
         
-        <div className="relative h-12 md:h-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/50 flex items-center justify-center overflow-hidden">
+        <div className="relative h-16 md:h-20 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/50 flex items-center justify-center overflow-hidden shadow-lg">
+          {/* Animated background gradient */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-xl"
+            animate={{
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          
+          {/* Floating particles effect */}
+          <motion.div
+            className="absolute top-2 left-4 w-2 h-2 bg-blue-400 rounded-full opacity-60"
+            animate={{
+              y: [0, -10, 0],
+              x: [0, 5, 0],
+              scale: [1, 1.2, 1],
+              opacity: [0.6, 1, 0.6]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div
+            className="absolute bottom-3 right-6 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-70"
+            animate={{
+              y: [0, 8, 0],
+              x: [0, -3, 0],
+              scale: [1, 0.8, 1],
+              opacity: [0.7, 1, 0.7]
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5
+            }}
+          />
+          
           <motion.div
             key={currentBenefit}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-            className="text-center px-4"
+            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.8 }}
+            transition={{ duration: 0.6, ease: "backOut" }}
+            className="text-center px-4 relative z-10"
           >
-            <div className="text-lg md:text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <motion.div 
+              className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            >
               {keyBenefits[currentBenefit]}
-            </div>
+            </motion.div>
           </motion.div>
           
-          {/* Progress indicator */}
-          <div className="absolute bottom-1 md:bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+          {/* Enhanced progress indicator with vibrant colors */}
+          <div className="absolute bottom-2 md:bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2">
             {keyBenefits.map((_, index) => (
-              <div
+              <motion.div
                 key={index}
-                className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-colors duration-300 ${
-                  index === currentBenefit ? 'bg-blue-600' : 'bg-gray-300'
+                className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-all duration-500 ${
+                  index === currentBenefit 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg' 
+                    : 'bg-gray-300 dark:bg-gray-600'
                 }`}
+                animate={index === currentBenefit ? {
+                  scale: [1, 1.3, 1],
+                  boxShadow: [
+                    "0 0 0 rgba(147, 51, 234, 0)",
+                    "0 0 15px rgba(147, 51, 234, 0.5)",
+                    "0 0 0 rgba(147, 51, 234, 0)"
+                  ]
+                } : {}}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
               />
             ))}
           </div>
@@ -249,7 +318,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
             </div>
           </div>
         ))}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
