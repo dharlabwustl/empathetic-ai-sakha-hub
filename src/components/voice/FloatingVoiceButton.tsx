@@ -1,259 +1,321 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Mic, MicOff, Settings, Volume2, VolumeX, Headphones } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Mic, MicOff, Settings, X, Volume2, VolumeX, Brain } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
-import { useNavigate } from 'react-router-dom';
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FloatingVoiceButtonProps {
   userName?: string;
   language?: string;
   onNavigationCommand?: (route: string) => void;
+  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 }
 
 const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
-  userName = 'Student',
+  userName,
   language = 'en-US',
-  onNavigationCommand
+  onNavigationCommand,
+  position = 'bottom-right'
 }) => {
-  const navigate = useNavigate();
-  const [showSettings, setShowSettings] = useState(false);
-
-  const handleVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase().trim();
-    console.log('PREPZR AI processing command:', lowerCommand);
-
-    // Navigation commands
-    if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
-      const route = '/dashboard/student';
-      navigate(route);
-      if (onNavigationCommand) onNavigationCommand(route);
-      speakMessage('Navigating to your dashboard');
-      return;
-    }
-
-    if (lowerCommand.includes('concepts') || lowerCommand.includes('learn')) {
-      const route = '/dashboard/student/concepts';
-      navigate(route);
-      if (onNavigationCommand) onNavigationCommand(route);
-      speakMessage('Opening concepts section');
-      return;
-    }
-
-    if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card')) {
-      const route = '/dashboard/student/flashcards';
-      navigate(route);
-      if (onNavigationCommand) onNavigationCommand(route);
-      speakMessage('Opening flashcards');
-      return;
-    }
-
-    if (lowerCommand.includes('practice exam') || lowerCommand.includes('test')) {
-      const route = '/dashboard/student/practice-exam';
-      navigate(route);
-      if (onNavigationCommand) onNavigationCommand(route);
-      speakMessage('Opening practice exams');
-      return;
-    }
-
-    if (lowerCommand.includes('profile') || lowerCommand.includes('settings')) {
-      const route = '/dashboard/student/profile';
-      navigate(route);
-      if (onNavigationCommand) onNavigationCommand(route);
-      speakMessage('Opening profile settings');
-      return;
-    }
-
-    // Study assistance
-    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
-      speakMessage(`Hi ${userName}! I'm your PREPZR AI assistant. I can help you navigate to concepts, flashcards, practice exams, check your progress, provide study tips, and much more. Just tell me what you need!`);
-      return;
-    }
-
-    if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
-      speakMessage(`${userName}, you're making excellent progress! You've completed 68% of your Physics concepts and your practice scores are improving. Keep up the great work!`);
-      return;
-    }
-
-    // Default response
-    speakMessage(`I heard: "${command}". I'm your PREPZR AI assistant. How can I help you with your studies today?`);
-  };
+  const [showPanel, setShowPanel] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<any>(null);
 
   const {
     voiceSettings,
     updateVoiceSettings,
     toggleVoiceEnabled,
     toggleMute,
-    isVoiceSupported,
-    isListening,
-    startListening,
-    stopListening,
     speakMessage,
-    testVoice,
-    availableVoices
-  } = useVoiceAnnouncer({
-    userName,
-    autoStart: false,
-    onCommand: handleVoiceCommand
-  });
+    isVoiceSupported,
+    isSpeaking,
+    testVoice
+  } = useVoiceAnnouncer({ userName });
 
-  const handleVoiceToggle = () => {
-    if (isListening) {
-      stopListening();
+  useEffect(() => {
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      console.error("Speech recognition not supported");
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+
+    if (recognitionRef.current) {
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = language;
+
+      recognitionRef.current.onstart = () => setIsListening(true);
+      recognitionRef.current.onend = () => setIsListening(false);
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setTranscript(transcript);
+        processVoiceCommand(transcript);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.onstart = null;
+        recognitionRef.current.onend = null;
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+      }
+    };
+  }, [language]);
+
+  const processVoiceCommand = (transcript: string) => {
+    const command = transcript.toLowerCase();
+
+    if (command.includes('go to') || command.includes('navigate to')) {
+      let route = command.replace(/go to|navigate to/g, '').trim();
+      route = route.replace(/\s+/g, '-'); // Replace spaces with dashes
+      route = route.replace(/dashboard/g, '/dashboard'); // Ensure dashboard routes start with a slash
+      route = `/${route}`; // Add leading slash
+
+      if (onNavigationCommand) {
+        onNavigationCommand(route);
+      }
     } else {
-      startListening();
-      speakMessage(`Hi ${userName}! I'm your PREPZR AI assistant. I'm listening - how can I help you today?`);
+      speakMessage(`I heard you say: ${transcript}. I can only process navigation commands at the moment.`);
     }
   };
 
-  if (!isVoiceSupported) {
-    return null;
-  }
+  const getPositionClasses = () => {
+    switch (position) {
+      case 'bottom-left':
+        return 'bottom-6 left-6';
+      case 'top-right':
+        return 'top-6 right-6';
+      case 'top-left':
+        return 'top-6 left-6';
+      default:
+        return 'bottom-6 right-6';
+    }
+  };
+
+  const getPanelPositionClasses = () => {
+    switch (position) {
+      case 'bottom-left':
+        return 'bottom-20 left-6';
+      case 'top-right':
+        return 'top-20 right-6';
+      case 'top-left':
+        return 'top-20 left-6';
+      default:
+        return 'bottom-20 right-6';
+    }
+  };
 
   return (
     <>
       {/* Floating Voice Button */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
-        <Dialog open={showSettings} onOpenChange={setShowSettings}>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full w-10 h-10 bg-white/90 backdrop-blur-sm border-gray-200 hover:bg-gray-50"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Headphones className="h-5 w-5" />
-                PREPZR AI Voice Settings
-              </DialogTitle>
-              <DialogDescription>
-                Customize your voice assistant experience
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-6">
-              {/* Voice Control */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="voice-enabled">Voice Assistant</Label>
-                  <Switch
-                    id="voice-enabled"
-                    checked={voiceSettings.enabled}
-                    onCheckedChange={toggleVoiceEnabled}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="voice-muted">Mute Audio</Label>
-                  <Switch
-                    id="voice-muted"
-                    checked={voiceSettings.muted}
-                    onCheckedChange={toggleMute}
-                  />
-                </div>
-              </div>
-
-              {/* Volume Control */}
-              <div className="space-y-2">
-                <Label>Volume: {Math.round(voiceSettings.volume * 100)}%</Label>
-                <Slider
-                  value={[voiceSettings.volume]}
-                  onValueChange={([value]) => updateVoiceSettings({ volume: value })}
-                  max={1}
-                  step={0.1}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Speech Rate */}
-              <div className="space-y-2">
-                <Label>Speech Rate: {voiceSettings.rate}x</Label>
-                <Slider
-                  value={[voiceSettings.rate]}
-                  onValueChange={([value]) => updateVoiceSettings({ rate: value })}
-                  min={0.5}
-                  max={2}
-                  step={0.1}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Voice Selection */}
-              {availableVoices.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Voice</Label>
-                  <Select
-                    value={voiceSettings.voice?.name || ''}
-                    onValueChange={(value) => {
-                      const selectedVoice = availableVoices.find(v => v.name === value);
-                      updateVoiceSettings({ voice: selectedVoice || null });
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a voice" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableVoices
-                        .filter(voice => voice.lang.includes('en'))
-                        .map((voice) => (
-                          <SelectItem key={voice.name} value={voice.name}>
-                            {voice.name} ({voice.lang})
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Test Voice */}
-              <Button 
-                onClick={testVoice} 
-                variant="outline" 
-                className="w-full"
-                disabled={voiceSettings.muted}
-              >
-                <Volume2 className="h-4 w-4 mr-2" />
-                Test PREPZR AI Voice
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
+      <motion.div
+        className={`fixed ${getPositionClasses()} z-50`}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
         <Button
-          onClick={handleVoiceToggle}
-          variant={isListening ? "default" : "outline"}
-          size="lg"
-          className={`rounded-full w-16 h-16 shadow-lg transition-all duration-300 ${
-            isListening 
-              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-          disabled={!voiceSettings.enabled}
+          onClick={() => setShowPanel(!showPanel)}
+          className="h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg hover:shadow-xl relative overflow-hidden group"
+          disabled={!isVoiceSupported}
         >
-          {voiceSettings.enabled ? (
-            isListening ? (
-              <MicOff className="h-6 w-6" />
-            ) : (
-              <Mic className="h-6 w-6" />
-            )
-          ) : (
-            <VolumeX className="h-6 w-6" />
+          {/* Pulse animation background */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.1, 0.3]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          
+          <div className="relative z-10 flex flex-col items-center">
+            <Brain className="h-5 w-5 text-white mb-0.5" />
+            <motion.span 
+              className="text-[8px] font-bold text-transparent bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 bg-clip-text"
+              animate={{ 
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              style={{
+                backgroundSize: '200% auto'
+              }}
+            >
+              AI
+            </motion.span>
+          </div>
+
+          {/* Speaking indicator */}
+          {isSpeaking && (
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-yellow-400"
+              animate={{ 
+                scale: [1, 1.1, 1],
+                opacity: [1, 0.5, 1]
+              }}
+              transition={{ 
+                duration: 0.5,
+                repeat: Infinity
+              }}
+            />
           )}
-          <span className="sr-only">
-            {isListening ? 'Stop PREPZR AI' : 'Start PREPZR AI'}
-          </span>
         </Button>
-      </div>
+      </motion.div>
+
+      {/* Voice Control Panel */}
+      <AnimatePresence>
+        {showPanel && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className={`fixed ${getPanelPositionClasses()} z-40 w-80`}
+          >
+            <Card className="shadow-xl border-2 border-purple-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    Voice Assistant
+                    <motion.span 
+                      className="text-transparent bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text font-extrabold"
+                      animate={{ 
+                        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                      }}
+                      transition={{ 
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "linear"
+                      }}
+                      style={{
+                        backgroundSize: '200% auto'
+                      }}
+                    >
+                      AI
+                    </motion.span>
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPanel(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Voice Enabled</p>
+                    <p className="text-xs text-muted-foreground">
+                      Toggle voice assistant on or off
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleVoiceEnabled}
+                  >
+                    {voiceSettings.enabled ? 'Disable' : 'Enable'}
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Mute Voice</p>
+                    <p className="text-xs text-muted-foreground">
+                      Mute or unmute the voice assistant
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleMute}
+                  >
+                    {voiceSettings.muted ? 'Unmute' : 'Mute'}
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Test Voice</p>
+                    <p className="text-xs text-muted-foreground">
+                      Test the current voice settings
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={testVoice}
+                  >
+                    Test
+                  </Button>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Volume</p>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={voiceSettings.volume}
+                    onChange={(e) => updateVoiceSettings({ volume: parseFloat(e.target.value) })}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Rate</p>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="1.5"
+                    step="0.05"
+                    value={voiceSettings.rate}
+                    onChange={(e) => updateVoiceSettings({ rate: parseFloat(e.target.value) })}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Pitch</p>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="1.5"
+                    step="0.05"
+                    value={voiceSettings.pitch}
+                    onChange={(e) => updateVoiceSettings({ pitch: parseFloat(e.target.value) })}
+                    className="w-full"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

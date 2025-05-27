@@ -294,7 +294,79 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
     return () => clearInterval(interval);
   }, []);
   
-  return null;
+  return (
+    <>
+      {/* Floating AI Indicator - Enhanced with vibrant styling */}
+      <motion.div
+        className="fixed bottom-6 left-6 z-50 pointer-events-none"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 2 }}
+      >
+        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-purple-200">
+          <div className="relative">
+            <motion.div
+              className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [1, 0.7, 1]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.div
+              className="absolute inset-0 w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.5, 0, 0.5]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.5
+              }}
+            />
+          </div>
+          <span className="text-sm font-medium text-gray-700">Sakha</span>
+          <motion.span 
+            className="text-sm font-bold text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 bg-clip-text"
+            animate={{ 
+              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+            }}
+            transition={{ 
+              duration: 3,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            style={{
+              backgroundSize: '200% auto'
+            }}
+          >
+            AI
+          </motion.span>
+          <span className="text-sm text-gray-600">listening...</span>
+        </div>
+      </motion.div>
+      
+      {/* Voice command help indicator */}
+      {isListening && (
+        <motion.div
+          className="fixed bottom-20 left-6 z-50 pointer-events-none"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+        >
+          <div className="bg-black/80 text-white text-xs px-3 py-2 rounded-lg backdrop-blur-sm">
+            Try: "Features", "Free trial", "Exam readiness"
+          </div>
+        </motion.div>
+      )}
+    </>
+  );
 };
 
 export default EnhancedHomePageAssistant;
