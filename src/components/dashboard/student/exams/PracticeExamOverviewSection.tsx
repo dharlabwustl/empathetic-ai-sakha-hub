@@ -4,45 +4,45 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Brain, BookOpen, Clock, Target, TrendingUp, Lightbulb, Award, CheckCircle } from 'lucide-react';
+import { Brain, BookOpen, Clock, Target, TrendingUp, Award, CheckCircle, FileText } from 'lucide-react';
 
 interface SubjectProgress {
   name: string;
   completed: number;
   total: number;
-  studyTime: number;
-  efficiency: number;
+  avgScore: number;
+  timeSpent: number;
   color: string;
 }
 
-interface FlashcardOverviewSectionProps {
+interface PracticeExamOverviewSectionProps {
   className?: string;
 }
 
-const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ className }) => {
+const PracticeExamOverviewSection: React.FC<PracticeExamOverviewSectionProps> = ({ className }) => {
   const neetSubjects: SubjectProgress[] = [
     {
       name: 'Physics',
-      completed: 35,
-      total: 52,
-      studyTime: 80,
-      efficiency: 78,
+      completed: 12,
+      total: 18,
+      avgScore: 78,
+      timeSpent: 360,
       color: 'blue'
     },
     {
       name: 'Chemistry',
-      completed: 28,
-      total: 48,
-      studyTime: 65,
-      efficiency: 82,
+      completed: 8,
+      total: 15,
+      avgScore: 82,
+      timeSpent: 240,
       color: 'green'
     },
     {
       name: 'Biology',
-      completed: 42,
-      total: 61,
-      studyTime: 95,
-      efficiency: 85,
+      completed: 15,
+      total: 20,
+      avgScore: 85,
+      timeSpent: 450,
       color: 'purple'
     }
   ];
@@ -75,20 +75,20 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
   };
 
   const totalCompleted = neetSubjects.reduce((sum, subject) => sum + subject.completed, 0);
-  const totalFlashcards = neetSubjects.reduce((sum, subject) => sum + subject.total, 0);
-  const averageEfficiency = Math.round(neetSubjects.reduce((sum, subject) => sum + subject.efficiency, 0) / neetSubjects.length);
-  const totalStudyTime = neetSubjects.reduce((sum, subject) => sum + subject.studyTime, 0);
+  const totalExams = neetSubjects.reduce((sum, subject) => sum + subject.total, 0);
+  const averageScore = Math.round(neetSubjects.reduce((sum, subject) => sum + subject.avgScore, 0) / neetSubjects.length);
+  const totalTimeSpent = neetSubjects.reduce((sum, subject) => sum + subject.timeSpent, 0);
 
   return (
     <div className={`space-y-6 ${className || ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">NEET Flashcards Overview</h2>
-          <p className="text-gray-600 dark:text-gray-400">Master concepts with spaced repetition across all subjects</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">NEET Practice Exams Overview</h2>
+          <p className="text-gray-600 dark:text-gray-400">Test your knowledge with comprehensive practice examinations</p>
         </div>
         <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border-blue-200 px-4 py-2">
-          {Math.round((totalCompleted / totalFlashcards) * 100)}% Mastered
+          {Math.round((totalCompleted / totalExams) * 100)}% Complete
         </Badge>
       </div>
 
@@ -98,11 +98,11 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-md">
-                <BookOpen className="h-5 w-5 text-white" />
+                <FileText className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-sm text-blue-600 font-medium">Total Flashcards</p>
-                <p className="text-xl font-bold text-blue-800">{totalCompleted}/{totalFlashcards}</p>
+                <p className="text-sm text-blue-600 font-medium">Total Exams</p>
+                <p className="text-xl font-bold text-blue-800">{totalCompleted}/{totalExams}</p>
               </div>
             </div>
           </CardContent>
@@ -112,11 +112,11 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-md">
-                <Clock className="h-5 w-5 text-white" />
+                <Target className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-sm text-green-600 font-medium">Study Time</p>
-                <p className="text-xl font-bold text-green-800">{totalStudyTime}h</p>
+                <p className="text-sm text-green-600 font-medium">Avg Score</p>
+                <p className="text-xl font-bold text-green-800">{averageScore}%</p>
               </div>
             </div>
           </CardContent>
@@ -126,11 +126,11 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-md">
-                <TrendingUp className="h-5 w-5 text-white" />
+                <Clock className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-sm text-purple-600 font-medium">Avg Efficiency</p>
-                <p className="text-xl font-bold text-purple-800">{averageEfficiency}%</p>
+                <p className="text-sm text-purple-600 font-medium">Time Spent</p>
+                <p className="text-xl font-bold text-purple-800">{Math.round(totalTimeSpent/60)}h</p>
               </div>
             </div>
           </CardContent>
@@ -140,11 +140,11 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl shadow-md">
-                <Target className="h-5 w-5 text-white" />
+                <TrendingUp className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-sm text-orange-600 font-medium">Weekly Goal</p>
-                <p className="text-xl font-bold text-orange-800">85%</p>
+                <p className="text-sm text-orange-600 font-medium">Target Score</p>
+                <p className="text-xl font-bold text-orange-800">90%</p>
               </div>
             </div>
           </CardContent>
@@ -169,7 +169,7 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
             <CardContent className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="font-medium">Flashcards Mastered</span>
+                  <span className="font-medium">Exams Completed</span>
                   <span className="font-bold">{subject.completed}/{subject.total}</span>
                 </div>
                 <div className="relative">
@@ -190,19 +190,19 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/80 p-3 rounded-lg border border-white/50 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gray-600" />
+                    <Target className="h-4 w-4 text-gray-600" />
                     <div>
-                      <p className="text-xs text-gray-600 font-medium">Study Time</p>
-                      <p className="font-bold text-gray-800">{subject.studyTime}h</p>
+                      <p className="text-xs text-gray-600 font-medium">Avg Score</p>
+                      <p className="font-bold text-gray-800">{subject.avgScore}%</p>
                     </div>
                   </div>
                 </div>
                 <div className="bg-white/80 p-3 rounded-lg border border-white/50 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4 text-gray-600" />
+                    <Clock className="h-4 w-4 text-gray-600" />
                     <div>
-                      <p className="text-xs text-gray-600 font-medium">Efficiency</p>
-                      <p className="font-bold text-gray-800">{subject.efficiency}%</p>
+                      <p className="text-xs text-gray-600 font-medium">Time Spent</p>
+                      <p className="font-bold text-gray-800">{Math.round(subject.timeSpent/60)}h</p>
                     </div>
                   </div>
                 </div>
@@ -213,8 +213,8 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
                 subject.color === 'green' ? 'bg-green-600 hover:bg-green-700' :
                 'bg-purple-600 hover:bg-purple-700'
               }`}>
-                <BookOpen className="mr-2 h-4 w-4" />
-                Practice Flashcards
+                <FileText className="mr-2 h-4 w-4" />
+                Take Practice Exam
               </Button>
             </CardContent>
           </Card>
@@ -224,4 +224,4 @@ const FlashcardOverviewSection: React.FC<FlashcardOverviewSectionProps> = ({ cla
   );
 };
 
-export default FlashcardOverviewSection;
+export default PracticeExamOverviewSection;

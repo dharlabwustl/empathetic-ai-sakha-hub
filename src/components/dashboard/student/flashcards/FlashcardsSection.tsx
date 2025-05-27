@@ -1,68 +1,146 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FlashcardOverviewSection from './FlashcardOverviewSection';
-import FlashcardInteractive from './FlashcardInteractive';
-import { Brain, Plus, Filter, Search } from 'lucide-react';
 
 const FlashcardsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [activeSubjectTab, setActiveSubjectTab] = useState('all');
+
+  const mockFlashcards = {
+    physics: {
+      all: [
+        { id: 1, title: "Newton's Laws", status: "completed", difficulty: "medium" },
+        { id: 2, title: "Wave Optics", status: "in-progress", difficulty: "hard" },
+        { id: 3, title: "Thermodynamics", status: "pending", difficulty: "medium" }
+      ],
+      pending: [
+        { id: 3, title: "Thermodynamics", status: "pending", difficulty: "medium" }
+      ],
+      inProgress: [
+        { id: 2, title: "Wave Optics", status: "in-progress", difficulty: "hard" }
+      ],
+      completed: [
+        { id: 1, title: "Newton's Laws", status: "completed", difficulty: "medium" }
+      ]
+    },
+    chemistry: {
+      all: [
+        { id: 4, title: "Organic Chemistry", status: "completed", difficulty: "hard" },
+        { id: 5, title: "Chemical Bonding", status: "in-progress", difficulty: "medium" }
+      ],
+      pending: [],
+      inProgress: [
+        { id: 5, title: "Chemical Bonding", status: "in-progress", difficulty: "medium" }
+      ],
+      completed: [
+        { id: 4, title: "Organic Chemistry", status: "completed", difficulty: "hard" }
+      ]
+    },
+    biology: {
+      all: [
+        { id: 6, title: "Cell Biology", status: "completed", difficulty: "easy" },
+        { id: 7, title: "Genetics", status: "in-progress", difficulty: "hard" }
+      ],
+      pending: [],
+      inProgress: [
+        { id: 7, title: "Genetics", status: "in-progress", difficulty: "hard" }
+      ],
+      completed: [
+        { id: 6, title: "Cell Biology", status: "completed", difficulty: "easy" }
+      ]
+    }
+  };
+
+  const renderFlashcardList = (flashcards: any[]) => {
+    if (flashcards.length === 0) {
+      return (
+        <div className="text-center py-8 text-gray-500">
+          No flashcards found in this category.
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {flashcards.map((card) => (
+          <div key={card.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+            <h3 className="font-medium">{card.title}</h3>
+            <div className="mt-2 flex justify-between items-center">
+              <span className={`px-2 py-1 rounded text-xs ${
+                card.status === 'completed' ? 'bg-green-100 text-green-800' :
+                card.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {card.status}
+              </span>
+              <span className={`px-2 py-1 rounded text-xs ${
+                card.difficulty === 'hard' ? 'bg-red-100 text-red-800' :
+                card.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-green-100 text-green-800'
+              }`}>
+                {card.difficulty}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderSubjectContent = (subject: keyof typeof mockFlashcards) => {
+    return (
+      <Tabs value={activeSubjectTab} onValueChange={setActiveSubjectTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="inProgress">In Progress</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="mt-6">
+          {renderFlashcardList(mockFlashcards[subject].all)}
+        </TabsContent>
+
+        <TabsContent value="pending" className="mt-6">
+          {renderFlashcardList(mockFlashcards[subject].pending)}
+        </TabsContent>
+
+        <TabsContent value="inProgress" className="mt-6">
+          {renderFlashcardList(mockFlashcards[subject].inProgress)}
+        </TabsContent>
+
+        <TabsContent value="completed" className="mt-6">
+          {renderFlashcardList(mockFlashcards[subject].completed)}
+        </TabsContent>
+      </Tabs>
+    );
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Flashcards</h1>
-          <p className="text-gray-600 dark:text-gray-400">Master concepts with smart spaced repetition</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Search className="mr-2 h-4 w-4" />
-            Search
-          </Button>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Set
-          </Button>
-        </div>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="practice">Practice</TabsTrigger>
-          <TabsTrigger value="create">Create Cards</TabsTrigger>
+          <TabsTrigger value="physics">Physics</TabsTrigger>
+          <TabsTrigger value="chemistry">Chemistry</TabsTrigger>
+          <TabsTrigger value="biology">Biology</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
           <FlashcardOverviewSection />
         </TabsContent>
 
-        <TabsContent value="practice">
-          <FlashcardInteractive />
+        <TabsContent value="physics">
+          {renderSubjectContent('physics')}
         </TabsContent>
 
-        <TabsContent value="create">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5" />
-                Create New Flashcard Set
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center py-8 text-muted-foreground">
-                Flashcard creation interface coming soon...
-              </p>
-            </CardContent>
-          </Card>
+        <TabsContent value="chemistry">
+          {renderSubjectContent('chemistry')}
+        </TabsContent>
+
+        <TabsContent value="biology">
+          {renderSubjectContent('biology')}
         </TabsContent>
       </Tabs>
     </div>
