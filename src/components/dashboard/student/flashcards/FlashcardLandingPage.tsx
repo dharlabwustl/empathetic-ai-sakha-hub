@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -114,25 +113,37 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // ALL BUTTONS NOW ROUTE TO INTERACTIVE PAGE
+  // CRITICAL: ALL FUNCTIONS MUST ROUTE TO INTERACTIVE - NEVER TO PRACTICE
   const handleStartReview = (setId: number) => {
-    console.log('🔥 ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
-    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
+    console.log('🚨 START REVIEW - ROUTING TO:', targetRoute);
+    console.log('🚨 Current location before navigation:', window.location.href);
+    navigate(targetRoute);
+    console.log('🚨 Navigate called for START REVIEW');
   };
 
   const handleCardClick = (setId: number) => {
-    console.log('🔥 CARD CLICK - ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
-    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
+    console.log('🚨 CARD CLICK - ROUTING TO:', targetRoute);
+    console.log('🚨 Current location before navigation:', window.location.href);
+    navigate(targetRoute);
+    console.log('🚨 Navigate called for CARD CLICK');
   };
 
   const handleQuickReview = (setId: number) => {
-    console.log('🔥 QUICK REVIEW - ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
-    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
+    console.log('🚨 QUICK REVIEW - ROUTING TO:', targetRoute);
+    console.log('🚨 Current location before navigation:', window.location.href);
+    navigate(targetRoute);
+    console.log('🚨 Navigate called for QUICK REVIEW');
   };
 
   const handleStudyCards = (setId: number) => {
-    console.log('🔥 STUDY CARDS - ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
-    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
+    console.log('🚨 STUDY CARDS - ROUTING TO:', targetRoute);
+    console.log('🚨 Current location before navigation:', window.location.href);
+    navigate(targetRoute);
+    console.log('🚨 Navigate called for STUDY CARDS');
   };
 
   return (
@@ -284,13 +295,14 @@ const FlashcardLandingPage: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  {/* Action Buttons - ALL GO TO INTERACTIVE */}
+                  {/* CRITICAL: ALL BUTTONS MUST GO TO INTERACTIVE */}
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log('🚨 QUICK REVIEW BUTTON CLICKED FOR SET:', set.id);
                         handleQuickReview(set.id);
                       }}
                     >
@@ -300,6 +312,7 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log('🚨 STUDY CARDS BUTTON CLICKED FOR SET:', set.id);
                         handleStudyCards(set.id);
                       }}
                     >
@@ -312,6 +325,7 @@ const FlashcardLandingPage: React.FC = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('🚨 START REVIEW BUTTON CLICKED FOR SET:', set.id);
                       handleStartReview(set.id);
                     }}
                   >
@@ -324,6 +338,7 @@ const FlashcardLandingPage: React.FC = () => {
           ))}
         </motion.div>
 
+        {/* no flashcard sets found section */}
         {filteredSets.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}

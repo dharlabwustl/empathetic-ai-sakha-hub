@@ -72,11 +72,13 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
+      {/* ENSURE INTERACTIVE ROUTE IS PROPERLY MAPPED */}
       <Route path="/flashcards/:id/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
         </SidebarLayout>
       } />
+      {/* REMOVE ANY PRACTICE ROUTES - SHOULD NOT EXIST */}
       <Route path="/practice-exam" element={
         <SidebarLayout>
           <PracticeExamsList />
