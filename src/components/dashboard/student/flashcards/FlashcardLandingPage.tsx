@@ -114,20 +114,24 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // FIXED: All routing functions now navigate to interactive page
+  // ALL BUTTONS NOW ROUTE TO INTERACTIVE PAGE
   const handleStartReview = (setId: number) => {
+    console.log('🔥 ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
     navigate(`/dashboard/student/flashcards/${setId}/interactive`);
   };
 
   const handleCardClick = (setId: number) => {
+    console.log('🔥 CARD CLICK - ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
     navigate(`/dashboard/student/flashcards/${setId}/interactive`);
   };
 
   const handleQuickReview = (setId: number) => {
+    console.log('🔥 QUICK REVIEW - ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
     navigate(`/dashboard/student/flashcards/${setId}/interactive`);
   };
 
   const handleStudyCards = (setId: number) => {
+    console.log('🔥 STUDY CARDS - ROUTING TO INTERACTIVE:', `/dashboard/student/flashcards/${setId}/interactive`);
     navigate(`/dashboard/student/flashcards/${setId}/interactive`);
   };
 
@@ -280,7 +284,7 @@ const FlashcardLandingPage: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  {/* Action Buttons - All routing to interactive */}
+                  {/* Action Buttons - ALL GO TO INTERACTIVE */}
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline"
