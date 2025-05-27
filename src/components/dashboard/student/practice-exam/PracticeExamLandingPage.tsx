@@ -69,14 +69,18 @@ const PracticeExamLandingPage = () => {
 
   const handleExamAction = (exam: any) => {
     if (exam.status === 'completed') {
-      navigate(`/dashboard/student/practice-exam/analysis/${exam.id}`);
+      navigate(`/dashboard/student/practice-exam/${exam.id}/review`);
     } else {
-      navigate(`/dashboard/student/practice-exam/take/${exam.id}`);
+      navigate(`/dashboard/student/practice-exam/${exam.id}/start`);
     }
   };
 
   const handleTakePracticeTest = () => {
-    navigate('/dashboard/student/practice-exam/take');
+    navigate('/dashboard/student/practice-exam/4/start');
+  };
+
+  const handleStudySubject = (subject: string) => {
+    setActiveTab('all-exams');
   };
 
   return (
@@ -98,10 +102,43 @@ const PracticeExamLandingPage = () => {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Practice Exams</h1>
               <p className="text-gray-600 dark:text-gray-400">Test your knowledge with comprehensive mock exams</p>
             </div>
-            <Button onClick={handleTakePracticeTest}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Custom Exam
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleTakePracticeTest}>
+                <Play className="mr-2 h-4 w-4" />
+                Take Practice Test
+              </Button>
+              <Button variant="outline" onClick={handleTakePracticeTest}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Custom Exam
+              </Button>
+            </div>
+          </div>
+
+          {/* Subject Practice Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {overviewData.subjects.map((subject) => (
+              <Card key={subject.name} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{subject.name}</h3>
+                    <Badge variant="outline">{subject.progress}% Complete</Badge>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span>{subject.completed}/{subject.total} Exams</span>
+                      <span>{subject.studyTime}h practiced</span>
+                    </div>
+                    <Progress value={subject.progress} className="h-2" />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={() => handleStudySubject(subject.name)}
+                  >
+                    Practice {subject.name}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* Recent Exams */}
@@ -145,7 +182,7 @@ const PracticeExamLandingPage = () => {
                       {exam.status === 'completed' ? (
                         <>
                           <BarChart className="h-4 w-4 mr-1" />
-                          Review Results
+                          View Results
                         </>
                       ) : (
                         <>

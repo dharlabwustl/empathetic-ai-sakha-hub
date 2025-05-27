@@ -66,6 +66,17 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
     }
   };
 
+  const getAllTabNavigationPath = () => {
+    switch (type) {
+      case 'Concepts':
+        return '/dashboard/student/concepts?tab=all-concepts';
+      case 'Flashcards':
+        return '/dashboard/student/flashcards?tab=all-flashcards';
+      case 'Practice Exams':
+        return '/dashboard/student/practice-exam?tab=all-exams';
+    }
+  };
+
   const getStudyActionText = () => {
     switch (type) {
       case 'Concepts':
@@ -78,7 +89,12 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   };
 
   const handleContinueLearning = () => {
-    navigate(getNavigationPath());
+    navigate(getAllTabNavigationPath());
+  };
+
+  const handleSubjectStudy = (subjectName: string) => {
+    const baseUrl = getAllTabNavigationPath();
+    navigate(`${baseUrl}&subject=${subjectName.toLowerCase()}`);
   };
 
   return (
@@ -130,7 +146,12 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
                 </div>
               </div>
 
-              <Button className="w-full" variant="outline" size="sm" onClick={handleContinueLearning}>
+              <Button 
+                className="w-full" 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleSubjectStudy(subject.name)}
+              >
                 <Play className="mr-2 h-4 w-4" />
                 Study {subject.name}
               </Button>

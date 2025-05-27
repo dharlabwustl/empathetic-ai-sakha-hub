@@ -1,387 +1,252 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2 } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { Mic, MicOff, Volume2, VolumeX, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/hooks/use-toast';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 
 interface SpeechRecognitionButtonProps {
-  onCommand?: (command: string) => void;
   position?: 'homepage' | 'dashboard';
+  onCommand?: (command: string) => void;
   className?: string;
 }
 
 const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
-  onCommand,
   position = 'homepage',
+  onCommand,
   className = ''
 }) => {
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [recognition, setRecognition] = useState<any>(null);
-  const [isSupported, setIsSupported] = useState(false);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const { toast } = useToast();
+  const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [volume, setVolume] = useState(80);
+  const [speed, setSpeed] = useState(50);
+  const [pitch, setPitch] = useState(50);
+  const [voicePreference, setVoicePreference] = useState("female");
   const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      
-      if (SpeechRecognition) {
-        setIsSupported(true);
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onresult = (event: any) => {
+        const last = event.results.length - 1;
+        const result = event.results[last];
         
-        try {
-          const speechRecognition = new SpeechRecognition();
-          speechRecognition.continuous = false;
-          speechRecognition.interimResults = true;
-          speechRecognition.lang = 'en-US';
-          speechRecognition.maxAlternatives = 1;
-
-          speechRecognition.onstart = () => {
-            console.log('Speech recognition started');
-            setIsListening(true);
-            setTranscript('');
-          };
-
-          speechRecognition.onresult = (event: any) => {
-            try {
-              if (event.results && event.results.length > 0) {
-                const current = event.resultIndex;
-                const transcriptText = event.results[current][0].transcript.trim();
-                setTranscript(transcriptText);
-                
-                if (event.results[current].isFinal && transcriptText) {
-                  console.log('Final transcript:', transcriptText);
-                  onCommand?.(transcriptText);
-                  processCommand(transcriptText);
-                  
-                  // Clear transcript after processing
-                  setTimeout(() => {
-                    setTranscript('');
-                  }, 2000);
-                }
-              }
-            } catch (error) {
-              console.error('Error processing speech result:', error);
-              handleError('Error processing speech');
-            }
-          };
-
-          speechRecognition.onerror = (event: any) => {
-            console.error('Speech recognition error:', event.error);
-            setIsListening(false);
-            setTranscript('');
-            
-            switch (event.error) {
-              case 'not-allowed':
-                setHasPermission(false);
-                toast({
-                  title: "Microphone Permission Denied",
-                  description: "Please allow microphone access to use voice commands",
-                  variant: "destructive"
-                });
-                break;
-              case 'no-speech':
-                toast({
-                  title: "No Speech Detected",
-                  description: "Please try speaking more clearly",
-                  variant: "destructive"
-                });
-                break;
-              case 'network':
-                toast({
-                  title: "Network Error",
-                  description: "Please check your internet connection",
-                  variant: "destructive"
-                });
-                break;
-              case 'aborted':
-                // User manually stopped, don't show error
-                break;
-              default:
-                if (event.error !== 'aborted') {
-                  toast({
-                    title: "Speech Recognition Error",
-                    description: "Please try again",
-                    variant: "destructive"
-                  });
-                }
-            }
-          };
-
-          speechRecognition.onend = () => {
-            console.log('Speech recognition ended');
-            setIsListening(false);
-            
-            // Clear any pending timeouts
-            if (timeoutRef.current) {
-              clearTimeout(timeoutRef.current);
-              timeoutRef.current = null;
-            }
-          };
-
-          setRecognition(speechRecognition);
-          recognitionRef.current = speechRecognition;
-        } catch (error) {
-          console.error('Error initializing speech recognition:', error);
-          setIsSupported(false);
+        if (result.isFinal) {
+          const command = result[0].transcript.trim();
+          if (onCommand) {
+            onCommand(command);
+          }
         }
-      } else {
-        setIsSupported(false);
-        console.warn('Speech recognition not supported in this browser');
-      }
+      };
     }
 
-    // Cleanup function
     return () => {
       if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch (error) {
-          console.error('Error cleaning up speech recognition:', error);
-        }
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+        recognitionRef.current.abort();
       }
     };
-  }, []);
+  }, [onCommand]);
 
-  const handleError = (message: string) => {
-    setIsListening(false);
-    setTranscript('');
-    console.error('Speech recognition error:', message);
-  };
-
-  const processCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase();
-    
-    try {
-      // Basic navigation commands
-      if (lowerCommand.includes('go to') || lowerCommand.includes('open') || lowerCommand.includes('show')) {
-        if (lowerCommand.includes('dashboard')) {
-          window.location.href = '/dashboard/student';
-          return;
-        }
-        if (lowerCommand.includes('concepts')) {
-          window.location.href = '/dashboard/student/concepts';
-          return;
-        }
-        if (lowerCommand.includes('flashcards')) {
-          window.location.href = '/dashboard/student/flashcards';
-          return;
-        }
-        if (lowerCommand.includes('practice') || lowerCommand.includes('exam')) {
-          window.location.href = '/dashboard/student/practice-exam';
-          return;
-        }
-        if (lowerCommand.includes('home')) {
-          window.location.href = '/';
-          return;
-        }
-      }
-
-      // Exam-specific commands
-      if (lowerCommand.includes('neet') && lowerCommand.includes('prep')) {
-        window.location.href = '/signup?exam=neet';
-        return;
-      }
-
-      if (lowerCommand.includes('start trial') || lowerCommand.includes('sign up')) {
-        window.location.href = '/signup';
-        return;
-      }
-
-      // Provide feedback for recognized but unprocessed commands
-      toast({
-        title: "Command Recognized",
-        description: `You said: "${command}". Try commands like "go to dashboard" or "open concepts"`,
-      });
-    } catch (error) {
-      console.error('Error processing command:', error);
-      handleError('Error processing command');
-    }
-  };
-
-  const requestMicrophonePermission = async (): Promise<boolean> => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
-      setHasPermission(true);
-      return true;
-    } catch (error) {
-      console.error('Microphone permission denied:', error);
-      setHasPermission(false);
-      return false;
-    }
-  };
-
-  const toggleListening = async () => {
-    if (!isSupported) {
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
       toast({
         title: "Speech Recognition Not Supported",
-        description: "Your browser doesn't support speech recognition. Try Chrome or Edge.",
+        description: "Your browser doesn't support speech recognition.",
         variant: "destructive"
       });
       return;
     }
 
-    if (!recognition) {
-      toast({
-        title: "Speech Recognition Not Available",
-        description: "Please refresh the page and try again",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      if (isListening) {
-        // Stop listening
-        recognition.abort();
-        setIsListening(false);
-        setTranscript('');
-        
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-          timeoutRef.current = null;
-        }
-      } else {
-        // Check microphone permission first
-        if (hasPermission === null) {
-          const permissionGranted = await requestMicrophonePermission();
-          if (!permissionGranted) {
-            return;
-          }
-        } else if (hasPermission === false) {
-          toast({
-            title: "Microphone Permission Required",
-            description: "Please allow microphone access to use voice commands",
-            variant: "destructive"
-          });
-          return;
-        }
-
-        // Start listening
-        setTranscript('');
-        recognition.start();
-        
-        // Set a timeout to stop listening after 10 seconds
-        timeoutRef.current = setTimeout(() => {
-          if (recognition && isListening) {
-            recognition.stop();
-          }
-        }, 10000);
-      }
-    } catch (error) {
-      console.error('Error toggling speech recognition:', error);
+    if (isListening) {
+      recognitionRef.current.stop();
       setIsListening(false);
-      
-      // Handle specific errors
-      if (error instanceof Error) {
-        if (error.message.includes('already started')) {
-          // Recognition is already running, try to stop it
-          try {
-            recognition.abort();
-          } catch (abortError) {
-            console.error('Error aborting recognition:', abortError);
-          }
-        }
-      }
-      
-      toast({
-        title: "Speech Recognition Error",
-        description: "Please try again",
-        variant: "destructive"
-      });
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
     }
   };
 
-  if (!isSupported) {
-    return null; // Don't render if not supported
-  }
-
-  const positionStyles = position === 'homepage' 
-    ? 'fixed bottom-20 left-6 z-50' 
-    : 'fixed bottom-20 left-6 z-50';
+  const getPositionClasses = () => {
+    return position === 'homepage' 
+      ? 'fixed bottom-24 right-6 z-50' 
+      : 'fixed bottom-24 right-6 z-50';
+  };
 
   return (
-    <div className={`${positionStyles} ${className}`}>
-      <div className="flex flex-col items-center space-y-2">
-        {/* Transcript Display */}
-        <AnimatePresence>
-          {transcript && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className="mb-2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border max-w-xs"
-            >
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                Listening...
-              </div>
-              <div className="text-sm font-medium">
-                "{transcript}"
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Speech Recognition Button */}
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+    <div className={`${getPositionClasses()} ${className}`}>
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Button
+          onClick={toggleListening}
+          className={`rounded-full w-12 h-12 shadow-lg border-2 border-white dark:border-gray-800 ${
+            isListening 
+              ? 'bg-red-500 hover:bg-red-600' 
+              : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+          }`}
+          size="sm"
         >
-          <Button
-            onClick={toggleListening}
-            className={`h-12 w-12 rounded-full shadow-lg transition-all duration-300 ${
-              isListening
-                ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 animate-pulse'
-                : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
-            } text-white border-0`}
-            disabled={!isSupported}
-          >
-            {isListening ? (
-              <MicOff className="h-5 w-5" />
-            ) : (
-              <Mic className="h-5 w-5" />
-            )}
-          </Button>
-        </motion.div>
+          {isListening ? (
+            <MicOff className="h-5 w-5 text-white" />
+          ) : (
+            <Mic className="h-5 w-5 text-white" />
+          )}
+        </Button>
+      </motion.div>
 
-        {/* Status Indicator */}
-        {isListening && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex space-x-1"
-          >
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-1 h-3 bg-red-500 rounded-full"
-                animate={{
-                  height: [12, 20, 12],
-                  opacity: [0.5, 1, 0.5]
-                }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  delay: i * 0.2
-                }}
-              />
-            ))}
-          </motion.div>
-        )}
-
-        {/* Label */}
-        <div className="text-xs text-center text-gray-600 dark:text-gray-400 max-w-20">
-          {isListening ? 'Listening...' : 'Speech'}
-        </div>
-      </div>
+      {/* Settings Panel */}
+      <Drawer open={showSettings} onOpenChange={setShowSettings}>
+        <DrawerContent className="max-w-md mx-auto">
+          <DrawerHeader>
+            <DrawerTitle className="text-xl font-bold">Speech Recognition Settings</DrawerTitle>
+            <DrawerDescription>
+              Configure your speech recognition and voice feedback preferences.
+            </DrawerDescription>
+          </DrawerHeader>
+          
+          <div className="px-4 space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Microphone</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={toggleListening}
+                    variant={isListening ? "destructive" : "secondary"}
+                    className="w-full"
+                  >
+                    {isListening ? (
+                      <><MicOff className="mr-2 h-4 w-4" /> Stop Listening</>
+                    ) : (
+                      <><Mic className="mr-2 h-4 w-4" /> Start Listening</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Speaker</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={() => setIsMuted(!isMuted)}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {isMuted ? (
+                      <><VolumeX className="mr-2 h-4 w-4" /> Unmute</>
+                    ) : (
+                      <><Volume2 className="mr-2 h-4 w-4" /> Mute</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Voice Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="voice-volume">Volume</Label>
+                    <span className="text-sm text-muted-foreground">{volume}%</span>
+                  </div>
+                  <Slider 
+                    id="voice-volume"
+                    min={0} 
+                    max={100} 
+                    step={1}
+                    value={[volume]}
+                    onValueChange={(values) => setVolume(values[0])}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="voice-speed">Speaking Speed</Label>
+                    <span className="text-sm text-muted-foreground">{speed}%</span>
+                  </div>
+                  <Slider 
+                    id="voice-speed"
+                    min={0} 
+                    max={100} 
+                    step={1}
+                    value={[speed]}
+                    onValueChange={(values) => setSpeed(values[0])}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Voice Preference</Label>
+                  <div className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="voice-male"
+                        checked={voicePreference === "male"}
+                        onCheckedChange={() => setVoicePreference("male")}
+                      />
+                      <Label htmlFor="voice-male">Male</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="voice-female"
+                        checked={voicePreference === "female"}
+                        onCheckedChange={() => setVoicePreference("female")}
+                      />
+                      <Label htmlFor="voice-female">Female</Label>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Button variant="outline">Close</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };

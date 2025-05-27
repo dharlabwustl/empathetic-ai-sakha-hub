@@ -1,9 +1,22 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Volume2, X, Mic, MicOff, VolumeX, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface InteractiveVoiceAssistantProps {
   userName?: string;
@@ -27,6 +40,12 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [messages, setMessages] = useState<Array<{id: string, text: string, sender: 'user' | 'assistant'}>>([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [volume, setVolume] = useState(80);
+  const [speed, setSpeed] = useState(50);
+  const [pitch, setPitch] = useState(50);
+  const [voicePreference, setVoicePreference] = useState("female");
+  const [isMuted, setIsMuted] = useState(false);
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
@@ -132,6 +151,23 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     }
   };
 
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+    } else {
+      recognitionRef.current?.start();
+      setTranscript('');
+    }
+  };
+
   return (
     <div className={`fixed ${getPositionClasses()} z-40 ${className}`}>
       <AnimatePresence>
@@ -155,14 +191,24 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
                       </Badge>
                     )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsOpen(false)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowSettings(true)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Settings className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsOpen(false)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
@@ -208,7 +254,7 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
                     onClick={toggleMute}
                     className="px-2"
                   >
-                    {isSpeaking ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                    {isMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
                   </Button>
                 </div>
               </CardContent>
@@ -226,30 +272,83 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
           className="rounded-full w-12 h-12 shadow-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-2 border-white dark:border-gray-800"
           size="sm"
         >
-          <MessageSquare className="h-5 w-5 text-white" />
+          <Volume2 className="h-5 w-5 text-white" />
         </Button>
       </motion.div>
+
+      {/* Settings Panel */}
+      <Drawer open={showSettings} onOpenChange={setShowSettings}>
+        <DrawerContent className="max-w-md mx-auto">
+          <DrawerHeader>
+            <DrawerTitle className="text-xl font-bold">{assistantName} Settings</DrawerTitle>
+            <DrawerDescription>
+              Configure your voice assistant preferences.
+            </DrawerDescription>
+          </DrawerHeader>
+          
+          <div className="px-4 space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="voice-volume">Volume</Label>
+                <span className="text-sm text-muted-foreground">{volume}%</span>
+              </div>
+              <Slider 
+                id="voice-volume"
+                min={0} 
+                max={100} 
+                step={1}
+                value={[volume]}
+                onValueChange={(values) => setVolume(values[0])}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="voice-speed">Speaking Speed</Label>
+                <span className="text-sm text-muted-foreground">{speed}%</span>
+              </div>
+              <Slider 
+                id="voice-speed"
+                min={0} 
+                max={100} 
+                step={1}
+                value={[speed]}
+                onValueChange={(values) => setSpeed(values[0])}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Voice Preference</Label>
+              <div className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="voice-male"
+                    checked={voicePreference === "male"}
+                    onCheckedChange={() => setVoicePreference("male")}
+                  />
+                  <Label htmlFor="voice-male">Male</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="voice-female"
+                    checked={voicePreference === "female"}
+                    onCheckedChange={() => setVoicePreference("female")}
+                  />
+                  <Label htmlFor="voice-female">Female</Label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Button variant="outline">Close</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
-
-  function toggleListening() {
-    if (isListening) {
-      recognitionRef.current?.stop();
-    } else {
-      recognitionRef.current?.start();
-      setTranscript('');
-    }
-  }
-
-  function toggleMute() {
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    } else {
-      // You might want to add some visual feedback or state
-      // to indicate that the assistant is "unmuted" and ready to speak
-    }
-  }
 };
 
 export default InteractiveVoiceAssistant;

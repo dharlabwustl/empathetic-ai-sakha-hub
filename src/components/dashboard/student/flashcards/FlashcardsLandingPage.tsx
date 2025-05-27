@@ -39,7 +39,9 @@ const FlashcardsLandingPage = () => {
       cards: 25,
       mastered: 18,
       difficulty: 'Medium',
-      lastStudied: '2 hours ago'
+      lastStudied: '2 hours ago',
+      recallAccuracy: 78,
+      attempts: 5
     },
     {
       id: '2',
@@ -48,7 +50,9 @@ const FlashcardsLandingPage = () => {
       cards: 30,
       mastered: 22,
       difficulty: 'Easy',
-      lastStudied: '1 day ago'
+      lastStudied: '1 day ago',
+      recallAccuracy: 85,
+      attempts: 3
     },
     {
       id: '3',
@@ -57,16 +61,22 @@ const FlashcardsLandingPage = () => {
       cards: 20,
       mastered: 12,
       difficulty: 'Hard',
-      lastStudied: '3 days ago'
+      lastStudied: '3 days ago',
+      recallAccuracy: 62,
+      attempts: 7
     }
   ];
 
   const handleStudyFlashcards = (setId?: string) => {
     if (setId) {
-      navigate(`/dashboard/student/flashcards/interactive/${setId}`);
+      navigate(`/dashboard/student/flashcards/${setId}/interactive`);
     } else {
-      navigate('/dashboard/student/flashcards/interactive');
+      navigate('/dashboard/student/flashcards/2/interactive');
     }
+  };
+
+  const handleStudySubject = (subject: string) => {
+    setActiveTab('all-flashcards');
   };
 
   return (
@@ -88,10 +98,43 @@ const FlashcardsLandingPage = () => {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Flashcards</h1>
               <p className="text-gray-600 dark:text-gray-400">Master concepts with smart spaced repetition</p>
             </div>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create New Set
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => handleStudyFlashcards()}>
+                <Play className="mr-2 h-4 w-4" />
+                Study Now
+              </Button>
+              <Button variant="outline">
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Set
+              </Button>
+            </div>
+          </div>
+
+          {/* Subject Study Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {overviewData.subjects.map((subject) => (
+              <Card key={subject.name} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{subject.name}</h3>
+                    <Badge variant="outline">{subject.progress}% Complete</Badge>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span>{subject.completed}/{subject.total} Cards</span>
+                      <span>{subject.studyTime}h studied</span>
+                    </div>
+                    <Progress value={subject.progress} className="h-2" />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={() => handleStudySubject(subject.name)}
+                  >
+                    Study {subject.name}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* Recent Flashcard Sets */}
@@ -115,11 +158,19 @@ const FlashcardsLandingPage = () => {
                         <Badge variant={set.difficulty === 'Easy' ? 'default' : set.difficulty === 'Medium' ? 'secondary' : 'destructive'}>
                           {set.difficulty}
                         </Badge>
+                        {set.recallAccuracy && (
+                          <Badge variant="outline" className="bg-green-50 text-green-700">
+                            {set.recallAccuracy}% Accuracy
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span>{set.cards} cards</span>
                         <span>{set.mastered} mastered</span>
                         <span>Last studied: {set.lastStudied}</span>
+                        {set.attempts && (
+                          <span>{set.attempts} attempts</span>
+                        )}
                       </div>
                       <div className="mt-2">
                         <Progress value={(set.mastered / set.cards) * 100} className="h-1" />
@@ -162,7 +213,7 @@ const FlashcardsLandingPage = () => {
               <CardContent className="p-4 text-center">
                 <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-600" />
                 <p className="text-2xl font-bold">78%</p>
-                <p className="text-sm text-gray-600">Avg Efficiency</p>
+                <p className="text-sm text-gray-600">Avg Accuracy</p>
               </CardContent>
             </Card>
           </div>
