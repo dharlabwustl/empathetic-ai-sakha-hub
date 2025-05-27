@@ -37,7 +37,6 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
 
       if (lowerCommand.includes('free trial') || lowerCommand.includes('trial')) {
         speakMessage('Great! You can start your 7-day free trial right now. You\'ll get full access to all our features including personalized study plans, AI tutoring, and practice exams. Let me help you get started.');
-        // Trigger free trial signup
         return;
       }
 
@@ -98,7 +97,6 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
 
       if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
         speakMessage('Let me show you your personalized study plan');
-        // Trigger study plan view
         return;
       }
 
@@ -170,10 +168,15 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
       stopListening();
     } else {
       startListening();
-      const greeting = position === 'homepage' 
-        ? 'Hello! I\'m your PREPZR AI assistant. How can I help you explore our exam preparation platform today?'
-        : 'Hi! I\'m your PREPZR AI assistant. I\'m listening. How can I help you with your studies today?';
-      speakMessage(greeting);
+      // Only speak greeting once per session to avoid repetition
+      const hasSpokenGreeting = sessionStorage.getItem('voice_button_greeted');
+      if (!hasSpokenGreeting) {
+        const greeting = position === 'homepage' 
+          ? 'Hello! I\'m your PREPZR AI assistant. How can I help you explore our exam preparation platform today?'
+          : 'Hi! I\'m your PREPZR AI assistant. I\'m listening. How can I help you with your studies today?';
+        speakMessage(greeting);
+        sessionStorage.setItem('voice_button_greeted', 'true');
+      }
     }
   };
 

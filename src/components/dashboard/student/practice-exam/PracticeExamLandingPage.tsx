@@ -94,7 +94,7 @@ const PracticeExamLandingPage = () => {
   };
 
   const handleViewResults = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/6/review`);
+    navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
 
   const handleTabChange = (value: string) => {

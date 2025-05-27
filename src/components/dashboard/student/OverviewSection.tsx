@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,13 +69,21 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleContinueLearning = () => {
     switch (type) {
       case 'Concepts':
-        navigate('/dashboard/student/concepts/all');
+        // Navigate to all concepts tab
+        const conceptUrl = new URL('/dashboard/student/concepts', window.location.origin);
+        conceptUrl.searchParams.set('tab', 'all-concepts');
+        window.history.pushState({}, '', conceptUrl.toString());
+        navigate('/dashboard/student/concepts');
         break;
       case 'Flashcards':
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        navigate('/dashboard/student/practice-exam?tab=available-exams');
+        // Navigate to available exams tab
+        const examUrl = new URL('/dashboard/student/practice-exam', window.location.origin);
+        examUrl.searchParams.set('tab', 'available-exams');
+        window.history.pushState({}, '', examUrl.toString());
+        navigate('/dashboard/student/practice-exam');
         break;
     }
   };
@@ -82,15 +91,21 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleSubjectStudy = (subjectName: string) => {
     switch (type) {
       case 'Concepts':
-        // Navigate to all concepts page
-        navigate('/dashboard/student/concepts/all');
+        // Navigate to all concepts tab
+        const conceptUrl = new URL('/dashboard/student/concepts', window.location.origin);
+        conceptUrl.searchParams.set('tab', 'all-concepts');
+        window.history.pushState({}, '', conceptUrl.toString());
+        navigate('/dashboard/student/concepts');
         break;
       case 'Flashcards':
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        // Navigate to practice exam available exams tab
-        navigate('/dashboard/student/practice-exam?tab=available-exams');
+        // Navigate to available exams tab on the same page
+        const examUrl = new URL('/dashboard/student/practice-exam', window.location.origin);
+        examUrl.searchParams.set('tab', 'available-exams');
+        window.history.pushState({}, '', examUrl.toString());
+        navigate('/dashboard/student/practice-exam');
         break;
     }
   };
