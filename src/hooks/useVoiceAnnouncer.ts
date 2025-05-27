@@ -14,8 +14,8 @@ interface VoiceSettings {
 const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   enabled: true,
   volume: 0.8,
-  rate: 0.95,
-  pitch: 1.1,
+  rate: 1.0,
+  pitch: 1.0,
   language: 'en-US',
   muted: false
 };
@@ -97,7 +97,7 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       return;
     }
 
-    // Use the centralized female voice function with PREPZR pronunciation fix
+    // Use the centralized female voice function
     speakWithFemaleVoice(
       message,
       {

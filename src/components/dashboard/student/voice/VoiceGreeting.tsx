@@ -37,13 +37,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       
       let greeting = '';
       
-      // FIXED: Proper logic for first time vs returning users
-      if (isFirstTimeUser && !isReturningUser) {
-        // For brand new users after signup - welcome message
-        greeting = `Congratulations ${userName}! Welcome to PREPZR! I'm your PREPZR AI assistant, and I'm excited to be part of your exam preparation journey. PREPZR will be with you at every step of your preparation to guide you and make you exam ready. Together, we'll achieve your academic goals and ensure you're fully prepared for success!`;
-      } else if (isReturningUser && !isFirstTimeUser) {
-        // For returning users only - welcome back message
-        greeting = `Welcome back to PREPZR, ${userName}! I'm your PREPZR AI assistant, ready to help you continue your studies today.`;
+      if (isReturningUser) {
+        greeting = `Welcome back to PREPZR, ${userName}! I'm your PREPZR AI assistant, ready to help you with your studies today.`;
         
         if (lastActivity) {
           greeting += ` Last time you were ${lastActivity}. `;
@@ -54,8 +49,9 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         }
         
         greeting += `Let's make today productive!`;
+      } else if (isFirstTimeUser) {
+        greeting = `Welcome to PREPZR, ${userName}! I'm your PREPZR AI assistant, excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
       } else {
-        // Default message for other cases
         greeting = `Hello ${userName}! I'm your PREPZR AI assistant, ready to help you achieve your learning goals today.`;
       }
       
