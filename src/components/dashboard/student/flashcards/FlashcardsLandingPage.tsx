@@ -1,293 +1,497 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Brain, Plus, TrendingUp, Clock, Target, Lightbulb, ArrowRight, Star, BookOpen, Zap } from 'lucide-react';
-import { SharedPageLayout } from '../SharedPageLayout';
-import FlashcardsView from './FlashcardsView';
+import { Helmet } from 'react-helmet';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+  Brain, 
+  Search, 
+  Plus, 
+  BookOpen, 
+  Zap, 
+  Target,
+  Clock,
+  TrendingUp,
+  Star,
+  Filter,
+  BarChart3,
+  Trophy,
+  CheckCircle,
+  Play,
+  RotateCcw
+} from 'lucide-react';
 
-// Daily Smart Suggestions Component
-const DailySmartSuggestions = () => {
-  const suggestions = [
-    {
-      id: 1,
-      title: "Focus on Organic Chemistry Reactions",
-      description: "You've struggled with functional groups. Practice named reactions flashcards.",
-      priority: "High",
-      subject: "Chemistry",
-      estimatedTime: "25 min",
-      type: "Review",
-      icon: <Brain className="h-4 w-4" />
+const FlashcardsLandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
+
+  // Mock analytics data
+  const analyticsData = {
+    totalFlashcards: 425,
+    completedSets: 32,
+    averageAccuracy: 78,
+    studyStreak: 12,
+    timeSpent: 180,
+    masteryLevel: 85
+  };
+
+  // Mock flashcard data by subject
+  const flashcardData = {
+    physics: {
+      total: 150,
+      completed: 120,
+      inProgress: 20,
+      pending: 10,
+      sets: [
+        {
+          id: 1,
+          title: "Newton's Laws of Motion",
+          cardCount: 25,
+          difficulty: "Medium",
+          progress: 100,
+          mastery: 85,
+          lastReviewed: "Today",
+          status: "completed"
+        },
+        {
+          id: 2,
+          title: "Thermodynamics Basics",
+          cardCount: 30,
+          difficulty: "Hard",
+          progress: 65,
+          mastery: 72,
+          lastReviewed: "2 days ago",
+          status: "in-progress"
+        },
+        {
+          id: 3,
+          title: "Wave Motion",
+          cardCount: 20,
+          difficulty: "Easy",
+          progress: 0,
+          mastery: 0,
+          lastReviewed: "Never",
+          status: "pending"
+        }
+      ]
     },
-    {
-      id: 2,
-      title: "Newton's Laws Quick Review",
-      description: "Strengthen your physics foundation before moving to complex mechanics.",
-      priority: "Medium", 
-      subject: "Physics",
-      estimatedTime: "15 min",
-      type: "Drill",
-      icon: <Zap className="h-4 w-4" />
+    chemistry: {
+      total: 145,
+      completed: 85,
+      inProgress: 35,
+      pending: 25,
+      sets: [
+        {
+          id: 4,
+          title: "Organic Reactions",
+          cardCount: 40,
+          difficulty: "Hard",
+          progress: 100,
+          mastery: 92,
+          lastReviewed: "Yesterday",
+          status: "completed"
+        },
+        {
+          id: 5,
+          title: "Periodic Table",
+          cardCount: 35,
+          difficulty: "Medium",
+          progress: 45,
+          mastery: 68,
+          lastReviewed: "3 days ago",
+          status: "in-progress"
+        },
+        {
+          id: 6,
+          title: "Chemical Bonding",
+          cardCount: 28,
+          difficulty: "Medium",
+          progress: 0,
+          mastery: 0,
+          lastReviewed: "Never",
+          status: "pending"
+        }
+      ]
     },
-    {
-      id: 3,
-      title: "Human Physiology Terminology",
-      description: "Master medical terms and system functions with spaced repetition.",
-      priority: "Medium",
-      subject: "Biology", 
-      estimatedTime: "20 min",
-      type: "Memorize",
-      icon: <Target className="h-4 w-4" />
+    biology: {
+      total: 130,
+      completed: 110,
+      inProgress: 15,
+      pending: 5,
+      sets: [
+        {
+          id: 7,
+          title: "Cell Biology",
+          cardCount: 45,
+          difficulty: "Medium",
+          progress: 100,
+          mastery: 88,
+          lastReviewed: "Today",
+          status: "completed"
+        },
+        {
+          id: 8,
+          title: "Genetics",
+          cardCount: 38,
+          difficulty: "Hard",
+          progress: 70,
+          mastery: 75,
+          lastReviewed: "1 day ago",
+          status: "in-progress"
+        }
+      ]
     }
-  ];
+  };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'bg-red-100 text-red-700 border-red-200';
-      case 'Medium': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'Low': return 'bg-green-100 text-green-700 border-green-200';
+  const subjects = ['all', 'physics', 'chemistry', 'biology'];
+
+  const getFilteredSets = () => {
+    let allSets = [];
+    
+    if (selectedSubject === 'all') {
+      allSets = [...flashcardData.physics.sets, ...flashcardData.chemistry.sets, ...flashcardData.biology.sets];
+    } else {
+      allSets = flashcardData[selectedSubject as keyof typeof flashcardData]?.sets || [];
+    }
+
+    if (activeTab !== 'all') {
+      allSets = allSets.filter(set => {
+        if (activeTab === 'completed') return set.status === 'completed';
+        if (activeTab === 'in-progress') return set.status === 'in-progress';
+        if (activeTab === 'pending') return set.status === 'pending';
+        return true;
+      });
+    }
+
+    return allSets.filter(set => 
+      set.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-700 border-green-200';
+      case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200'; 
+      case 'Hard': return 'bg-red-100 text-red-700 border-red-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-700 border-green-200';
+      case 'in-progress': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'pending': return 'bg-orange-100 text-orange-700 border-orange-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  const navigateToFlashcard = (setId: number) => {
+    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+  };
+
+  const filteredSets = getFilteredSets();
+
   return (
-    <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-purple-800">
-          <Lightbulb className="h-5 w-5" />
-          Daily Smart Suggestions - Flashcards
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {suggestions.map((suggestion) => (
-            <Card key={suggestion.id} className="bg-white/80 backdrop-blur-sm border border-purple-100 hover:shadow-md transition-all cursor-pointer">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {suggestion.icon}
-                    <Badge variant="outline" className={getPriorityColor(suggestion.priority)}>
-                      {suggestion.priority}
-                    </Badge>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-white to-blue-50/50 dark:from-purple-900/10 dark:via-gray-900 dark:to-blue-900/10">
+      <Helmet>
+        <title>Flashcards - PREPZR</title>
+        <meta name="description" content="NEET flashcards for quick review and memorization" />
+      </Helmet>
+
+      <div className="container mx-auto px-4 py-6 space-y-8">
+        {/* Enhanced Header */}
+        <motion.div 
+          className="text-center space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full shadow-lg">
+              <Brain className="h-10 w-10 text-white" />
+            </div>
+            <div>
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Smart Flashcards
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">NEET 2026 Preparation</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Analytics Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8"
+        >
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all">
+            <CardContent className="p-4 text-center">
+              <BookOpen className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-blue-800">{analyticsData.totalFlashcards}</p>
+              <p className="text-sm text-blue-600 font-medium">Total Cards</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all">
+            <CardContent className="p-4 text-center">
+              <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-green-800">{analyticsData.completedSets}</p>
+              <p className="text-sm text-green-600 font-medium">Completed</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all">
+            <CardContent className="p-4 text-center">
+              <Target className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-purple-800">{analyticsData.averageAccuracy}%</p>
+              <p className="text-sm text-purple-600 font-medium">Accuracy</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-lg transition-all">
+            <CardContent className="p-4 text-center">
+              <Trophy className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-orange-800">{analyticsData.studyStreak}</p>
+              <p className="text-sm text-orange-600 font-medium">Day Streak</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200 hover:shadow-lg transition-all">
+            <CardContent className="p-4 text-center">
+              <Clock className="h-8 w-8 text-indigo-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-indigo-800">{analyticsData.timeSpent}m</p>
+              <p className="text-sm text-indigo-600 font-medium">Time Spent</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200 hover:shadow-lg transition-all">
+            <CardContent className="p-4 text-center">
+              <Star className="h-8 w-8 text-pink-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-pink-800">{analyticsData.masteryLevel}%</p>
+              <p className="text-sm text-pink-600 font-medium">Mastery</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex flex-col sm:flex-row gap-4 items-center"
+        >
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input 
+              placeholder="Search flashcard sets..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-white/70 backdrop-blur-sm border-gray-200"
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            {subjects.map((subject) => (
+              <Button
+                key={subject}
+                variant={selectedSubject === subject ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedSubject(subject)}
+                className="capitalize bg-white/70 backdrop-blur-sm"
+              >
+                {subject}
+              </Button>
+            ))}
+          </div>
+          
+          <Button className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+            <Plus className="h-4 w-4" />
+            Create Set
+          </Button>
+        </motion.div>
+
+        {/* Subject Progress Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+        >
+          {Object.entries(flashcardData).map(([subject, data]) => (
+            <Card key={subject} className="bg-white/70 backdrop-blur-sm border-gray-200 hover:shadow-lg transition-all">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="capitalize text-lg font-bold">{subject}</span>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                    {data.total} cards
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span className="font-semibold">{Math.round((data.completed / data.total) * 100)}%</span>
                   </div>
-                  <Badge variant="outline" className="text-xs">
-                    {suggestion.estimatedTime}
-                  </Badge>
-                </div>
-                <h4 className="font-semibold text-sm mb-1">{suggestion.title}</h4>
-                <p className="text-xs text-gray-600 mb-2">{suggestion.description}</p>
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="text-xs">
-                    {suggestion.subject}
-                  </Badge>
-                  <Button size="sm" variant="ghost" className="h-6 px-2 text-xs">
-                    Start <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
+                  <Progress value={(data.completed / data.total) * 100} className="h-2" />
+                  
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="bg-green-50 p-2 rounded">
+                      <div className="font-bold text-green-700">{data.completed}</div>
+                      <div className="text-green-600">Completed</div>
+                    </div>
+                    <div className="bg-blue-50 p-2 rounded">
+                      <div className="font-bold text-blue-700">{data.inProgress}</div>
+                      <div className="text-blue-600">In Progress</div>
+                    </div>
+                    <div className="bg-orange-50 p-2 rounded">
+                      <div className="font-bold text-orange-700">{data.pending}</div>
+                      <div className="text-orange-600">Pending</div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+        </motion.div>
 
-const FlashcardsLandingPage = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-
-  // Mock data for overview
-  const subjects = [
-    { 
-      name: 'Physics', 
-      completed: 45, 
-      total: 80, 
-      progress: 56, 
-      efficiency: 78, 
-      studyTime: 12 
-    },
-    { 
-      name: 'Chemistry', 
-      completed: 62, 
-      total: 90, 
-      progress: 69, 
-      efficiency: 85, 
-      studyTime: 15 
-    },
-    { 
-      name: 'Biology', 
-      completed: 58, 
-      total: 75, 
-      progress: 77, 
-      efficiency: 82, 
-      studyTime: 11 
-    }
-  ];
-
-  const totalStudyTime = 38;
-  const overallProgress = 67;
-  const suggestions = [
-    "Focus on weak areas in Organic Chemistry this week",
-    "Review Physics formulas using spaced repetition",
-    "Practice Biology diagrams with visual flashcards"
-  ];
-
-  return (
-    <SharedPageLayout
-      title="Flashcards Hub"
-      subtitle="Master concepts with intelligent spaced repetition"
-    >
-      <div className="space-y-6">
-        {/* Daily Smart Suggestions */}
-        <DailySmartSuggestions />
-
+        {/* Enhanced Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-white/50 backdrop-blur-sm">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              Overview
+          <TabsList className="grid w-full grid-cols-4 bg-white/70 backdrop-blur-sm p-1 rounded-lg border">
+            <TabsTrigger value="all" className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              All ({Object.values(flashcardData).reduce((acc, subject) => acc + subject.sets.length, 0)})
             </TabsTrigger>
-            <TabsTrigger value="all-flashcards" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              All Flashcards
+            <TabsTrigger value="pending" className="rounded-md data-[state=active]:bg-orange-600 data-[state=active]:text-white">
+              Pending ({Object.values(flashcardData).reduce((acc, subject) => acc + subject.sets.filter(s => s.status === 'pending').length, 0)})
             </TabsTrigger>
-            <TabsTrigger value="practice" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              Practice Mode
+            <TabsTrigger value="in-progress" className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              In Progress ({Object.values(flashcardData).reduce((acc, subject) => acc + subject.sets.filter(s => s.status === 'in-progress').length, 0)})
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              Analytics
+            <TabsTrigger value="completed" className="rounded-md data-[state=active]:bg-green-600 data-[state=active]:text-white">
+              Completed ({Object.values(flashcardData).reduce((acc, subject) => acc + subject.sets.filter(s => s.status === 'completed').length, 0)})
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {subjects.map((subject) => (
-                <Card key={subject.name} className="group relative overflow-hidden border-2 hover:shadow-xl transition-all duration-300 cursor-pointer hover:border-purple-300 bg-gradient-to-br from-white to-purple-50/30">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
-                  <CardHeader className="pb-3 relative z-10">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Brain className="h-5 w-5 text-purple-600" />
-                        <CardTitle className="text-lg font-semibold">{subject.name}</CardTitle>
+          <TabsContent value={activeTab} className="mt-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {filteredSets.map((set, index) => (
+                <motion.div
+                  key={set.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <Card 
+                    className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500 bg-white/70 backdrop-blur-sm"
+                    onClick={() => navigateToFlashcard(set.id)}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <CardTitle className="text-lg font-semibold line-clamp-2">
+                          {set.title}
+                        </CardTitle>
+                        <div className="flex gap-1">
+                          <Badge variant="outline" className={getDifficultyColor(set.difficulty)}>
+                            {set.difficulty}
+                          </Badge>
+                        </div>
                       </div>
-                      <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-300 font-medium">
-                        {subject.progress}%
+                      <Badge variant="outline" className={getStatusColor(set.status)}>
+                        {set.status.replace('-', ' ')}
                       </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600">{subject.completed}/{subject.total} flashcards</p>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4 relative z-10">
-                    <div className="space-y-2">
-                      <Progress value={subject.progress} className="h-3 bg-gray-200" />
-                    </div>
+                    </CardHeader>
                     
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg text-center border border-green-200">
-                        <p className="text-xl font-bold text-green-700">{subject.efficiency}%</p>
-                        <p className="text-xs text-green-600 font-medium">Retention</p>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">{set.cardCount} cards</span>
+                        <span className="text-gray-600">Last: {set.lastReviewed}</span>
                       </div>
-                      <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center border border-blue-200">
-                        <p className="text-xl font-bold text-blue-700">{subject.studyTime}h</p>
-                        <p className="text-xs text-blue-600 font-medium">Study Time</p>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Progress</span>
+                          <span className="text-sm font-bold text-blue-600">{set.progress}%</span>
+                        </div>
+                        <Progress value={set.progress} className="h-2" />
                       </div>
-                    </div>
-
-                    <Button className="w-full group-hover:bg-purple-600 transition-colors duration-300" size="sm">
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Study {subject.name}
-                    </Button>
-                  </CardContent>
-                </Card>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Mastery</span>
+                          <span className="text-sm font-bold text-purple-600">{set.mastery}%</span>
+                        </div>
+                        <Progress value={set.mastery} className="h-2 bg-purple-100" />
+                      </div>
+                      
+                      <div className="flex gap-2 mt-4">
+                        {set.status === 'completed' ? (
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateToFlashcard(set.id);
+                            }}
+                          >
+                            <RotateCcw className="h-4 w-4 mr-2" />
+                            Review Again
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="sm"
+                            className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateToFlashcard(set.id);
+                            }}
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            {set.status === 'pending' ? 'Start Review' : 'Continue'}
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
-            {/* AI Suggestions */}
-            <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-orange-800">
-                  <Lightbulb className="h-5 w-5" />
-                  PREPZR AI Study Suggestions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {suggestions.map((suggestion, index) => (
-                    <div key={index} className="p-3 bg-white rounded-lg border border-orange-200">
-                      <p className="text-sm text-gray-700">{suggestion}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Overall Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                  <p className="text-2xl font-bold">{subjects.reduce((acc, s) => acc + s.total, 0)}</p>
-                  <p className="text-sm text-gray-600">Total Cards</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Target className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                  <p className="text-2xl font-bold">{subjects.reduce((acc, s) => acc + s.completed, 0)}</p>
-                  <p className="text-sm text-gray-600">Mastered</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Clock className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                  <p className="text-2xl font-bold">{totalStudyTime}h</p>
-                  <p className="text-sm text-gray-600">Total Time</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <TrendingUp className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                  <p className="text-2xl font-bold">{overallProgress}%</p>
-                  <p className="text-sm text-gray-600">Overall Progress</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="all-flashcards">
-            <FlashcardsView />
-          </TabsContent>
-
-          <TabsContent value="practice">
-            <Card>
-              <CardHeader>
-                <CardTitle>Practice Mode</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-muted-foreground">
-                  Interactive practice mode coming soon...
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <Card>
-              <CardHeader>
-                <CardTitle>Analytics Dashboard</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-muted-foreground">
-                  Detailed analytics and insights coming soon...
-                </p>
-              </CardContent>
-            </Card>
+            {filteredSets.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-12"
+              >
+                <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No flashcard sets found</h3>
+                <p className="text-gray-500 mb-4">Try adjusting your search terms or filters</p>
+                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Set
+                </Button>
+              </motion.div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
-    </SharedPageLayout>
+    </div>
   );
 };
 
