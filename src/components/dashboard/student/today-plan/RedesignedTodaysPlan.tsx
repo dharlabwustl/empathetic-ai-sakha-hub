@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ interface TodaysPlanProps {
 const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({ 
   userName = 'Student'
 }) => {
+  const navigate = useNavigate();
   const [completedTasks, setCompletedTasks] = useState(new Set<string>(['4', '8'])); // Some pre-completed tasks
   const [activeTab, setActiveTab] = useState('today');
 
@@ -178,18 +180,44 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
     }
   };
 
+  // Fixed navigation function for task actions
+  const handleTaskAction = (task: any, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    console.log('🚨 TODAY PLAN - Starting task:', task.type, task.title);
+    
+    switch (task.type) {
+      case 'concept':
+        console.log('🚨 Navigating to concept:', `/dashboard/student/concepts/${task.id}`);
+        navigate(`/dashboard/student/concepts/${task.id}`);
+        break;
+      case 'flashcard':
+        console.log('🚨 Navigating to flashcards interactive');
+        navigate('/dashboard/student/flashcards/1/interactive');
+        break;
+      case 'exam':
+        console.log('🚨 Navigating to practice exam');
+        navigate('/dashboard/student/practice-exam');
+        break;
+      default:
+        console.log('🚨 Unknown task type:', task.type);
+        break;
+    }
+  };
+
   const renderTaskCard = (task: any, isCompleted = false, showTime = false) => {
     const completed = completedTasks.has(task.id);
     
     return (
       <Card 
         key={task.id} 
-        className={`transition-all duration-300 cursor-pointer ${
+        className={`transition-all duration-300 ${
           completed || isCompleted
             ? 'bg-green-50 border-green-200 opacity-75' 
             : `hover:shadow-md border-2 ${getPriorityColor(task.priority)}`
         }`}
-        onClick={() => !isCompleted && toggleTaskCompletion(task.id)}
       >
         <CardContent className="p-4">
           <div className="flex items-start justify-between">
@@ -198,7 +226,12 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
                 {completed || isCompleted ? (
                   <CheckCircle className="h-6 w-6 text-green-500" />
                 ) : (
-                  getTaskIcon(task.type)
+                  <button 
+                    onClick={() => toggleTaskCompletion(task.id)}
+                    className="transition-colors hover:text-green-600"
+                  >
+                    {getTaskIcon(task.type)}
+                  </button>
                 )}
               </div>
               
@@ -245,10 +278,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
               <Button 
                 size="sm" 
                 className="ml-4"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log(`Starting ${task.type}: ${task.title}`);
-                }}
+                onClick={(e) => handleTaskAction(task, e)}
               >
                 <Play className="h-4 w-4 mr-1" />
                 Start
@@ -334,9 +364,13 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="today" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="all" className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
+                All ({todayData.todayTasks.length + todayData.pendingTasks.length + todayData.completedTasks.length})
+              </TabsTrigger>
+              <TabsTrigger value="today" className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
                 Today ({todayData.todayTasks.length})
               </TabsTrigger>
               <TabsTrigger value="pending" className="flex items-center gap-2">
@@ -348,6 +382,18 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
                 Completed ({todayData.completedTasks.length})
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="all" className="space-y-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">All Tasks</h3>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                  {todayData.todayTasks.length + todayData.pendingTasks.length + todayData.completedTasks.length} total tasks
+                </Badge>
+              </div>
+              {[...todayData.todayTasks, ...todayData.pendingTasks, ...todayData.completedTasks].map((task) => 
+                renderTaskCard(task, todayData.completedTasks.includes(task), true)
+              )}
+            </TabsContent>
 
             <TabsContent value="today" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
