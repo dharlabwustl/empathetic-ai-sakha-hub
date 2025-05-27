@@ -16,7 +16,8 @@ import {
   Zap,
   Calendar,
   TrendingUp,
-  Award
+  Award,
+  Lightbulb
 } from 'lucide-react';
 
 interface TodaysPlanProps {
@@ -77,9 +78,39 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
       }
     ],
     goals: {
-      daily: 180, // minutes
+      daily: 180,
       completed: 85
-    }
+    },
+    smartSuggestions: [
+      {
+        id: 'sg1',
+        title: 'Focus on Physics Today',
+        description: 'Your Physics performance needs attention. Start with Laws of Motion.',
+        type: 'priority',
+        icon: <Target className="h-4 w-4" />
+      },
+      {
+        id: 'sg2', 
+        title: 'Quick Chemistry Review',
+        description: 'Review organic reactions before starting new concepts.',
+        type: 'review',
+        icon: <Brain className="h-4 w-4" />
+      },
+      {
+        id: 'sg3',
+        title: 'Take Breaks',
+        description: 'Schedule 10-minute breaks between study sessions for better retention.',
+        type: 'wellness',
+        icon: <Clock className="h-4 w-4" />
+      },
+      {
+        id: 'sg4',
+        title: 'Practice Test Prep',
+        description: 'Your mock test scores show improvement in Biology. Keep it up!',
+        type: 'encouragement',
+        icon: <TrendingUp className="h-4 w-4" />
+      }
+    ]
   };
 
   const completedCount = completedTasks.size;
@@ -141,6 +172,35 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
           <Progress value={progressPercentage} className="h-3 bg-white/20" />
         </div>
       </div>
+
+      {/* Smart Daily Suggestions - Now below header */}
+      <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 shadow-lg">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-yellow-800">
+            <Lightbulb className="h-6 w-6" />
+            <span className="bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent font-bold">
+              PREPZR AI Daily Smart Recommendations
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {todayData.smartSuggestions.map((suggestion) => (
+              <div key={suggestion.id} className="p-4 bg-white rounded-lg border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full text-white">
+                    {suggestion.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-800 mb-1">{suggestion.title}</h4>
+                    <p className="text-sm text-gray-600">{suggestion.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -263,26 +323,6 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
                 </Card>
               );
             })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Motivational Section */}
-      <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Zap className="h-6 w-6 text-indigo-600" />
-            <h3 className="text-xl font-bold text-indigo-900">Stay Motivated!</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-white rounded-lg border border-indigo-200">
-              <p className="text-sm font-medium text-gray-800 mb-1">Today's Focus</p>
-              <p className="text-xs text-gray-600">Complete high-priority Physics concepts to boost your understanding</p>
-            </div>
-            <div className="p-4 bg-white rounded-lg border border-indigo-200">
-              <p className="text-sm font-medium text-gray-800 mb-1">Weekly Goal</p>
-              <p className="text-xs text-gray-600">Maintain your 7-day streak and aim for 90% completion rate</p>
-            </div>
           </div>
         </CardContent>
       </Card>

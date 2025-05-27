@@ -117,10 +117,10 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // CRITICAL FIX: All navigation MUST go to /interactive, never /practice
+  // FIXED: Route back to flashcard landing page
   const navigateToFlashcard = (setId: number) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE: ${targetRoute}`);
+    const targetRoute = `/dashboard/student/flashcards`;
+    console.log(`🔥🔥🔥 NAVIGATION TO FLASHCARDS LANDING: ${targetRoute}`);
     console.log(`🔥🔥🔥 SET ID: ${setId}`);
     navigate(targetRoute);
   };
