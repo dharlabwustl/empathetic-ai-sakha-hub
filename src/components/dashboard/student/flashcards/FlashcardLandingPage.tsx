@@ -213,8 +213,7 @@ const FlashcardLandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <Card className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
-                    onClick={() => navigate(`/dashboard/student/flashcards/${set.id}`)}>
+              <Card className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
@@ -263,7 +262,11 @@ const FlashcardLandingPage: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  <Button className="w-full" size="sm">
+                  <Button 
+                    className="w-full" 
+                    size="sm"
+                    onClick={() => navigate(`/dashboard/student/flashcards/${set.id}/interactive`)}
+                  >
                     <BookOpen className="h-4 w-4 mr-2" />
                     Start Review
                   </Button>
