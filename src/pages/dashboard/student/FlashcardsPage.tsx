@@ -111,7 +111,7 @@ const FlashcardsPage: React.FC = () => {
   }, [flashcardDecks]);
 
   const handleStudyDeck = (deckId: string) => {
-    // Route to interactive flashcard page with correct URL format
+    // Fixed routing to interactive flashcard page
     navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
   };
 

@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   BookOpen, 
   Brain, 
@@ -17,31 +16,17 @@ import {
   Zap,
   Calendar,
   TrendingUp,
-  Award,
-  Lightbulb
+  Award
 } from 'lucide-react';
-import ContentFeedback from '@/components/dashboard/student/feedback/ContentFeedback';
 
 interface TodaysPlanProps {
   userName?: string;
-}
-
-interface Task {
-  id: string;
-  type: 'concept' | 'flashcard' | 'exam';
-  title: string;
-  subject: string;
-  duration: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  priority: 'high' | 'medium' | 'low';
-  status: 'pending' | 'completed';
 }
 
 const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({ 
   userName = 'Student'
 }) => {
   const [completedTasks, setCompletedTasks] = useState(new Set<string>());
-  const [activeTab, setActiveTab] = useState('overview');
 
   // Mock data for today's plan
   const todayData = {
@@ -56,65 +41,45 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
     tasks: [
       {
         id: '1',
-        type: 'concept' as const,
+        type: 'concept',
         title: 'Laws of Motion',
         subject: 'Physics',
         duration: 30,
-        difficulty: 'Medium' as const,
-        priority: 'high' as const,
-        status: 'pending' as const
+        difficulty: 'Medium',
+        priority: 'high' as const
       },
       {
         id: '2',
-        type: 'flashcard' as const,
+        type: 'flashcard',
         title: 'Organic Chemistry Reactions',
         subject: 'Chemistry',
         duration: 25,
-        difficulty: 'Hard' as const,
-        priority: 'high' as const,
-        status: 'pending' as const
+        difficulty: 'Hard',
+        priority: 'high' as const
       },
       {
         id: '3',
-        type: 'exam' as const,
+        type: 'exam',
         title: 'Biology Mock Test',
         subject: 'Biology',
         duration: 45,
-        difficulty: 'Medium' as const,
-        priority: 'medium' as const,
-        status: 'pending' as const
+        difficulty: 'Medium',
+        priority: 'medium' as const
       },
       {
         id: '4',
-        type: 'concept' as const,
+        type: 'concept',
         title: 'Thermodynamics',
         subject: 'Physics',
         duration: 35,
-        difficulty: 'Hard' as const,
-        priority: 'medium' as const,
-        status: 'pending' as const
+        difficulty: 'Hard',
+        priority: 'medium' as const
       }
-    ] as Task[],
+    ],
     goals: {
       daily: 180, // minutes
       completed: 85
-    },
-    smartSuggestions: [
-      {
-        id: 's1',
-        title: 'Focus on weak areas',
-        description: 'Review thermodynamics concepts based on recent performance',
-        priority: 'high',
-        estimatedTime: 20
-      },
-      {
-        id: 's2',
-        title: 'Quick flashcard review',
-        description: 'Chemistry formulas need reinforcement',
-        priority: 'medium',
-        estimatedTime: 15
-      }
-    ]
+    }
   };
 
   const completedCount = completedTasks.size;
@@ -148,238 +113,159 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
     }
   };
 
-  const TaskCard = ({ task }: { task: Task }) => {
-    const isCompleted = completedTasks.has(task.id);
-    
-    return (
-      <Card 
-        className={`transition-all duration-300 cursor-pointer ${
-          isCompleted 
-            ? 'bg-green-50 border-green-200 opacity-75' 
-            : `hover:shadow-md border-2 ${getPriorityColor(task.priority)}`
-        }`}
-        onClick={() => toggleTaskCompletion(task.id)}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3 flex-1">
-              <div className="mt-1">
-                {isCompleted ? (
-                  <CheckCircle className="h-6 w-6 text-green-500" />
-                ) : (
-                  getTaskIcon(task.type)
-                )}
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className={`font-semibold ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                    {task.title}
-                  </h4>
-                  <Badge variant="outline" className="text-xs">
-                    {task.subject}
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {task.duration} min
-                  </span>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-xs ${
-                      task.difficulty === 'Hard' ? 'border-red-300 text-red-700' :
-                      task.difficulty === 'Medium' ? 'border-yellow-300 text-yellow-700' :
-                      'border-green-300 text-green-700'
-                    }`}
-                  >
-                    {task.difficulty}
-                  </Badge>
-                  {task.priority === 'high' && (
-                    <Badge variant="destructive" className="text-xs">
-                      High Priority
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <ContentFeedback
-                contentId={task.id}
-                contentType={task.type}
-                contentTitle={task.title}
-              />
-              {!isCompleted && (
-                <Button 
-                  size="sm" 
-                  className="ml-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log(`Starting ${task.type}: ${task.title}`);
-                  }}
-                >
-                  <Play className="h-4 w-4 mr-1" />
-                  Start
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Enhanced Welcome Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white p-8 rounded-2xl shadow-xl">
-        <div className="flex items-center justify-between mb-6">
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Good Morning, {userName}! 🌟</h1>
+            <h1 className="text-3xl font-bold mb-2">Good Morning, {userName}! 🌟</h1>
             <p className="text-blue-100 text-lg">Ready to conquer your study goals today?</p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2 mb-2">
-              <Star className="h-6 w-6 text-yellow-300" />
-              <span className="text-2xl font-bold">{todayData.streak} Day Streak</span>
+              <Star className="h-5 w-5 text-yellow-300" />
+              <span className="text-xl font-bold">{todayData.streak} Day Streak</span>
             </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-3 py-1">
+            <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
               {Math.floor(todayData.timeAllocation.total / 60)}h {todayData.timeAllocation.total % 60}m planned
             </Badge>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <Target className="h-8 w-8 text-yellow-300" />
-              <div>
-                <p className="text-sm text-blue-100">Daily Progress</p>
-                <p className="text-2xl font-bold">{progressPercentage}%</p>
-              </div>
-            </div>
+        <div className="mt-4">
+          <div className="flex justify-between text-sm mb-2">
+            <span>Daily Progress</span>
+            <span>{completedCount}/{todayData.totalTasks} tasks ({progressPercentage}%)</span>
           </div>
-          <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="h-8 w-8 text-green-300" />
-              <div>
-                <p className="text-sm text-blue-100">Tasks Completed</p>
-                <p className="text-2xl font-bold">{completedCount}/{todayData.totalTasks}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="h-8 w-8 text-purple-300" />
-              <div>
-                <p className="text-sm text-blue-100">Study Time</p>
-                <p className="text-2xl font-bold">{Math.floor(todayData.timeAllocation.total / 60)}h {todayData.timeAllocation.total % 60}m</p>
-              </div>
-            </div>
-          </div>
+          <Progress value={progressPercentage} className="h-3 bg-white/20" />
         </div>
-
-        <Progress value={progressPercentage} className="h-4 bg-white/20" />
       </div>
 
-      {/* Smart Recommendations */}
-      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-lg">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-amber-800">
-            <Lightbulb className="h-5 w-5" />
-            Smart Recommendations
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-4 text-center">
+            <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+            <p className="text-2xl font-bold text-blue-800">{todayData.timeAllocation.concepts}m</p>
+            <p className="text-sm text-blue-600 font-medium">Concepts</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="p-4 text-center">
+            <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+            <p className="text-2xl font-bold text-purple-800">{todayData.timeAllocation.flashcards}m</p>
+            <p className="text-sm text-purple-600 font-medium">Flashcards</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-4 text-center">
+            <FileText className="h-8 w-8 mx-auto mb-2 text-green-600" />
+            <p className="text-2xl font-bold text-green-800">{todayData.timeAllocation.practiceExams}m</p>
+            <p className="text-sm text-green-600 font-medium">Practice</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+          <CardContent className="p-4 text-center">
+            <Award className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+            <p className="text-2xl font-bold text-orange-800">{todayData.goals.completed}%</p>
+            <p className="text-sm text-orange-600 font-medium">Goal Progress</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Today's Tasks */}
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <Calendar className="h-6 w-6 text-blue-600" />
+            Today's Study Plan
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {todayData.smartSuggestions.map((suggestion) => (
-              <div key={suggestion.id} className="p-4 bg-white rounded-lg border border-amber-200 shadow-sm">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800 mb-1">{suggestion.title}</h4>
-                    <p className="text-sm text-gray-600 mb-2">{suggestion.description}</p>
-                    <div className="flex items-center gap-2 text-xs text-amber-600">
-                      <Clock className="h-3 w-3" />
-                      <span>{suggestion.estimatedTime} min</span>
+          <div className="grid gap-4">
+            {todayData.tasks.map((task) => {
+              const isCompleted = completedTasks.has(task.id);
+              
+              return (
+                <Card 
+                  key={task.id} 
+                  className={`transition-all duration-300 cursor-pointer ${
+                    isCompleted 
+                      ? 'bg-green-50 border-green-200 opacity-75' 
+                      : `hover:shadow-md border-2 ${getPriorityColor(task.priority)}`
+                  }`}
+                  onClick={() => toggleTaskCompletion(task.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="mt-1">
+                          {isCompleted ? (
+                            <CheckCircle className="h-6 w-6 text-green-500" />
+                          ) : (
+                            getTaskIcon(task.type)
+                          )}
+                        </div>
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className={`font-semibold ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                              {task.title}
+                            </h4>
+                            <Badge variant="outline" className="text-xs">
+                              {task.subject}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {task.duration} min
+                            </span>
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs ${
+                                task.difficulty === 'Hard' ? 'border-red-300 text-red-700' :
+                                task.difficulty === 'Medium' ? 'border-yellow-300 text-yellow-700' :
+                                'border-green-300 text-green-700'
+                              }`}
+                            >
+                              {task.difficulty}
+                            </Badge>
+                            {task.priority === 'high' && (
+                              <Badge variant="destructive" className="text-xs">
+                                High Priority
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {!isCompleted && (
+                        <Button 
+                          size="sm" 
+                          className="ml-4"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log(`Starting ${task.type}: ${task.title}`);
+                          }}
+                        >
+                          <Play className="h-4 w-4 mr-1" />
+                          Start
+                        </Button>
+                      )}
                     </div>
-                  </div>
-                  <Badge 
-                    variant={suggestion.priority === 'high' ? 'destructive' : 'secondary'}
-                    className="ml-2"
-                  >
-                    {suggestion.priority}
-                  </Badge>
-                </div>
-              </div>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
-
-      {/* Enhanced Tabbed Interface */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-lg h-12">
-          <TabsTrigger value="overview" className="rounded-md">Overview</TabsTrigger>
-          <TabsTrigger value="tasks" className="rounded-md">All Tasks</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6 mt-6">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardContent className="p-4 text-center">
-                <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                <p className="text-2xl font-bold text-blue-800">{todayData.timeAllocation.concepts}m</p>
-                <p className="text-sm text-blue-600 font-medium">Concepts</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardContent className="p-4 text-center">
-                <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                <p className="text-2xl font-bold text-purple-800">{todayData.timeAllocation.flashcards}m</p>
-                <p className="text-sm text-purple-600 font-medium">Flashcards</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardContent className="p-4 text-center">
-                <FileText className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                <p className="text-2xl font-bold text-green-800">{todayData.timeAllocation.practiceExams}m</p>
-                <p className="text-sm text-green-600 font-medium">Practice</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-              <CardContent className="p-4 text-center">
-                <Award className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                <p className="text-2xl font-bold text-orange-800">{todayData.goals.completed}%</p>
-                <p className="text-sm text-orange-600 font-medium">Goal Progress</p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="tasks" className="space-y-6 mt-6">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Calendar className="h-6 w-6 text-blue-600" />
-                Today's Study Tasks
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {todayData.tasks.map((task) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
 
       {/* Motivational Section */}
       <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200">
