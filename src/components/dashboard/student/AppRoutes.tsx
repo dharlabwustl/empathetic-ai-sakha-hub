@@ -3,7 +3,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
-import PremiumTodaysPlan from '@/components/dashboard/student/today-plan/PremiumTodaysPlan';
+import RedesignedTodaysPlan from '@/components/dashboard/student/today-plan/RedesignedTodaysPlan';
 import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
@@ -17,7 +17,7 @@ const StudentAppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<StudentDashboard />} />
-      <Route path="/today" element={<PremiumTodaysPlan />} />
+      <Route path="/today" element={<RedesignedTodaysPlan />} />
       <Route path="/concepts" element={<ConceptsLandingPage />} />
       <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
