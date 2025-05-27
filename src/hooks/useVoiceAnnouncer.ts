@@ -97,9 +97,15 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       return;
     }
 
+    // Fix pronunciation of PREPZR by breaking it down phonetically
+    const correctedText = message
+      .replace(/PREPZR/gi, 'Prep Zer')
+      .replace(/Prepzr/g, 'Prep Zer')
+      .replace(/prepzr/gi, 'prep zer');
+
     // Use the centralized female voice function
     speakWithFemaleVoice(
-      message,
+      correctedText,
       {
         volume: voiceSettings.volume,
         rate: voiceSettings.rate,
@@ -110,7 +116,7 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
         setIsSpeaking(true);
         // Add to spoken messages to prevent repetition
         spokenMessagesRef.current.add(messageKey);
-        console.log('🔊 Voice: Speaking:', message);
+        console.log('🔊 Voice: Speaking:', correctedText);
       },
       () => {
         setIsSpeaking(false);
@@ -133,8 +139,8 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
 
   const testVoice = useCallback(() => {
     const testMessage = props?.userName 
-      ? `Hello ${props.userName}, this is your PREPZR voice assistant. I'm here to help you with your studies.`
-      : "Hello, this is your PREPZR voice assistant. I'm here to help you with your studies.";
+      ? `Hello ${props.userName}, this is your Prep Zer voice assistant. I'm here to help you with your studies.`
+      : "Hello, this is your Prep Zer voice assistant. I'm here to help you with your studies.";
     
     // Force speaking for test (bypass repetition check)
     speakMessage(testMessage, true);

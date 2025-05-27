@@ -227,11 +227,11 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Fix pronunciation of PREPZR by breaking it down phonetically
+    // Fix pronunciation of PREPZR by breaking it down phonetically  
     const correctedText = text
-      .replace(/PREPZR/gi, 'PREP ZR')
-      .replace(/Prepzr/g, 'Prep ZR')
-      .replace(/prepzr/gi, 'prep zr');
+      .replace(/PREPZR/gi, 'Prep Zer')
+      .replace(/Prepzr/g, 'Prep Zer')
+      .replace(/prepzr/gi, 'prep zer');
     
     const utterance = new SpeechSynthesisUtterance(correctedText);
     
