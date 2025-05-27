@@ -20,8 +20,8 @@ import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
-import ExamStartPage from '@/pages/dashboard/student/exam/ExamStartPage';
-import ExamResultsPage from '@/pages/dashboard/student/exam/ExamResultsPage';
+import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
+import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 
 const StudentRoutes = () => {
   return (
@@ -82,8 +82,16 @@ const StudentRoutes = () => {
           <PracticeExamsList />
         </SidebarLayout>
       } />
-      <Route path="/exam/:examId/start" element={<ExamStartPage />} />
-      <Route path="/exam/:examId/results" element={<ExamResultsPage />} />
+      <Route path="/practice-exam/:examId/start" element={
+        <SidebarLayout>
+          <ExamTakingPage />
+        </SidebarLayout>
+      } />
+      <Route path="/practice-exam/:examId/review" element={
+        <SidebarLayout>
+          <ExamReviewPage />
+        </SidebarLayout>
+      } />
       <Route path="/syllabus" element={
         <SidebarLayout>
           <ExamSyllabusPage />

@@ -90,10 +90,12 @@ const PracticeExamLandingPage = () => {
   ];
 
   const handleStartExam = (examId: string) => {
+    console.log('Navigating to exam start:', `/dashboard/student/practice-exam/${examId}/start`);
     navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
 
   const handleViewResults = (examId: string) => {
+    console.log('Navigating to exam review:', `/dashboard/student/practice-exam/${examId}/review`);
     navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
 
@@ -167,7 +169,7 @@ const PracticeExamLandingPage = () => {
                     className="w-full" 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleTabChange('available-exams')}
+                    onClick={() => handleStartExam('4')}
                   >
                     <Play className="mr-2 h-4 w-4" />
                     Take Practice Test
