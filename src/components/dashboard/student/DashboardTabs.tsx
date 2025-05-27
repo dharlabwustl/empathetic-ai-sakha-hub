@@ -9,8 +9,7 @@ import {
   BookOpen, 
   Brain, 
   FileText,
-  Bell,
-  ClipboardList
+  Bell
 } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
@@ -37,7 +36,7 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   const isMobile = useIsMobile();
   
-  // Main navigation tabs with syllabus added
+  // Main navigation tabs with more focused menu items
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule" },
@@ -45,7 +44,6 @@ export default function DashboardTabs({
     { id: "concepts", label: "Concepts", icon: BookOpen, description: "Key learning concepts" },
     { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision" },
     { id: "practice-exam", label: "Practice", icon: FileText, description: "Exam preparation" },
-    { id: "syllabus", label: "Syllabus", icon: ClipboardList, description: "NEET 2026 syllabus tracking" },
     { id: "notifications", label: "Alerts", icon: Bell, description: "Updates and alerts" }
   ];
 
