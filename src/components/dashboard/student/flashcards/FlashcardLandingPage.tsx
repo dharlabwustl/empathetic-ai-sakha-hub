@@ -117,7 +117,7 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // CRITICAL NAVIGATION FUNCTIONS - ALL MUST GO TO INTERACTIVE
+  // FIXED: Direct navigation to interactive flashcard route
   const navigateToInteractive = (setId: number, source: string) => {
     const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
     console.log(`🚨🚨🚨 NAVIGATION FROM ${source.toUpperCase()}`);
@@ -125,12 +125,10 @@ const FlashcardLandingPage: React.FC = () => {
     console.log(`🚨🚨🚨 CURRENT LOCATION BEFORE NAVIGATE: ${window.location.href}`);
     console.log(`🚨🚨🚨 SET ID: ${setId}`);
     
-    // Force navigation with replace to ensure clean routing
-    navigate(targetRoute, { replace: false });
+    navigate(targetRoute);
     
     console.log(`🚨🚨🚨 NAVIGATE CALLED SUCCESSFULLY FROM ${source.toUpperCase()}`);
     
-    // Additional check after navigation attempt
     setTimeout(() => {
       console.log(`🚨🚨🚨 POST-NAVIGATION CHECK - Current location: ${window.location.href}`);
     }, 100);
@@ -308,7 +306,6 @@ const FlashcardLandingPage: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  {/* CRITICAL BUTTONS - ALL MUST GO TO INTERACTIVE */}
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline"

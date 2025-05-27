@@ -1,306 +1,187 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { VoiceSettings } from '@/types/voice';
 
-export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  volume: 0.9,
-  rate: 1.0,
-  pitch: 1.1,
-  language: 'en-US',
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+interface VoiceSettings {
+  enabled: boolean;
+  volume: number;
+  rate: number;
+  pitch: number;
+  language: string;
+  muted: boolean;
+}
+
+const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   enabled: true,
-  muted: false,
-  voice: null,
-  autoGreet: true,
+  volume: 0.8,
+  rate: 1.0,
+  pitch: 1.0,
+  language: 'en-US',
+  muted: false
 };
 
 interface UseVoiceAnnouncerProps {
   userName?: string;
-  autoStart?: boolean;
-  onCommand?: (command: string) => void;
 }
 
-export const useVoiceAnnouncer = ({ 
-  userName = 'Student', 
-  autoStart = false,
-  onCommand 
-}: UseVoiceAnnouncerProps = {}) => {
+const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(DEFAULT_VOICE_SETTINGS);
   const [isVoiceSupported, setIsVoiceSupported] = useState(false);
-  const [voiceInitialized, setVoiceInitialized] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [voiceInitialized, setVoiceInitialized] = useState(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   
-  const recognitionRef = useRef<any>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const isInitializedRef = useRef(false);
-  const restartTimeoutRef = useRef<number | null>(null);
+  // Track spoken messages to prevent repetition
+  const spokenMessagesRef = useRef<Set<string>>(new Set());
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  // Check for voice support
   useEffect(() => {
-    const speechSupported = 'speechSynthesis' in window;
-    const recognitionSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-    setIsVoiceSupported(speechSupported && recognitionSupported);
-    
-    if (speechSupported && recognitionSupported) {
-      initializeVoice();
-    }
-  }, []);
-
-  // Initialize voice synthesis and recognition
-  const initializeVoice = useCallback(() => {
-    if (isInitializedRef.current) return;
-    
-    // Initialize speech synthesis
+    // Check if speech synthesis is supported
     if ('speechSynthesis' in window) {
+      setIsVoiceSupported(true);
+      setVoiceInitialized(true);
+      
+      // Load available voices
       const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
+        const voices = speechSynthesis.getVoices();
         setAvailableVoices(voices);
-        
-        // Prefer female voices for consistent experience
-        const femaleVoices = voices.filter(voice => 
-          voice.name.toLowerCase().includes('female') ||
-          voice.name.toLowerCase().includes('zira') ||
-          voice.name.toLowerCase().includes('samantha') ||
-          voice.name.toLowerCase().includes('serena') ||
-          voice.name.toLowerCase().includes('alex')
-        );
-        
-        const preferredVoice = femaleVoices.find(voice => 
-          voice.lang.includes('en-US')
-        ) || voices.find(voice => 
-          voice.lang.includes('en-US') || voice.lang.includes('en-GB')
-        ) || voices[0];
-        
-        if (preferredVoice) {
-          setVoiceSettings(prev => ({ ...prev, voice: preferredVoice }));
-        }
       };
       
       loadVoices();
-      window.speechSynthesis.onvoiceschanged = loadVoices;
+      speechSynthesis.addEventListener('voiceschanged', loadVoices);
+      
+      return () => {
+        speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+      };
     }
-
-    // Initialize speech recognition with better error handling
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      setupSpeechRecognition();
-    }
-    
-    setVoiceInitialized(true);
-    isInitializedRef.current = true;
   }, []);
 
-  const setupSpeechRecognition = useCallback(() => {
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-        recognitionRef.current = null;
-      } catch (error) {
-        console.log('Cleanup recognition error:', error);
+  useEffect(() => {
+    // Initialize speech recognition
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      if (recognitionRef.current) {
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = voiceSettings.language;
+        
+        recognitionRef.current.onresult = (event) => {
+          const result = event.results[0][0].transcript;
+          setTranscript(result);
+        };
+        
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognitionRef.current.onerror = () => {
+          setIsListening(false);
+        };
       }
     }
+  }, [voiceSettings.language]);
 
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = false; // Changed to false for better command handling
-    recognition.interimResults = false;
-    recognition.lang = voiceSettings.language;
-    recognition.maxAlternatives = 1;
-    
-    recognition.onstart = () => {
-      console.log('Speech recognition started');
-      setIsListening(true);
-    };
-    
-    recognition.onend = () => {
-      console.log('Speech recognition ended');
-      setIsListening(false);
-      
-      // Clear any existing restart timeout
-      if (restartTimeoutRef.current) {
-        clearTimeout(restartTimeoutRef.current);
-      }
-      
-      // Auto-restart after a short delay if enabled
-      if (voiceSettings.enabled && !voiceSettings.muted) {
-        restartTimeoutRef.current = window.setTimeout(() => {
-          if (voiceSettings.enabled && !voiceSettings.muted) {
-            startListening();
-          }
-        }, 2000);
-      }
-    };
-    
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-      
-      // Clear any existing restart timeout
-      if (restartTimeoutRef.current) {
-        clearTimeout(restartTimeoutRef.current);
-      }
-      
-      // Restart on error after longer delay
-      if (voiceSettings.enabled && !voiceSettings.muted && event.error !== 'aborted') {
-        restartTimeoutRef.current = window.setTimeout(() => {
-          if (voiceSettings.enabled && !voiceSettings.muted) {
-            startListening();
-          }
-        }, 3000);
-      }
-    };
-    
-    recognition.onresult = (event) => {
-      if (event.results.length > 0) {
-        const result = event.results[0];
-        if (result.isFinal) {
-          const finalTranscript = result[0].transcript.trim();
-          console.log('Voice command received:', finalTranscript);
-          setTranscript(finalTranscript);
-          if (onCommand) {
-            onCommand(finalTranscript);
-          }
-        }
-      }
-    };
-    
-    recognitionRef.current = recognition;
-  }, [voiceSettings.language, voiceSettings.enabled, voiceSettings.muted, onCommand]);
-
-  const speakMessage = useCallback((message: string) => {
-    if (!voiceSettings.enabled || voiceSettings.muted || !isVoiceSupported) {
+  const speakMessage = useCallback((message: string, force = false) => {
+    if (!isVoiceSupported || voiceSettings.muted || !voiceSettings.enabled) {
       return;
     }
 
-    // Cancel any ongoing speech
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
+    // FIXED: Check if message was already spoken (prevent repetition)
+    const messageKey = message.toLowerCase().trim();
+    if (!force && spokenMessagesRef.current.has(messageKey)) {
+      console.log('🔇 Voice: Message already spoken, skipping:', message);
+      return;
+    }
+
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
     }
 
     const utterance = new SpeechSynthesisUtterance(message);
-    
-    if (voiceSettings.voice) {
-      utterance.voice = voiceSettings.voice;
-    }
-    
     utterance.volume = voiceSettings.volume;
     utterance.rate = voiceSettings.rate;
     utterance.pitch = voiceSettings.pitch;
     utterance.lang = voiceSettings.language;
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, [voiceSettings, isVoiceSupported]);
-
-  const startListening = useCallback(() => {
-    if (!recognitionRef.current || !voiceSettings.enabled || voiceSettings.muted) {
-      if (!recognitionRef.current) {
-        setupSpeechRecognition();
-      }
-      if (!voiceSettings.enabled || voiceSettings.muted) {
-        return;
-      }
+    // Find appropriate voice
+    const voices = speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => voice.lang === voiceSettings.language);
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
     }
 
-    try {
-      if (isListening) {
-        recognitionRef.current.stop();
-        setTimeout(() => {
-          if (recognitionRef.current && voiceSettings.enabled && !voiceSettings.muted) {
-            recognitionRef.current.start();
-          }
-        }, 100);
-      } else {
-        recognitionRef.current.start();
-      }
-    } catch (error) {
-      console.error('Error starting recognition:', error);
-      // Reinitialize and try again
-      setupSpeechRecognition();
-      setTimeout(() => {
-        if (recognitionRef.current && voiceSettings.enabled && !voiceSettings.muted) {
-          try {
-            recognitionRef.current.start();
-          } catch (retryError) {
-            console.error('Retry error:', retryError);
-          }
-        }
-      }, 500);
-    }
-  }, [isListening, voiceSettings.enabled, voiceSettings.muted, setupSpeechRecognition]);
-
-  const stopListening = useCallback(() => {
-    if (restartTimeoutRef.current) {
-      clearTimeout(restartTimeoutRef.current);
-      restartTimeoutRef.current = null;
-    }
-    
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (error) {
-        console.error('Error stopping recognition:', error);
-      }
-    }
-  }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (restartTimeoutRef.current) {
-        clearTimeout(restartTimeoutRef.current);
-      }
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (error) {
-          console.error('Cleanup error:', error);
-        }
-      }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      // Add to spoken messages to prevent repetition
+      spokenMessagesRef.current.add(messageKey);
+      console.log('🔊 Voice: Speaking:', message);
     };
-  }, []);
 
-  const toggleVoiceEnabled = useCallback(() => {
-    setVoiceSettings(prev => {
-      const newEnabled = !prev.enabled;
-      if (!newEnabled) {
-        stopListening();
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-        }
-      }
-      return { ...prev, enabled: newEnabled };
-    });
-  }, [stopListening]);
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      console.log('🔇 Voice: Finished speaking');
+    };
 
-  const toggleMute = useCallback(() => {
-    setVoiceSettings(prev => {
-      const newMuted = !prev.muted;
-      if (newMuted) {
-        stopListening();
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-        }
-      }
-      return { ...prev, muted: newMuted };
-    });
-  }, [stopListening]);
+    utterance.onerror = (event) => {
+      setIsSpeaking(false);
+      console.error('Voice synthesis error:', event);
+    };
+
+    speechSynthesis.speak(utterance);
+  }, [isVoiceSupported, voiceSettings]);
 
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {
     setVoiceSettings(prev => ({ ...prev, ...newSettings }));
   }, []);
 
+  const toggleVoiceEnabled = useCallback(() => {
+    setVoiceSettings(prev => ({ ...prev, enabled: !prev.enabled }));
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setVoiceSettings(prev => ({ ...prev, muted: !prev.muted }));
+  }, []);
+
   const testVoice = useCallback(() => {
-    speakMessage(`Hello ${userName}! This is a test of the PREPZR voice assistant. How does this sound?`);
-  }, [speakMessage, userName]);
+    const testMessage = props?.userName 
+      ? `Hello ${props.userName}, this is your PREPZR voice assistant. I'm here to help you with your studies.`
+      : "Hello, this is your PREPZR voice assistant. I'm here to help you with your studies.";
+    
+    // Force speaking for test (bypass repetition check)
+    speakMessage(testMessage, true);
+  }, [speakMessage, props?.userName]);
+
+  const startListening = useCallback(() => {
+    if (recognitionRef.current && !isListening) {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+        setTranscript('');
+      } catch (error) {
+        console.error('Speech recognition start error:', error);
+      }
+    }
+  }, [isListening]);
+
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  }, [isListening]);
+
+  // Clear spoken messages periodically to allow re-speaking after some time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      spokenMessagesRef.current.clear();
+      console.log('🔄 Voice: Cleared spoken messages cache');
+    }, 300000); // Clear every 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
 
   return {
     voiceSettings,
@@ -321,3 +202,4 @@ export const useVoiceAnnouncer = ({
 };
 
 export default useVoiceAnnouncer;
+export { useVoiceAnnouncer };
