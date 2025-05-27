@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTodaysPlan } from "@/hooks/useTodaysPlan";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
@@ -27,7 +28,9 @@ import {
   Play,
   ChevronRight,
   TrendingUp,
-  Flame
+  Flame,
+  Eye,
+  Timer
 } from 'lucide-react';
 
 const EnhancedTodaysPlan: React.FC = () => {
@@ -56,37 +59,26 @@ const EnhancedTodaysPlan: React.FC = () => {
     studyStreak: 12,
     timeSpent: 2.7,
     studyGoal: 4,
-    smartSuggestions: [
-      { id: 1, title: "Start with Physics concepts - your strongest subject", icon: "⚡", type: "strategy" },
-      { id: 2, title: "Take a 5-min break every 25 minutes", icon: "⏱️", type: "wellness" },
-      { id: 3, title: "Review yesterday's mistakes in Chemistry", icon: "🔄", type: "review" }
+    concepts: [
+      { id: 1, title: "Thermodynamics - Heat Transfer", subject: "Physics", difficulty: "Medium", duration: 30, priority: "High", completed: false },
+      { id: 2, title: "Organic Chemistry Reactions", subject: "Chemistry", difficulty: "Hard", duration: 35, priority: "High", completed: false },
+      { id: 3, title: "Cell Biology", subject: "Biology", difficulty: "Easy", duration: 25, priority: "Medium", completed: true }
     ],
-    subjects: [
-      { 
-        name: 'Physics', 
-        progress: 75, 
-        tasks: [
-          { id: 1, title: "Thermodynamics - Heat Transfer", type: "concept", difficulty: "Medium", duration: 30, priority: "High", completed: false },
-          { id: 2, title: "Newton's Laws Practice", type: "practice", difficulty: "Medium", duration: 25, priority: "Medium", completed: true }
-        ]
-      },
-      { 
-        name: 'Chemistry', 
-        progress: 45, 
-        tasks: [
-          { id: 3, title: "Organic Chemistry Reactions", type: "concept", difficulty: "Hard", duration: 35, priority: "High", completed: false },
-          { id: 4, title: "Periodic Table Quiz", type: "quiz", difficulty: "Easy", duration: 15, priority: "Medium", completed: false }
-        ]
-      },
-      { 
-        name: 'Biology', 
-        progress: 80, 
-        tasks: [
-          { id: 5, title: "Cell Biology Flashcards", type: "flashcard", difficulty: "Easy", duration: 20, priority: "Low", completed: false }
-        ]
-      }
+    flashcards: [
+      { id: 4, title: "Physics Formulas", subject: "Physics", cards: 25, duration: 20, completed: false },
+      { id: 5, title: "Chemical Equations", subject: "Chemistry", cards: 30, duration: 25, completed: false }
+    ],
+    practiceExams: [
+      { id: 6, title: "Mock Test - Biology", subject: "Biology", questions: 45, duration: 60, completed: false },
+      { id: 7, title: "Chapter Test - Physics", subject: "Physics", questions: 25, duration: 40, completed: true }
     ]
   };
+
+  const smartSuggestions = [
+    { id: 1, title: "Start with Physics concepts - your strongest subject", icon: "⚡", type: "strategy" },
+    { id: 2, title: "Take a 5-min break every 25 minutes", icon: "⏱️", type: "wellness" },
+    { id: 3, title: "Review yesterday's mistakes in Chemistry", icon: "🔄", type: "review" }
+  ];
   
   if (loading) {
     return <LoadingState message="Loading your study plan..." />;
@@ -178,7 +170,7 @@ const EnhancedTodaysPlan: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {todaysData.smartSuggestions.map((suggestion) => (
+                {smartSuggestions.map((suggestion) => (
                   <div key={suggestion.id} className="flex items-center gap-3 p-3 bg-white/70 rounded-lg">
                     <span className="text-lg">{suggestion.icon}</span>
                     <span className="font-medium text-amber-900 flex-1">{suggestion.title}</span>
@@ -229,69 +221,73 @@ const EnhancedTodaysPlan: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Subject Tasks */}
+        {/* Modern Tabbed Interface */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="space-y-4"
         >
-          {todaysData.subjects.map((subject, index) => (
-            <Card key={subject.name} className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg">{subject.name}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <div className="text-sm text-gray-600">{subject.progress}% complete</div>
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                  </div>
-                </div>
-                <Progress value={subject.progress} className="h-2" />
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="space-y-0">
-                  {subject.tasks.map((task, taskIndex) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: taskIndex * 0.1 }}
-                      className={`p-4 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        task.completed ? 'bg-green-50' : ''
-                      }`}
-                      onClick={() => handleTaskClick(task.id, task.type)}
-                    >
+          <Tabs defaultValue="concepts" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="concepts" className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Concepts ({todaysData.concepts.length})
+              </TabsTrigger>
+              <TabsTrigger value="flashcards" className="flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                Flashcards ({todaysData.flashcards.length})
+              </TabsTrigger>
+              <TabsTrigger value="practice" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Practice ({todaysData.practiceExams.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="concepts" className="space-y-4">
+              {todaysData.concepts.map((concept, index) => (
+                <motion.div
+                  key={concept.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <Card className={`overflow-hidden cursor-pointer transition-all hover:shadow-lg ${
+                    concept.completed ? 'bg-green-50 border-green-200' : ''
+                  }`}
+                  onClick={() => handleTaskClick(concept.id, 'concept')}>
+                    <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className={`p-2 rounded-full ${
-                            task.completed ? 'bg-green-100' : 'bg-blue-100'
+                            concept.completed ? 'bg-green-100' : 'bg-blue-100'
                           }`}>
-                            {task.completed ? (
+                            {concept.completed ? (
                               <CheckCircle className="h-4 w-4 text-green-600" />
                             ) : (
-                              getTaskIcon(task.type)
+                              <BookOpen className="h-4 w-4 text-blue-600" />
                             )}
                           </div>
                           <div>
-                            <h4 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
-                              {task.title}
+                            <h4 className={`font-medium ${concept.completed ? 'line-through text-gray-500' : ''}`}>
+                              {concept.title}
                             </h4>
                             <div className="flex items-center gap-3 text-sm text-gray-500">
+                              <span>{concept.subject}</span>
                               <div className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                <span>{task.duration} min</span>
+                                <Timer className="h-3 w-3" />
+                                <span>{concept.duration} min</span>
                               </div>
                               <Badge variant="outline" className="text-xs">
-                                {task.difficulty}
+                                {concept.difficulty}
                               </Badge>
-                              <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)}`}>
-                                {task.priority}
+                              <Badge variant="outline" className={`text-xs ${getPriorityColor(concept.priority)}`}>
+                                {concept.priority}
                               </Badge>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {!task.completed && (
+                          {!concept.completed && (
                             <Button size="sm" variant="outline" className="gap-1">
                               <Play className="h-3 w-3" />
                               Start
@@ -300,12 +296,146 @@ const EnhancedTodaysPlan: React.FC = () => {
                           <ChevronRight className="h-4 w-4 text-gray-400" />
                         </div>
                       </div>
-                    </motion.div>
-                  ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="flashcards" className="space-y-4">
+              {todaysData.flashcards.map((flashcard, index) => (
+                <motion.div
+                  key={flashcard.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <Card className="overflow-hidden cursor-pointer transition-all hover:shadow-lg"
+                        onClick={() => handleTaskClick(flashcard.id, 'flashcard')}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-full bg-purple-100">
+                            <Brain className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium">{flashcard.title}</h4>
+                            <div className="flex items-center gap-3 text-sm text-gray-500">
+                              <span>{flashcard.subject}</span>
+                              <span>{flashcard.cards} cards</span>
+                              <div className="flex items-center gap-1">
+                                <Timer className="h-3 w-3" />
+                                <span>{flashcard.duration} min</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" className="gap-1">
+                            <Eye className="h-3 w-3" />
+                            Review
+                          </Button>
+                          <ChevronRight className="h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="practice" className="space-y-4">
+              {todaysData.practiceExams.map((exam, index) => (
+                <motion.div
+                  key={exam.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <Card className={`overflow-hidden cursor-pointer transition-all hover:shadow-lg ${
+                    exam.completed ? 'bg-green-50 border-green-200' : ''
+                  }`}
+                  onClick={() => handleTaskClick(exam.id, 'practice')}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-full ${
+                            exam.completed ? 'bg-green-100' : 'bg-orange-100'
+                          }`}>
+                            {exam.completed ? (
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <FileText className="h-4 w-4 text-orange-600" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className={`font-medium ${exam.completed ? 'line-through text-gray-500' : ''}`}>
+                              {exam.title}
+                            </h4>
+                            <div className="flex items-center gap-3 text-sm text-gray-500">
+                              <span>{exam.subject}</span>
+                              <span>{exam.questions} questions</span>
+                              <div className="flex items-center gap-1">
+                                <Timer className="h-3 w-3" />
+                                <span>{exam.duration} min</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {!exam.completed && (
+                            <Button size="sm" variant="outline" className="gap-1">
+                              <Play className="h-3 w-3" />
+                              Start
+                            </Button>
+                          )}
+                          <ChevronRight className="h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+
+        {/* Time Allocation Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-indigo-600" />
+                Today's Time Allocation
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">90</div>
+                  <div className="text-sm text-gray-600">Concepts (min)</div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <div>
+                  <div className="text-2xl font-bold text-purple-600">45</div>
+                  <div className="text-sm text-gray-600">Flashcards (min)</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-orange-600">100</div>
+                  <div className="text-sm text-gray-600">Practice (min)</div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Progress value={45} className="h-3" />
+                <div className="text-center text-sm text-gray-500 mt-2">
+                  45% of today's goal completed
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
       
