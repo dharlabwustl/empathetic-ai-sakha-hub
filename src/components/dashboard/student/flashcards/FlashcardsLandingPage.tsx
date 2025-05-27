@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,29 @@ import OverviewSection from '../OverviewSection';
 
 const FlashcardsLandingPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Listen for URL parameter changes
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && (tab === 'overview' || tab === 'all-flashcards')) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // Listen for popstate events (back/forward navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      const tab = new URLSearchParams(window.location.search).get('tab');
+      if (tab && (tab === 'overview' || tab === 'all-flashcards')) {
+        setActiveTab(tab);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const overviewData = {
     type: "Flashcards" as const,
@@ -71,9 +93,16 @@ const FlashcardsLandingPage = () => {
     navigate('/dashboard/student/flashcards/2/interactive');
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    const url = new URL(window.location);
+    url.searchParams.set('tab', value);
+    window.history.pushState({}, '', url);
+  };
+
   return (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="all-flashcards">All Flashcards</TabsTrigger>

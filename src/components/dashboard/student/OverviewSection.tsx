@@ -67,29 +67,81 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   };
 
   const handleContinueLearning = () => {
+    const currentPath = window.location.pathname;
+    
     switch (type) {
       case 'Concepts':
-        navigate('/dashboard/student/concepts?tab=all-concepts');
+        if (currentPath.includes('/concepts')) {
+          // If we're on concepts page, switch to all-concepts tab
+          const url = new URL(window.location);
+          url.searchParams.set('tab', 'all-concepts');
+          window.history.pushState({}, '', url);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } else {
+          navigate('/dashboard/student/concepts?tab=all-concepts');
+        }
         break;
       case 'Flashcards':
-        navigate('/dashboard/student/flashcards?tab=all-flashcards');
+        if (currentPath.includes('/flashcards')) {
+          // If we're on flashcards page, switch to all-flashcards tab
+          const url = new URL(window.location);
+          url.searchParams.set('tab', 'all-flashcards');
+          window.history.pushState({}, '', url);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } else {
+          navigate('/dashboard/student/flashcards?tab=all-flashcards');
+        }
         break;
       case 'Practice Exams':
-        navigate('/dashboard/student/practice-exam?tab=available-exams');
+        if (currentPath.includes('/practice-exam')) {
+          // If we're on practice exam page, switch to available-exams tab
+          const url = new URL(window.location);
+          url.searchParams.set('tab', 'available-exams');
+          window.history.pushState({}, '', url);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } else {
+          navigate('/dashboard/student/practice-exam?tab=available-exams');
+        }
         break;
     }
   };
 
   const handleSubjectStudy = (subjectName: string) => {
+    const currentPath = window.location.pathname;
+    
     switch (type) {
       case 'Concepts':
-        navigate('/dashboard/student/concepts?tab=all-concepts');
+        if (currentPath.includes('/concepts')) {
+          // If we're on concepts page, switch to all-concepts tab
+          const url = new URL(window.location);
+          url.searchParams.set('tab', 'all-concepts');
+          window.history.pushState({}, '', url);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } else {
+          navigate('/dashboard/student/concepts?tab=all-concepts');
+        }
         break;
       case 'Flashcards':
-        navigate('/dashboard/student/flashcards?tab=all-flashcards');
+        if (currentPath.includes('/flashcards')) {
+          // If we're on flashcards page, switch to all-flashcards tab
+          const url = new URL(window.location);
+          url.searchParams.set('tab', 'all-flashcards');
+          window.history.pushState({}, '', url);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } else {
+          navigate('/dashboard/student/flashcards?tab=all-flashcards');
+        }
         break;
       case 'Practice Exams':
-        navigate('/dashboard/student/practice-exam?tab=available-exams');
+        if (currentPath.includes('/practice-exam')) {
+          // If we're on practice exam page, switch to available-exams tab
+          const url = new URL(window.location);
+          url.searchParams.set('tab', 'available-exams');
+          window.history.pushState({}, '', url);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } else {
+          navigate('/dashboard/student/practice-exam?tab=available-exams');
+        }
         break;
     }
   };

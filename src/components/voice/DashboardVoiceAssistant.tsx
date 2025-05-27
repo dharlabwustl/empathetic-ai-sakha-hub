@@ -24,7 +24,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   // Speak welcome message only once when component mounts
   useEffect(() => {
     if (!hasSpokenRef.current && !isMuted) {
-      const welcomeMessage = `Hello ${userName}! I'm PREPZR AI, your personal study assistant. I'm here to help you with your exam preparation. How can I assist you today?`;
+      const welcomeMessage = `Hello ${userName}! I'm prep, zer AI, your personal study assistant. I'm here to help you with your exam preparation.`;
       
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(welcomeMessage);
