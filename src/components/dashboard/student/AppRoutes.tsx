@@ -12,7 +12,6 @@ import PracticeExamLandingPage from '@/components/dashboard/student/practice-exa
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
-import SyllabusPage from '@/components/dashboard/student/syllabus/SyllabusPage';
 
 const StudentAppRoutes = () => {
   return (
@@ -28,7 +27,6 @@ const StudentAppRoutes = () => {
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
-      <Route path="/syllabus" element={<SyllabusPage />} />
     </Routes>
   );
 };
