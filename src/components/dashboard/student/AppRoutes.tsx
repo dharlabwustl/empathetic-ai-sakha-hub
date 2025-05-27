@@ -8,6 +8,8 @@ import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDe
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
+import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
+import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
 
 const StudentAppRoutes = () => {
@@ -20,6 +22,8 @@ const StudentAppRoutes = () => {
       <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
       <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
+      <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
+      <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
     </Routes>
   );

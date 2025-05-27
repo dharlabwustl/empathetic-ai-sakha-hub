@@ -1,16 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { useToast } from '@/hooks/use-toast';
-import LoadingScreen from '@/components/common/LoadingScreen';
-import { Timer, AlertCircle, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
-import QuestionView from './QuestionView';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Timer, Flag, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import QuestionView from './QuestionView';
 
-// Define proper interfaces
 interface ExamQuestion {
   id: string;
   text: string;
@@ -20,319 +18,165 @@ interface ExamQuestion {
   difficulty: string;
 }
 
-interface UserAnswer {
-  questionId: string;
-  selectedOptionId: string;
-  isCorrect?: boolean;
-}
-
-interface PracticeExam {
-  id: string;
-  title: string;
-  description: string;
-  subject: string;
-  topic: string;
-  totalQuestions: number;
-  timeAllowed: number;
-  questions: ExamQuestion[];
-}
-
-// Mock data for a practice exam
-const getMockExam = (examId: string): PracticeExam => {
-  return {
-    id: examId,
-    title: `Practice Exam ${examId}`,
-    description: "Test your knowledge with this comprehensive practice exam",
-    subject: "Physics",
-    topic: "Mechanics",
-    totalQuestions: 10,
-    timeAllowed: 60, // minutes
-    questions: Array.from({ length: 10 }, (_, i) => ({
-      id: `q${i + 1}`,
-      text: `Question ${i + 1}: What is the formula for calculating the force?`,
-      options: [
-        { id: "a", text: "F = ma" },
-        { id: "b", text: "F = mv" },
-        { id: "c", text: "F = mg" },
-        { id: "d", text: "F = mv²/r" },
-      ],
-      correctOptionId: "a",
-      explanation: "According to Newton's second law, force equals mass times acceleration (F = ma).",
-      difficulty: i % 3 === 0 ? "hard" : i % 2 === 0 ? "medium" : "easy"
-    }))
-  };
-};
-
-const ExamTakingPage: React.FC = () => {
+const ExamTakingPage = () => {
+  const { examId } = useParams();
   const navigate = useNavigate();
-  const { examId = '' } = useParams<{ examId: string }>();
   const { toast } = useToast();
   
-  const [exam, setExam] = useState<PracticeExam | null>(null);
-  const [loading, setLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, UserAnswer>>({});
-  const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [timeLeft, setTimeLeft] = useState(3600); // 60 minutes
   const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
-  const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
-  
+
+  console.log('ExamTakingPage - examId:', examId);
+
+  // Mock exam data
+  const mockQuestions: ExamQuestion[] = Array.from({ length: 30 }, (_, i) => ({
+    id: `q${i + 1}`,
+    text: `Sample question ${i + 1}: What is the formula for calculating kinetic energy?`,
+    options: [
+      { id: 'a', text: 'KE = ½mv²' },
+      { id: 'b', text: 'KE = mv' },
+      { id: 'c', text: 'KE = mgh' },
+      { id: 'd', text: 'KE = mv²' }
+    ],
+    correctOptionId: 'a',
+    explanation: 'Kinetic energy is calculated using the formula KE = ½mv²',
+    difficulty: i < 10 ? 'easy' : i < 20 ? 'medium' : 'hard'
+  }));
+
   useEffect(() => {
-    // In a real app, this would fetch from an API
-    setTimeout(() => {
-      const mockExam = getMockExam(examId);
-      setExam(mockExam);
-      setTimeLeft(mockExam.timeAllowed * 60); // Convert to seconds
-      setLoading(false);
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          handleSubmitExam();
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
-  }, [examId]);
-  
-  useEffect(() => {
-    if (!loading && timeLeft > 0) {
-      const timer = setTimeout(() => {
-        setTimeLeft(prevTime => prevTime - 1);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !loading) {
-      handleSubmitExam();
-    }
-  }, [timeLeft, loading]);
-  
-  const handleAnswerChange = (questionId: string, optionId: string) => {
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleAnswerSelect = (optionId: string) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: { questionId, selectedOptionId: optionId }
+      [mockQuestions[currentQuestionIndex].id]: optionId
     }));
   };
-  
-  const handleNextQuestion = () => {
-    if (exam && currentQuestionIndex < exam.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-  
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-  
-  const handleFlagQuestion = () => {
-    if (!exam) return;
+
+  const handleSubmitExam = () => {
+    const results = {
+      examId,
+      answers,
+      score: Math.floor(Math.random() * 40) + 60, // Mock score 60-100
+      completedAt: new Date().toISOString()
+    };
     
-    const questionId = exam.questions[currentQuestionIndex].id;
+    localStorage.setItem(`exam_result_${examId}`, JSON.stringify(results));
     
-    if (flaggedQuestions.includes(questionId)) {
-      setFlaggedQuestions(prev => prev.filter(id => id !== questionId));
-    } else {
-      setFlaggedQuestions(prev => [...prev, questionId]);
-    }
-  };
-  
-  const handleSubmitExam = async () => {
-    if (!exam) return;
-    
-    setIsSubmitting(true);
-    
-    // Calculate results
-    let correctAnswers = 0;
-    const userAnswers: UserAnswer[] = [];
-    
-    exam.questions.forEach(question => {
-      const answer = answers[question.id];
-      
-      const userAnswer: UserAnswer = {
-        questionId: question.id,
-        selectedOptionId: answer?.selectedOptionId || "",
-        isCorrect: answer?.selectedOptionId === question.correctOptionId
-      };
-      
-      userAnswers.push(userAnswer);
-      
-      if (userAnswer.isCorrect) {
-        correctAnswers++;
-      }
+    toast({
+      title: "Exam Submitted Successfully",
+      description: "Your answers have been recorded. Redirecting to results...",
     });
-    
-    const score = Math.round((correctAnswers / exam.questions.length) * 100);
-    
-    // Simulate API call
+
     setTimeout(() => {
-      setIsSubmitting(false);
-      
-      // Store results in localStorage to simulate a backend
-      const examResults = {
-        examId: exam.id,
-        score,
-        totalQuestions: exam.questions.length,
-        correctAnswers,
-        userAnswers,
-        completedAt: new Date().toISOString()
-      };
-      
-      localStorage.setItem(`examResult_${examId}`, JSON.stringify(examResults));
-      
-      // Navigate to review page
       navigate(`/dashboard/student/practice-exam/${examId}/review`);
-    }, 1500);
+    }, 2000);
   };
-  
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  };
-  
-  if (loading) {
-    return <LoadingScreen message="Loading exam..." />;
-  }
-  
-  if (!exam) {
-    return (
-      <SharedPageLayout
-        title="Exam Not Found"
-        subtitle="The requested exam could not be found"
-        showBackButton
-        backButtonUrl="/dashboard/student/practice-exam"
-      >
-        <div className="flex flex-col items-center justify-center py-12">
-          <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-medium mb-2">Exam Not Found</h2>
-          <p className="text-muted-foreground mb-6">
-            We couldn't find the exam you're looking for.
-          </p>
-          <Button onClick={() => navigate('/dashboard/student/practice-exam')}>
-            Return to Practice Exams
-          </Button>
-        </div>
-      </SharedPageLayout>
-    );
-  }
-  
-  const currentQuestion = exam.questions[currentQuestionIndex];
-  const isQuestionFlagged = flaggedQuestions.includes(currentQuestion.id);
+
+  const currentQuestion = mockQuestions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === mockQuestions.length - 1;
   const answeredCount = Object.keys(answers).length;
-  const questionsLeftCount = exam.totalQuestions - answeredCount;
-  
+
   return (
-    <SharedPageLayout
-      title={exam.title}
-      subtitle={`${exam.subject} - ${exam.topic}`}
-      showBackButton={false}
-    >
+    <div className="container mx-auto p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Practice Exam {examId}</h1>
+          <p className="text-gray-600">Question {currentQuestionIndex + 1} of {mockQuestions.length}</p>
+        </div>
+        <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back to Exams
+        </Button>
+      </div>
+
+      {/* Timer and Progress */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-4">
-          <div className="bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded-md px-3 py-1.5 flex items-center">
-            <Timer className="h-4 w-4 mr-2" />
-            <span className="font-medium">{formatTime(timeLeft)}</span>
-          </div>
-          <div>
-            <span className="text-sm text-muted-foreground">
-              Questions: {currentQuestionIndex + 1} of {exam.totalQuestions}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-muted-foreground">
-            Answered: {answeredCount}/{exam.totalQuestions}
+          <Badge variant="outline" className="flex items-center gap-2">
+            <Timer className="h-4 w-4" />
+            {formatTime(timeLeft)}
+          </Badge>
+          <span className="text-sm text-gray-600">
+            Answered: {answeredCount}/{mockQuestions.length}
           </span>
-          <Button variant="outline" size="sm" onClick={() => setShowConfirmSubmit(true)}>
+        </div>
+        <Button onClick={handleSubmitExam} variant="destructive">
+          Submit Exam
+        </Button>
+      </div>
+
+      <Progress value={(currentQuestionIndex + 1) / mockQuestions.length * 100} className="mb-6" />
+
+      {/* Question */}
+      <QuestionView
+        question={currentQuestion}
+        selectedOptionId={answers[currentQuestion.id]}
+        onAnswerSelect={handleAnswerSelect}
+        questionNumber={currentQuestionIndex + 1}
+        isFlagged={flaggedQuestions.includes(currentQuestion.id)}
+      />
+
+      {/* Navigation */}
+      <div className="flex justify-between mt-6">
+        <Button
+          variant="outline"
+          onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
+          disabled={currentQuestionIndex === 0}
+        >
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Previous
+        </Button>
+
+        <Button
+          variant="outline"
+          onClick={() => {
+            const questionId = currentQuestion.id;
+            setFlaggedQuestions(prev => 
+              prev.includes(questionId) 
+                ? prev.filter(id => id !== questionId)
+                : [...prev, questionId]
+            );
+          }}
+        >
+          <Flag className="h-4 w-4 mr-2" />
+          {flaggedQuestions.includes(currentQuestion.id) ? 'Unflag' : 'Flag'}
+        </Button>
+
+        {isLastQuestion ? (
+          <Button onClick={handleSubmitExam}>
             Submit Exam
           </Button>
-        </div>
-      </div>
-      
-      <Progress
-        value={(currentQuestionIndex + 1) / exam.questions.length * 100}
-        className="h-2 mb-6"
-      />
-      
-      <div className="space-y-6">
-        <QuestionView
-          question={currentQuestion}
-          selectedOptionId={answers[currentQuestion.id]?.selectedOptionId}
-          onAnswerSelect={(optionId) => handleAnswerChange(currentQuestion.id, optionId)}
-          questionNumber={currentQuestionIndex + 1}
-          isFlagged={isQuestionFlagged}
-        />
-        
-        <div className="flex justify-between items-center pt-4 border-t">
-          <Button 
-            variant="outline" 
-            onClick={handleFlagQuestion}
-            className={isQuestionFlagged ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : ''}
+        ) : (
+          <Button
+            onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
           >
-            <Flag className={`h-4 w-4 mr-2 ${isQuestionFlagged ? 'fill-yellow-500' : ''}`} />
-            {isQuestionFlagged ? 'Unflag Question' : 'Flag for Review'}
+            Next
+            <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
-          
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              onClick={handlePrevQuestion}
-              disabled={currentQuestionIndex === 0}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
-            </Button>
-            <Button 
-              onClick={handleNextQuestion}
-              disabled={currentQuestionIndex === exam.questions.length - 1}
-            >
-              Next
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
-      
-      {/* Confirmation Dialog */}
-      <Dialog open={showConfirmSubmit} onOpenChange={setShowConfirmSubmit}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Submit Exam?</DialogTitle>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <p>
-              You've answered <span className="font-medium">{answeredCount} out of {exam.totalQuestions}</span> questions.
-            </p>
-            
-            {questionsLeftCount > 0 && (
-              <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 mt-2">
-                <AlertCircle className="h-4 w-4" />
-                <p>
-                  You still have {questionsLeftCount} unanswered {questionsLeftCount === 1 ? 'question' : 'questions'}.
-                </p>
-              </div>
-            )}
-            
-            {flaggedQuestions.length > 0 && (
-              <div className="flex items-center space-x-2 text-yellow-600 dark:text-yellow-400 mt-2">
-                <Flag className="h-4 w-4" />
-                <p>
-                  You have {flaggedQuestions.length} flagged {flaggedQuestions.length === 1 ? 'question' : 'questions'}.
-                </p>
-              </div>
-            )}
-            
-            <p className="mt-4">
-              Are you sure you want to submit your exam?
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmSubmit(false)}>
-              Continue Exam
-            </Button>
-            <Button onClick={handleSubmitExam} disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Exam"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </SharedPageLayout>
+    </div>
   );
 };
 
