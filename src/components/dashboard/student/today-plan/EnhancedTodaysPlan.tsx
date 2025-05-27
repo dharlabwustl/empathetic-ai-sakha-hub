@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,14 +27,19 @@ import {
   Play,
   ChevronRight,
   TrendingUp,
-  Flame
+  Flame,
+  Award,
+  BarChart3,
+  Zap
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const EnhancedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const goalTitle = userProfile?.goals?.[0]?.title || "NEET";
+  const [activeTab, setActiveTab] = useState("concepts");
   
   const {
     loading,
@@ -50,41 +55,30 @@ const EnhancedTodaysPlan: React.FC = () => {
     day: 'numeric' 
   });
 
-  // Consolidated today's data
+  // Consolidated today's data with enhanced structure
   const todaysData = {
     overallProgress: 68,
     studyStreak: 12,
     timeSpent: 2.7,
     studyGoal: 4,
+    efficiency: 85,
     smartSuggestions: [
-      { id: 1, title: "Start with Physics concepts - your strongest subject", icon: "⚡", type: "strategy" },
-      { id: 2, title: "Take a 5-min break every 25 minutes", icon: "⏱️", type: "wellness" },
-      { id: 3, title: "Review yesterday's mistakes in Chemistry", icon: "🔄", type: "review" }
+      { id: 1, title: "Start with Physics - your strongest subject today", icon: "⚡", type: "strategy", priority: "high" },
+      { id: 2, title: "Take a 5-min break every 25 minutes", icon: "⏱️", type: "wellness", priority: "medium" },
+      { id: 3, title: "Review yesterday's Chemistry mistakes", icon: "🔄", type: "review", priority: "high" }
     ],
-    subjects: [
-      { 
-        name: 'Physics', 
-        progress: 75, 
-        tasks: [
-          { id: 1, title: "Thermodynamics - Heat Transfer", type: "concept", difficulty: "Medium", duration: 30, priority: "High", completed: false },
-          { id: 2, title: "Newton's Laws Practice", type: "practice", difficulty: "Medium", duration: 25, priority: "Medium", completed: true }
-        ]
-      },
-      { 
-        name: 'Chemistry', 
-        progress: 45, 
-        tasks: [
-          { id: 3, title: "Organic Chemistry Reactions", type: "concept", difficulty: "Hard", duration: 35, priority: "High", completed: false },
-          { id: 4, title: "Periodic Table Quiz", type: "quiz", difficulty: "Easy", duration: 15, priority: "Medium", completed: false }
-        ]
-      },
-      { 
-        name: 'Biology', 
-        progress: 80, 
-        tasks: [
-          { id: 5, title: "Cell Biology Flashcards", type: "flashcard", difficulty: "Easy", duration: 20, priority: "Low", completed: false }
-        ]
-      }
+    concepts: [
+      { id: 1, title: "Thermodynamics - Heat Transfer", subject: "Physics", difficulty: "Medium", duration: 30, priority: "High", completed: false, progress: 0 },
+      { id: 2, title: "Organic Chemistry Reactions", subject: "Chemistry", difficulty: "Hard", duration: 35, priority: "High", completed: false, progress: 15 },
+      { id: 3, title: "Cell Biology Structure", subject: "Biology", difficulty: "Easy", duration: 20, priority: "Medium", completed: true, progress: 100 }
+    ],
+    flashcards: [
+      { id: 1, title: "Physics Formulas Set A", cardCount: 25, difficulty: "Medium", duration: 15, completed: false, progress: 60 },
+      { id: 2, title: "Chemical Bonds Review", cardCount: 18, difficulty: "Easy", duration: 12, completed: false, progress: 30 }
+    ],
+    practiceExams: [
+      { id: 1, title: "NEET Physics Mock Test", questionCount: 45, difficulty: "Hard", duration: 60, completed: false, progress: 0 },
+      { id: 2, title: "Chemistry Quick Quiz", questionCount: 20, difficulty: "Medium", duration: 25, completed: false, progress: 0 }
     ]
   };
   
@@ -136,6 +130,89 @@ const EnhancedTodaysPlan: React.FC = () => {
     }
   };
 
+  const renderTaskCard = (task: any, type: string) => (
+    <motion.div
+      key={task.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all ${
+        task.completed ? 'bg-green-50 border-green-200' : 'hover:shadow-md'
+      }`}
+      onClick={() => handleTaskClick(task.id, type)}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-full ${
+            task.completed ? 'bg-green-100 text-green-600' : 
+            type === 'concept' ? 'bg-blue-100 text-blue-600' :
+            type === 'flashcard' ? 'bg-purple-100 text-purple-600' :
+            'bg-orange-100 text-orange-600'
+          }`}>
+            {task.completed ? (
+              <CheckCircle className="h-4 w-4" />
+            ) : (
+              getTaskIcon(type)
+            )}
+          </div>
+          <div>
+            <h4 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
+              {task.title}
+            </h4>
+            {task.subject && (
+              <p className="text-sm text-gray-500">{task.subject}</p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {task.priority && (
+            <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)}`}>
+              {task.priority}
+            </Badge>
+          )}
+          {!task.completed && (
+            <Button size="sm" variant="outline" className="gap-1">
+              <Play className="h-3 w-3" />
+              Start
+            </Button>
+          )}
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        {task.progress !== undefined && (
+          <div>
+            <div className="flex justify-between text-xs text-gray-500 mb-1">
+              <span>Progress</span>
+              <span>{task.progress}%</span>
+            </div>
+            <Progress value={task.progress} className="h-1" />
+          </div>
+        )}
+        
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span>{task.duration} min</span>
+            </div>
+            {task.difficulty && (
+              <Badge variant="outline" className="text-xs">
+                {task.difficulty}
+              </Badge>
+            )}
+            {task.cardCount && (
+              <span>{task.cardCount} cards</span>
+            )}
+            {task.questionCount && (
+              <span>{task.questionCount} questions</span>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
   return (
     <SharedPageLayout
       title=""
@@ -163,7 +240,7 @@ const EnhancedTodaysPlan: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Daily Smart Suggestions - Moved below header */}
+        {/* Smart Suggestions - Moved below header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -177,13 +254,16 @@ const EnhancedTodaysPlan: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="grid gap-3">
                 {todaysData.smartSuggestions.map((suggestion) => (
                   <div key={suggestion.id} className="flex items-center gap-3 p-3 bg-white/70 rounded-lg">
                     <span className="text-lg">{suggestion.icon}</span>
                     <span className="font-medium text-amber-900 flex-1">{suggestion.title}</span>
-                    <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 text-xs">
-                      {suggestion.type}
+                    <Badge variant="outline" className={`text-xs ${
+                      suggestion.priority === 'high' ? 'bg-red-100 text-red-700 border-red-300' :
+                      'bg-amber-100 text-amber-700 border-amber-300'
+                    }`}>
+                      {suggestion.priority}
                     </Badge>
                   </div>
                 ))}
@@ -192,120 +272,137 @@ const EnhancedTodaysPlan: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Progress Stats */}
+        {/* Progress Stats Cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{todaysData.overallProgress}%</div>
-                <div className="text-sm text-blue-700">Progress</div>
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">{todaysData.overallProgress}%</div>
+                  <div className="text-xs text-blue-700">Progress</div>
+                </div>
               </div>
             </Card>
             <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{todaysData.timeSpent}h</div>
-                <div className="text-sm text-green-700">Studied</div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-green-600" />
+                <div>
+                  <div className="text-2xl font-bold text-green-600">{todaysData.timeSpent}h</div>
+                  <div className="text-xs text-green-700">Studied</div>
+                </div>
               </div>
             </Card>
             <Card className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{todaysData.studyGoal}h</div>
-                <div className="text-sm text-purple-700">Goal</div>
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-purple-600" />
+                <div>
+                  <div className="text-2xl font-bold text-purple-600">{todaysData.studyGoal}h</div>
+                  <div className="text-xs text-purple-700">Goal</div>
+                </div>
               </div>
             </Card>
             <Card className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <Flame className="h-5 w-5 text-orange-600" />
+              <div className="flex items-center gap-2">
+                <Flame className="h-5 w-5 text-orange-600" />
+                <div>
                   <div className="text-2xl font-bold text-orange-600">{todaysData.studyStreak}</div>
+                  <div className="text-xs text-orange-700">Day Streak</div>
                 </div>
-                <div className="text-sm text-orange-700">Day Streak</div>
+              </div>
+            </Card>
+            <Card className="p-4 bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-teal-600" />
+                <div>
+                  <div className="text-2xl font-bold text-teal-600">{todaysData.efficiency}%</div>
+                  <div className="text-xs text-teal-700">Efficiency</div>
+                </div>
               </div>
             </Card>
           </div>
         </motion.div>
 
-        {/* Subject Tasks */}
+        {/* Modern Tabbed Interface */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="space-y-4"
         >
-          {todaysData.subjects.map((subject, index) => (
-            <Card key={subject.name} className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg">{subject.name}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <div className="text-sm text-gray-600">{subject.progress}% complete</div>
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                  </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="concepts" className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Concepts ({todaysData.concepts.length})
+              </TabsTrigger>
+              <TabsTrigger value="flashcards" className="flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                Flashcards ({todaysData.flashcards.length})
+              </TabsTrigger>
+              <TabsTrigger value="practice" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Practice ({todaysData.practiceExams.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="concepts" className="space-y-4">
+              <div className="grid gap-4">
+                {todaysData.concepts.map((concept) => renderTaskCard(concept, 'concept'))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="flashcards" className="space-y-4">
+              <div className="grid gap-4">
+                {todaysData.flashcards.map((flashcard) => renderTaskCard(flashcard, 'flashcard'))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="practice" className="space-y-4">
+              <div className="grid gap-4">
+                {todaysData.practiceExams.map((exam) => renderTaskCard(exam, 'practice'))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+
+        {/* Time Allocation Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-indigo-600" />
+                Time Allocation Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">1.5h</div>
+                  <div className="text-sm text-gray-600">Concepts</div>
                 </div>
-                <Progress value={subject.progress} className="h-2" />
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="space-y-0">
-                  {subject.tasks.map((task, taskIndex) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: taskIndex * 0.1 }}
-                      className={`p-4 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        task.completed ? 'bg-green-50' : ''
-                      }`}
-                      onClick={() => handleTaskClick(task.id, task.type)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full ${
-                            task.completed ? 'bg-green-100' : 'bg-blue-100'
-                          }`}>
-                            {task.completed ? (
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                            ) : (
-                              getTaskIcon(task.type)
-                            )}
-                          </div>
-                          <div>
-                            <h4 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
-                              {task.title}
-                            </h4>
-                            <div className="flex items-center gap-3 text-sm text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                <span>{task.duration} min</span>
-                              </div>
-                              <Badge variant="outline" className="text-xs">
-                                {task.difficulty}
-                              </Badge>
-                              <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)}`}>
-                                {task.priority}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {!task.completed && (
-                            <Button size="sm" variant="outline" className="gap-1">
-                              <Play className="h-3 w-3" />
-                              Start
-                            </Button>
-                          )}
-                          <ChevronRight className="h-4 w-4 text-gray-400" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                <div>
+                  <div className="text-2xl font-bold text-purple-600">0.5h</div>
+                  <div className="text-sm text-gray-600">Flashcards</div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <div>
+                  <div className="text-2xl font-bold text-orange-600">1.5h</div>
+                  <div className="text-sm text-gray-600">Practice</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-600">0.5h</div>
+                  <div className="text-sm text-gray-600">Breaks</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
       

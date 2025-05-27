@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Volume2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,100 +18,135 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
 }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognition, setRecognition] = useState<any>(null);
+  const [isSupported, setIsSupported] = useState(false);
   const { toast } = useToast();
+  const recognitionRef = useRef<any>(null);
 
   // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const speechRecognition = new (window as any).webkitSpeechRecognition();
-      speechRecognition.continuous = false;
-      speechRecognition.interimResults = true;
-      speechRecognition.lang = 'en-US';
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      
+      if (SpeechRecognition) {
+        setIsSupported(true);
+        const speechRecognition = new SpeechRecognition();
+        speechRecognition.continuous = false;
+        speechRecognition.interimResults = true;
+        speechRecognition.lang = 'en-US';
 
-      speechRecognition.onstart = () => {
-        setIsListening(true);
-        console.log('Speech recognition started');
-      };
+        speechRecognition.onstart = () => {
+          setIsListening(true);
+          console.log('Speech recognition started');
+        };
 
-      speechRecognition.onresult = (event: any) => {
-        const current = event.resultIndex;
-        const transcriptText = event.results[current][0].transcript;
-        setTranscript(transcriptText);
-        
-        if (event.results[current].isFinal) {
-          console.log('Final transcript:', transcriptText);
-          onCommand?.(transcriptText);
-          processCommand(transcriptText);
-        }
-      };
+        speechRecognition.onresult = (event: any) => {
+          try {
+            const current = event.resultIndex;
+            const transcriptText = event.results[current][0].transcript;
+            setTranscript(transcriptText);
+            
+            if (event.results[current].isFinal) {
+              console.log('Final transcript:', transcriptText);
+              onCommand?.(transcriptText);
+              processCommand(transcriptText);
+              setTranscript('');
+            }
+          } catch (error) {
+            console.error('Error processing speech result:', error);
+          }
+        };
 
-      speechRecognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        toast({
-          title: "Speech Recognition Error",
-          description: "Please try again",
-          variant: "destructive"
-        });
-      };
+        speechRecognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+          setTranscript('');
+          
+          if (event.error !== 'aborted') {
+            toast({
+              title: "Speech Recognition Error",
+              description: "Please try again or check your microphone permissions",
+              variant: "destructive"
+            });
+          }
+        };
 
-      speechRecognition.onend = () => {
-        setIsListening(false);
-        console.log('Speech recognition ended');
-      };
+        speechRecognition.onend = () => {
+          setIsListening(false);
+          setTranscript('');
+          console.log('Speech recognition ended');
+        };
 
-      setRecognition(speechRecognition);
+        setRecognition(speechRecognition);
+        recognitionRef.current = speechRecognition;
+      } else {
+        setIsSupported(false);
+        console.warn('Speech recognition not supported in this browser');
+      }
     }
+
+    return () => {
+      if (recognitionRef.current && isListening) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error('Error stopping speech recognition:', error);
+        }
+      }
+    };
   }, []);
 
   const processCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     
-    // Basic navigation commands
-    if (lowerCommand.includes('go to') || lowerCommand.includes('open') || lowerCommand.includes('show')) {
-      if (lowerCommand.includes('dashboard')) {
-        window.location.href = '/dashboard/student';
-        return;
+    try {
+      // Basic navigation commands
+      if (lowerCommand.includes('go to') || lowerCommand.includes('open') || lowerCommand.includes('show')) {
+        if (lowerCommand.includes('dashboard')) {
+          window.location.href = '/dashboard/student';
+          return;
+        }
+        if (lowerCommand.includes('concepts')) {
+          window.location.href = '/dashboard/student/concepts';
+          return;
+        }
+        if (lowerCommand.includes('flashcards')) {
+          window.location.href = '/dashboard/student/flashcards';
+          return;
+        }
+        if (lowerCommand.includes('practice') || lowerCommand.includes('exam')) {
+          window.location.href = '/dashboard/student/practice-exam';
+          return;
+        }
+        if (lowerCommand.includes('home')) {
+          window.location.href = '/';
+          return;
+        }
       }
-      if (lowerCommand.includes('concepts')) {
-        window.location.href = '/dashboard/student/concepts';
-        return;
-      }
-      if (lowerCommand.includes('flashcards')) {
-        window.location.href = '/dashboard/student/flashcards';
-        return;
-      }
-      if (lowerCommand.includes('practice') || lowerCommand.includes('exam')) {
-        window.location.href = '/dashboard/student/practice-exam';
-        return;
-      }
-      if (lowerCommand.includes('home')) {
-        window.location.href = '/';
-        return;
-      }
-    }
 
-    // Exam-specific commands
-    if (lowerCommand.includes('neet') && lowerCommand.includes('prep')) {
-      window.location.href = '/signup?exam=neet';
-      return;
-    }
+      // Exam-specific commands
+      if (lowerCommand.includes('neet') && lowerCommand.includes('prep')) {
+        window.location.href = '/signup?exam=neet';
+        return;
+      }
 
-    if (lowerCommand.includes('start trial') || lowerCommand.includes('sign up')) {
-      window.location.href = '/signup';
-      return;
-    }
+      if (lowerCommand.includes('start trial') || lowerCommand.includes('sign up')) {
+        window.location.href = '/signup';
+        return;
+      }
 
-    // Provide feedback for unrecognized commands
-    toast({
-      title: "Command Processed",
-      description: `You said: "${command}". Try commands like "go to dashboard" or "open concepts"`,
-    });
+      // Provide feedback for unrecognized commands
+      toast({
+        title: "Command Processed",
+        description: `You said: "${command}". Try commands like "go to dashboard" or "open concepts"`,
+      });
+    } catch (error) {
+      console.error('Error processing command:', error);
+    }
   };
 
-  const toggleListening = () => {
-    if (!recognition) {
+  const toggleListening = async () => {
+    if (!isSupported) {
       toast({
         title: "Speech Recognition Not Supported",
         description: "Your browser doesn't support speech recognition",
@@ -120,18 +155,51 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
       return;
     }
 
-    if (isListening) {
-      recognition.stop();
-      setTranscript('');
-    } else {
-      recognition.start();
-      setTranscript('');
+    if (!recognition) {
+      toast({
+        title: "Speech Recognition Not Available",
+        description: "Please refresh the page and try again",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      if (isListening) {
+        recognition.stop();
+        setTranscript('');
+      } else {
+        // Request microphone permission first
+        try {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+          recognition.start();
+          setTranscript('');
+        } catch (permissionError) {
+          toast({
+            title: "Microphone Permission Required",
+            description: "Please allow microphone access to use voice commands",
+            variant: "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling speech recognition:', error);
+      setIsListening(false);
+      toast({
+        title: "Speech Recognition Error",
+        description: "Please try again",
+        variant: "destructive"
+      });
     }
   };
 
+  if (!isSupported) {
+    return null; // Don't render if not supported
+  }
+
   const positionStyles = position === 'homepage' 
-    ? 'fixed bottom-24 left-6 z-40' 
-    : 'fixed bottom-6 left-6 z-40';
+    ? 'fixed bottom-32 left-6 z-50' 
+    : 'fixed bottom-32 left-6 z-50';
 
   return (
     <div className={`${positionStyles} ${className}`}>

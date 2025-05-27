@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +17,8 @@ import { SharedPageLayout } from "../SharedPageLayout";
 import CreateExamCardDialog, { ExamCardFormData } from "./CreateExamCardDialog";
 import PurchaseCreditsDialog from "./PurchaseCreditsDialog";
 import { SubscriptionType } from "@/types/user/base";
+import { Helmet } from "react-helmet";
+import OverviewSection from "./OverviewSection";
 
 // Mock exam data
 const mockExams = [
@@ -182,7 +183,15 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
   );
 };
 
-const PracticeExamsSection = () => {
+interface PracticeExamsSectionProps {
+  userProfile: any;
+  onNavigate: (path: string) => void;
+}
+
+const PracticeExamsSection: React.FC<PracticeExamsSectionProps> = ({
+  userProfile,
+  onNavigate
+}) => {
   const [activeTab, setActiveTab] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(false);
@@ -281,12 +290,36 @@ const PracticeExamsSection = () => {
   
   const filteredExams = filterExams(activeTab);
   
+  const overviewData = {
+    type: "Practice Exams" as const,
+    title: "NEET Practice Exams Overview", 
+    subjects: [
+      { name: "Physics", completed: 8, total: 12, progress: 67, efficiency: 82, studyTime: 240 },
+      { name: "Chemistry", completed: 6, total: 12, progress: 50, efficiency: 75, studyTime: 180 },
+      { name: "Biology", completed: 10, total: 12, progress: 83, efficiency: 88, studyTime: 300 }
+    ],
+    totalStudyTime: 720,
+    overallProgress: 67,
+    suggestions: [
+      "Chemistry practice scores improving - focus on organic reactions",
+      "Physics problem-solving speed needs work - try timed sections",
+      "Biology accuracy is excellent - maintain current approach"
+    ]
+  };
+
   return (
-    <SharedPageLayout
-      title="Practice Exams"
-      subtitle="Test your knowledge and track your progress"
-    >
-      <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-green-50/50 via-white to-blue-50/50 dark:from-green-900/10 dark:via-gray-900 dark:to-blue-900/10">
+      <Helmet>
+        <title>Practice Exams - PREPZR</title>
+        <meta name="description" content="NEET practice exams and mock tests" />
+      </Helmet>
+
+      {/* Overview Section */}
+      <div className="p-6">
+        <OverviewSection {...overviewData} />
+      </div>
+
+      <div className="container mx-auto px-4 py-6 space-y-8">
         <div className="flex flex-wrap justify-between items-center">
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-auto">
             <TabsList>
@@ -476,7 +509,7 @@ const PracticeExamsSection = () => {
         onOpenChange={setShowPurchaseCreditsDialog}
         onPurchaseComplete={handlePurchaseComplete}
       />
-    </SharedPageLayout>
+    </div>
   );
 };
 

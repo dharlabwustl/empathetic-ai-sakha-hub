@@ -1,352 +1,308 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
-  Search, 
-  Filter, 
+  Book, 
   BookOpen, 
-  TrendingUp, 
-  Target, 
-  Clock, 
-  Brain,
-  FlaskConical,
+  Search, 
+  Plus, 
+  Filter, 
   Lightbulb,
-  Star,
-  ChevronRight,
-  Eye,
-  Video,
-  Calculator,
-  AlertTriangle
+  Clock,
+  Target,
+  TrendingUp
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import BackButton from '../BackButton';
-import ConceptCard from '../ConceptCard';
-import FormulaTabContent from './FormulaTabContent';
-import OverviewSection from '../OverviewSection';
-import FloatingVoiceButton from '@/components/voice/FloatingVoiceButton';
+import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
-// Mock data for concepts
-const mockConcepts = [
-  {
-    id: 'ohms-law',
-    title: "Ohm's Law",
-    description: 'Understanding the relationship between voltage, current, and resistance in electrical circuits.',
-    subject: 'Physics',
-    difficulty: 'medium' as const,
-    progress: 75,
-    completed: false,
-    relatedConcepts: ['Electrical Circuits', 'Power Calculations']
-  },
-  {
-    id: 'newtons-laws',
-    title: "Newton's Laws of Motion",
-    description: 'The three fundamental laws that form the foundation of classical mechanics.',
-    subject: 'Physics',
-    difficulty: 'hard' as const,
-    progress: 45,
-    completed: false,
-    relatedConcepts: ['Force', 'Acceleration', 'Momentum']
-  },
-  {
-    id: 'photosynthesis',
-    title: 'Photosynthesis',
-    description: 'The process by which plants convert light energy into chemical energy.',
-    subject: 'Biology',
-    difficulty: 'easy' as const,
-    progress: 90,
-    completed: true,
-    relatedConcepts: ['Cellular Respiration', 'Plant Biology']
-  }
-];
-
-interface EnhancedConceptLandingPageProps {
-  onNavigateToDetail?: (conceptId: string) => void;
+interface Concept {
+  id: string;
+  title: string;
+  subject: string;
+  topic: string;
+  description: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  estimatedTime: number;
+  lastStudied: string;
 }
 
-const EnhancedConceptLandingPage: React.FC<EnhancedConceptLandingPageProps> = ({ 
-  onNavigateToDetail 
-}) => {
-  const navigate = useNavigate();
+const EnhancedConceptLandingPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('All');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-  const [filteredConcepts, setFilteredConcepts] = useState(mockConcepts);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const navigate = useNavigate();
 
-  const subjects = ['All', 'Physics', 'Chemistry', 'Biology', 'Mathematics'];
-  const difficulties = ['All', 'easy', 'medium', 'hard'];
-
-  // Mock overview data
   const overviewData = {
+    type: "Concepts" as const,
+    title: "NEET Concepts Overview",
     subjects: [
-      { name: 'Physics', completed: 8, total: 15, progress: 53, efficiency: 78, studyTime: 240 },
-      { name: 'Chemistry', completed: 5, total: 12, progress: 42, efficiency: 65, studyTime: 180 },
-      { name: 'Biology', completed: 12, total: 18, progress: 67, efficiency: 85, studyTime: 320 },
-      { name: 'Mathematics', completed: 10, total: 14, progress: 71, efficiency: 82, studyTime: 280 }
+      { name: "Physics", completed: 45, total: 60, progress: 75, efficiency: 88, studyTime: 180 },
+      { name: "Chemistry", completed: 32, total: 55, progress: 58, efficiency: 72, studyTime: 150 },
+      { name: "Biology", completed: 55, total: 65, progress: 85, efficiency: 92, studyTime: 200 }
     ],
-    totalStudyTime: 1020,
-    overallProgress: 58,
+    totalStudyTime: 530,
+    overallProgress: 73,
     suggestions: [
-      'Focus on Chemical Bonding - your weakest area in Chemistry',
-      'Practice more Physics numerical problems to improve speed',
-      'Review Thermodynamics concepts before tomorrow\'s test',
-      'Excellent progress in Biology! Keep up the momentum'
+      "Focus on Organic Chemistry - showing improvement trend",
+      "Physics mechanics concepts need review",
+      "Biology cell structure mastery is excellent - maintain pace"
     ]
   };
 
-  useEffect(() => {
-    let filtered = mockConcepts;
-
-    if (searchTerm) {
-      filtered = filtered.filter(concept =>
-        concept.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        concept.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const conceptCategories = [
+    {
+      id: 1,
+      title: "Mechanics",
+      subject: "Physics",
+      description: "Fundamental laws of motion, gravitation, and energy",
+      conceptCount: 28,
+      icon: <BookOpen className="h-5 w-5 text-blue-500" />
+    },
+    {
+      id: 2,
+      title: "Organic Chemistry",
+      subject: "Chemistry",
+      description: "Reactions, mechanisms, and properties of organic compounds",
+      conceptCount: 35,
+      icon: <BookOpen className="h-5 w-5 text-red-500" />
+    },
+    {
+      id: 3,
+      title: "Cell Biology",
+      subject: "Biology",
+      description: "Structure, function, and life cycle of cells",
+      conceptCount: 42,
+      icon: <BookOpen className="h-5 w-5 text-green-500" />
     }
+  ];
 
-    if (selectedSubject !== 'All') {
-      filtered = filtered.filter(concept => concept.subject === selectedSubject);
+  const concepts: Concept[] = [
+    {
+      id: "concept-1",
+      title: "Newton's Laws of Motion",
+      subject: "Physics",
+      topic: "Mechanics",
+      description: "Understand the three laws governing motion and their applications",
+      difficulty: "Medium",
+      estimatedTime: 45,
+      lastStudied: "2 days ago"
+    },
+    {
+      id: "concept-2",
+      title: "Chemical Bonding",
+      subject: "Chemistry",
+      topic: "Inorganic Chemistry",
+      description: "Explore ionic, covalent, and metallic bonds",
+      difficulty: "Easy",
+      estimatedTime: 30,
+      lastStudied: "1 week ago"
+    },
+    {
+      id: "concept-3",
+      title: "Cell Structure and Function",
+      subject: "Biology",
+      topic: "Cell Biology",
+      description: "Learn about organelles and their roles",
+      difficulty: "Medium",
+      estimatedTime: 60,
+      lastStudied: "Today"
     }
+  ];
 
-    if (selectedDifficulty !== 'All') {
-      filtered = filtered.filter(concept => concept.difficulty === selectedDifficulty);
-    }
+  const subjects = ['all', 'Physics', 'Chemistry', 'Biology'];
 
-    setFilteredConcepts(filtered);
-  }, [searchTerm, selectedSubject, selectedDifficulty]);
+  const filteredConcepts = concepts.filter(concept => {
+    const matchesSearch = concept.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          concept.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSubject = selectedSubject === 'all' || concept.subject === selectedSubject;
+    return matchesSearch && matchesSubject;
+  });
 
-  const handleConceptClick = (conceptId: string) => {
-    if (onNavigateToDetail) {
-      onNavigateToDetail(conceptId);
-    } else {
-      navigate(`/dashboard/student/concepts/${conceptId}`);
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-700 border-green-200';
+      case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'Hard': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
-  const totalConcepts = mockConcepts.length;
-  const completedConcepts = mockConcepts.filter(c => c.completed).length;
-  const averageProgress = mockConcepts.reduce((acc, c) => acc + c.progress, 0) / totalConcepts;
-
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <BackButton to="/dashboard/student" />
-      
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4"
-      >
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          Concept Cards Library
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Master key concepts with AI-powered learning cards. Each card adapts to your learning style and tracks your progress.
-        </p>
-      </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-blue-900/10 dark:via-gray-900 dark:to-purple-900/10">
+      <Helmet>
+        <title>Enhanced Concepts - PREPZR</title>
+        <meta name="description" content="Interactive concept learning with AI-powered explanations" />
+      </Helmet>
 
       {/* Overview Section */}
-      <OverviewSection 
-        title="Concepts Overview"
-        subjects={overviewData.subjects}
-        totalStudyTime={overviewData.totalStudyTime}
-        overallProgress={overviewData.overallProgress}
-        suggestions={overviewData.suggestions}
-      />
+      <div className="p-6">
+        <OverviewSection {...overviewData} />
+      </div>
 
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="learn">Learn</TabsTrigger>
-          <TabsTrigger value="visual">Visual</TabsTrigger>
-          <TabsTrigger value="formula">Formula</TabsTrigger>
-          <TabsTrigger value="practice">Practice</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="mt-6">
-          {/* Search and Filters */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
-                Find Concepts
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Search concepts..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <select
-                    value={selectedSubject}
-                    onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="px-3 py-2 border rounded-md"
-                  >
-                    {subjects.map(subject => (
-                      <option key={subject} value={subject}>{subject}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={selectedDifficulty}
-                    onChange={(e) => setSelectedDifficulty(e.target.value)}
-                    className="px-3 py-2 border rounded-md"
-                  >
-                    {difficulties.map(difficulty => (
-                      <option key={difficulty} value={difficulty}>
-                        {difficulty === 'All' ? 'All Levels' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Concept Grid */}
-          <AnimatePresence>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredConcepts.map((concept, index) => (
-                <motion.div
-                  key={concept.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <ConceptCard
-                    {...concept}
-                    onView={() => handleConceptClick(concept.id)}
-                  />
-                </motion.div>
-              ))}
+      {/* Rest of existing content */}
+      <div className="container mx-auto px-4 py-6 space-y-8">
+        {/* Hero Section */}
+        <motion.div 
+          className="text-center space-y-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
+              <Book className="h-8 w-8 text-white" />
             </div>
-          </AnimatePresence>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Explore Key Concepts
+            </h1>
+          </div>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Dive deep into essential topics with interactive explanations and examples
+          </p>
+        </motion.div>
 
-          {filteredConcepts.length === 0 && (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <p className="text-gray-500 dark:text-gray-400">No concepts found matching your criteria.</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-col sm:flex-row gap-4 items-center"
+        >
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input 
+              placeholder="Search concepts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            {subjects.map((subject) => (
+              <Button
+                key={subject}
+                variant={selectedSubject === subject ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedSubject(subject)}
+                className="capitalize"
+              >
+                {subject}
+              </Button>
+            ))}
+          </div>
+          
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Concept
+          </Button>
+        </motion.div>
 
-        <TabsContent value="learn" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-blue-600" />
-                Text-Based Learning
-              </CardTitle>
-              <CardDescription>
-                Comprehensive explanations and theory
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p>Dive deep into theoretical foundations with our adaptive text content.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">Beginner Level</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Start with basic concepts and fundamental principles</p>
+        {/* Concept Categories */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {conceptCategories.map((category, index) => (
+            <motion.div
+              key={category.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg font-semibold line-clamp-2">
+                        {category.title}
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">{category.description}</p>
+                    </div>
+                    {category.icon}
                   </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">Advanced Level</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Explore complex applications and edge cases</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">{category.conceptCount} concepts</p>
+                  <Button className="w-full mt-4" size="sm">
+                    Explore
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
 
-        <TabsContent value="visual" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-green-600" />
-                Visual Learning
-              </CardTitle>
-              <CardDescription>
-                Diagrams, charts, and visual representations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p>Learn through interactive diagrams and visual representations.</p>
-                <div className="bg-slate-100 dark:bg-slate-900 rounded-lg aspect-video flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <p className="text-slate-500 dark:text-slate-400">Interactive visual content would be displayed here</p>
+        {/* Concepts List */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {filteredConcepts.map((concept, index) => (
+            <motion.div
+              key={concept.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <Card className="h-full hover:shadow-lg transition-all duration-300 border-l-4 border-l-green-500">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg font-semibold line-clamp-2">
+                        {concept.title}
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">{concept.topic}</p>
+                    </div>
+                    <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+                      {concept.difficulty}
+                    </Badge>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-gray-600 line-clamp-3">{concept.description}</p>
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Clock className="h-3 w-3" />
+                      <span>{concept.estimatedTime} min</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Lightbulb className="h-3 w-3" />
+                      <span>Last: {concept.lastStudied}</span>
+                    </div>
+                  </div>
+                  <Button className="w-full" size="sm">
+                    Start Learning
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
 
-        <TabsContent value="formula" className="mt-6">
-          <FormulaTabContent 
-            formula="V = I × R"
-            variables={[
-              { symbol: 'V', name: 'Voltage', unit: 'Volts (V)' },
-              { symbol: 'I', name: 'Current', unit: 'Amperes (A)' },
-              { symbol: 'R', name: 'Resistance', unit: 'Ohms (Ω)' }
-            ]}
-          />
-        </TabsContent>
-
-        <TabsContent value="practice" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-purple-600" />
-                Practice & Assessment
-              </CardTitle>
-              <CardDescription>
-                Test your knowledge with interactive exercises
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p>Reinforce learning with practice questions and quizzes.</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 border rounded-lg text-center">
-                    <div className="text-2xl font-bold text-blue-600">25</div>
-                    <p className="text-sm">Practice Questions</p>
-                  </div>
-                  <div className="p-4 border rounded-lg text-center">
-                    <div className="text-2xl font-bold text-green-600">12</div>
-                    <p className="text-sm">Completed Quizzes</p>
-                  </div>
-                  <div className="p-4 border rounded-lg text-center">
-                    <div className="text-2xl font-bold text-purple-600">87%</div>
-                    <p className="text-sm">Average Score</p>
-                  </div>
-                </div>
-                <Button className="w-full">Start Practice Session</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Voice Assistant */}
-      <FloatingVoiceButton 
-        userName="Student"
-        language="en-US"
-      />
+        {filteredConcepts.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Book className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No concepts found</h3>
+            <p className="text-gray-500 mb-4">Try adjusting your search terms or filters</p>
+            <Button>
+              Add Your First Concept
+            </Button>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 };

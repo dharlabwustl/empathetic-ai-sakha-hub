@@ -210,7 +210,7 @@ const DashboardLayout = ({
       <SpeechRecognitionButton
         position="dashboard"
         onCommand={handleSpeechCommand}
-        className="fixed bottom-32 left-6 z-50"
+        className="fixed bottom-24 left-6 z-50"
       />
       
       {showStudyPlan && (
