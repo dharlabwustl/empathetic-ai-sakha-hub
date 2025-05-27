@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Volume2, VolumeX, Settings } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, MessageSquare, Keyboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 interface InteractiveVoiceAssistantProps {
   userName?: string;
@@ -19,38 +20,45 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   onNavigationCommand,
   position = 'bottom-right',
   className = '',
-  assistantName = 'Prep-Zer AI'
+  assistantName = 'PREPZR AI'
 }) => {
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
+  const [textInput, setTextInput] = useState('');
+  const [conversationHistory, setConversationHistory] = useState<Array<{type: 'user' | 'assistant', message: string}>>([]);
   const recognitionRef = useRef<any>(null);
   const hasGreetedRef = useRef(false);
 
   useEffect(() => {
-    // Initial greeting when component mounts (smarter context-aware greeting)
+    // Enhanced context-aware greeting
     if (!hasGreetedRef.current && !isMuted) {
       setTimeout(() => {
         const currentPage = window.location.pathname;
         let contextualGreeting = '';
         
-        if (currentPage.includes('/dashboard/student')) {
+        if (currentPage === '/') {
+          contextualGreeting = `Welcome to PREPZR, India's first AI-powered exam preparation platform! I'm PREPZR AI, your intelligent study companion. I can help you explore our revolutionary features, start your free trial, understand our scholarship opportunities, or guide you through signup. Our platform adapts to your learning style and emotional state to maximize your exam success. What aspect of PREPZR would you like to discover?`;
+        } else if (currentPage.includes('/dashboard/student')) {
           if (currentPage.includes('/concepts')) {
-            contextualGreeting = `I see you're on the concepts page! I can help you navigate through different subjects, find specific topics, or guide you to practice materials. What would you like to explore in your NEET preparation today?`;
+            contextualGreeting = `Welcome to your personalized Concepts section, ${userName}! I can help you navigate through different subjects, find specific topics based on your progress, suggest concepts that need attention, or guide you to complementary study materials. Your AI-curated content adapts to your learning pace. What concept area would you like to explore today?`;
           } else if (currentPage.includes('/practice-exam')) {
-            contextualGreeting = `You're on the practice exams section! I can help you start mock tests, review your performance, or suggest exam strategies based on your preparation level. Ready to test your knowledge?`;
+            contextualGreeting = `You're in your Practice Exams section, ${userName}! I can help you select exams based on your readiness level, explain detailed analytics from previous attempts, suggest optimal test-taking strategies, or guide you to subject-specific mock tests. Ready to challenge yourself and track your improvement?`;
           } else if (currentPage.includes('/flashcards')) {
-            contextualGreeting = `Welcome to the flashcards section! I can help you find subject-specific cards, track your revision progress, or suggest optimal study schedules. Let's make your revision more effective!`;
+            contextualGreeting = `Welcome to your intelligent Flashcards section, ${userName}! I can help you find subject-specific card decks, explain spaced repetition scheduling, track your revision progress, or suggest cards that need immediate attention. Your flashcard system adapts to your memory patterns for maximum retention efficiency.`;
+          } else if (currentPage.includes('/formula-lab')) {
+            contextualGreeting = `You're in the interactive Formula Lab, ${userName}! I can help you practice specific formulas, understand derivations, find formulas by topic or difficulty, or guide you through applications with real-world examples. Let's master those essential equations together!`;
           } else {
-            contextualGreeting = `Welcome to your dashboard! I can see your study progress, help you navigate to different sections, provide personalized study recommendations, and answer questions about your NEET preparation journey.`;
+            contextualGreeting = `Welcome back to your PREPZR dashboard, ${userName}! I can see your complete study progress, help you navigate to any section, provide personalized study recommendations based on your performance patterns, explain your analytics, or suggest optimal next actions. I'm here to optimize your entire learning journey.`;
           }
         } else {
-          contextualGreeting = `Hello ${userName}! I'm Prep-Zer AI, your intelligent learning companion specialized for NEET preparation. I can help you navigate through study materials, provide exam strategies, track your progress, and offer personalized guidance.`;
+          contextualGreeting = `Hello ${userName}! I'm PREPZR AI, your intelligent study companion specialized for exam preparation. I understand your current context and can provide targeted guidance, navigation assistance, study recommendations, and detailed explanations about any PREPZR feature.`;
         }
         
-        const greeting = `${contextualGreeting} How can I assist you today?`;
-        speakMessage(greeting);
+        speakMessage(contextualGreeting);
+        setConversationHistory([{type: 'assistant', message: contextualGreeting}]);
         hasGreetedRef.current = true;
       }, 2000);
     }
@@ -60,17 +68,12 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     if (isMuted || !('speechSynthesis' in window)) return;
 
     const speech = new SpeechSynthesisUtterance();
-    // Use phonetic pronunciation for PREPZR - most natural pronunciation
-    speech.text = message
-      .replace(/PREPZR/gi, 'Prep-Zer')
-      .replace(/Prepzr/gi, 'Prep-Zer')
-      .replace(/prepzr/gi, 'prep-zer');
+    speech.text = message.replace(/PREPZR/gi, 'Prep-Zer').replace(/Prepzr/gi, 'Prep-Zer').replace(/prepzr/gi, 'prep-zer');
     speech.lang = language;
     speech.rate = 0.9;
     speech.pitch = 1.0;
     speech.volume = 0.8;
 
-    // Get available voices
     const voices = window.speechSynthesis.getVoices();
     const femaleVoices = voices.filter(voice => 
       voice.name.toLowerCase().includes('female') || 
@@ -83,6 +86,14 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     }
 
     window.speechSynthesis.speak(speech);
+  };
+
+  const handleTextSubmit = () => {
+    if (textInput.trim()) {
+      handleCommand(textInput.trim());
+      setConversationHistory(prev => [...prev, {type: 'user', message: textInput.trim()}]);
+      setTextInput('');
+    }
   };
 
   const startListening = () => {
@@ -108,8 +119,9 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     };
 
     recognitionRef.current.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
-      handleVoiceCommand(transcript);
+      const transcript = event.results[0][0].transcript;
+      handleCommand(transcript);
+      setConversationHistory(prev => [...prev, {type: 'user', message: transcript}]);
     };
 
     recognitionRef.current.onend = () => {
@@ -131,41 +143,39 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     setIsListening(false);
   };
 
-  const handleVoiceCommand = (command: string) => {
-    console.log('Prep-Zer AI processing command:', command);
+  const handleCommand = (command: string) => {
+    console.log('PREPZR AI processing command:', command);
+    const lowerCommand = command.toLowerCase();
+    let response = '';
 
-    // Navigation commands
-    if (command.includes('dashboard') || command.includes('home')) {
+    // Enhanced navigation commands with detailed context
+    if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
       onNavigationCommand?.('/dashboard/student');
-      speakMessage('Navigating to your dashboard');
-      return;
-    }
-
-    if (command.includes('concepts') || command.includes('learn')) {
+      response = `Navigating to your personalized dashboard where you can see your complete progress overview, study streaks, performance analytics, and AI-recommended next actions based on your learning patterns.`;
+    } else if (lowerCommand.includes('concepts') || lowerCommand.includes('learn')) {
       onNavigationCommand?.('/dashboard/student/concepts');
-      speakMessage('Opening concepts section for your learning journey');
-      return;
-    }
-
-    if (command.includes('flashcard') || command.includes('cards')) {
+      response = `Opening your Concepts section with AI-curated study materials. Each concept adapts to your learning style and includes interactive examples, practice questions, and difficulty progression based on your mastery level.`;
+    } else if (lowerCommand.includes('flashcard') || lowerCommand.includes('cards') || lowerCommand.includes('revision')) {
       onNavigationCommand?.('/dashboard/student/flashcards');
-      speakMessage('Opening flashcards for quick revision');
-      return;
-    }
-
-    if (command.includes('practice exam') || command.includes('test') || command.includes('exam')) {
+      response = `Loading your intelligent flashcard system powered by spaced repetition algorithms. These cards adapt to your memory patterns and prioritize concepts you need to reinforce most for optimal retention.`;
+    } else if (lowerCommand.includes('practice exam') || lowerCommand.includes('test') || lowerCommand.includes('exam')) {
       onNavigationCommand?.('/dashboard/student/practice-exam');
-      speakMessage('Opening practice exams to test your knowledge');
-      return;
+      response = `Opening your practice exam suite with AI-generated questions that mirror real exam patterns. Each test provides comprehensive analytics and identifies specific improvement areas with targeted recommendations.`;
+    } else if (lowerCommand.includes('formula lab') || lowerCommand.includes('formulas')) {
+      onNavigationCommand?.('/dashboard/student/formula-lab');
+      response = `Launching the interactive Formula Lab where you can practice essential formulas with visual aids, step-by-step derivations, and real-world applications for better understanding and retention.`;
+    } else if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
+      response = `Hi ${userName}! I'm PREPZR AI, your intelligent study companion with comprehensive capabilities. I can navigate you through all dashboard sections, provide detailed progress analysis, suggest personalized study strategies, explain concepts, help with practice exam strategies, manage your study schedule, track learning analytics, provide motivation based on your progress, and answer specific questions about PREPZR features. I understand context and adapt my guidance to your current needs. What specific area would you like assistance with?`;
+    } else if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
+      response = `Based on your learning analytics, I can see your study patterns, concept mastery levels, and progress trends. Your consistency is building strong foundations for exam success. Would you like detailed insights about specific subjects or overall performance metrics?`;
+    } else if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
+      response = `Your AI-powered study plan dynamically adapts based on your progress, performance analytics, and learning patterns. It optimizes your time allocation across subjects and ensures steady advancement toward your exam goals. Would you like to review today's recommendations?`;
+    } else {
+      response = `I heard "${command}". I'm PREPZR AI, your comprehensive study companion. I can help with navigation, progress tracking, study guidance, concept explanations, exam strategies, and personalized recommendations. I understand your learning context and provide targeted assistance. How can I support your exam preparation today?`;
     }
 
-    if (command.includes('help') || command.includes('what can you do')) {
-      speakMessage(`Hi ${userName}! I'm Prep-Zer AI, your intelligent study companion. I can help you navigate to different sections, check your progress, provide study tips, and answer questions about your exam preparation. What would you like to do?`);
-      return;
-    }
-
-    // Default response
-    speakMessage(`I heard "${command}". I'm Prep-Zer AI, here to assist with your studies. You can ask me to navigate to different sections or help with your learning. How can I help you today?`);
+    speakMessage(response);
+    setConversationHistory(prev => [...prev, {type: 'assistant', message: response}]);
   };
 
   const positionClasses = {
@@ -178,9 +188,29 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   return (
     <div className={`fixed ${positionClasses[position]} z-40 ${className}`}>
       {isExpanded ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border p-4 w-80 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border p-4 w-96 mb-4 max-h-96 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-sm">Prep-Zer AI Assistant</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-sm">PREPZR AI Assistant</h3>
+              <div className="flex gap-1">
+                <Button
+                  variant={inputMode === 'voice' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setInputMode('voice')}
+                  className="h-6 w-6 p-0"
+                >
+                  <Mic className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant={inputMode === 'text' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setInputMode('text')}
+                  className="h-6 w-6 p-0"
+                >
+                  <Keyboard className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -191,34 +221,59 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
             </Button>
           </div>
           
+          {/* Conversation History */}
+          <div className="flex-1 overflow-y-auto mb-3 space-y-2 text-sm">
+            {conversationHistory.slice(-4).map((entry, index) => (
+              <div key={index} className={`p-2 rounded ${entry.type === 'user' ? 'bg-blue-50 ml-4' : 'bg-gray-50 mr-4'}`}>
+                <div className="font-medium text-xs">{entry.type === 'user' ? userName : 'PREPZR AI'}</div>
+                <div>{entry.message}</div>
+              </div>
+            ))}
+          </div>
+          
           <div className="space-y-3">
-            <div className="flex gap-2">
-              <Button
-                variant={isListening ? "destructive" : "default"}
-                size="sm"
-                onClick={isListening ? stopListening : startListening}
-                className="flex-1"
-              >
-                {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-                {isListening ? 'Stop' : 'Talk'}
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsMuted(!isMuted)}
-              >
-                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-              </Button>
-            </div>
+            {inputMode === 'voice' ? (
+              <div className="flex gap-2">
+                <Button
+                  variant={isListening ? "destructive" : "default"}
+                  size="sm"
+                  onClick={isListening ? stopListening : startListening}
+                  className="flex-1"
+                >
+                  {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+                  {isListening ? 'Stop' : 'Talk'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsMuted(!isMuted)}
+                >
+                  {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Type your message..."
+                  onKeyPress={(e) => e.key === 'Enter' && handleTextSubmit()}
+                  className="flex-1 text-sm"
+                />
+                <Button size="sm" onClick={handleTextSubmit}>
+                  <MessageSquare className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
             
             <div className="text-xs text-gray-600 dark:text-gray-400">
-              <p className="font-medium mb-1">Try saying:</p>
+              <p className="font-medium mb-1">Try saying or typing:</p>
               <ul className="space-y-1">
-                <li>"Show my dashboard"</li>
-                <li>"Open concepts"</li>
-                <li>"Practice exams"</li>
-                <li>"What can you do?"</li>
+                <li>"Show my progress details"</li>
+                <li>"Open practice exams"</li>
+                <li>"What should I study today?"</li>
+                <li>"Explain my analytics"</li>
               </ul>
             </div>
           </div>

@@ -9,6 +9,7 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
+import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -146,6 +147,18 @@ const StudentDashboard = () => {
     return null;
   };
 
+  // Mock user progress data for voice assistant
+  const userProgressData = {
+    overallProgress: 68,
+    physicsProgress: 56,
+    chemistryProgress: 69,
+    biologyProgress: 72,
+    examReadinessScore: 78
+  };
+
+  const studyStreak = 5;
+  const lastActivity = 'completed Physics concepts';
+
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
 
@@ -154,7 +167,7 @@ const StudentDashboard = () => {
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
-        hideTabsNav={true} // Always hide tabs nav to prevent horizontal menu
+        hideTabsNav={true}
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
@@ -176,6 +189,16 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
+      {/* Enhanced Dashboard Voice Assistant with user progress context */}
+      <DashboardVoiceAssistant
+        userName={userProfile.name}
+        language="en-IN"
+        userMood={currentMood}
+        userProgress={userProgressData}
+        studyStreak={studyStreak}
+        lastActivity={lastActivity}
+      />
+
       {/* Interactive Voice Assistant with enhanced navigation */}
       <InteractiveVoiceAssistant 
         userName={userProfile.name}
