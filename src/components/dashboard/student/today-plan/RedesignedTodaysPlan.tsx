@@ -13,11 +13,9 @@ import {
   Play,
   CheckCircle,
   Star,
-  Zap,
   Calendar,
-  TrendingUp,
-  Award,
-  Lightbulb
+  Lightbulb,
+  Award
 } from 'lucide-react';
 
 interface TodaysPlanProps {
@@ -77,10 +75,6 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
         priority: 'medium' as const
       }
     ],
-    goals: {
-      daily: 180,
-      completed: 85
-    },
     smartSuggestions: [
       {
         id: 'sg1',
@@ -108,7 +102,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
         title: 'Practice Test Prep',
         description: 'Your mock test scores show improvement in Biology. Keep it up!',
         type: 'encouragement',
-        icon: <TrendingUp className="h-4 w-4" />
+        icon: <Award className="h-4 w-4" />
       }
     ]
   };
@@ -173,7 +167,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
         </div>
       </div>
 
-      {/* Smart Daily Suggestions - Now below header */}
+      {/* Smart Daily Suggestions - Moved below header as requested */}
       <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 shadow-lg">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-yellow-800">
@@ -202,42 +196,7 @@ const RedesignedTodaysPlan: React.FC<TodaysPlanProps> = ({
         </CardContent>
       </Card>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4 text-center">
-            <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-            <p className="text-2xl font-bold text-blue-800">{todayData.timeAllocation.concepts}m</p>
-            <p className="text-sm text-blue-600 font-medium">Concepts</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-4 text-center">
-            <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-            <p className="text-2xl font-bold text-purple-800">{todayData.timeAllocation.flashcards}m</p>
-            <p className="text-sm text-purple-600 font-medium">Flashcards</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-4 text-center">
-            <FileText className="h-8 w-8 mx-auto mb-2 text-green-600" />
-            <p className="text-2xl font-bold text-green-800">{todayData.timeAllocation.practiceExams}m</p>
-            <p className="text-sm text-green-600 font-medium">Practice</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardContent className="p-4 text-center">
-            <Award className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-            <p className="text-2xl font-bold text-orange-800">{todayData.goals.completed}%</p>
-            <p className="text-sm text-orange-600 font-medium">Goal Progress</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Today's Tasks */}
+      {/* Today's Tasks - Single section without repetition */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
