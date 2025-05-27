@@ -69,7 +69,8 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
-  utterance.text = text.replace(/PREPZR/gi, 'PREP-ZER');
+  // Fix pronunciation of PREPZR by breaking it down phonetically
+  utterance.text = text.replace(/PREPZR/gi, 'Prep Zer').replace(/Prepzr/g, 'Prep Zer');
   utterance.lang = finalConfig.language;
   utterance.rate = finalConfig.rate;
   utterance.pitch = finalConfig.pitch;
