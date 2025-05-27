@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, Target, TrendingUp, Users, Star, CheckCircle } from 'lucide-react';
@@ -9,15 +9,26 @@ interface HeroSectionProps {
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
+  const [currentBenefitIndex, setCurrentBenefitIndex] = useState(0);
+  
   const benefits = [
-    "Personalized AI study plans that adapt to your learning style",
-    "Real-time performance tracking with emotional intelligence",
-    "Interactive practice tests with instant feedback",
-    "Smart revision scheduling based on your retention patterns",
-    "Peer comparison and motivation tools",
-    "Expert-curated content for all major competitive exams",
-    "24/7 AI mentor support for doubt resolution"
+    "Save Valuable Time",
+    "Stress-Free Learning", 
+    "Build Strong Habits",
+    "Syllabus-Aligned Content",
+    "Boost Your Confidence",
+    "Smart Performance Analytics",
+    "Exam-Ready Preparation"
   ];
+
+  // Animate through benefits one by one
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBenefitIndex((prev) => (prev + 1) % benefits.length);
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, [benefits.length]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20 overflow-hidden">
@@ -52,98 +63,99 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-5xl mx-auto">
-          {/* Top Banner */}
+          {/* Top Banner - Separate and Highlighted */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-6"
+            className="mb-4"
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
-              <Star className="h-4 w-4 fill-current" />
-              India's #1 AI-Powered Exam Prep Platform NEET 2026 PREP - JOIN NOW!
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full text-sm font-bold shadow-lg border-2 border-white/20">
+              <Star className="h-4 w-4 fill-current animate-pulse" />
+              NEET 2026 PREP - JOIN NOW!
             </div>
           </motion.div>
 
-          {/* Main Headline */}
+          {/* India's #1 Platform Text */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-6"
+          >
+            <p className="text-lg text-gray-600 dark:text-gray-400 font-semibold">
+              India's #1 AI-Powered Exam Prep Platform
+            </p>
+          </motion.div>
+
+          {/* Main Headline - One Row */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 mb-6 leading-tight">
               Master Exam Preparation with AI-Powered Precision
             </h1>
           </motion.div>
 
-          {/* Emotional Intelligence Subtitle */}
-          <motion.p
-            className="text-xl sm:text-2xl text-gray-700 dark:text-gray-300 mb-4 font-medium"
+          {/* Enhanced Subtitle */}
+          <motion.div
+            className="mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
           >
-            We understand your mindset, not just the exam
-          </motion.p>
+            <p className="text-2xl sm:text-3xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+              We understand your mindset, not just the exam
+            </p>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+              Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
+            </p>
+          </motion.div>
 
-          {/* Main Subtitle */}
-          <motion.p
-            className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
-          </motion.p>
-
-          {/* Benefits Slider */}
+          {/* Animated Key Benefits */}
           <motion.div
             className="mb-12"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
           >
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6">
               7 Key Benefits That Transform Your Journey
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              {benefits.map((benefit, index) => (
-                <motion.div
-                  key={index}
-                  className="flex items-start gap-3 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                >
-                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300 text-left">{benefit}</span>
-                </motion.div>
-              ))}
+            
+            {/* Dynamic Benefit Display */}
+            <div className="min-h-[120px] flex items-center justify-center">
+              <motion.div
+                key={currentBenefitIndex}
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                transition={{ duration: 0.6 }}
+                className="bg-white/80 dark:bg-gray-800/80 rounded-xl p-6 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg max-w-md mx-auto"
+              >
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0" />
+                  <span className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                    {benefits[currentBenefitIndex]}
+                  </span>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
 
-          {/* Stats Row */}
-          <motion.div
-            className="flex flex-wrap justify-center gap-8 mb-12"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <Users className="h-5 w-5 text-blue-600" />
-              <span className="font-semibold">50,000+ Students</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <BookOpen className="h-5 w-5 text-purple-600" />
-              <span className="font-semibold">10,000+ Questions</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <Target className="h-5 w-5 text-green-600" />
-              <span className="font-semibold">98% Success Rate</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <TrendingUp className="h-5 w-5 text-orange-600" />
-              <span className="font-semibold">AI-Powered</span>
+            {/* Progress Dots */}
+            <div className="flex justify-center gap-2 mt-4">
+              {benefits.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === currentBenefitIndex 
+                      ? 'bg-blue-600 w-6' 
+                      : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                />
+              ))}
             </div>
           </motion.div>
 
@@ -170,16 +182,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             >
               Exam Readiness & Scholarship Test
             </Button>
-          </motion.div>
-
-          {/* Trust Indicators */}
-          <motion.div
-            className="mt-12 text-sm text-gray-500 dark:text-gray-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            <p>✨ No credit card required • 📚 Complete study materials • 🎯 Personalized learning path</p>
           </motion.div>
         </div>
       </div>

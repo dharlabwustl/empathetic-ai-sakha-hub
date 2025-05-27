@@ -102,7 +102,7 @@ const FlashcardsLandingPage = () => {
             </div>
           </div>
 
-          {/* Subject Study Cards */}
+          {/* Subject Study Cards - Enhanced with recall accuracy and study time */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {overviewData.subjects.map((subject) => (
               <Card key={subject.name} className="hover:shadow-md transition-shadow">
@@ -119,10 +119,12 @@ const FlashcardsLandingPage = () => {
                     <Progress value={subject.progress} className="h-2" />
                   </div>
                   
-                  {/* Additional Stats */}
+                  {/* Enhanced Stats with Recall Accuracy and Study Time */}
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     <div className="p-2 bg-blue-50 rounded text-center">
-                      <p className="text-sm font-bold text-blue-700">78%</p>
+                      <p className="text-sm font-bold text-blue-700">
+                        {subject.name === 'Physics' ? '78%' : subject.name === 'Chemistry' ? '85%' : '72%'}
+                      </p>
                       <p className="text-xs text-blue-600">Recall Accuracy</p>
                     </div>
                     <div className="p-2 bg-green-50 rounded text-center">

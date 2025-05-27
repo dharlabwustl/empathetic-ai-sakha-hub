@@ -69,13 +69,14 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleContinueLearning = () => {
     switch (type) {
       case 'Concepts':
+        // Navigate to all-concepts tab by setting the tab parameter
         navigate('/dashboard/student/concepts?tab=all-concepts');
         break;
       case 'Flashcards':
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        navigate('/dashboard/student/practice-exam?tab=all-exams');
+        navigate('/dashboard/student/practice-exam?tab=available-exams');
         break;
     }
   };
@@ -89,7 +90,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        navigate('/dashboard/student/practice-exam?tab=all-exams');
+        navigate('/dashboard/student/practice-exam?tab=available-exams');
         break;
     }
   };
