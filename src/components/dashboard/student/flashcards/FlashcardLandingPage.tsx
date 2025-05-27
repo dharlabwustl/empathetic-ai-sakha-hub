@@ -117,38 +117,12 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // FIXED: ALL NAVIGATION MUST GO TO INTERACTIVE (not practice)
-  const navigateToInteractive = (setId: number, source: string) => {
+  // CRITICAL FIX: All navigation MUST go to /interactive, never /practice
+  const navigateToFlashcard = (setId: number) => {
     const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log(`🚨🚨🚨 NAVIGATION FROM ${source.toUpperCase()}`);
-    console.log(`🚨🚨🚨 TARGET ROUTE: ${targetRoute}`);
-    console.log(`🚨🚨🚨 CURRENT LOCATION BEFORE NAVIGATE: ${window.location.href}`);
-    console.log(`🚨🚨🚨 SET ID: ${setId}`);
-    
+    console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE: ${targetRoute}`);
+    console.log(`🔥🔥🔥 SET ID: ${setId}`);
     navigate(targetRoute);
-    
-    console.log(`🚨🚨🚨 NAVIGATE CALLED SUCCESSFULLY FROM ${source.toUpperCase()}`);
-    
-    setTimeout(() => {
-      console.log(`🚨🚨🚨 POST-NAVIGATION CHECK - Current location: ${window.location.href}`);
-    }, 100);
-  };
-
-  // FIXED: ALL handlers route to INTERACTIVE
-  const handleStartReview = (setId: number) => {
-    navigateToInteractive(setId, 'START_REVIEW_BUTTON');
-  };
-
-  const handleCardClick = (setId: number) => {
-    navigateToInteractive(setId, 'CARD_CLICK');
-  };
-
-  const handleQuickReview = (setId: number) => {
-    navigateToInteractive(setId, 'QUICK_REVIEW_BUTTON');
-  };
-
-  const handleStudyCards = (setId: number) => {
-    navigateToInteractive(setId, 'STUDY_CARDS_BUTTON');
   };
 
   return (
@@ -252,11 +226,9 @@ const FlashcardLandingPage: React.FC = () => {
             >
               <Card 
                 className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
-                onClick={(e) => {
-                  console.log(`🚨🚨🚨 CARD CLICKED - SET ID: ${set.id}`);
-                  console.log(`🚨🚨🚨 EVENT TARGET:`, e.target);
-                  console.log(`🚨🚨🚨 EVENT CURRENT TARGET:`, e.currentTarget);
-                  handleCardClick(set.id);
+                onClick={() => {
+                  console.log(`🔥🔥🔥 CARD CLICKED - SET ID: ${set.id}`);
+                  navigateToFlashcard(set.id);
                 }}
               >
                 <CardHeader className="pb-3">
@@ -313,8 +285,8 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log(`🚨🚨🚨 QUICK REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
-                        handleQuickReview(set.id);
+                        console.log(`🔥🔥🔥 QUICK REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
+                        navigateToFlashcard(set.id);
                       }}
                     >
                       Quick Review
@@ -323,8 +295,8 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log(`🚨🚨🚨 STUDY CARDS BUTTON CLICKED - SET ID: ${set.id}`);
-                        handleStudyCards(set.id);
+                        console.log(`🔥🔥🔥 STUDY CARDS BUTTON CLICKED - SET ID: ${set.id}`);
+                        navigateToFlashcard(set.id);
                       }}
                     >
                       Study Cards
@@ -336,8 +308,8 @@ const FlashcardLandingPage: React.FC = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(`🚨🚨🚨 START REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
-                      handleStartReview(set.id);
+                      console.log(`🔥🔥🔥 START REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
+                      navigateToFlashcard(set.id);
                     }}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />

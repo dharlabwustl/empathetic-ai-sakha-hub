@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { getDefaultVoiceConfig, speakWithFemaleVoice, getPreferredFemaleVoice } from '@/utils/voiceConfig';
 
 interface VoiceSettings {
   enabled: boolean;
@@ -89,48 +90,33 @@ const useVoiceAnnouncer = (props?: UseVoiceAnnouncerProps) => {
       return;
     }
 
-    // FIXED: Check if message was already spoken (prevent repetition)
+    // Check if message was already spoken (prevent repetition)
     const messageKey = message.toLowerCase().trim();
     if (!force && spokenMessagesRef.current.has(messageKey)) {
       console.log('🔇 Voice: Message already spoken, skipping:', message);
       return;
     }
 
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
-    }
-
-    const utterance = new SpeechSynthesisUtterance(message);
-    utterance.volume = voiceSettings.volume;
-    utterance.rate = voiceSettings.rate;
-    utterance.pitch = voiceSettings.pitch;
-    utterance.lang = voiceSettings.language;
-
-    // Find appropriate voice
-    const voices = speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => voice.lang === voiceSettings.language);
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      // Add to spoken messages to prevent repetition
-      spokenMessagesRef.current.add(messageKey);
-      console.log('🔊 Voice: Speaking:', message);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      console.log('🔇 Voice: Finished speaking');
-    };
-
-    utterance.onerror = (event) => {
-      setIsSpeaking(false);
-      console.error('Voice synthesis error:', event);
-    };
-
-    speechSynthesis.speak(utterance);
+    // Use the centralized female voice function
+    speakWithFemaleVoice(
+      message,
+      {
+        volume: voiceSettings.volume,
+        rate: voiceSettings.rate,
+        pitch: voiceSettings.pitch,
+        language: voiceSettings.language
+      },
+      () => {
+        setIsSpeaking(true);
+        // Add to spoken messages to prevent repetition
+        spokenMessagesRef.current.add(messageKey);
+        console.log('🔊 Voice: Speaking:', message);
+      },
+      () => {
+        setIsSpeaking(false);
+        console.log('🔇 Voice: Finished speaking');
+      }
+    );
   }, [isVoiceSupported, voiceSettings]);
 
   const updateVoiceSettings = useCallback((newSettings: Partial<VoiceSettings>) => {

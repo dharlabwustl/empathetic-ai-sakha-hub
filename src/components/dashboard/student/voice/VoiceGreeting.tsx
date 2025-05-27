@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
+import { speakWithFemaleVoice } from '@/utils/voiceConfig';
 
 interface VoiceGreetingProps {
   isFirstTimeUser: boolean;
@@ -45,38 +46,30 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         greeting = `Hello ${userName}! I'm Sakha AI, ready to assist you with your studies today. How can I help you achieve your learning goals?`;
       }
       
-      const speech = new SpeechSynthesisUtterance();
-      speech.text = greeting.replace(/PREPZR/gi, 'PREP-zer');
-      speech.lang = 'en-US';
-      speech.rate = 0.95;
-      speech.pitch = 1.1;
-      speech.volume = 0.8;
-      
-      // Get available voices and select a preferred female voice
-      const voices = window.speechSynthesis.getVoices();
-      const femaleVoices = voices.filter(voice => 
-        voice.name.toLowerCase().includes('female') || 
-        voice.name.toLowerCase().includes('zira') ||
-        voice.name.toLowerCase().includes('samantha') ||
-        (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
+      // Use the centralized female voice function
+      speakWithFemaleVoice(
+        greeting,
+        {
+          rate: 0.95,
+          pitch: 1.1,
+          volume: 0.8
+        },
+        () => {
+          hasSpokenRef.current = true;
+          console.log('🔊 Voice Greeting: Started speaking');
+        },
+        () => {
+          console.log('🔇 Voice Greeting: Finished speaking');
+        }
       );
-      
-      if (femaleVoices.length > 0) {
-        speech.voice = femaleVoices[0];
-      }
-      
-      // Small delay to ensure voices are loaded
-      setTimeout(() => {
-        window.speechSynthesis.speak(speech);
-        hasSpokenRef.current = true;
-      }, 1000);
     };
 
     // Load voices if not already loaded
     if (window.speechSynthesis.getVoices().length === 0) {
       window.speechSynthesis.addEventListener('voiceschanged', speakGreeting, { once: true });
     } else {
-      speakGreeting();
+      // Small delay to ensure voices are loaded
+      setTimeout(speakGreeting, 1000);
     }
     
     return () => {

@@ -1,7 +1,7 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { speakWithFemaleVoice, getPreferredFemaleVoice } from '@/utils/voiceConfig';
 
 interface EnhancedHomePageAssistantProps {
   language?: string;
@@ -21,7 +21,7 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   const timeoutRef = useRef<number | null>(null);
   const lastCommandTimeRef = useRef<number>(0);
   
-  // FIXED: Track spoken messages to prevent repetition
+  // Track spoken messages to prevent repetition
   const spokenMessagesRef = useRef<Set<string>>(new Set());
   
   const shouldPlayGreeting = location.pathname === '/' || 
@@ -103,44 +103,25 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   const speak = (text: string) => {
     if (!('speechSynthesis' in window) || audioMuted) return;
     
-    // FIXED: Check if message was already spoken (prevent repetition)
+    // Check if message was already spoken (prevent repetition)
     const messageKey = text.toLowerCase().trim();
     if (spokenMessagesRef.current.has(messageKey)) {
       console.log('🔇 Voice: Message already spoken, skipping:', text);
       return;
     }
     
-    window.speechSynthesis.cancel();
-    
-    const speech = new SpeechSynthesisUtterance();
-    speech.text = text.replace(/PREPZR/gi, 'PREP-ZER');
-    speech.lang = language;
-    speech.rate = 0.95;
-    speech.pitch = 1.1;
-    speech.volume = 0.8;
-    
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => 
-      voice.name.toLowerCase().includes('female') || 
-      voice.name.toLowerCase().includes('samantha') ||
-      (!voice.name.toLowerCase().includes('male') && voice.lang.includes('en'))
+    speakWithFemaleVoice(
+      text,
+      { language },
+      () => {
+        // Add to spoken messages to prevent repetition
+        spokenMessagesRef.current.add(messageKey);
+        console.log('🔊 Voice: Speaking:', text);
+      },
+      () => {
+        console.log('🔇 Voice: Finished speaking');
+      }
     );
-    
-    if (preferredVoice) {
-      speech.voice = preferredVoice;
-    }
-    
-    speech.onstart = () => {
-      // Add to spoken messages to prevent repetition
-      spokenMessagesRef.current.add(messageKey);
-      console.log('🔊 Voice: Speaking:', text);
-    };
-    
-    speech.onend = () => {
-      console.log('🔇 Voice: Finished speaking');
-    };
-    
-    window.speechSynthesis.speak(speech);
   };
 
   const showHelpToast = () => {
@@ -248,7 +229,7 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   useEffect(() => {
     cleanupVoiceResources();
     setGreetingPlayed(false);
-    // FIXED: Clear spoken messages cache when navigating to new page
+    // Clear spoken messages cache when navigating to new page
     spokenMessagesRef.current.clear();
     
     const muteSetting = localStorage.getItem('voice_assistant_muted');
@@ -303,7 +284,7 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
     };
   }, [greetingPlayed, shouldPlayGreeting, audioMuted]);
 
-  // FIXED: Clear spoken messages periodically to allow re-speaking after some time
+  // Clear spoken messages periodically to allow re-speaking after some time
   useEffect(() => {
     const interval = setInterval(() => {
       spokenMessagesRef.current.clear();
