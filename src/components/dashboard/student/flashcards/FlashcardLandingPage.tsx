@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -26,7 +24,9 @@ const FlashcardLandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
-  const [statusFilter, setStatusFilter] = useState<'today' | 'pending' | 'completed'>('today');
+
+  console.log('🚨 FLASHCARD LANDING PAGE - Component loaded');
+  console.log('🚨 Current window location:', window.location.href);
 
   const overviewData = {
     type: "Flashcards" as const,
@@ -55,8 +55,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "2 days ago",
       masteryLevel: 85,
       topic: "Mechanics, Thermodynamics",
-      estimatedTime: 25,
-      status: "today"
+      estimatedTime: 25
     },
     {
       id: 2,
@@ -67,8 +66,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "1 day ago",
       masteryLevel: 65,
       topic: "Reaction Mechanisms",
-      estimatedTime: 30,
-      status: "pending"
+      estimatedTime: 30
     },
     {
       id: 3,
@@ -79,8 +77,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "Today",
       masteryLevel: 92,
       topic: "Circulatory, Respiratory",
-      estimatedTime: 20,
-      status: "completed"
+      estimatedTime: 20
     },
     {
       id: 4,
@@ -91,8 +88,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "3 days ago", 
       masteryLevel: 78,
       topic: "Ionic, Covalent Bonds",
-      estimatedTime: 18,
-      status: "today"
+      estimatedTime: 18
     }
   ];
 
@@ -102,15 +98,8 @@ const FlashcardLandingPage: React.FC = () => {
     const matchesSearch = set.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          set.topic.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = selectedSubject === 'all' || set.subject === selectedSubject;
-    const matchesStatus = statusFilter === 'today' ? set.status === 'today' :
-                         statusFilter === 'pending' ? set.status === 'pending' :
-                         set.status === 'completed';
-    return matchesSearch && matchesSubject && matchesStatus;
+    return matchesSearch && matchesSubject;
   });
-
-  const getStatusCount = (status: string) => {
-    return flashcardSets.filter(set => set.status === status).length;
-  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -127,15 +116,16 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // FIXED: Navigate to interactive flashcard page
+  // FIXED: ALL FLASHCARD NAVIGATION GOES TO /interactive
   const navigateToFlashcard = (setId: number) => {
     const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
-    console.log(`🔥 NAVIGATION TO INTERACTIVE FLASHCARDS: ${targetRoute}`);
+    console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE FLASHCARDS: ${targetRoute}`);
+    console.log(`🔥🔥🔥 SET ID: ${setId}`);
     navigate(targetRoute);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-white to-blue-50/50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-white to-blue-50/50 dark:from-purple-900/10 dark:via-gray-900 dark:to-blue-900/10">
       <Helmet>
         <title>Flashcards - PREPZR</title>
         <meta name="description" content="NEET flashcards for quick review and memorization" />
@@ -147,82 +137,47 @@ const FlashcardLandingPage: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6 space-y-8">
-        {/* Enhanced Hero Section */}
+        {/* Hero Section */}
         <motion.div 
-          className="text-center space-y-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-2xl shadow-lg"
+          className="text-center space-y-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-white/20 rounded-full">
+            <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full">
               <Brain className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               Smart Flashcards
             </h1>
           </div>
-          <p className="text-xl text-purple-100 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Quick review sessions with spaced repetition algorithm for optimal retention
           </p>
           
           <div className="flex flex-wrap justify-center gap-6 mt-6">
-            <div className="flex items-center gap-2 text-white/90">
+            <div className="flex items-center gap-2 text-purple-600">
               <Zap className="h-5 w-5" />
               <span className="font-medium">Smart Algorithm</span>
             </div>
-            <div className="flex items-center gap-2 text-white/90">
+            <div className="flex items-center gap-2 text-blue-600">
               <Target className="h-5 w-5" />
               <span className="font-medium">Adaptive Learning</span>
             </div>
-            <div className="flex items-center gap-2 text-white/90">
+            <div className="flex items-center gap-2 text-green-600">
               <TrendingUp className="h-5 w-5" />
               <span className="font-medium">Progress Tracking</span>
             </div>
           </div>
         </motion.div>
 
-        {/* Enhanced Status Filter Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
-        >
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Star className="h-5 w-5 text-yellow-500" />
-            Study Status
-          </h3>
-          <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-            <TabsList className="bg-gray-50">
-              <TabsTrigger value="today" className="relative">
-                Today
-                <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
-                  {getStatusCount('today')}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="pending" className="relative">
-                Pending
-                <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-700">
-                  {getStatusCount('pending')}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="completed" className="relative">
-                Completed
-                <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700">
-                  {getStatusCount('completed')}
-                </Badge>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </motion.div>
-
         {/* Search and Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 items-center bg-white rounded-xl p-6 shadow-lg border border-gray-100"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-col sm:flex-row gap-4 items-center"
         >
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -230,7 +185,7 @@ const FlashcardLandingPage: React.FC = () => {
               placeholder="Search flashcard sets..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-gray-200 focus:border-purple-500"
+              className="pl-10"
             />
           </div>
           
@@ -241,20 +196,20 @@ const FlashcardLandingPage: React.FC = () => {
                 variant={selectedSubject === subject ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedSubject(subject)}
-                className={`capitalize ${selectedSubject === subject ? 'bg-gradient-to-r from-purple-500 to-blue-500' : ''}`}
+                className="capitalize"
               >
                 {subject}
               </Button>
             ))}
           </div>
           
-          <Button className="gap-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600">
+          <Button className="gap-2">
             <Plus className="h-4 w-4" />
             Create Set
           </Button>
         </motion.div>
 
-        {/* Enhanced Flashcard Sets Grid */}
+        {/* Flashcard Sets Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -267,11 +222,13 @@ const FlashcardLandingPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
             >
               <Card 
-                className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500 bg-gradient-to-br from-white to-purple-50/30"
-                onClick={() => navigateToFlashcard(set.id)}
+                className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
+                onClick={() => {
+                  console.log(`🔥🔥🔥 CARD CLICKED - SET ID: ${set.id}`);
+                  navigateToFlashcard(set.id);
+                }}
               >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
@@ -327,9 +284,9 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log(`🔥🔥🔥 QUICK REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
                         navigateToFlashcard(set.id);
                       }}
-                      className="hover:bg-purple-50"
                     >
                       Quick Review
                     </Button>
@@ -337,19 +294,20 @@ const FlashcardLandingPage: React.FC = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log(`🔥🔥🔥 STUDY CARDS BUTTON CLICKED - SET ID: ${set.id}`);
                         navigateToFlashcard(set.id);
                       }}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500"
                     >
                       Study Cards
                     </Button>
                   </div>
                   
                   <Button 
-                    className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600" 
+                    className="w-full" 
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log(`🔥🔥🔥 START REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
                       navigateToFlashcard(set.id);
                     }}
                   >
@@ -367,12 +325,12 @@ const FlashcardLandingPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-16 bg-white rounded-xl shadow-lg border border-gray-100"
+            className="text-center py-12"
           >
             <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">No flashcard sets found</h3>
             <p className="text-gray-500 mb-4">Try adjusting your search terms or filters</p>
-            <Button className="bg-gradient-to-r from-purple-500 to-blue-500">
+            <Button>
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Set
             </Button>
