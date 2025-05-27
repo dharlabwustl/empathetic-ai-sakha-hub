@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Mic, MicOff } from 'lucide-react';
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SpeechRecognitionButtonProps {
   position?: 'homepage' | 'dashboard';
@@ -11,199 +11,230 @@ interface SpeechRecognitionButtonProps {
   className?: string;
 }
 
-const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({ 
-  position = 'homepage', 
+const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
+  position = 'homepage',
   onCommand,
   className = ''
 }) => {
-  const navigate = useNavigate();
-  const [hasPermission, setHasPermission] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [currentTranscript, setCurrentTranscript] = useState('');
+  const [isMuted, setIsMuted] = useState(false);
 
-  const handleVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase().trim();
-    console.log('Processing voice command:', lowerCommand);
-
-    // Homepage specific commands
-    if (position === 'homepage') {
-      if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('tell me about prepzr')) {
-        speakMessage('PREPZR is India\'s first emotionally aware, hyper-personalized adaptive exam preparation platform. We use artificial intelligence to understand your learning style, emotional state, and academic needs to create a completely customized study experience. Our platform adapts in real-time to help you achieve your best performance in exams like NEET, JEE, UPSC, and CAT.');
-        return;
-      }
-
-      if (lowerCommand.includes('features') || lowerCommand.includes('what can you do')) {
-        speakMessage('PREPZR offers AI-powered personalized learning, adaptive flashcards, interactive practice exams, mood-based study recommendations, real-time performance analytics, and 24/7 voice assistance. Our platform creates custom study plans based on your emotional state and learning patterns.');
-        return;
-      }
-
-      if (lowerCommand.includes('free trial') || lowerCommand.includes('trial')) {
-        speakMessage('Great! You can start your 7-day free trial right now. You\'ll get full access to all our features including personalized study plans, AI tutoring, and practice exams. Let me help you get started.');
-        return;
-      }
-
-      if (lowerCommand.includes('exam readiness') || lowerCommand.includes('scholarship test') || lowerCommand.includes('analyze')) {
-        window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
-        speakMessage('Opening our exam readiness analyzer. This will evaluate your current preparation level and create a personalized study roadmap for you.');
-        return;
-      }
-
-      if (lowerCommand.includes('signup') || lowerCommand.includes('sign up') || lowerCommand.includes('register')) {
-        navigate('/signup');
-        speakMessage('Taking you to the signup page. You can create your account and start your personalized exam preparation journey.');
-        return;
-      }
-
-      if (lowerCommand.includes('benefits') || lowerCommand.includes('why prepzr')) {
-        speakMessage('PREPZR helps you save valuable time with personalized learning, reduces exam stress through emotional support, builds strong study habits, provides syllabus-aligned content, boosts confidence with adaptive practice, and offers smart performance analytics. We\'re here to make your exam preparation journey smoother and more effective.');
-        return;
-      }
-
-      if (lowerCommand.includes('take break') || lowerCommand.includes('break time')) {
-        speakMessage('It\'s important to take smart breaks! Research shows that taking a 10-15 minute break every hour improves retention and focus. Would you like me to remind you when it\'s time for your next break?');
-        return;
-      }
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = true;
+      recognitionInstance.lang = 'en-US';
+      
+      recognitionInstance.onstart = () => {
+        setIsListening(true);
+        setShowTranscript(true);
+      };
+      
+      recognitionInstance.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+        
+        setCurrentTranscript(transcript);
+        
+        if (event.results[event.results.length - 1].isFinal) {
+          handleCommand(transcript);
+          setIsListening(false);
+          setTimeout(() => {
+            setShowTranscript(false);
+            setCurrentTranscript('');
+          }, 2000);
+        }
+      };
+      
+      recognitionInstance.onerror = () => {
+        setIsListening(false);
+        setShowTranscript(false);
+      };
+      
+      recognitionInstance.onend = () => {
+        setIsListening(false);
+      };
+      
+      setRecognition(recognitionInstance);
     }
+  }, []);
 
-    // Dashboard specific commands
-    if (position === 'dashboard') {
-      if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
-        navigate('/dashboard/student');
-        speakMessage('Navigating to your dashboard');
-        return;
-      }
-
-      if (lowerCommand.includes('concepts') || lowerCommand.includes('learn')) {
-        navigate('/dashboard/student/concepts');
-        speakMessage('Opening concepts page');
-        return;
-      }
-
-      if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card')) {
-        navigate('/dashboard/student/flashcards');
-        speakMessage('Opening flashcards');
-        return;
-      }
-
-      if (lowerCommand.includes('practice exam') || lowerCommand.includes('test')) {
-        navigate('/dashboard/student/practice-exam');
-        speakMessage('Opening practice exams');
-        return;
-      }
-
-      if (lowerCommand.includes('profile') || lowerCommand.includes('settings')) {
-        navigate('/dashboard/student/profile');
-        speakMessage('Opening profile settings');
-        return;
-      }
-
-      if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
-        speakMessage('Let me show you your personalized study plan');
-        return;
-      }
-
-      if (lowerCommand.includes('how am i doing') || lowerCommand.includes('progress')) {
-        speakMessage('Based on your recent activity, you\'re making great progress! You\'ve completed 68% of your Physics concepts and your practice exam scores are improving. Keep up the excellent work!');
-        return;
-      }
-    }
-
-    // Common commands for both positions
-    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
-      const helpMessage = position === 'homepage' 
-        ? 'I am your PREPZR AI assistant. I can tell you about PREPZR features, help you start a free trial, analyze your exam readiness, explain our benefits, or help you sign up. Just ask me anything about exam preparation!'
-        : 'I am your PREPZR AI assistant. I can help you navigate to different sections, check your progress, open your study plan, or answer questions about your preparation. What would you like to do?';
-      speakMessage(helpMessage);
-      return;
-    }
-
-    // Default response
-    const defaultMessage = position === 'homepage'
-      ? `I heard you say: ${command}. I'm your PREPZR AI assistant, here to help you explore PREPZR and start your exam preparation journey. You can ask me about our features, benefits, or start your free trial!`
-      : `I heard you say: ${command}. I'm your PREPZR AI assistant, here to assist with your studies. You can ask me to navigate to different sections or check your progress.`;
+  const speakMessage = (message: string) => {
+    if (isMuted || !('speechSynthesis' in window)) return;
     
-    speakMessage(defaultMessage);
+    window.speechSynthesis.cancel();
+    setIsSpeaking(true);
     
+    const speech = new SpeechSynthesisUtterance();
+    speech.text = message.replace(/PREPZR/gi, 'PREP-zer');
+    speech.lang = 'en-US';
+    speech.rate = 0.9;
+    speech.pitch = 1.0;
+    speech.volume = 0.8;
+
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.lang.includes('en') && 
+      (voice.name.toLowerCase().includes('female') || !voice.name.toLowerCase().includes('male'))
+    );
+    
+    if (preferredVoice) {
+      speech.voice = preferredVoice;
+    }
+
+    speech.onend = () => {
+      setIsSpeaking(false);
+    };
+
+    window.speechSynthesis.speak(speech);
+  };
+
+  const handleCommand = (command: string) => {
     if (onCommand) {
       onCommand(command);
     }
+    
+    // Process command based on position context
+    const response = position === 'homepage' ? 
+      processHomepageCommand(command) : 
+      processDashboardCommand(command);
+    
+    speakMessage(response);
   };
 
-  const {
-    voiceSettings,
-    isVoiceSupported,
-    isListening,
-    startListening,
-    stopListening,
-    speakMessage,
-    transcript
-  } = useVoiceAnnouncer({ 
-    userName: position === 'homepage' ? 'Visitor' : 'Student', 
-    autoStart: false,
-    onCommand: handleVoiceCommand
-  });
-
-  // Request microphone permission
-  useEffect(() => {
-    const requestPermission = async () => {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        setHasPermission(true);
-      } catch (error) {
-        console.error('Microphone permission denied:', error);
-        setHasPermission(false);
-      }
-    };
-
-    if (isVoiceSupported) {
-      requestPermission();
+  const processHomepageCommand = (command: string): string => {
+    const lowerCommand = command.toLowerCase().trim();
+    
+    if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('about')) {
+      return 'PREPZR is India\'s most advanced AI-powered exam preparation platform for competitive exams like NEET and JEE.';
     }
-  }, [isVoiceSupported]);
-
-  const handleClick = () => {
-    if (!hasPermission) {
-      speakMessage('Please allow microphone access to use voice commands');
-      return;
+    
+    if (lowerCommand.includes('feature') || lowerCommand.includes('what can')) {
+      return 'PREPZR offers personalized study plans, interactive concepts, smart flashcards, practice exams, and scholarship opportunities.';
     }
+    
+    if (lowerCommand.includes('free') || lowerCommand.includes('trial')) {
+      return 'Yes! PREPZR offers a comprehensive free trial. Premium plans start at just 199 rupees per month.';
+    }
+    
+    return 'Welcome to PREPZR! I can help you learn about our features, pricing, or guide you to sign up. What would you like to know?';
+  };
 
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-      // Only speak greeting once per session to avoid repetition
-      const hasSpokenGreeting = sessionStorage.getItem('voice_button_greeted');
-      if (!hasSpokenGreeting) {
-        const greeting = position === 'homepage' 
-          ? 'Hello! I\'m your PREPZR AI assistant. How can I help you explore our exam preparation platform today?'
-          : 'Hi! I\'m your PREPZR AI assistant. I\'m listening. How can I help you with your studies today?';
-        speakMessage(greeting);
-        sessionStorage.setItem('voice_button_greeted', 'true');
-      }
+  const processDashboardCommand = (command: string): string => {
+    const lowerCommand = command.toLowerCase().trim();
+    
+    if (lowerCommand.includes('study plan')) {
+      return 'Here\'s your personalized study plan optimized for your exam goals.';
+    }
+    
+    if (lowerCommand.includes('today') || lowerCommand.includes('daily')) {
+      return 'Let me show you today\'s optimized learning tasks and schedule.';
+    }
+    
+    if (lowerCommand.includes('flashcard')) {
+      return 'Flashcards are great for quick review and memory retention. Let\'s start your session.';
+    }
+    
+    return 'I\'m here to help with your studies! Ask about study plans, today\'s tasks, concepts, or practice tests.';
+  };
+
+  const startListening = () => {
+    if (recognition && !isListening) {
+      recognition.start();
     }
   };
 
-  if (!isVoiceSupported || !hasPermission) {
-    return null;
-  }
+  const stopListening = () => {
+    if (recognition && isListening) {
+      recognition.stop();
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (!isMuted) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
 
   return (
-    <Button
-      onClick={handleClick}
-      variant={isListening ? "default" : "outline"}
-      size="lg"
-      className={`${className} ${
-        isListening 
-          ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
-          : 'bg-white/90 hover:bg-white border-2 border-blue-600 text-blue-600'
-      } rounded-full p-4 shadow-lg backdrop-blur-sm transition-all duration-300`}
-    >
-      {isListening ? (
-        <MicOff className="h-6 w-6" />
-      ) : (
-        <Mic className="h-6 w-6" />
-      )}
-      <span className="sr-only">
-        {isListening ? 'Stop listening' : 'Start voice command'}
-      </span>
-    </Button>
+    <div className={`relative ${className}`}>
+      <AnimatePresence>
+        {showTranscript && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="absolute bottom-16 right-0 mb-2"
+          >
+            <Card className="w-64 shadow-lg border-2">
+              <CardContent className="p-3">
+                <div className="text-sm">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <span className="text-gray-600 font-medium">Listening...</span>
+                  </div>
+                  <p className="text-gray-800">
+                    {currentTranscript || 'Say something...'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex gap-2">
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Button
+            onClick={isListening ? stopListening : startListening}
+            className={`w-12 h-12 rounded-full shadow-lg ${
+              isListening 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+            disabled={!recognition}
+          >
+            <div className="relative">
+              {isListening ? (
+                <MicOff className="h-5 w-5 text-white" />
+              ) : (
+                <Mic className="h-5 w-5 text-white" />
+              )}
+              {(isListening || isSpeaking) && (
+                <motion.div
+                  className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ repeat: Infinity, duration: 1 }}
+                />
+              )}
+            </div>
+          </Button>
+        </motion.div>
+
+        <Button
+          onClick={toggleMute}
+          variant="outline"
+          size="sm"
+          className="w-10 h-10 rounded-full"
+        >
+          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </Button>
+      </div>
+    </div>
   );
 };
 
