@@ -14,10 +14,10 @@ import OverviewSection from '@/components/dashboard/student/OverviewSection';
 const ConceptsPage = () => {
   const { conceptCards, loading } = useUserStudyPlan();
   const [searchParams] = useSearchParams();
-  const [timeView, setTimeView] = useState<'today' | 'week' | 'month'>('today');
   const [activeSubject, setActiveSubject] = useState('all');
   const [showAllCards, setShowAllCards] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [statusFilter, setStatusFilter] = useState<'today' | 'upcoming' | 'completed'>('today');
 
   // Listen for URL parameter changes
   useEffect(() => {
@@ -42,7 +42,7 @@ const ConceptsPage = () => {
 
   const overviewData = {
     type: "Concepts" as const,
-    title: "NEET Concepts Overview",
+    title: "PREPZR Concepts Overview",
     subjects: [
       { name: "Physics", completed: 45, total: 80, progress: 56, efficiency: 78, studyTime: 24 },
       { name: "Chemistry", completed: 52, total: 75, progress: 69, efficiency: 82, studyTime: 28 },
@@ -72,10 +72,20 @@ const ConceptsPage = () => {
     }, {} as Record<string, number>);
   }, [conceptCards]);
 
-  // Filter cards based on time view, subject, and show all state
+  // Filter cards based on status, subject, and show all state
   const filteredCards = useMemo(() => {
-    let filtered = conceptCards.filter(card => card.scheduledFor === timeView);
+    let filtered = conceptCards;
+
+    // Filter by status
+    if (statusFilter === 'today') {
+      filtered = filtered.filter(card => card.scheduledFor === 'today');
+    } else if (statusFilter === 'upcoming') {
+      filtered = filtered.filter(card => card.scheduledFor === 'week' || card.scheduledFor === 'month');
+    } else if (statusFilter === 'completed') {
+      filtered = filtered.filter(card => card.completed);
+    }
     
+    // Filter by subject
     if (activeSubject !== 'all') {
       filtered = filtered.filter(card => card.subject === activeSubject);
     }
@@ -85,7 +95,7 @@ const ConceptsPage = () => {
     }
     
     return filtered;
-  }, [conceptCards, timeView, activeSubject, showAllCards]);
+  }, [conceptCards, statusFilter, activeSubject, showAllCards]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -126,12 +136,12 @@ const ConceptsPage = () => {
           </TabsContent>
 
           <TabsContent value="all-concepts" className="space-y-6 mt-6">
-            {/* Time-based Tabs */}
-            <Tabs value={timeView} onValueChange={(v) => setTimeView(v as typeof timeView)}>
+            {/* Status Filter Tabs */}
+            <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
               <TabsList>
                 <TabsTrigger value="today">Today</TabsTrigger>
-                <TabsTrigger value="week">This Week</TabsTrigger>
-                <TabsTrigger value="month">This Month</TabsTrigger>
+                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                <TabsTrigger value="completed">Completed</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -158,7 +168,9 @@ const ConceptsPage = () => {
                 ))
               ) : filteredCards.length === 0 ? (
                 <div className="col-span-full text-center py-10">
-                  <p className="text-gray-500">No concept cards found for {activeSubject !== 'all' ? activeSubject : ''} {timeView === 'today' ? 'today' : timeView === 'week' ? 'this week' : 'this month'}</p>
+                  <p className="text-gray-500">
+                    No concept cards found for {activeSubject !== 'all' ? activeSubject : ''} {statusFilter} status
+                  </p>
                 </div>
               ) : (
                 filteredCards.map((card) => (
@@ -180,7 +192,7 @@ const ConceptsPage = () => {
             </motion.div>
 
             {/* View All Button */}
-            {!showAllCards && filteredCards.length === 6 && filteredCards.length < conceptCards.filter(card => card.scheduledFor === timeView && (activeSubject === 'all' || card.subject === activeSubject)).length && (
+            {!showAllCards && filteredCards.length === 6 && (
               <div className="flex justify-center mt-6">
                 <Button
                   variant="outline"
