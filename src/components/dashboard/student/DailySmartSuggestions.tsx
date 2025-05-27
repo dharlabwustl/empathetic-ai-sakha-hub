@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,8 @@ import {
   Sparkles,
   Zap,
   ChevronRight,
-  RefreshCw
+  RefreshCw,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -90,12 +90,10 @@ const DailySmartSuggestions: React.FC<DailySmartSuggestionsProps> = ({ userName 
   ];
 
   useEffect(() => {
-    // Initialize with first 3 suggestions
     setSuggestions(allSuggestions.slice(0, 3));
   }, []);
 
   useEffect(() => {
-    // Auto-rotate suggestions every 8 seconds
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % suggestions.length);
     }, 8000);
@@ -106,7 +104,6 @@ const DailySmartSuggestions: React.FC<DailySmartSuggestionsProps> = ({ userName 
   const refreshSuggestions = () => {
     setIsRefreshing(true);
     setTimeout(() => {
-      // Shuffle and get new set of suggestions
       const shuffled = [...allSuggestions].sort(() => 0.5 - Math.random());
       setSuggestions(shuffled.slice(0, 3));
       setCurrentIndex(0);
@@ -258,7 +255,6 @@ const DailySmartSuggestions: React.FC<DailySmartSuggestionsProps> = ({ userName 
             ))}
           </AnimatePresence>
           
-          {/* Progress indicators */}
           <div className="flex justify-center gap-2 pt-2">
             {suggestions.map((_, index) => (
               <button

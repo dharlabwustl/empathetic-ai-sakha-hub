@@ -1,370 +1,392 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
-import { speakWithFemaleVoice, getPreferredFemaleVoice } from '@/utils/voiceConfig';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Mic, MicOff, Settings, X, Volume2, VolumeX, Brain, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { speakWithFemaleVoice } from '@/utils/voiceConfig';
 
 interface EnhancedHomePageAssistantProps {
+  userName?: string;
   language?: string;
+  onNavigationCommand?: (route: string) => void;
 }
 
-const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({ 
-  language = 'en-US'
+const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
+  userName = 'Student',
+  language = 'en-US',
+  onNavigationCommand
 }) => {
-  const [greetingPlayed, setGreetingPlayed] = useState(false);
-  const [audioMuted, setAudioMuted] = useState(false);
+  const [showPanel, setShowPanel] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const { toast } = useToast();
-  const location = useLocation();
-  const navigate = useNavigate();
-  
+  const [transcript, setTranscript] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0.8);
   const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<number | null>(null);
-  const lastCommandTimeRef = useRef<number>(0);
-  
-  // Track spoken messages to prevent repetition
-  const spokenMessagesRef = useRef<Set<string>>(new Set());
-  
-  const shouldPlayGreeting = location.pathname === '/' || 
-                            location.pathname.includes('/signup') ||
-                            location.pathname.includes('/welcome') ||
-                            location.pathname.includes('/free-trial') ||
-                            location.pathname.includes('/exam-readiness') ||
-                            location.pathname.includes('/scholarship');
-  
-  // Enhanced greeting messages for different pages
-  const getContextMessage = (path: string) => {
-    if (path === '/') {
-      return "Welcome to PREPZR, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning companion. PREPZR uses advanced AI to understand your emotional state and learning patterns, creating a truly personalized study experience. Unlike traditional coaching institutes, we adapt to you in real-time. Would you like to know more about our features, start a free trial, take our exam readiness test, or explore our scholarship opportunities?";
-    } else if (path.includes('/signup')) {
-      return "Welcome to PREPZR signup! I'm Sakha AI. I can help you navigate the registration process. You can say 'help me sign up', 'tell me about plans', or 'start free trial' to get assistance.";
-    } else if (path.includes('/free-trial')) {
-      return "Welcome to PREPZR's free trial! Experience our emotionally intelligent exam preparation platform. I can guide you through our features like personalized study plans, adaptive learning, and real-time progress tracking.";
-    } else if (path.includes('/exam-readiness')) {
-      return "Our exam readiness analyzer will evaluate your current preparation level and identify areas for improvement. Unlike other platforms, PREPZR considers your emotional state and learning patterns to provide truly personalized recommendations.";
-    } else if (path.includes('/scholarship')) {
-      return "Explore PREPZR's scholarship opportunities! We believe in making quality education accessible. Our scholarship tests are designed to identify talented students and provide them with premium access to our platform.";
-    }
-    
-    return "Welcome to PREPZR, where AI meets empathy in exam preparation. I'm Sakha AI, ready to help you explore our platform.";
-  };
+  const hasSpokenGreetingRef = useRef(false);
+  const hasInitializedRef = useRef(false);
 
-  // Enhanced command processing for home page
-  const processVoiceCommand = (transcript: string) => {
-    const command = transcript.toLowerCase();
-    
-    // Prevent rapid commands
-    const now = Date.now();
-    if (now - lastCommandTimeRef.current < 2000) return;
-    lastCommandTimeRef.current = now;
-
-    // Features and information commands
-    if (command.includes('features') || command.includes('what can prepzr do')) {
-      speak("PREPZR offers emotionally aware learning with personalized study plans, adaptive flashcards, AI tutoring, practice exams, and real-time progress tracking. We understand not just what you learn, but how you feel while learning.");
-    }
-    else if (command.includes('why prepzr') || command.includes('better than coaching')) {
-      speak("PREPZR is better than traditional coaching institutes because we provide 24/7 availability, personalized attention for every student, emotional intelligence integration, adaptive learning paths, and cost-effective premium education. We scale personal attention that physical institutes cannot match.");
-    }
-    else if (command.includes('free trial') || command.includes('try free')) {
-      speak("Starting your free trial! You'll get access to our core features including personalized study plans and AI tutoring.");
-      navigate('/signup?trial=true');
-    }
-    else if (command.includes('exam readiness') || command.includes('readiness test')) {
-      speak("Let's analyze your exam readiness! Our AI will evaluate your preparation and create a personalized improvement plan.");
-      window.dispatchEvent(new Event('open-exam-analyzer'));
-    }
-    else if (command.includes('scholarship') || command.includes('scholarship test')) {
-      speak("Exploring scholarship opportunities! PREPZR offers merit-based scholarships to deserving students.");
-      navigate('/scholarship');
-    }
-    else if (command.includes('signup') || command.includes('sign up') || command.includes('register')) {
-      speak("Taking you to the signup page! I'll help you create your account.");
-      navigate('/signup');
-    }
-    else if (command.includes('login') || command.includes('log in')) {
-      speak("Redirecting to login page.");
-      navigate('/login');
-    }
-    else if (command.includes('subscription') || command.includes('plans') || command.includes('pricing')) {
-      speak("Let me show you our subscription plans designed for different learning needs.");
-      navigate('/signup#plans');
-    }
-    else if (command.includes('about prepzr') || command.includes('more about')) {
-      speak("PREPZR revolutionizes exam preparation by combining artificial intelligence with emotional intelligence. We create adaptive learning experiences that respond to your mood, stress levels, and learning preferences in real-time.");
-    }
-    else if (command.includes('help') || command.includes('guide me')) {
-      speak("I can help you with signing up, exploring features, starting a free trial, taking readiness tests, or learning about scholarships. What would you like to know?");
-      showHelpToast();
-    }
-    else {
-      speak("I can help you explore PREPZR's features, start a free trial, take an exam readiness test, or learn about our scholarship programs. What interests you?");
-    }
-  };
-
-  const speak = (text: string) => {
-    if (!('speechSynthesis' in window) || audioMuted) return;
-    
-    // Check if message was already spoken (prevent repetition)
-    const messageKey = text.toLowerCase().trim();
-    if (spokenMessagesRef.current.has(messageKey)) {
-      console.log('🔇 Voice: Message already spoken, skipping:', text);
-      return;
-    }
-    
-    speakWithFemaleVoice(
-      text,
-      { language },
-      () => {
-        // Add to spoken messages to prevent repetition
-        spokenMessagesRef.current.add(messageKey);
-        console.log('🔊 Voice: Speaking:', text);
-      },
-      () => {
-        console.log('🔇 Voice: Finished speaking');
-      }
-    );
-  };
-
-  const showHelpToast = () => {
-    toast({
-      title: "Sakha AI Voice Commands",
-      description: "Try: 'Features', 'Free trial', 'Exam readiness', 'Scholarship test', 'Sign up', 'Why PREPZR better'",
-      duration: 8000,
-    });
-  };
-
-  const setupVoiceRecognition = () => {
-    if (recognitionRef.current || audioMuted || !shouldPlayGreeting) return;
-    
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+  useEffect(() => {
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
       console.error("Speech recognition not supported");
       return;
     }
-    
-    try {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = language;
-      
-      recognition.onstart = () => setIsListening(true);
-      recognition.onend = () => {
-        setIsListening(false);
-        if (shouldPlayGreeting && !audioMuted && document.visibilityState === 'visible') {
-          timeoutRef.current = window.setTimeout(() => {
-            recognitionRef.current = null;
-            setupVoiceRecognition();
-          }, 3000);
-        }
-      };
-      
-      recognition.onresult = (event) => {
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+
+    if (recognitionRef.current) {
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = language;
+
+      recognitionRef.current.onstart = () => setIsListening(true);
+      recognitionRef.current.onend = () => setIsListening(false);
+
+      recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
-        console.log("Voice command:", transcript);
+        setTranscript(transcript);
         processVoiceCommand(transcript);
       };
-      
-      recognition.onerror = (event) => {
+
+      recognitionRef.current.onerror = (event: any) => {
         console.error("Speech recognition error:", event.error);
         setIsListening(false);
-        
-        if (shouldPlayGreeting && !audioMuted) {
-          timeoutRef.current = window.setTimeout(() => {
-            recognitionRef.current = null;
-            setupVoiceRecognition();
-          }, 5000);
-        }
       };
-      
-      recognition.start();
-      recognitionRef.current = recognition;
-    } catch (error) {
-      console.error("Failed to setup recognition:", error);
     }
-  };
 
-  const cleanupVoiceResources = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    
-    if (recognitionRef.current) {
-      try {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.onstart = null;
+        recognitionRef.current.onend = null;
         recognitionRef.current.onresult = null;
         recognitionRef.current.onerror = null;
-        recognitionRef.current.onend = null;
-        recognitionRef.current.onstart = null;
-        recognitionRef.current.abort();
-        recognitionRef.current.stop();
+      }
+    };
+  }, [language]);
+
+  // Initial greeting - only once per session
+  useEffect(() => {
+    if (hasInitializedRef.current || hasSpokenGreetingRef.current) return;
+    
+    const speakGreeting = () => {
+      if (!isVoiceEnabled || isMuted || hasSpokenGreetingRef.current) return;
+      
+      const greeting = `Welcome to PREPZR! I'm Sakha AI, your intelligent study companion. I'm here to help you navigate your learning journey. You can ask me to take you to different sections like dashboard, concepts, flashcards, or practice exams.`;
+      
+      speakWithFemaleVoice(
+        greeting,
+        { volume, rate: 0.95, pitch: 1.1 },
+        () => {
+          setIsSpeaking(true);
+          hasSpokenGreetingRef.current = true;
+          console.log('🔊 Home Voice Assistant: Started speaking initial greeting');
+        },
+        () => {
+          setIsSpeaking(false);
+          console.log('🔇 Home Voice Assistant: Finished speaking');
+        }
+      );
+    };
+
+    const timer = setTimeout(() => {
+      if (!hasInitializedRef.current) {
+        hasInitializedRef.current = true;
+        speakGreeting();
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [isVoiceEnabled, isMuted, volume]);
+
+  const processVoiceCommand = (transcript: string) => {
+    const command = transcript.toLowerCase();
+    
+    if (command.includes('dashboard')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student');
+        speakWithFemaleVoice("Taking you to the dashboard", { volume });
+      }
+    } else if (command.includes('concept')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student/concepts');
+        speakWithFemaleVoice("Opening concepts section", { volume });
+      }
+    } else if (command.includes('flashcard')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student/flashcards');
+        speakWithFemaleVoice("Opening flashcards section", { volume });
+      }
+    } else if (command.includes('practice') || command.includes('exam')) {
+      if (onNavigationCommand) {
+        onNavigationCommand('/dashboard/student/practice-exam');
+        speakWithFemaleVoice("Opening practice exams", { volume });
+      }
+    } else {
+      speakWithFemaleVoice(`I heard you say: ${transcript}. Try saying "go to dashboard" or "open concepts"`, { volume });
+    }
+  };
+
+  const startListening = () => {
+    if (recognitionRef.current && !isListening) {
+      try {
+        recognitionRef.current.start();
       } catch (error) {
-        // Ignore cleanup errors
-      } finally {
-        recognitionRef.current = null;
+        console.error('Speech recognition start error:', error);
       }
     }
-    setIsListening(false);
   };
 
-  const setupVoiceGreeting = () => {
-    if (greetingPlayed || audioMuted || !shouldPlayGreeting) return;
-    
-    const message = getContextMessage(location.pathname);
-    speak(message);
-    setGreetingPlayed(true);
-    
-    setTimeout(() => {
-      if (!audioMuted) {
-        setupVoiceRecognition();
-        showHelpToast();
-      }
-    }, 500);
+  const testVoice = () => {
+    speakWithFemaleVoice(
+      `Hello ${userName}, this is your PREPZR voice assistant test. I'm working perfectly!`,
+      { volume },
+      () => setIsSpeaking(true),
+      () => setIsSpeaking(false)
+    );
   };
 
-  useEffect(() => {
-    cleanupVoiceResources();
-    setGreetingPlayed(false);
-    // Clear spoken messages cache when navigating to new page
-    spokenMessagesRef.current.clear();
-    
-    const muteSetting = localStorage.getItem('voice_assistant_muted');
-    if (muteSetting === 'true') {
-      setAudioMuted(true);
-    } else if (shouldPlayGreeting) {
-      const timer = setTimeout(setupVoiceGreeting, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const handleMute = () => {
-      setAudioMuted(true);
-      localStorage.setItem('voice_assistant_muted', 'true');
-      cleanupVoiceResources();
-    };
-    
-    const handleUnmute = () => {
-      setAudioMuted(false);
-      localStorage.setItem('voice_assistant_muted', 'false');
-      if (!greetingPlayed) {
-        setupVoiceGreeting();
-      } else {
-        setupVoiceRecognition();
-      }
-    };
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        cleanupVoiceResources();
-      } else if (document.visibilityState === 'visible' && !audioMuted) {
-        setTimeout(() => {
-          if (!greetingPlayed) {
-            setupVoiceGreeting();
-          } else {
-            setupVoiceRecognition();
-          }
-        }, 1000);
-      }
-    };
-    
-    document.addEventListener('voice-assistant-mute', handleMute);
-    document.addEventListener('voice-assistant-unmute', handleUnmute);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('voice-assistant-mute', handleMute);
-      document.removeEventListener('voice-assistant-unmute', handleUnmute);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      cleanupVoiceResources();
-    };
-  }, [greetingPlayed, shouldPlayGreeting, audioMuted]);
-
-  // Clear spoken messages periodically to allow re-speaking after some time
-  useEffect(() => {
-    const interval = setInterval(() => {
-      spokenMessagesRef.current.clear();
-      console.log('🔄 Voice: Cleared spoken messages cache');
-    }, 300000); // Clear every 5 minutes
-
-    return () => clearInterval(interval);
-  }, []);
-  
   return (
     <>
-      {/* Floating AI Indicator - Enhanced with vibrant styling */}
+      {/* Floating Voice Assistant Button */}
       <motion.div
-        className="fixed bottom-6 left-6 z-50 pointer-events-none"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 2 }}
+        className="fixed bottom-6 right-6 z-50"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-purple-200">
-          <div className="relative">
-            <motion.div
-              className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [1, 0.7, 1]
+        <Button
+          onClick={() => setShowPanel(!showPanel)}
+          className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg hover:shadow-xl relative overflow-hidden group"
+        >
+          {/* Vibration/Wave effect when speaking */}
+          {isSpeaking && (
+            <>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.3, 0.1, 0.3]
+                }}
+                transition={{
+                  duration: 0.8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-pink-400 rounded-full"
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [0.2, 0.05, 0.2]
+                }}
+                transition={{
+                  duration: 1.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.2
+                }}
+              />
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-indigo-400 rounded-full"
+                animate={{
+                  scale: [1, 1.7, 1],
+                  opacity: [0.1, 0.03, 0.1]
+                }}
+                transition={{
+                  duration: 1.6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.4
+                }}
+              />
+            </>
+          )}
+          
+          {/* Pulse animation background */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.1, 0.3]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          
+          <div className="relative z-10 flex flex-col items-center">
+            <Brain className="h-6 w-6 text-white mb-1" />
+            <motion.span 
+              className="text-[10px] font-bold text-transparent bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 bg-clip-text"
+              animate={{ 
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                scale: isSpeaking ? [1, 1.2, 1] : [1, 1.1, 1]
               }}
-              transition={{
-                duration: 2,
+              transition={{ 
+                duration: isSpeaking ? 0.5 : 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              style={{
+                backgroundSize: '200% auto'
+              }}
+            >
+              AI
+            </motion.span>
+          </div>
+
+          {/* Speaking wave indicator */}
+          {isSpeaking && (
+            <motion.div
+              className="absolute inset-0 rounded-full border-3 border-yellow-400"
+              animate={{ 
+                scale: [1, 1.15, 1],
+                opacity: [1, 0.3, 1],
+                borderWidth: ['3px', '2px', '3px']
+              }}
+              transition={{ 
+                duration: 0.6,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
             />
-            <motion.div
-              className="absolute inset-0 w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 0, 0.5]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.5
-              }}
-            />
-          </div>
-          <span className="text-sm font-medium text-gray-700">Sakha</span>
-          <motion.span 
-            className="text-sm font-bold text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 bg-clip-text"
-            animate={{ 
-              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-            }}
-            transition={{ 
-              duration: 3,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            style={{
-              backgroundSize: '200% auto'
-            }}
-          >
-            AI
-          </motion.span>
-          <span className="text-sm text-gray-600">listening...</span>
-        </div>
+          )}
+        </Button>
       </motion.div>
-      
-      {/* Voice command help indicator */}
-      {isListening && (
-        <motion.div
-          className="fixed bottom-20 left-6 z-50 pointer-events-none"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-        >
-          <div className="bg-black/80 text-white text-xs px-3 py-2 rounded-lg backdrop-blur-sm">
-            Try: "Features", "Free trial", "Exam readiness"
-          </div>
-        </motion.div>
-      )}
+
+      {/* Voice Control Panel */}
+      <AnimatePresence>
+        {showPanel && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="fixed bottom-24 right-6 z-40 w-80"
+          >
+            <Card className="shadow-xl border-2 border-purple-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    Voice Assistant
+                    <motion.span 
+                      className="text-transparent bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text font-extrabold"
+                      animate={{ 
+                        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                      }}
+                      transition={{ 
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "linear"
+                      }}
+                      style={{
+                        backgroundSize: '200% auto'
+                      }}
+                    >
+                      AI
+                    </motion.span>
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPanel(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Button
+                    onClick={startListening}
+                    disabled={isListening}
+                    className={`flex items-center gap-2 ${isListening ? 'bg-red-500' : 'bg-blue-500'}`}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {isListening ? 'Listening...' : 'Start Voice Command'}
+                  </Button>
+                </div>
+
+                {transcript && (
+                  <div className="p-2 bg-gray-100 rounded text-sm">
+                    <strong>You said:</strong> {transcript}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Voice Enabled</p>
+                    <p className="text-xs text-muted-foreground">
+                      Toggle voice assistant on or off
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
+                  >
+                    {isVoiceEnabled ? 'Disable' : 'Enable'}
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Mute Voice</p>
+                    <p className="text-xs text-muted-foreground">
+                      Mute or unmute voice responses
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsMuted(!isMuted)}
+                  >
+                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  </Button>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Volume</p>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={testVoice}
+                  className="w-full"
+                >
+                  Test Voice
+                </Button>
+
+                <div className="text-xs text-gray-500">
+                  <p className="font-medium mb-1">Try saying:</p>
+                  <ul className="space-y-1">
+                    <li>• "Go to dashboard"</li>
+                    <li>• "Open concepts"</li>
+                    <li>• "Show flashcards"</li>
+                    <li>• "Start practice exam"</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
