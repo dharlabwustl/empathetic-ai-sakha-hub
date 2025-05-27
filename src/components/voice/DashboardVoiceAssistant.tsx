@@ -1,6 +1,5 @@
 
 import React, { useEffect } from 'react';
-import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { useNavigate } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
 
@@ -8,134 +7,156 @@ interface DashboardVoiceAssistantProps {
   userName?: string;
   language?: string;
   userMood?: MoodType;
+  isReturningUser?: boolean;
+  lastActivity?: string;
+  examReadinessScore?: number;
 }
 
 const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   userName = 'Student',
   language = 'en-US',
-  userMood
+  userMood,
+  isReturningUser = false,
+  lastActivity,
+  examReadinessScore = 0
 }) => {
   const navigate = useNavigate();
 
-  const handleVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase().trim();
-    console.log('Prep-Zer AI processing dashboard command:', lowerCommand);
+  const speakMessage = (message: string) => {
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance();
+      speech.text = message.replace(/PREPZR/gi, 'PREP-zer');
+      speech.lang = language;
+      speech.rate = 0.9;
+      speech.pitch = 1.0;
+      speech.volume = 0.8;
 
-    // Dashboard navigation commands
-    if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
-      navigate('/dashboard/student');
-      speakMessage('Navigating to your dashboard');
-      return;
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.lang.includes('en') && 
+        (voice.name.toLowerCase().includes('female') || !voice.name.toLowerCase().includes('male'))
+      );
+      
+      if (femaleVoice) {
+        speech.voice = femaleVoice;
+      }
+
+      window.speechSynthesis.speak(speech);
     }
-
-    if (lowerCommand.includes('concepts') || lowerCommand.includes('learn concepts')) {
-      navigate('/dashboard/student/concepts');
-      speakMessage('Opening concepts section. Here you can study all your NEET topics in detail.');
-      return;
-    }
-
-    if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card') || lowerCommand.includes('cards')) {
-      navigate('/dashboard/student/flashcards');
-      speakMessage('Opening flashcards section. Perfect for quick revision and memory reinforcement.');
-      return;
-    }
-
-    if (lowerCommand.includes('practice exam') || lowerCommand.includes('test') || lowerCommand.includes('exam')) {
-      navigate('/dashboard/student/practice-exam');
-      speakMessage('Opening practice exams. Time to test your knowledge with NEET mock tests!');
-      return;
-    }
-
-    if (lowerCommand.includes('profile') || lowerCommand.includes('settings')) {
-      navigate('/dashboard/student/profile');
-      speakMessage('Opening your profile settings');
-      return;
-    }
-
-    // Study assistance commands
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule')) {
-      speakMessage(`Based on your current progress and ${userMood ? 'mood' : 'study pattern'}, I recommend focusing on your weaker subjects today. Would you like me to show your personalized study plan?`);
-      return;
-    }
-
-    if (lowerCommand.includes('how am i doing') || lowerCommand.includes('progress') || lowerCommand.includes('performance')) {
-      speakMessage(`Great question, ${userName}! Based on your recent activity, you're making excellent progress. You've completed 68% of your Physics concepts and your practice exam scores are steadily improving. Your dedication is paying off - keep up the fantastic work!`);
-      return;
-    }
-
-    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage me')) {
-      const motivationalMessage = userMood === MoodType.ANXIOUS 
-        ? `${userName}, I understand you might be feeling anxious, but remember - you're already on the right path. Every concept you learn, every question you practice brings you closer to your NEET goal. Take it one step at a time, and believe in yourself!`
-        : `${userName}, you're doing amazing! Your commitment to preparation shows real dedication. Remember, every NEET topper started exactly where you are now. Stay focused, stay consistent, and success will follow!`;
-      speakMessage(motivationalMessage);
-      return;
-    }
-
-    if (lowerCommand.includes('break') || lowerCommand.includes('rest')) {
-      speakMessage(`Smart thinking, ${userName}! Taking breaks is crucial for effective learning. Research shows that 15-20 minute breaks every hour help improve retention. How about a quick walk or some deep breathing exercises?`);
-      return;
-    }
-
-    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
-      speakMessage(`Hi ${userName}! I'm Prep-Zer AI, your intelligent study companion. I can help you navigate to different sections like concepts, flashcards, and practice exams. I can also check your progress, provide study motivation, suggest breaks, and answer questions about your NEET preparation. What would you like to do?`);
-      return;
-    }
-
-    // Subject-specific commands
-    if (lowerCommand.includes('physics')) {
-      navigate('/dashboard/student/concepts?subject=physics');
-      speakMessage('Opening Physics concepts. Let\'s dive into the fundamental laws of nature!');
-      return;
-    }
-
-    if (lowerCommand.includes('chemistry')) {
-      navigate('/dashboard/student/concepts?subject=chemistry');
-      speakMessage('Opening Chemistry concepts. Time to explore the molecular world!');
-      return;
-    }
-
-    if (lowerCommand.includes('biology')) {
-      navigate('/dashboard/student/concepts?subject=biology');
-      speakMessage('Opening Biology concepts. Let\'s understand the science of life!');
-      return;
-    }
-
-    // Default response
-    speakMessage(`I heard you say: "${command}". I'm Prep-Zer AI, here to help with your NEET preparation. You can ask me to navigate to different sections, check your progress, or get study guidance. How can I assist you today?`);
   };
 
-  const {
-    speakMessage,
-    isVoiceSupported,
-    voiceInitialized
-  } = useVoiceAnnouncer({
-    userName,
-    autoStart: false,
-    onCommand: handleVoiceCommand
-  });
+  const handleVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase().trim();
+    console.log('Dashboard AI processing command:', lowerCommand);
 
-  // Initial greeting when component mounts (only once per session)
-  useEffect(() => {
-    if (isVoiceSupported && voiceInitialized) {
-      const hasGreeted = sessionStorage.getItem('prepzr_voice_greeted');
-      if (!hasGreeted) {
-        setTimeout(() => {
-          const moodMessage = userMood === MoodType.ANXIOUS 
-            ? "I notice you might be feeling a bit anxious today. That's completely normal! Let's take this step by step." 
-            : userMood === MoodType.MOTIVATED 
-            ? "I can sense your motivation today - that's the spirit we love to see!" 
-            : "";
-          
-          // Use phonetic pronunciation guide for PREPZR
-          const greeting = `Welcome back, ${userName}! I'm your Prep-Zer AI assistant, ready to support your NEET preparation journey. ${moodMessage} How can I help you study effectively today?`;
-          speakMessage(greeting);
-          sessionStorage.setItem('prepzr_voice_greeted', 'true');
-        }, 2000);
-      }
+    // Navigation commands
+    if (lowerCommand.includes('study plan') || lowerCommand.includes('academic advisor')) {
+      navigate('/dashboard/student');
+      speakMessage(`${userName}, here's your personalized study plan crafted specifically for your exam goals and learning style.`);
+      return;
     }
-  }, [isVoiceSupported, voiceInitialized, userName, userMood, speakMessage]);
 
-  return null; // This is a background service component
+    if (lowerCommand.includes('today') || lowerCommand.includes('daily plan') || lowerCommand.includes('tasks')) {
+      navigate('/dashboard/student/todays-plan');
+      speakMessage(`Let's review your daily learning agenda, ${userName}. Your tasks are optimized based on your progress and exam timeline.`);
+      return;
+    }
+
+    if (lowerCommand.includes('concept') || lowerCommand.includes('study material')) {
+      navigate('/dashboard/student/concepts');
+      speakMessage('Your concept library contains comprehensive materials organized by subjects and difficulty. Perfect for deep learning and understanding.');
+      return;
+    }
+
+    if (lowerCommand.includes('flashcard') || lowerCommand.includes('quick review')) {
+      navigate('/dashboard/student/flashcards');
+      speakMessage('Flashcard sessions boost memory retention significantly. Your personalized deck focuses on high-yield content for maximum impact.');
+      return;
+    }
+
+    if (lowerCommand.includes('practice') || lowerCommand.includes('exam') || lowerCommand.includes('test')) {
+      navigate('/dashboard/student/practice-exam');
+      speakMessage('Practice testing is proven to enhance performance. Your mock exams simulate real exam conditions for better preparation.');
+      return;
+    }
+
+    if (lowerCommand.includes('formula') || lowerCommand.includes('lab')) {
+      speakMessage('Formula lab provides interactive practice with equations and calculations across Physics, Chemistry, and Mathematics for hands-on learning.');
+      return;
+    }
+
+    // Performance and motivation
+    if (lowerCommand.includes('readiness') || lowerCommand.includes('performance') || lowerCommand.includes('score')) {
+      const encouragement = examReadinessScore > 70 
+        ? `Outstanding work, ${userName}! Your ${examReadinessScore}% readiness score shows excellent preparation momentum.`
+        : examReadinessScore > 50
+        ? `Good progress, ${userName}! Your ${examReadinessScore}% readiness indicates solid foundation - let's push for even better results.`
+        : `${userName}, your preparation journey is building momentum. Focus on consistent daily practice to boost your readiness score.`;
+      
+      speakMessage(encouragement);
+      return;
+    }
+
+    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage')) {
+      const motivationalMsg = isReturningUser
+        ? `${userName}, your commitment to daily learning is impressive! Each session strengthens your knowledge and builds exam confidence. Excellence is a habit you're developing beautifully.`
+        : `${userName}, starting your PREP-zer journey shows great determination! With our personalized approach and your dedication, success is absolutely within reach.`;
+      
+      speakMessage(motivationalMsg);
+      return;
+    }
+
+    // Pending tasks and backlogs
+    if (lowerCommand.includes('pending') || lowerCommand.includes('backlog') || lowerCommand.includes('incomplete')) {
+      speakMessage(`${userName}, staying current with your study schedule maximizes learning efficiency. I can help prioritize your pending tasks for optimal progress.`);
+      return;
+    }
+
+    // Mood-based responses
+    if (lowerCommand.includes('feeling') || lowerCommand.includes('mood')) {
+      if (userMood === MoodType.STRESSED) {
+        speakMessage(`${userName}, I understand exam preparation can feel overwhelming. Take deep breaths, break tasks into smaller chunks, and remember - consistent small steps lead to big victories.`);
+      } else if (userMood === MoodType.MOTIVATED) {
+        speakMessage(`${userName}, your motivation is powerful fuel for success! Channel this energy into focused study sessions and watch your readiness score soar.`);
+      } else {
+        speakMessage(`${userName}, maintaining emotional balance during preparation is crucial. I'm here to support your learning journey every step of the way.`);
+      }
+      return;
+    }
+
+    // Study guidance and tips
+    if (lowerCommand.includes('study tips') || lowerCommand.includes('guidance')) {
+      speakMessage(`${userName}, effective study combines active recall, spaced repetition, and practice testing. Your PREP-zer dashboard provides all these evidence-based learning techniques.`);
+      return;
+    }
+
+    // Help and navigation
+    if (lowerCommand.includes('help') || lowerCommand.includes('guide')) {
+      speakMessage(`${userName}, I'm your intelligent study companion! I can guide you through study plans, daily tasks, concept learning, flashcard reviews, practice exams, formula practice, and performance analytics. What specific area interests you?`);
+      return;
+    }
+
+    // Default response for unrecognized commands
+    speakMessage(`${userName}, I'm here to enhance your learning experience! You can ask about study plans, today's tasks, concept reviews, practice tests, performance tracking, or study guidance. How can I support your preparation today?`);
+  };
+
+  // Initial greeting for returning users
+  useEffect(() => {
+    const hasGreeted = sessionStorage.getItem('dashboard_voice_greeted');
+    if (!hasGreeted && isReturningUser) {
+      setTimeout(() => {
+        const performanceMsg = examReadinessScore > 60 
+          ? `Your ${examReadinessScore}% exam readiness shows excellent progress! `
+          : '';
+        
+        const greeting = `Welcome back, ${userName}! ${performanceMsg}I'm ready to guide your study session. ${lastActivity ? `Last time you were ${lastActivity}. ` : ''}Let's continue building your success story - what would you like to focus on today?`;
+        speakMessage(greeting);
+        sessionStorage.setItem('dashboard_voice_greeted', 'true');
+      }, 3000);
+    }
+  }, [userName, isReturningUser, lastActivity, examReadinessScore]);
+
+  return null; // Background service component
 };
 
 export default DashboardVoiceAssistant;
