@@ -167,7 +167,10 @@ const PracticeExamLandingPage = () => {
                     className="w-full" 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => setActiveTab('available-exams')}
+                    onClick={() => {
+                      // Stay on the same page but switch to available-exams tab
+                      handleTabChange('available-exams');
+                    }}
                   >
                     <Play className="mr-2 h-4 w-4" />
                     Take Practice Test

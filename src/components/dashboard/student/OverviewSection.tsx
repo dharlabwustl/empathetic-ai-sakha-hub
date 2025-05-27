@@ -83,12 +83,14 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleSubjectStudy = (subjectName: string) => {
     switch (type) {
       case 'Concepts':
-        navigate('/dashboard/student/concepts?tab=all-concepts');
+        // Navigate to concepts page with all concepts view
+        navigate('/dashboard/student/concepts/all');
         break;
       case 'Flashcards':
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
+        // Navigate to practice exam available exams tab
         navigate('/dashboard/student/practice-exam?tab=available-exams');
         break;
     }
