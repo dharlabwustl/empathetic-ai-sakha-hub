@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ChevronRight, Globe } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Heart, Globe } from 'lucide-react';
 
 interface WelcomeDashboardPromptProps {
   userName: string;
@@ -96,9 +96,10 @@ const WelcomeDashboardPrompt: React.FC<WelcomeDashboardPromptProps> = ({
                 <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h4 className="font-medium text-green-700 dark:text-green-300">Supporting UN Sustainability Goals</h4>
+                <h4 className="font-medium text-green-700 dark:text-green-300">Support UN Education Sustainability Goals</h4>
                 <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                  PREPZR supports UN sustainability goals for education and contributes 5% of revenue to support underprivileged communities.
+                  We contribute 5% of our revenue to provide unprivileged students access to our platform, 
+                  supporting UN Sustainable Development Goal 4 for quality education.
                 </p>
               </div>
             </div>
