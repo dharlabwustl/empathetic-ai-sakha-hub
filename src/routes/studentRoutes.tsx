@@ -74,7 +74,7 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* CRITICAL: INTERACTIVE FLASHCARD ROUTE - MUST BE EXACT MATCH - FIXED TO /1/interactive */}
+      {/* CRITICAL FIX: All flashcard routes MUST go to interactive */}
       <Route path="/flashcards/1/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
@@ -85,6 +85,7 @@ const StudentRoutes = () => {
           <InteractiveFlashcard />
         </SidebarLayout>
       } />
+      {/* REMOVE any /practice routes to prevent wrong navigation */}
       <Route path="/practice-exam" element={
         <SidebarLayout>
           <PracticeExamsList />

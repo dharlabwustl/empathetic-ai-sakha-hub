@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -81,7 +82,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
       
       <CardContent className="p-4">
         <div className="flex flex-wrap items-center gap-2 mb-2">
-          <Badge variant="outline" className="border-blue-300 text-blue-700 dark:text-blue-400">
+          <Badge variant="outline" className={`${subjectColors[subject as keyof typeof subjectColors] || 'bg-gray-50 text-gray-700'} text-xs font-semibold`}>
             {subject}
           </Badge>
           {chapter && (
@@ -132,6 +133,13 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
       </CardFooter>
     </Card>
   );
+};
+
+const subjectColors = {
+  'Physics': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20',
+  'Chemistry': 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20',
+  'Biology': 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20',
+  'Mathematics': 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20'
 };
 
 export default ConceptCard;
