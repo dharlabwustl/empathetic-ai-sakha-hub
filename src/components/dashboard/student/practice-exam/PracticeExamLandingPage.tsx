@@ -90,20 +90,22 @@ const PracticeExamLandingPage = () => {
   ];
 
   const handleStartExam = (examId: string) => {
-    // Use specific exam ID 4 for start exam as requested
     if (examId === '4') {
-      navigate('/dashboard/student/practice-exam/4/start');
+      window.location.href = '/dashboard/student/practice-exam/4/start';
+    } else if (examId === '6') {
+      window.location.href = '/dashboard/student/practice-exam/6/start';
     } else {
-      navigate(`/dashboard/student/practice-exam/${examId}/start`);
+      window.location.href = `/dashboard/student/practice-exam/${examId}/start`;
     }
   };
 
   const handleViewResults = (examId: string) => {
-    // Use specific exam ID 6 for view results as requested
     if (examId === '6') {
-      navigate('/dashboard/student/practice-exam/6/review');
+      window.location.href = '/dashboard/student/practice-exam/6/review';
+    } else if (examId === '4') {
+      window.location.href = '/dashboard/student/practice-exam/4/review';
     } else {
-      navigate(`/dashboard/student/practice-exam/${examId}/review`);
+      window.location.href = `/dashboard/student/practice-exam/${examId}/review`;
     }
   };
 
