@@ -37,8 +37,12 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       
       let greeting = '';
       
-      if (isReturningUser) {
-        greeting = `Welcome back to PREPZR, ${userName}! I'm your PREPZR AI assistant, ready to help you with your studies today.`;
+      // Check if user is truly returning (not first time after signup)
+      const isNewUserSignup = localStorage.getItem('new_user_signup') === 'true';
+      const actuallyReturning = isReturningUser && !isNewUserSignup;
+      
+      if (actuallyReturning) {
+        greeting = `Welcome back to PREPZR, ${userName}! I'm your PREPZR AI assistant, ready to help you continue your studies today.`;
         
         if (lastActivity) {
           greeting += ` Last time you were ${lastActivity}. `;
@@ -49,8 +53,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         }
         
         greeting += `Let's make today productive!`;
-      } else if (isFirstTimeUser) {
-        greeting = `Welcome to PREPZR, ${userName}! I'm your PREPZR AI assistant, excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
+      } else if (isFirstTimeUser || isNewUserSignup) {
+        greeting = `Congratulations ${userName}! Welcome to PREPZR! I'm your PREPZR AI assistant, and I'm excited to guide you on your exam preparation journey. PREPZR will be with you at every step, helping you become exam-ready with personalized study plans, adaptive learning, and continuous support. Let's start this amazing journey together and achieve your goals!`;
       } else {
         greeting = `Hello ${userName}! I'm your PREPZR AI assistant, ready to help you achieve your learning goals today.`;
       }
@@ -70,6 +74,10 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         },
         () => {
           console.log('🔇 Voice Greeting: Finished speaking');
+          // Clear the new user signup flag after first greeting
+          if (isNewUserSignup) {
+            localStorage.removeItem('new_user_signup');
+          }
         }
       );
     };

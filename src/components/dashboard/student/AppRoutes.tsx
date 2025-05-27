@@ -3,10 +3,11 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
-import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
+import RedesignedTodaysPlan from '@/components/dashboard/student/today-plan/RedesignedTodaysPlan';
 import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
+import FlashcardInteractivePage from '@/components/dashboard/student/flashcards/FlashcardInteractivePage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
@@ -21,6 +22,7 @@ const StudentAppRoutes = () => {
       <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
+      <Route path="/flashcards/:setId/interactive" element={<FlashcardInteractivePage />} />
       <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />

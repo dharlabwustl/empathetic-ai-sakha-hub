@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +14,7 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   const [greetingPlayed, setGreetingPlayed] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [offerCycle, setOfferCycle] = useState(0);
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   const recognitionRef = useRef<any>(null);
   const timeoutRef = useRef<number | null>(null);
   const lastCommandTimeRef = useRef<number>(0);
+  const lastOfferTimeRef = useRef<number>(0);
   
   // Track spoken messages to prevent repetition
   const spokenMessagesRef = useRef<Set<string>>(new Set());
@@ -34,9 +37,9 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   // Enhanced greeting messages for different pages
   const getContextMessage = (path: string) => {
     if (path === '/') {
-      return "Welcome to PREPZR, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning companion. PREPZR uses advanced AI to understand your emotional state and learning patterns, creating a truly personalized study experience. Unlike traditional coaching institutes, we adapt to you in real-time. Would you like to know more about our features, start a free trial, take our exam readiness test, or explore our scholarship opportunities?";
+      return "Welcome to PREPZR, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm your PREPZR AI assistant, your learning companion. PREPZR uses advanced AI to understand your emotional state and learning patterns, creating a truly personalized study experience. Unlike traditional coaching institutes, we adapt to you in real-time.";
     } else if (path.includes('/signup')) {
-      return "Welcome to PREPZR signup! I'm Sakha AI. I can help you navigate the registration process. You can say 'help me sign up', 'tell me about plans', or 'start free trial' to get assistance.";
+      return "Welcome to PREPZR signup! I'm your PREPZR AI assistant. I can help you navigate the registration process. You can say 'help me sign up', 'tell me about plans', or 'start free trial' to get assistance.";
     } else if (path.includes('/free-trial')) {
       return "Welcome to PREPZR's free trial! Experience our emotionally intelligent exam preparation platform. I can guide you through our features like personalized study plans, adaptive learning, and real-time progress tracking.";
     } else if (path.includes('/exam-readiness')) {
@@ -45,7 +48,23 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
       return "Explore PREPZR's scholarship opportunities! We believe in making quality education accessible. Our scholarship tests are designed to identify talented students and provide them with premium access to our platform.";
     }
     
-    return "Welcome to PREPZR, where AI meets empathy in exam preparation. I'm Sakha AI, ready to help you explore our platform.";
+    return "Welcome to PREPZR, where AI meets empathy in exam preparation. I'm your PREPZR AI assistant, ready to help you explore our platform.";
+  };
+
+  // Smart assistance offers that cycle through different topics
+  const getSmartOffer = () => {
+    const offers = [
+      "Would you like to start a free trial to experience our AI-powered learning? Just say 'free trial'.",
+      "Curious about how PREPZR is better than traditional coaching institutes? Ask me 'why PREPZR better'.",
+      "Want to test your current exam readiness? Say 'exam readiness test' to get started.",
+      "Interested in our scholarship opportunities? Say 'scholarship test' to learn more.",
+      "Need to know more about PREPZR's features? Just ask 'what can PREPZR do'.",
+      "Ready to sign up and start your personalized learning journey? Say 'sign up' to begin."
+    ];
+    
+    const currentOffer = offers[offerCycle % offers.length];
+    setOfferCycle(prev => prev + 1);
+    return currentOffer;
   };
 
   // Enhanced command processing for home page
@@ -124,9 +143,18 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
     );
   };
 
+  const offerSmartAssistance = () => {
+    const now = Date.now();
+    if (now - lastOfferTimeRef.current < 45000) return; // Wait 45 seconds between offers
+    
+    const offer = getSmartOffer();
+    speak(offer);
+    lastOfferTimeRef.current = now;
+  };
+
   const showHelpToast = () => {
     toast({
-      title: "Sakha AI Voice Commands",
+      title: "PREPZR AI Voice Commands",
       description: "Try: 'Features', 'Free trial', 'Exam readiness', 'Scholarship test', 'Sign up', 'Why PREPZR better'",
       duration: 8000,
     });
@@ -155,7 +183,12 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
           timeoutRef.current = window.setTimeout(() => {
             recognitionRef.current = null;
             setupVoiceRecognition();
-          }, 3000);
+            
+            // Offer smart assistance periodically
+            if (Math.random() > 0.7) { // 30% chance to offer help
+              setTimeout(offerSmartAssistance, 2000);
+            }
+          }, 5000);
         }
       };
       
@@ -222,6 +255,9 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
       if (!audioMuted) {
         setupVoiceRecognition();
         showHelpToast();
+        
+        // Schedule first smart assistance offer
+        setTimeout(offerSmartAssistance, 15000);
       }
     }, 500);
   };
@@ -231,6 +267,7 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
     setGreetingPlayed(false);
     // Clear spoken messages cache when navigating to new page
     spokenMessagesRef.current.clear();
+    setOfferCycle(0);
     
     const muteSetting = localStorage.getItem('voice_assistant_muted');
     if (muteSetting === 'true') {
