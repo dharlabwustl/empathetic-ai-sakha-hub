@@ -38,7 +38,7 @@ import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
 import EnhancedProfilePage from '@/pages/dashboard/student/EnhancedProfilePage';
-import PracticeExamsSection from '@/components/dashboard/student/practice-exam/PracticeExamsSection';
+import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import PostLoginWelcome from '@/components/login/PostLoginWelcome';
 import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
@@ -68,10 +68,6 @@ import LoginPage from '@/pages/auth/Login';
 import PostLoginWelcomeBack from '@/pages/dashboard/PostLoginWelcomeBack';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
 import AdminForgotPassword from '@/pages/admin/ForgotPassword';
-
-// Import new exam pages
-import ExamTakingPageNew from '@/pages/dashboard/student/exam/ExamTakingPage';
-import ExamResultsPage from '@/pages/dashboard/student/exam/ExamResultsPage';
 
 // Import new footer pages
 import About from '@/pages/About';
@@ -203,10 +199,11 @@ function App() {
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<ProtectedSidebarRoute Component={EnhancedFlashcardPractice} />} />
               <Route path="/dashboard/student/flashcards" element={<ProtectedSidebarRoute Component={FlashcardsLandingPage} />} />
               
-              {/* Other routes - all converted to protected */}
-              <Route path="/dashboard/student/practice-exam" element={<ProtectedSidebarRoute Component={PracticeExamsSection} />} />
+              {/* Practice Exam routes - FIXED */}
+              <Route path="/dashboard/student/practice-exam" element={<ProtectedSidebarRoute Component={PracticeExamLandingPage} />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ProtectedSidebarRoute Component={ExamTakingPage} />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ProtectedSidebarRoute Component={ExamReviewPage} />} />
+              
               <Route path="/dashboard/student/formula-practice-lab" element={<ProtectedSidebarRoute Component={FormulaPracticeLab} />} />
               <Route path="/dashboard/student/notifications" element={<ProtectedSidebarRoute Component={NotificationsView} />} />
               <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />

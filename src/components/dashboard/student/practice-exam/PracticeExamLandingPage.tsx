@@ -90,12 +90,14 @@ const PracticeExamLandingPage = () => {
   ];
 
   const handleStartExam = (examId: string) => {
-    console.log('Starting exam with ID:', examId);
+    console.log('🔥 STARTING EXAM:', examId);
+    console.log('🔥 NAVIGATING TO:', `/dashboard/student/practice-exam/${examId}/start`);
     navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
 
   const handleViewResults = (examId: string) => {
-    console.log('Viewing results for exam ID:', examId);
+    console.log('🔥 VIEWING RESULTS:', examId);
+    console.log('🔥 NAVIGATING TO:', `/dashboard/student/practice-exam/${examId}/review`);
     navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
 
@@ -225,12 +227,25 @@ const PracticeExamLandingPage = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => handleStartExam(exam.id)}>
+                      <Button 
+                        size="sm" 
+                        onClick={() => {
+                          console.log('🔥 START EXAM BUTTON CLICKED FOR:', exam.id);
+                          handleStartExam(exam.id);
+                        }}
+                      >
                         <Play className="h-4 w-4 mr-1" />
                         Start Exam
                       </Button>
                       {exam.attempts > 0 && (
-                        <Button size="sm" variant="outline" onClick={() => handleViewResults(exam.id)}>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => {
+                            console.log('🔥 VIEW RESULTS BUTTON CLICKED FOR:', exam.id);
+                            handleViewResults(exam.id);
+                          }}
+                        >
                           View Results
                         </Button>
                       )}
