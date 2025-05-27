@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -103,6 +104,7 @@ function App() {
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+              {/* Redirect old admin login routes to the new path */}
               <Route path="/login/admin" element={<Navigate to="/admin/login" replace />} />
               <Route path="/register" element={<SignUp />} />
               
@@ -126,7 +128,7 @@ function App() {
               <Route path="/auth/admin-login" element={<AdminLoginPage />} />
               <Route path="/auth/forgot-password" element={<ForgotPassword />} />
               
-              {/* Public Flask Guide route */}
+              {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
               {/* Admin routes */}
@@ -145,16 +147,19 @@ function App() {
                 />
               ))}
 
+              {/* Legacy route for compatibility */}
               <Route path="/admin/flask-guide" element={
                 <AdminRouteGuard>
                   <FlaskGuidePage />
                 </AdminRouteGuard>
               } />
               
-              {/* Post-signup flow */}
+              {/* Post-signup flow - Welcome flow */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               <Route path="/post-signup" element={<PostSignupWelcome />} />
               <Route path="/welcome-flow" element={<WelcomeFlow />} />
+              
+              {/* Post-login welcome back screen */}
               <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
 
               {/* Student dashboard - Protected with the combined wrapper */}
@@ -177,7 +182,7 @@ function App() {
               {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<ProtectedSidebarRoute Component={TutorView} />} />
               
-              {/* Concept routes */}
+              {/* Concept routes - Updated for direct linking */}
               <Route path="/dashboard/student/concepts/card/:id" element={<ProtectedSidebarRoute Component={ConceptCardDetail} />} />
               <Route path="/dashboard/student/concepts/:conceptId" element={<ProtectedSidebarRoute Component={ConceptDetailPage} />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ProtectedSidebarRoute Component={ConceptCardStudyPage} />} />
@@ -187,14 +192,14 @@ function App() {
               <Route path="/dashboard/student/concepts/landing" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
               <Route path="/dashboard/student/concepts" element={<ProtectedSidebarRoute Component={ConceptsLandingPage} />} />
               
-              {/* Flashcard routes */}
+              {/* Direct Flashcard routes */}
               <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<ProtectedSidebarRoute Component={FlashcardInteractive} />} />
               <Route path="/dashboard/student/flashcards/:flashcardId" element={<ProtectedSidebarRoute Component={FlashcardDetailsPage} />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<ProtectedSidebarRoute Component={InteractiveFlashcardBrowser} />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<ProtectedSidebarRoute Component={EnhancedFlashcardPractice} />} />
               <Route path="/dashboard/student/flashcards" element={<ProtectedSidebarRoute Component={FlashcardsLandingPage} />} />
               
-              {/* Practice Exam routes */}
+              {/* Practice Exam routes - FIXED */}
               <Route path="/dashboard/student/practice-exam" element={<ProtectedSidebarRoute Component={PracticeExamLandingPage} />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ProtectedSidebarRoute Component={ExamTakingPage} />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ProtectedSidebarRoute Component={ExamReviewPage} />} />
@@ -204,8 +209,12 @@ function App() {
               <Route path="/dashboard/student/academic" element={<ProtectedSidebarRoute Component={AcademicAdvisor} />} />
               <Route path="/dashboard/student/study-plan" element={<ProtectedSidebarRoute Component={StudyPlanView} />} />
               
-              {/* Exam Syllabus route - Use SidebarLayout for consistency */}
-              <Route path="/dashboard/student/syllabus" element={<ProtectedSidebarRoute Component={ExamSyllabusPage} />} />
+              {/* Exam Syllabus route - Fixed to prevent double sidebar */}
+              <Route path="/dashboard/student/syllabus" element={
+                <ProtectedRoute>
+                  <ExamSyllabusPage />
+                </ProtectedRoute>
+              } />
               
               <Route path="/dashboard/student/previous-year-analysis" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />
               <Route path="/dashboard/student/previous-year" element={<ProtectedSidebarRoute Component={PreviousYearAnalysisPage} />} />

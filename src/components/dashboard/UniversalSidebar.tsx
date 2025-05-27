@@ -41,10 +41,7 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
   const [showFormulaTab, setShowFormulaTab] = useState(false);
   
   const isActive = (path: string) => {
-    if (path === "/dashboard/student" && location.pathname === "/dashboard/student") {
-      return true;
-    }
-    return location.pathname.startsWith(path) && path !== "/dashboard/student";
+    return location.pathname.startsWith(path);
   };
   
   const handleLogout = async () => {
@@ -55,11 +52,17 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
   // Check if user has a formula-heavy exam goal
   useEffect(() => {
     const checkExamGoal = () => {
+      // In a real app, this would check the user's profile
+      // For now, simulate the check with localStorage
       const userData = localStorage.getItem("userData");
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
+          
+          // List of formula-heavy exam goals
           const formulaHeavyExams = ['JEE', 'NEET', 'CAT', 'GMAT', 'GRE', 'Physics', 'Chemistry', 'Mathematics'];
+          
+          // Check if user's exam goal is in the list
           if (parsedData.examGoal && formulaHeavyExams.includes(parsedData.examGoal)) {
             setShowFormulaTab(true);
             return;
@@ -68,6 +71,8 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
           console.error("Error parsing user data:", e);
         }
       }
+      
+      // Default: show for demo purposes
       setShowFormulaTab(true);
     };
     
@@ -113,12 +118,12 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
 
   return (
     <aside className={cn(
-      "border-r border-border bg-white dark:bg-gray-900 transition-all duration-300 flex flex-col h-full",
-      collapsed ? "w-[70px]" : "w-[280px]"
+      "border-r border-border bg-background transition-all duration-300 flex flex-col h-screen",
+      collapsed ? "w-[70px]" : "w-[230px]"
     )}>
       {/* Logo Section */}
       <div className="border-b border-border p-3 flex justify-center">
-        <Link to="/" className="flex items-center">
+        <Link to="/" className={cn("flex items-center", collapsed ? "justify-center" : "")}>
           <PrepzrLogo width={collapsed ? 40 : 120} height={40} />
         </Link>
       </div>
@@ -152,11 +157,9 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
                           {!collapsed && <span className="truncate">{item.label}</span>}
                         </Link>
                       </TooltipTrigger>
-                      {collapsed && (
-                        <TooltipContent side="right">
-                          <p>{item.tooltip}</p>
-                        </TooltipContent>
-                      )}
+                      <TooltipContent side="right">
+                        <p>{item.tooltip}</p>
+                      </TooltipContent>
                     </Tooltip>
                   ))}
                 </div>
@@ -188,11 +191,9 @@ const UniversalSidebar: React.FC<UniversalSidebarProps> = ({ collapsed = false }
                 {!collapsed && <span className="ml-2">Logout</span>}
               </Button>
             </TooltipTrigger>
-            {collapsed && (
-              <TooltipContent side="right">
-                <p>Logout from your account</p>
-              </TooltipContent>
-            )}
+            <TooltipContent side="right">
+              <p>Logout from your account</p>
+            </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
