@@ -78,14 +78,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
         }}
       />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12">
-        <div className="text-center max-w-6xl mx-auto space-y-6">
-          {/* India's #1 Platform Text - with premium styling */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+        <div className="text-center max-w-6xl mx-auto space-y-4">
+          {/* India's #1 Platform Text - with reduced margin */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="mb-4"
+            className="mb-3"
           >
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50 px-6 py-3 rounded-full backdrop-blur-sm">
               <Star className="h-4 w-4 text-amber-500 fill-current" />
@@ -96,31 +96,31 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Main Headline - Enhanced with better spacing and premium typography */}
+          {/* Main Headline - Enhanced with better spacing and proper line breaking */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-6"
+            className="mb-4"
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-              <span className="block bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
                 Master Exam Preparation with
               </span>
-              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent mt-2">
+              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent">
                 AI-Powered Precision
               </span>
             </h1>
           </motion.div>
 
-          {/* Enhanced Subtitle - premium spacing */}
+          {/* Enhanced Subtitle - reduced spacing */}
           <motion.div
-            className="mb-6"
+            className="mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <p className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-purple-700 to-blue-700 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-3">
+            <p className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-purple-700 to-blue-700 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
               We understand your mindset, not just the exam
             </p>
             <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl mx-auto font-medium">
@@ -128,12 +128,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </p>
           </motion.div>
 
-          {/* NEET 2026 Banner - premium design */}
+          {/* NEET 2026 Banner - reduced spacing */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mb-8"
+            className="mb-5"
           >
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-8 py-4 rounded-full text-sm font-bold shadow-2xl border-2 border-white/30 backdrop-blur-sm">
               <Star className="h-5 w-5 fill-current animate-pulse" />
@@ -142,32 +142,32 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Animated Key Benefits - enhanced premium design */}
+          {/* Animated Key Benefits - compact design */}
           <motion.div
-            className="mb-8"
+            className="mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-3">
               7 Key Benefits That Transform Your Journey
             </h3>
             
-            {/* Dynamic Benefit Display */}
-            <div className="min-h-[80px] flex items-center justify-center">
+            {/* Dynamic Benefit Display - reduced height */}
+            <div className="min-h-[70px] flex items-center justify-center">
               <motion.div
                 key={currentBenefitIndex}
                 initial={{ opacity: 0, scale: 0.8, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: -30 }}
                 transition={{ duration: 0.8 }}
-                className="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-6 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-2xl max-w-md mx-auto"
+                className="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-5 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-2xl max-w-md mx-auto"
               >
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full">
-                    <CheckCircle className="h-6 w-6 text-white" />
+                  <div className="p-2.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full">
+                    <CheckCircle className="h-5 w-5 text-white" />
                   </div>
-                  <span className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                  <span className="text-lg font-bold text-slate-800 dark:text-slate-200">
                     {benefits[currentBenefitIndex]}
                   </span>
                 </div>
@@ -175,7 +175,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
 
             {/* Progress Dots - enhanced */}
-            <div className="flex justify-center gap-3 mt-6">
+            <div className="flex justify-center gap-3 mt-4">
               {benefits.map((_, index) => (
                 <motion.div
                   key={index}
@@ -190,9 +190,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Premium CTA Buttons */}
+          {/* Premium CTA Buttons - ensured visibility */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-4"
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
