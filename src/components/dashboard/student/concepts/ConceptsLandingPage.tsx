@@ -1,187 +1,316 @@
-
 import React, { useState } from 'react';
+import ConceptOverviewSection from './ConceptOverviewSection';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Search, Filter, BookOpen, Clock, ArrowRight, Bookmark, Star } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Star, Sparkles, Filter } from "lucide-react";
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import ConceptCard from './ConceptCard';
 
-const ConceptsLandingPage = () => {
+const ConceptsLandingPage: React.FC = () => {
+  const [activeView, setActiveView] = useState<'overview' | 'concepts'>('overview');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
+  const [showCompleted, setShowCompleted] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const navigate = useNavigate();
-  
-  // Sample concepts data - in a real app, this would come from an API
-  const conceptCards = [
-    {
-      id: "concept-1",
-      title: "Newton's Laws of Motion",
-      subject: "Physics",
-      description: "The three fundamental laws that define the relationship between an object's motion and the forces acting on it.",
-      difficulty: "medium" as const,
-      timeEstimate: "25 mins",
-      isBookmarked: true,
-      tags: ["Classical Mechanics", "Dynamics"],
-      progress: 80,
-      mastery: 65,
-      thumbnailUrl: "/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png",
-    },
-    {
-      id: "concept-2",
-      title: "Periodic Table & Elements",
-      subject: "Chemistry",
-      description: "Organization and patterns of elements, their properties, and chemical behaviors.",
-      difficulty: "easy" as const,
-      timeEstimate: "20 mins",
-      isBookmarked: false,
-      tags: ["Periodic Table", "Elements"],
-      progress: 50,
-      mastery: 45,
-      thumbnailUrl: "/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png",
-    },
-    {
-      id: "concept-3",
-      title: "Cell Division & Mitosis",
-      subject: "Biology",
-      description: "The process by which a single cell divides into two identical daughter cells.",
-      difficulty: "hard" as const,
-      timeEstimate: "30 mins",
-      isBookmarked: true,
-      tags: ["Cell Biology", "Reproduction"],
-      progress: 30,
-      mastery: 25,
-      thumbnailUrl: "/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png",
-    },
-    {
-      id: "concept-4",
-      title: "Integration Techniques",
-      subject: "Mathematics",
-      description: "Methods for calculating integrals, including substitution, parts, and partial fractions.",
-      difficulty: "hard" as const,
-      timeEstimate: "40 mins",
-      isBookmarked: false,
-      tags: ["Calculus", "Integration"],
-      progress: 20,
-      mastery: 15,
-      thumbnailUrl: "/lovable-uploads/d5f87c4f-6021-49b2-9e4d-ab83c4cb55c9.png",
-    },
-    {
-      id: "concept-5",
-      title: "Electromagnetic Waves",
-      subject: "Physics",
-      description: "Waves of coupled electric and magnetic fields that propagate through space.",
-      difficulty: "hard" as const,
-      timeEstimate: "35 mins",
-      isBookmarked: false,
-      tags: ["Electromagnetism", "Waves"],
-      progress: 10,
-      mastery: 5,
-      thumbnailUrl: "/lovable-uploads/63143d4f-73cd-4fca-a1dd-82e6a5313142.png",
-    },
-    {
-      id: "concept-6",
-      title: "Organic Compounds",
-      subject: "Chemistry",
-      description: "Carbon-containing compounds, their structures, properties, and reactions.",
-      difficulty: "medium" as const,
-      timeEstimate: "25 mins",
-      isBookmarked: false,
-      tags: ["Organic Chemistry", "Compounds"],
-      progress: 0,
-      mastery: 0,
-      thumbnailUrl: "/lovable-uploads/d1a1ba73-9bf2-452a-9132-2b32e9c969d5.png",
-    },
+
+  const subjects = [
+    { id: 'all', name: 'All Subjects' },
+    { id: 'physics', name: 'Physics' },
+    { id: 'chemistry', name: 'Chemistry' },
+    { id: 'biology', name: 'Biology' }
   ];
-  
-  // Filtered concepts based on search and active tab
-  const filteredConcepts = conceptCards.filter((concept) => {
-    const matchesSearch = concept.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         concept.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const difficulties = [
+    { id: 'all', name: 'All Difficulties' },
+    { id: 'easy', name: 'Easy' },
+    { id: 'medium', name: 'Medium' },
+    { id: 'hard', name: 'Hard' }
+  ];
+
+  const conceptCategories = [
+    { id: 'all', name: 'All Concepts' },
+    { id: 'recommended', name: 'Recommended' },
+    { id: 'popular', name: 'Most Popular' },
+    { id: 'recent', name: 'Recently Added' },
+    { id: 'bookmarked', name: 'Bookmarked' }
+  ];
+
+  const mockConcepts = [
+    {
+      id: 'c1',
+      title: 'Newton\'s Laws of Motion',
+      subject: 'Physics',
+      topic: 'Mechanics',
+      difficulty: 'Medium',
+      duration: 25,
+      completed: false,
+      description: 'Learn about the three fundamental laws that form the foundation of classical mechanics.',
+      popularity: 95
+    },
+    {
+      id: 'c2',
+      title: 'Periodic Table & Elements',
+      subject: 'Chemistry',
+      topic: 'Inorganic Chemistry',
+      difficulty: 'Easy',
+      duration: 20,
+      completed: true,
+      description: 'Explore the organization of elements in the periodic table and their properties.',
+      popularity: 92
+    },
+    {
+      id: 'c3',
+      title: 'Cell Structure & Function',
+      subject: 'Biology',
+      topic: 'Cell Biology',
+      difficulty: 'Medium',
+      duration: 30,
+      completed: false,
+      description: 'Understand the structure of cells and how different organelles function.',
+      popularity: 98
+    },
+    {
+      id: 'c4',
+      title: 'Thermodynamics',
+      subject: 'Physics',
+      topic: 'Heat & Energy',
+      difficulty: 'Hard',
+      duration: 35,
+      completed: false,
+      description: 'Study the relationships between heat, energy, and work in physical systems.',
+      popularity: 88
+    },
+    {
+      id: 'c5',
+      title: 'Organic Compounds',
+      subject: 'Chemistry',
+      topic: 'Organic Chemistry',
+      difficulty: 'Hard',
+      duration: 40,
+      completed: false,
+      description: 'Learn about carbon-based compounds and their reactions.',
+      popularity: 85
+    },
+    {
+      id: 'c6',
+      title: 'Human Physiology',
+      subject: 'Biology',
+      topic: 'Anatomy',
+      difficulty: 'Medium',
+      duration: 30,
+      completed: true,
+      description: 'Explore the functions of different systems in the human body.',
+      popularity: 94
+    }
+  ];
+
+  const filteredConcepts = mockConcepts.filter(concept => {
+    // Filter by search query
+    if (searchQuery && !concept.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
     
-    if (activeTab === 'all') return matchesSearch;
-    if (activeTab === 'bookmarked') return matchesSearch && concept.isBookmarked;
-    if (activeTab === 'inProgress') return matchesSearch && concept.progress > 0 && concept.progress < 100;
-    if (activeTab === 'completed') return matchesSearch && concept.progress === 100;
-    if (activeTab === 'notStarted') return matchesSearch && concept.progress === 0;
+    // Filter by subject
+    if (selectedSubject !== 'all' && concept.subject.toLowerCase() !== selectedSubject) {
+      return false;
+    }
     
-    return matchesSearch && concept.subject.toLowerCase() === activeTab.toLowerCase();
+    // Filter by difficulty
+    if (selectedDifficulty !== 'all' && concept.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) {
+      return false;
+    }
+    
+    // Filter by completion status
+    if (!showCompleted && concept.completed) {
+      return false;
+    }
+    
+    // Filter by tab category
+    if (activeTab === 'recommended') {
+      return concept.popularity > 90;
+    } else if (activeTab === 'popular') {
+      return concept.popularity > 85;
+    } else if (activeTab === 'bookmarked') {
+      // Mock bookmarked items
+      return ['c1', 'c3', 'c6'].includes(concept.id);
+    }
+    
+    return true;
   });
 
+  const handleConceptClick = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
   return (
-    <SharedPageLayout
-      title="Concept Cards"
-      subtitle="Master key concepts and fundamentals"
-    >
-      <div className="space-y-6">
-        {/* Search and filter bar */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-grow">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search concepts..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+    <div className="space-y-6">
+      {/* Navigation Tabs */}
+      <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
+        <button
+          onClick={() => setActiveView('overview')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            activeView === 'overview'
+              ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+          }`}
+        >
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveView('concepts')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            activeView === 'concepts'
+              ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+          }`}
+        >
+          All Concepts
+        </button>
+      </div>
+
+      {/* Content based on active view */}
+      {activeView === 'overview' ? (
+        <ConceptOverviewSection />
+      ) : (
+        <div className="space-y-6">
+          {/* Search and Filter Bar */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Input
+                placeholder="Search concepts..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject.id} value={subject.id}>
+                      {subject.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  {difficulties.map((difficulty) => (
+                    <SelectItem key={difficulty.id} value={difficulty.id}>
+                      {difficulty.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="show-completed" 
+                  checked={showCompleted} 
+                  onCheckedChange={(checked) => setShowCompleted(checked as boolean)}
+                />
+                <Label htmlFor="show-completed">Show Completed</Label>
+              </div>
+            </div>
           </div>
           
-          <Button variant="outline" className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <span>Filters</span>
-          </Button>
-        </div>
-        
-        {/* Tabs for filtering */}
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="physics">Physics</TabsTrigger>
-            <TabsTrigger value="chemistry">Chemistry</TabsTrigger>
-            <TabsTrigger value="biology">Biology</TabsTrigger>
-            <TabsTrigger value="mathematics">Math</TabsTrigger>
-            <TabsTrigger value="bookmarked">
-              <Star className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Saved</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Concept cards grid */}
-          <TabsContent value={activeTab} className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredConcepts.map((concept) => (
-                <ConceptCard 
-                  key={concept.id}
-                  id={concept.id}
-                  title={concept.title}
-                  description={concept.description}
-                  subject={concept.subject}
-                  difficulty={concept.difficulty}
-                  progress={concept.progress}
-                  mastery={concept.mastery}
-                  timeEstimate={concept.timeEstimate}
-                  tags={concept.tags}
-                  isBookmarked={concept.isBookmarked}
-                />
+          {/* Concept Categories Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-4">
+              {conceptCategories.map((category) => (
+                <TabsTrigger key={category.id} value={category.id}>
+                  {category.name}
+                </TabsTrigger>
               ))}
-              
-              {filteredConcepts.length === 0 && (
-                <div className="col-span-full py-10 text-center">
-                  <Sparkles className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                  <h3 className="text-lg font-medium">No matching concepts found</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Try adjusting your search or filters
-                  </p>
-                </div>
-              )}
+            </TabsList>
+            
+            {/* Concepts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredConcepts.map((concept) => (
+                <Card 
+                  key={concept.id} 
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    concept.completed ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : ''
+                  }`}
+                  onClick={() => handleConceptClick(concept.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge 
+                        variant="outline" 
+                        className={
+                          concept.subject === 'Physics' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          concept.subject === 'Chemistry' ? 'bg-green-50 text-green-700 border-green-200' :
+                          'bg-purple-50 text-purple-700 border-purple-200'
+                        }
+                      >
+                        {concept.subject}
+                      </Badge>
+                      {concept.completed ? (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Completed
+                        </Badge>
+                      ) : (
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            concept.difficulty === 'Easy' ? 'bg-green-50 text-green-700 border-green-200' :
+                            concept.difficulty === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                            'bg-red-50 text-red-700 border-red-200'
+                          }
+                        >
+                          {concept.difficulty}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <h3 className="font-medium text-lg mb-2">{concept.title}</h3>
+                    
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                      {concept.description}
+                    </p>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{concept.duration} min</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <BookOpen className="h-4 w-4" />
+                        <span>{concept.topic}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </SharedPageLayout>
+            
+            {filteredConcepts.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No concepts match your filters. Try adjusting your search criteria.</p>
+              </div>
+            )}
+          </Tabs>
+        </div>
+      )}
+    </div>
   );
 };
 

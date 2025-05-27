@@ -52,7 +52,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       transition={{ duration: 0.8 }}
       className="space-y-6 md:space-y-8 px-4 md:px-0"
     >
-      {/* Badges Row */}
+      {/* Badges Row - Both badges side by side */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center sm:items-start">
         {/* Main Badge */}
         <motion.div
@@ -210,7 +210,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
           size="lg"
           className="border-2 border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600 px-6 py-3 md:px-8 md:py-4 rounded-xl font-semibold text-base md:text-lg w-full sm:w-auto"
         >
-          Take Readiness Test
+          Scholar Test & Exam Readiness
         </Button>
       </motion.div>
 

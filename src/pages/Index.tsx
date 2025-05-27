@@ -61,7 +61,7 @@ const Index = () => {
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}
-        <HeroSection />
+        <HeroSection onAnalyzeClick={handleOpenExamAnalyzer} />
         
         {/* Smart Data section with animation and KPI stats */}
         <motion.section 
@@ -115,7 +115,7 @@ const Index = () => {
       <SpeechRecognitionButton
         position="homepage"
         onCommand={handleSpeechCommand}
-        className="fixed bottom-24 left-6 z-50"
+        className="fixed bottom-32 left-6 z-50"
       />
 
       {/* Interactive Voice Assistant - positioned below speech recognition */}

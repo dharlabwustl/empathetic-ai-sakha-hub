@@ -20,8 +20,10 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
   const [transcript, setTranscript] = useState('');
   const [recognition, setRecognition] = useState<any>(null);
   const [isSupported, setIsSupported] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const { toast } = useToast();
   const recognitionRef = useRef<any>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -30,71 +32,129 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
       
       if (SpeechRecognition) {
         setIsSupported(true);
-        const speechRecognition = new SpeechRecognition();
-        speechRecognition.continuous = false;
-        speechRecognition.interimResults = true;
-        speechRecognition.lang = 'en-US';
+        
+        try {
+          const speechRecognition = new SpeechRecognition();
+          speechRecognition.continuous = false;
+          speechRecognition.interimResults = true;
+          speechRecognition.lang = 'en-US';
+          speechRecognition.maxAlternatives = 1;
 
-        speechRecognition.onstart = () => {
-          setIsListening(true);
-          console.log('Speech recognition started');
-        };
+          speechRecognition.onstart = () => {
+            console.log('Speech recognition started');
+            setIsListening(true);
+            setTranscript('');
+          };
 
-        speechRecognition.onresult = (event: any) => {
-          try {
-            const current = event.resultIndex;
-            const transcriptText = event.results[current][0].transcript;
-            setTranscript(transcriptText);
-            
-            if (event.results[current].isFinal) {
-              console.log('Final transcript:', transcriptText);
-              onCommand?.(transcriptText);
-              processCommand(transcriptText);
-              setTranscript('');
+          speechRecognition.onresult = (event: any) => {
+            try {
+              if (event.results && event.results.length > 0) {
+                const current = event.resultIndex;
+                const transcriptText = event.results[current][0].transcript.trim();
+                setTranscript(transcriptText);
+                
+                if (event.results[current].isFinal && transcriptText) {
+                  console.log('Final transcript:', transcriptText);
+                  onCommand?.(transcriptText);
+                  processCommand(transcriptText);
+                  
+                  // Clear transcript after processing
+                  setTimeout(() => {
+                    setTranscript('');
+                  }, 2000);
+                }
+              }
+            } catch (error) {
+              console.error('Error processing speech result:', error);
+              handleError('Error processing speech');
             }
-          } catch (error) {
-            console.error('Error processing speech result:', error);
-          }
-        };
+          };
 
-        speechRecognition.onerror = (event: any) => {
-          console.error('Speech recognition error:', event.error);
-          setIsListening(false);
-          setTranscript('');
-          
-          if (event.error !== 'aborted') {
-            toast({
-              title: "Speech Recognition Error",
-              description: "Please try again or check your microphone permissions",
-              variant: "destructive"
-            });
-          }
-        };
+          speechRecognition.onerror = (event: any) => {
+            console.error('Speech recognition error:', event.error);
+            setIsListening(false);
+            setTranscript('');
+            
+            switch (event.error) {
+              case 'not-allowed':
+                setHasPermission(false);
+                toast({
+                  title: "Microphone Permission Denied",
+                  description: "Please allow microphone access to use voice commands",
+                  variant: "destructive"
+                });
+                break;
+              case 'no-speech':
+                toast({
+                  title: "No Speech Detected",
+                  description: "Please try speaking more clearly",
+                  variant: "destructive"
+                });
+                break;
+              case 'network':
+                toast({
+                  title: "Network Error",
+                  description: "Please check your internet connection",
+                  variant: "destructive"
+                });
+                break;
+              case 'aborted':
+                // User manually stopped, don't show error
+                break;
+              default:
+                if (event.error !== 'aborted') {
+                  toast({
+                    title: "Speech Recognition Error",
+                    description: "Please try again",
+                    variant: "destructive"
+                  });
+                }
+            }
+          };
 
-        speechRecognition.onend = () => {
-          setIsListening(false);
-          setTranscript('');
-          console.log('Speech recognition ended');
-        };
+          speechRecognition.onend = () => {
+            console.log('Speech recognition ended');
+            setIsListening(false);
+            
+            // Clear any pending timeouts
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+          };
 
-        setRecognition(speechRecognition);
-        recognitionRef.current = speechRecognition;
+          setRecognition(speechRecognition);
+          recognitionRef.current = speechRecognition;
+        } catch (error) {
+          console.error('Error initializing speech recognition:', error);
+          setIsSupported(false);
+        }
       } else {
         setIsSupported(false);
         console.warn('Speech recognition not supported in this browser');
       }
     }
 
+    // Cleanup function
     return () => {
-      if (recognitionRef.current && isListening) {
+      if (recognitionRef.current) {
         try {
-          recognitionRef.current.stop();
+          recognitionRef.current.abort();
         } catch (error) {
-          console.error('Error stopping speech recognition:', error);
+          console.error('Error cleaning up speech recognition:', error);
         }
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
   }, []);
+
+  const handleError = (message: string) => {
+    setIsListening(false);
+    setTranscript('');
+    console.error('Speech recognition error:', message);
+  };
 
   const processCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
@@ -135,13 +195,27 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
         return;
       }
 
-      // Provide feedback for unrecognized commands
+      // Provide feedback for recognized but unprocessed commands
       toast({
-        title: "Command Processed",
+        title: "Command Recognized",
         description: `You said: "${command}". Try commands like "go to dashboard" or "open concepts"`,
       });
     } catch (error) {
       console.error('Error processing command:', error);
+      handleError('Error processing command');
+    }
+  };
+
+  const requestMicrophonePermission = async (): Promise<boolean> => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+      setHasPermission(true);
+      return true;
+    } catch (error) {
+      console.error('Microphone permission denied:', error);
+      setHasPermission(false);
+      return false;
     }
   };
 
@@ -149,7 +223,7 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
     if (!isSupported) {
       toast({
         title: "Speech Recognition Not Supported",
-        description: "Your browser doesn't support speech recognition",
+        description: "Your browser doesn't support speech recognition. Try Chrome or Edge.",
         variant: "destructive"
       });
       return;
@@ -166,25 +240,58 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
 
     try {
       if (isListening) {
-        recognition.stop();
+        // Stop listening
+        recognition.abort();
+        setIsListening(false);
         setTranscript('');
+        
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
       } else {
-        // Request microphone permission first
-        try {
-          await navigator.mediaDevices.getUserMedia({ audio: true });
-          recognition.start();
-          setTranscript('');
-        } catch (permissionError) {
+        // Check microphone permission first
+        if (hasPermission === null) {
+          const permissionGranted = await requestMicrophonePermission();
+          if (!permissionGranted) {
+            return;
+          }
+        } else if (hasPermission === false) {
           toast({
             title: "Microphone Permission Required",
             description: "Please allow microphone access to use voice commands",
             variant: "destructive"
           });
+          return;
         }
+
+        // Start listening
+        setTranscript('');
+        recognition.start();
+        
+        // Set a timeout to stop listening after 10 seconds
+        timeoutRef.current = setTimeout(() => {
+          if (recognition && isListening) {
+            recognition.stop();
+          }
+        }, 10000);
       }
     } catch (error) {
       console.error('Error toggling speech recognition:', error);
       setIsListening(false);
+      
+      // Handle specific errors
+      if (error instanceof Error) {
+        if (error.message.includes('already started')) {
+          // Recognition is already running, try to stop it
+          try {
+            recognition.abort();
+          } catch (abortError) {
+            console.error('Error aborting recognition:', abortError);
+          }
+        }
+      }
+      
       toast({
         title: "Speech Recognition Error",
         description: "Please try again",
@@ -198,8 +305,8 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
   }
 
   const positionStyles = position === 'homepage' 
-    ? 'fixed bottom-32 left-6 z-50' 
-    : 'fixed bottom-32 left-6 z-50';
+    ? 'fixed bottom-20 left-6 z-50' 
+    : 'fixed bottom-20 left-6 z-50';
 
   return (
     <div className={`${positionStyles} ${className}`}>
@@ -214,7 +321,7 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
               className="mb-2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border max-w-xs"
             >
               <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                You're saying:
+                Listening...
               </div>
               <div className="text-sm font-medium">
                 "{transcript}"
@@ -235,6 +342,7 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
                 ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 animate-pulse'
                 : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
             } text-white border-0`}
+            disabled={!isSupported}
           >
             {isListening ? (
               <MicOff className="h-5 w-5" />
