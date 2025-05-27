@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -113,12 +114,20 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // Fixed routing function to navigate to interactive flashcard page
+  // FIXED: All routing functions now navigate to interactive page
   const handleStartReview = (setId: number) => {
     navigate(`/dashboard/student/flashcards/${setId}/interactive`);
   };
 
   const handleCardClick = (setId: number) => {
+    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+  };
+
+  const handleQuickReview = (setId: number) => {
+    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+  };
+
+  const handleStudyCards = (setId: number) => {
     navigate(`/dashboard/student/flashcards/${setId}/interactive`);
   };
 
@@ -269,6 +278,29 @@ const FlashcardLandingPage: React.FC = () => {
                     <Badge variant="secondary" className="text-xs">
                       {set.subject}
                     </Badge>
+                  </div>
+                  
+                  {/* Action Buttons - All routing to interactive */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQuickReview(set.id);
+                      }}
+                    >
+                      Quick Review
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStudyCards(set.id);
+                      }}
+                    >
+                      Study Cards
+                    </Button>
                   </div>
                   
                   <Button 
