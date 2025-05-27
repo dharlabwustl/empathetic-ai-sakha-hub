@@ -29,19 +29,24 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
                             location.pathname.includes('/free-trial') ||
                             location.pathname.includes('/exam-readiness');
   
+  // Helper function to ensure correct PREPZR pronunciation
+  const formatTextForSpeech = (text: string): string => {
+    return text.replace(/PREPZR/gi, 'Prep-Zer').replace(/Prepzer/gi, 'Prep-Zer');
+  };
+
   // Get concise, context-aware message based on page
   const getContextMessage = (path: string, lang: string) => {
     if (path === '/') {
-      return "Welcome to Prepzer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm Sakha AI, your learning assistant. Our platform adapts to your unique learning style and emotional state. How can I assist you today?";
+      return formatTextForSpeech("Welcome to Prep-Zer, the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. I'm your learning assistant. Our platform adapts to your unique learning style and emotional state. How can I assist you today?");
     } else if (path.includes('/signup')) {
-      return "Welcome to Prepzer signup! I'm Sakha AI. You can use voice commands to fill in the form. Click on any field and then use the microphone button to speak. Would you like assistance with signing up?";
+      return formatTextForSpeech("Welcome to Prep-Zer signup! I'm your AI assistant. You can use voice commands to fill in the form. Click on any field and then use the microphone button to speak. Would you like assistance with signing up?");
     } else if (path.includes('/free-trial')) {
-      return "Welcome to your free trial of Prepzer's emotionally intelligent exam platform. I'm Sakha AI, and I'll help you experience personalized learning paths tailored to your needs.";
+      return formatTextForSpeech("Welcome to your free trial of Prep-Zer's emotionally intelligent exam platform. I'll help you experience personalized learning paths tailored to your needs.");
     } else if (path.includes('/exam-readiness')) {
-      return "Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style.";
+      return formatTextForSpeech("Our exam readiness analyzer will evaluate your preparation and identify areas for improvement. We'll customize your learning path based on your emotional state and learning style.");
     }
     
-    return "Welcome to Prepzer. I'm Sakha AI, your emotionally intelligent exam preparation assistant.";
+    return formatTextForSpeech("Welcome to Prep-Zer. I'm your emotionally intelligent exam preparation assistant.");
   };
   
   // Cleanup function to ensure proper resource management
@@ -207,7 +212,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       // Create speech synthesis utterance
       const speech = new SpeechSynthesisUtterance();
       
-      // Set correct text - using "Prepzer" as a single word
+      // Set correct text with proper pronunciation
       speech.text = message;
       speech.lang = language;
       speech.rate = 0.98; // Normal rate for clarity
@@ -281,7 +286,7 @@ const HomePageVoiceAssistant: React.FC<HomePageVoiceAssistantProps> = ({
       
       // Show toast notification with available commands
       toast({
-        title: "Sakha AI Voice Assistant",
+        title: "Prep-Zer AI Voice Assistant",
         description: "Try commands like 'Sign up', 'Login', 'Go home', or 'Analyze readiness'",
         duration: 5000,
       });

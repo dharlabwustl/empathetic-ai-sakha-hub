@@ -66,7 +66,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
           <span className="sm:hidden">#1 AI Exam Prep</span>
         </motion.div>
 
-        {/* NEET 2026 Prep Button */}
+        {/* Enhanced NEET 2026 Prep Button with vibrant purple and smaller text */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -75,14 +75,29 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
         >
           <Button
             onClick={handleNEETPrep}
-            className="relative bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 hover:from-emerald-700 hover:via-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-base shadow-2xl overflow-hidden group"
+            className="relative bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 hover:from-purple-700 hover:via-violet-700 hover:to-purple-800 text-white px-3 py-2 md:px-5 md:py-2.5 rounded-full font-bold text-xs md:text-sm shadow-2xl overflow-hidden group"
           >
-            {/* Pulsing animation background */}
+            {/* Dynamic glowing animation background */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-green-400 rounded-full"
+              className="absolute inset-0 bg-gradient-to-r from-purple-400 via-violet-400 to-purple-500 rounded-full opacity-80"
               animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.7, 1, 0.7]
+                scale: [1, 1.15, 1],
+                opacity: [0.6, 1, 0.6],
+                rotate: [0, 180, 360]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            
+            {/* Pulsing glow effect */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-purple-300 to-violet-300 rounded-full blur-sm"
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.4, 0.8, 0.4]
               }}
               transition={{
                 duration: 2,
@@ -93,31 +108,31 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
             
             {/* Shimmer effect */}
             <motion.div 
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-25"
               animate={{ x: ["-100%", "100%"] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             />
             
-            <div className="relative flex items-center gap-2 md:gap-3 z-10">
+            <div className="relative flex items-center gap-1.5 md:gap-2 z-10">
               <motion.div
                 animate={{ 
                   rotate: [0, 360],
-                  scale: [1, 1.1, 1]
+                  scale: [1, 1.2, 1]
                 }}
                 transition={{ 
-                  duration: 3,
+                  duration: 4,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
               >
-                <Rocket className="w-4 h-4 md:w-6 md:h-6" />
+                <Rocket className="w-3 h-3 md:w-4 md:h-4" />
               </motion.div>
-              <span className="text-xs md:text-base">NEET 2026 PREP - JOIN NOW!</span>
+              <span className="text-xs md:text-sm">NEET 2026 PREP - JOIN NOW!</span>
               <motion.div
-                className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full"
+                className="w-1 h-1 md:w-1.5 md:h-1.5 bg-white rounded-full"
                 animate={{ 
-                  opacity: [1, 0.4, 1],
-                  scale: [1, 1.3, 1]
+                  opacity: [1, 0.3, 1],
+                  scale: [1, 1.4, 1]
                 }}
                 transition={{ 
                   duration: 1.5, 
@@ -234,7 +249,7 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
             </div>
           </div>
         ))}
-      </motion.div>
+      </div>
     </motion.div>
   );
 };

@@ -114,6 +114,15 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
+  // Fixed routing function to navigate to interactive flashcard page
+  const handleStartReview = (setId: number) => {
+    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+  };
+
+  const handleCardClick = (setId: number) => {
+    navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-white to-blue-50/50 dark:from-purple-900/10 dark:via-gray-900 dark:to-blue-900/10">
       <Helmet>
@@ -214,7 +223,7 @@ const FlashcardLandingPage: React.FC = () => {
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
               <Card className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
-                    onClick={() => navigate(`/dashboard/student/flashcards/${set.id}`)}>
+                    onClick={() => handleCardClick(set.id)}>
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
@@ -263,7 +272,14 @@ const FlashcardLandingPage: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  <Button className="w-full" size="sm">
+                  <Button 
+                    className="w-full" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartReview(set.id);
+                    }}
+                  >
                     <BookOpen className="h-4 w-4 mr-2" />
                     Start Review
                   </Button>

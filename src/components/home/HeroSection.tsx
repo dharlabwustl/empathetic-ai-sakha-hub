@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Target, TrendingUp, Users, Star, CheckCircle } from 'lucide-react';
+import { ArrowRight, BookOpen, Target, TrendingUp, Users, Star, CheckCircle, Rocket } from 'lucide-react';
 
 interface HeroSectionProps {
   onAnalyzeClick: () => void;
@@ -128,17 +128,70 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </p>
           </motion.div>
 
-          {/* NEET 2026 Banner - reduced spacing */}
+          {/* Enhanced NEET 2026 Banner with vibrant purple and smaller text */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mb-4"
           >
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-8 py-4 rounded-full text-sm font-bold shadow-2xl border-2 border-white/30 backdrop-blur-sm">
-              <Star className="h-5 w-5 fill-current animate-pulse" />
-              <span className="text-base">NEET 2026 PREP - JOIN NOW!</span>
-              <Star className="h-5 w-5 fill-current animate-pulse" />
+            <div className="relative inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 text-white px-6 py-3 rounded-full text-sm font-bold shadow-2xl border-2 border-white/20 backdrop-blur-sm overflow-hidden">
+              {/* Dynamic glowing background */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-400 via-violet-400 to-purple-500 rounded-full opacity-70"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 0.9, 0.5],
+                  rotate: [0, 180, 360]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              
+              {/* Pulsing outer glow */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-300 to-violet-300 rounded-full blur-md"
+                animate={{
+                  scale: [1, 1.4, 1],
+                  opacity: [0.3, 0.7, 0.3]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              
+              <div className="relative z-10 flex items-center gap-2">
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 360],
+                    scale: [1, 1.3, 1]
+                  }}
+                  transition={{ 
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Rocket className="h-4 w-4 fill-current" />
+                </motion.div>
+                <span className="text-sm">NEET 2026 PREP - JOIN NOW!</span>
+                <motion.div
+                  className="w-1.5 h-1.5 bg-white rounded-full"
+                  animate={{ 
+                    opacity: [1, 0.3, 1],
+                    scale: [1, 1.5, 1]
+                  }}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity 
+                  }}
+                />
+              </div>
             </div>
           </motion.div>
 
