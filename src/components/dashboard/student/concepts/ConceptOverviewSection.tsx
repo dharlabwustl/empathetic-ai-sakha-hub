@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Brain, BookOpen, Clock, Target, TrendingUp, Lightbulb, Award, CheckCircle } from 'lucide-react';
-import DailySmartSuggestions from './DailySmartSuggestions';
 
 interface SubjectProgress {
   name: string;
@@ -223,9 +223,6 @@ const ConceptOverviewSection: React.FC<ConceptOverviewSectionProps> = ({ classNa
           </Card>
         ))}
       </div>
-
-      {/* Daily Smart Suggestions - NEW SECTION */}
-      <DailySmartSuggestions />
 
       {/* Enhanced AI Suggestions */}
       <Card className="bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 border-yellow-200 shadow-lg">
