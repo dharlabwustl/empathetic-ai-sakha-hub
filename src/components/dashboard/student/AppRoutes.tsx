@@ -7,6 +7,7 @@ import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/Red
 import ConceptDetailPage from '@/components/dashboard/student/concepts/ConceptDetailPage';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
+import InteractiveFlashcardsPage from '@/components/dashboard/student/flashcards/InteractiveFlashcardsPage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
@@ -21,7 +22,7 @@ const StudentAppRoutes = () => {
       <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
-      <Route path="/flashcards/:setId/interactive" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">Interactive Flashcards Coming Soon</h1><p>This is where the interactive flashcard experience will be.</p></div>} />
+      <Route path="/flashcards/:setId/interactive" element={<InteractiveFlashcardsPage />} />
       <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />

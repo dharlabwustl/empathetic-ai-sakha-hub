@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { getPreferredFemaleVoice, createFemaleUtterance } from '@/utils/voiceConfig';
 
 interface VoiceAssistantSettings {
   enabled: boolean;
@@ -24,8 +25,8 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     enabled: true,
     muted: false,
     volume: 0.8,
-    rate: 1.0,
-    pitch: 1.0,
+    rate: 0.95, // Slightly slower for female voice
+    pitch: 1.1, // Higher pitch for feminine sound
     voice: null,
     continuous: true,
     language: 'en-US',
@@ -43,38 +44,18 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const restartTimerRef = useRef<number | null>(null);
   
-  // Initialize speech synthesis and load available voices
+  // Initialize speech synthesis and load available voices with female preference
   useEffect(() => {
     const loadVoices = () => {
       if ('speechSynthesis' in window) {
         const voices = window.speechSynthesis.getVoices();
         setAvailableVoices(voices);
         
-        // Try to find a vibrant voice by default (US English preferred)
-        const preferredVoiceTypes = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US', 'en-GB'];
+        // Use the centralized female voice selection
+        const femaleVoice = getPreferredFemaleVoice();
         
-        // Find best matching voice
-        let selectedVoice: SpeechSynthesisVoice | null = null;
-        
-        for (const preferredType of preferredVoiceTypes) {
-          const foundVoice = voices.find(voice => 
-            voice.name?.toLowerCase().includes(preferredType.toLowerCase()) || 
-            voice.lang?.toLowerCase().includes(preferredType.toLowerCase())
-          );
-          
-          if (foundVoice) {
-            selectedVoice = foundVoice;
-            break;
-          }
-        }
-        
-        // If no preferred voice is found, use the first available voice
-        if (!selectedVoice && voices.length > 0) {
-          selectedVoice = voices[0];
-        }
-        
-        if (selectedVoice) {
-          setSettings(prev => ({ ...prev, voice: selectedVoice }));
+        if (femaleVoice) {
+          setSettings(prev => ({ ...prev, voice: femaleVoice }));
         }
       }
     };
@@ -218,7 +199,7 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     }
   };
   
-  // Function to speak text
+  // Function to speak text using female voice configuration
   const speakText = (text: string, options?: Partial<VoiceAssistantSettings>) => {
     if (!settings.enabled || settings.muted || !('speechSynthesis' in window)) {
       return null;
@@ -227,25 +208,17 @@ export const useVoiceAssistant = ({ userName = 'student', initialSettings = {} }
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Fix pronunciation of PREPZR by breaking it down phonetically
-    const correctedText = text
-      .replace(/PREPZR/gi, 'PREP ZR')
-      .replace(/Prepzr/g, 'Prep ZR')
-      .replace(/prepzr/gi, 'prep zr');
-    
-    const utterance = new SpeechSynthesisUtterance(correctedText);
-    
     // Apply voice settings, with options override
     const currentSettings = { ...settings, ...options };
     
-    if (currentSettings.voice) {
-      utterance.voice = currentSettings.voice;
-    }
-    
-    utterance.volume = currentSettings.volume;
-    utterance.rate = currentSettings.rate;
-    utterance.pitch = currentSettings.pitch;
-    utterance.lang = currentSettings.language;
+    // Use the centralized female voice utterance creation
+    const utterance = createFemaleUtterance(text, {
+      voice: currentSettings.voice,
+      volume: currentSettings.volume,
+      rate: currentSettings.rate,
+      pitch: currentSettings.pitch,
+      language: currentSettings.language
+    });
     
     // Set event handlers
     utterance.onstart = () => setIsSpeaking(true);
