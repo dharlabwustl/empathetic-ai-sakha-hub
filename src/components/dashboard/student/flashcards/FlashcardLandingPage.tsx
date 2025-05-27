@@ -116,7 +116,7 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // FIXED: Route to interactive flashcard page - MUST GO TO /interactive
+  // FIXED: ALL FLASHCARD NAVIGATION GOES TO /interactive
   const navigateToFlashcard = (setId: number) => {
     const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
     console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE FLASHCARDS: ${targetRoute}`);
