@@ -122,41 +122,43 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         </Button>
       </div>
 
-      {/* Subject Progress Cards */}
+      {/* Enhanced Subject Progress Cards - Similar to Flashcard Design */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {subjects.map((subject) => (
-          <Card key={subject.name} className="border-2 hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-blue-300" onClick={() => handleSubjectStudy(subject.name)}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{subject.name}</CardTitle>
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                  {subject.progress}% Complete
+          <Card key={subject.name} className="group relative overflow-hidden border-2 hover:shadow-xl transition-all duration-300 cursor-pointer hover:border-blue-300 bg-gradient-to-br from-white to-blue-50/30" onClick={() => handleSubjectStudy(subject.name)}>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <CardHeader className="pb-3 relative z-10">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  {getTypeIcon()}
+                  <CardTitle className="text-lg font-semibold">{subject.name}</CardTitle>
+                </div>
+                <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 font-medium">
+                  {subject.progress}%
                 </Badge>
               </div>
+              <p className="text-sm text-gray-600">{subject.completed}/{subject.total} {type.toLowerCase()}</p>
             </CardHeader>
-            <CardContent className="space-y-4">
+
+            <CardContent className="space-y-4 relative z-10">
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Progress</span>
-                  <span>{subject.completed}/{subject.total}</span>
-                </div>
-                <Progress value={subject.progress} className="h-2" />
+                <Progress value={subject.progress} className="h-3 bg-gray-200" />
               </div>
               
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 bg-green-50 rounded text-center">
-                  <p className="text-lg font-bold text-green-700">{subject.efficiency}%</p>
-                  <p className="text-xs text-green-600">Efficiency</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg text-center border border-green-200">
+                  <p className="text-xl font-bold text-green-700">{subject.efficiency}%</p>
+                  <p className="text-xs text-green-600 font-medium">Efficiency</p>
                 </div>
-                <div className="p-2 bg-blue-50 rounded text-center">
-                  <p className="text-lg font-bold text-blue-700">{subject.studyTime}h</p>
-                  <p className="text-xs text-blue-600">Study Time</p>
+                <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center border border-blue-200">
+                  <p className="text-xl font-bold text-blue-700">{subject.studyTime}h</p>
+                  <p className="text-xs text-blue-600 font-medium">Study Time</p>
                 </div>
               </div>
 
               <Button 
-                className="w-full" 
-                variant="outline" 
+                className="w-full group-hover:bg-blue-600 transition-colors duration-300" 
                 size="sm" 
                 onClick={(e) => {
                   e.stopPropagation();
