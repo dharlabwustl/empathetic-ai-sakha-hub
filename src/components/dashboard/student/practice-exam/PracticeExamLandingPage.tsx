@@ -104,14 +104,6 @@ const PracticeExamLandingPage = () => {
     window.history.pushState({}, '', url.toString());
   };
 
-  const handleSubjectPracticeTest = (subjectName: string) => {
-    // Navigate to available exams tab when subject practice test is clicked
-    setActiveTab('available-exams');
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', 'available-exams');
-    window.history.pushState({}, '', url.toString());
-  };
-
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -175,7 +167,7 @@ const PracticeExamLandingPage = () => {
                     className="w-full" 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleSubjectPracticeTest(subject.name)}
+                    onClick={() => setActiveTab('available-exams')}
                   >
                     <Play className="mr-2 h-4 w-4" />
                     Take Practice Test

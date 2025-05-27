@@ -111,16 +111,16 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
     // Common commands for both positions
     if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
       const helpMessage = position === 'homepage' 
-        ? 'I can tell you about PREPZR features, help you start a free trial, analyze your exam readiness, explain our benefits, or help you sign up. Just ask me anything about exam preparation!'
-        : 'I can help you navigate to different sections, check your progress, open your study plan, or answer questions about your preparation. What would you like to do?';
+        ? 'I am your PREPZR AI assistant. I can tell you about PREPZR features, help you start a free trial, analyze your exam readiness, explain our benefits, or help you sign up. Just ask me anything about exam preparation!'
+        : 'I am your PREPZR AI assistant. I can help you navigate to different sections, check your progress, open your study plan, or answer questions about your preparation. What would you like to do?';
       speakMessage(helpMessage);
       return;
     }
 
     // Default response
     const defaultMessage = position === 'homepage'
-      ? `I heard you say: ${command}. I'm here to help you explore PREPZR and start your exam preparation journey. You can ask me about our features, benefits, or start your free trial!`
-      : `I heard you say: ${command}. I'm here to assist with your studies. You can ask me to navigate to different sections or check your progress.`;
+      ? `I heard you say: ${command}. I'm your PREPZR AI assistant, here to help you explore PREPZR and start your exam preparation journey. You can ask me about our features, benefits, or start your free trial!`
+      : `I heard you say: ${command}. I'm your PREPZR AI assistant, here to assist with your studies. You can ask me to navigate to different sections or check your progress.`;
     
     speakMessage(defaultMessage);
     
@@ -171,8 +171,8 @@ const SpeechRecognitionButton: React.FC<SpeechRecognitionButtonProps> = ({
     } else {
       startListening();
       const greeting = position === 'homepage' 
-        ? 'Hello! I\'m your PREPZR voice assistant. How can I help you explore our exam preparation platform today?'
-        : 'Hi! I\'m listening. How can I help you with your studies today?';
+        ? 'Hello! I\'m your PREPZR AI assistant. How can I help you explore our exam preparation platform today?'
+        : 'Hi! I\'m your PREPZR AI assistant. I\'m listening. How can I help you with your studies today?';
       speakMessage(greeting);
     }
   };
