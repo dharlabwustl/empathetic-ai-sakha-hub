@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import ContentFeedbackButton from '@/components/dashboard/student/feedback/ContentFeedbackButton';
 import { ArrowLeft, BookOpen, Star, RotateCw, CheckCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
@@ -20,21 +21,26 @@ const FlashcardInteractivePage: React.FC = () => {
       id: '1',
       question: 'What is the law of conservation of energy?',
       answer: 'Energy cannot be created or destroyed, only transformed from one form to another.',
-      mastered: true
+      mastered: true,
+      subject: 'Physics'
     },
     {
       id: '2',
       question: 'What is Newton\'s Second Law of Motion?',
       answer: 'Force equals mass times acceleration (F = ma).',
-      mastered: false
+      mastered: false,
+      subject: 'Physics'
     },
     {
       id: '3',
       question: 'What is the chemical formula for water?',
       answer: 'H₂O',
-      mastered: true
+      mastered: true,
+      subject: 'Chemistry'
     }
   ];
+  
+  const currentCard = mockFlashcards[currentCardIndex];
   
   const handleFlip = () => {
     setFlipped(!flipped);
@@ -55,7 +61,6 @@ const FlashcardInteractivePage: React.FC = () => {
   };
   
   const handleMarkAsMastered = () => {
-    // In a real app, you would update the mastery status in your data store
     setMasteryScore(masteryScore + 2);
   };
   
@@ -99,7 +104,7 @@ const FlashcardInteractivePage: React.FC = () => {
               <Card className={`absolute inset-0 backface-hidden p-4 sm:p-6 ${flipped ? 'hidden' : ''}`}>
                 <CardContent className="flex flex-col items-center justify-center h-full">
                   <div className="text-xl sm:text-2xl font-semibold text-center">
-                    {mockFlashcards[currentCardIndex].question}
+                    {currentCard.question}
                   </div>
                   <p className="text-sm text-muted-foreground mt-8 animate-pulse">
                     Tap to flip
@@ -111,7 +116,7 @@ const FlashcardInteractivePage: React.FC = () => {
               <Card className={`absolute inset-0 backface-hidden p-4 sm:p-6 rotate-y-180 ${!flipped ? 'hidden' : ''}`}>
                 <CardContent className="flex flex-col items-center justify-center h-full">
                   <div className="text-lg sm:text-xl text-center">
-                    {mockFlashcards[currentCardIndex].answer}
+                    {currentCard.answer}
                   </div>
                   <p className="text-sm text-muted-foreground mt-8 animate-pulse">
                     Tap to flip back
@@ -172,6 +177,15 @@ const FlashcardInteractivePage: React.FC = () => {
               <span className="hidden xs:inline">Next</span>
               <ArrowLeft className="h-4 w-4 ml-1 sm:ml-2 rotate-180" />
             </Button>
+          </div>
+
+          {/* Feedback Button */}
+          <div className="flex justify-center mt-6">
+            <ContentFeedbackButton
+              contentId={currentCard.id}
+              contentType="flashcard"
+              contentTitle={currentCard.question}
+            />
           </div>
         </div>
         

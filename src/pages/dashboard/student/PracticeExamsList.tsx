@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import ContentFeedbackButton from '@/components/dashboard/student/feedback/ContentFeedbackButton';
 import { FileText, Clock, Target, Plus, Search, TrendingUp, Award, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import OverviewSection from '@/components/dashboard/student/OverviewSection';
@@ -20,8 +21,7 @@ const mockPracticeExams = [
     questions: 45,
     difficulty: "Medium",
     attempted: false,
-    status: "pending",
-    scheduledFor: "today",
+    status: "today",
     type: "Full Length"
   },
   {
@@ -34,7 +34,6 @@ const mockPracticeExams = [
     attempted: true,
     score: 78,
     status: "completed",
-    scheduledFor: "completed",
     type: "Subject Test"
   },
   {
@@ -46,7 +45,6 @@ const mockPracticeExams = [
     difficulty: "Medium",
     attempted: false,
     status: "pending",
-    scheduledFor: "upcoming",
     type: "Chapter Test"
   },
   {
@@ -57,8 +55,7 @@ const mockPracticeExams = [
     questions: 180,
     difficulty: "Hard",
     attempted: false,
-    status: "pending",
-    scheduledFor: "today",
+    status: "today",
     type: "Full Length"
   },
   {
@@ -71,7 +68,6 @@ const mockPracticeExams = [
     attempted: true,
     score: 85,
     status: "completed",
-    scheduledFor: "completed",
     type: "Topic Test"
   }
 ];
@@ -121,7 +117,7 @@ const PracticeExamsList = () => {
 
     // Apply status filter
     if (statusFilter === 'today') {
-      filtered = filtered.filter(exam => exam.scheduledFor === 'today');
+      filtered = filtered.filter(exam => exam.status === 'today');
     } else if (statusFilter === 'pending') {
       filtered = filtered.filter(exam => exam.status === 'pending');
     } else if (statusFilter === 'completed') {
@@ -273,7 +269,7 @@ const PracticeExamsList = () => {
                 >
                   <Card className="border-2 hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
                             <FileText className="h-6 w-6 text-blue-600" />
@@ -323,6 +319,15 @@ const PracticeExamsList = () => {
                             </Button>
                           )}
                         </div>
+                      </div>
+                      
+                      {/* Add feedback button */}
+                      <div className="flex justify-end">
+                        <ContentFeedbackButton
+                          contentId={exam.id}
+                          contentType="exam"
+                          contentTitle={exam.title}
+                        />
                       </div>
                     </CardContent>
                   </Card>
