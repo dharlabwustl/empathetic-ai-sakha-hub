@@ -90,16 +90,16 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleSubjectStudy = (subjectName: string) => {
     switch (type) {
       case 'Concepts':
-        navigate(`/dashboard/student/concepts?tab=all-concepts&subject=${encodeURIComponent(subjectName)}`);
+        navigate('/dashboard/student/concepts?tab=all-concepts');
         break;
       case 'Flashcards':
-        navigate(`/dashboard/student/flashcards?tab=all-flashcards&subject=${encodeURIComponent(subjectName)}`);
+        navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
         if (onContinueLearning) {
           onContinueLearning();
         } else {
-          navigate(`/dashboard/student/practice-exam?tab=available-exams&subject=${encodeURIComponent(subjectName)}`);
+          navigate('/dashboard/student/practice-exam?tab=available-exams');
         }
         break;
     }
@@ -122,7 +122,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         </Button>
       </div>
 
-      {/* Enhanced Subject Progress Cards */}
+      {/* Enhanced Subject Progress Cards - Similar to Flashcard Design */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {subjects.map((subject) => (
           <Card key={subject.name} className="group relative overflow-hidden border-2 hover:shadow-xl transition-all duration-300 cursor-pointer hover:border-blue-300 bg-gradient-to-br from-white to-blue-50/30" onClick={() => handleSubjectStudy(subject.name)}>
