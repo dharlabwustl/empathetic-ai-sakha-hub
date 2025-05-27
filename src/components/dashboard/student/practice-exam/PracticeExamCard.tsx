@@ -4,39 +4,40 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Clock, Star, PlayCircle, CheckCircle, Calendar } from 'lucide-react';
+import { Target, Clock, Star, PlayCircle, CheckCircle, Calendar, Trophy, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-interface FlashcardCardProps {
+interface PracticeExamCardProps {
   id: string;
   title: string;
   subject: string;
-  totalCards: number;
-  completedCards: number;
+  totalQuestions: number;
+  duration: number;
   difficulty: 'easy' | 'medium' | 'hard';
-  estimatedTime: number;
-  accuracy?: number;
   status?: 'daily' | 'pending' | 'completed';
   dueDate?: string;
-  masteryLevel?: number;
+  lastScore?: number;
+  attempts?: number;
+  averageScore?: number;
+  examType?: string;
 }
 
-export default function FlashcardCard({
+export default function PracticeExamCard({
   id,
   title,
   subject,
-  totalCards,
-  completedCards,
+  totalQuestions,
+  duration,
   difficulty,
-  estimatedTime,
-  accuracy,
   status = 'pending',
   dueDate,
-  masteryLevel = 0
-}: FlashcardCardProps) {
+  lastScore,
+  attempts = 0,
+  averageScore,
+  examType = 'Mock Test'
+}: PracticeExamCardProps) {
   const navigate = useNavigate();
-  const progressPercentage = (completedCards / totalCards) * 100;
 
   const getDifficultyColor = (diff: string) => {
     switch (diff) {
@@ -75,9 +76,21 @@ export default function FlashcardCard({
     }
   };
 
-  const handleStudyNow = () => {
-    const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
-    console.log('🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const handleStartExam = () => {
+    const targetRoute = `/dashboard/student/practice-exam/${id}/start`;
+    console.log('🚨 PRACTICE EXAM CARD - START EXAM CLICKED:', targetRoute);
+    navigate(targetRoute);
+  };
+
+  const handleReviewExam = () => {
+    const targetRoute = `/dashboard/student/practice-exam/${id}/review`;
+    console.log('🚨 PRACTICE EXAM CARD - REVIEW EXAM CLICKED:', targetRoute);
     navigate(targetRoute);
   };
 
@@ -87,7 +100,7 @@ export default function FlashcardCard({
       transition={{ type: "spring", stiffness: 300 }}
     >
       <Card className={`overflow-hidden border-l-4 ${getBorderColorClass(difficulty)} shadow-sm hover:shadow-md transition-shadow ${status === 'completed' ? 'opacity-80' : ''}`}>
-        <CardHeader className="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-950 dark:to-blue-950 p-4">
+        <CardHeader className="bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-950 dark:to-teal-950 p-4">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -100,16 +113,21 @@ export default function FlashcardCard({
                 </Badge>
               </div>
               <h3 className="text-lg font-semibold">{title}</h3>
-              <Badge variant="secondary" className={`${subjectColors[subject] || 'bg-gray-50 border-gray-200 text-gray-700'} font-medium w-fit`}>
-                {subject}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className={`${subjectColors[subject] || 'bg-gray-50 border-gray-200 text-gray-700'} font-medium`}>
+                  {subject}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {examType}
+                </Badge>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {status === 'daily' && <Star className="h-5 w-5 text-yellow-500 fill-current" />}
-              {accuracy !== undefined && (
+              {lastScore !== undefined && (
                 <div className="text-right">
-                  <div className="text-xs text-gray-500">Accuracy</div>
-                  <div className="text-sm font-semibold">{accuracy}%</div>
+                  <div className="text-xs text-gray-500">Last Score</div>
+                  <div className={`text-sm font-bold ${getScoreColor(lastScore)}`}>{lastScore}%</div>
                 </div>
               )}
             </div>
@@ -117,22 +135,35 @@ export default function FlashcardCard({
         </CardHeader>
 
         <CardContent className="pt-4 space-y-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium">{completedCards}/{totalCards} cards</span>
-          </div>
-          <Progress value={progressPercentage} className="h-2" />
-          
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-slate-500" />
+              <span className="text-sm">{totalQuestions} Questions</span>
+            </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-slate-500" />
-              <span className="text-sm">{estimatedTime}m</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-slate-500" />
-              <span className="text-sm">{masteryLevel}% Mastery</span>
+              <span className="text-sm">{duration} minutes</span>
             </div>
           </div>
+
+          {attempts > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4 text-slate-500" />
+                  <span>Attempts: {attempts}</span>
+                </div>
+                {averageScore && (
+                  <span className={`font-medium ${getScoreColor(averageScore)}`}>
+                    Avg: {averageScore}%
+                  </span>
+                )}
+              </div>
+              {averageScore && (
+                <Progress value={averageScore} className="h-2" />
+              )}
+            </div>
+          )}
 
           {dueDate && status !== 'completed' && (
             <div className="text-xs text-gray-500 flex items-center gap-1 pt-2 border-t">
@@ -142,18 +173,29 @@ export default function FlashcardCard({
           )}
         </CardContent>
 
-        <CardFooter className="pt-2">
+        <CardFooter className="pt-2 space-y-2">
           <Button 
             className={`w-full flex items-center justify-center gap-2 ${
               status === 'completed' 
-                ? 'bg-green-600 hover:bg-green-700' 
-                : 'bg-purple-600 hover:bg-purple-700'
+                ? 'bg-blue-600 hover:bg-blue-700' 
+                : 'bg-emerald-600 hover:bg-emerald-700'
             }`}
-            onClick={handleStudyNow}
+            onClick={handleStartExam}
           >
             <PlayCircle className="h-4 w-4" />
-            {status === 'completed' ? 'Review Cards' : 'Start Practice'}
+            {status === 'completed' ? 'Retake Exam' : 'Start Exam'}
           </Button>
+          
+          {status === 'completed' && attempts > 0 && (
+            <Button 
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleReviewExam}
+            >
+              <Trophy className="h-4 w-4" />
+              Review Results
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </motion.div>
