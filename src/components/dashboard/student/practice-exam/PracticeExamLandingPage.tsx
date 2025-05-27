@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,23 +90,11 @@ const PracticeExamLandingPage = () => {
   ];
 
   const handleStartExam = (examId: string) => {
-    if (examId === '4') {
-      window.location.href = '/dashboard/student/exam/4/start';
-    } else if (examId === '6') {
-      window.location.href = '/dashboard/student/exam/6/start';
-    } else {
-      window.location.href = `/dashboard/student/exam/${examId}/start`;
-    }
+    navigate(`/dashboard/student/exam/${examId}/start`);
   };
 
   const handleViewResults = (examId: string) => {
-    if (examId === '6') {
-      window.location.href = '/dashboard/student/exam/6/results';
-    } else if (examId === '4') {
-      window.location.href = '/dashboard/student/exam/4/results';
-    } else {
-      window.location.href = `/dashboard/student/exam/${examId}/results`;
-    }
+    navigate(`/dashboard/student/exam/${examId}/results`);
   };
 
   const handleTabChange = (value: string) => {
@@ -178,10 +167,7 @@ const PracticeExamLandingPage = () => {
                     className="w-full" 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => {
-                      // Stay on the same page in available-exams tab
-                      handleTabChange('available-exams');
-                    }}
+                    onClick={() => handleTabChange('available-exams')}
                   >
                     <Play className="mr-2 h-4 w-4" />
                     Take Practice Test

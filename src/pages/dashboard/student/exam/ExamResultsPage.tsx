@@ -1,291 +1,331 @@
 
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, CheckCircle, XCircle, Clock, Book, AlertTriangle, BarChart, Trophy } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Trophy, 
+  Target, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  ChevronLeft,
+  BarChart3,
+  TrendingUp,
+  BookOpen
+} from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
 
-const ExamResultsPage = () => {
-  const { examId } = useParams<{ examId: string }>();
+interface ExamResult {
+  examId: string;
+  title: string;
+  subject: string;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  completedAt: string;
+  timeTaken: number;
+  userAnswers: Array<{
+    questionId: string;
+    selectedAnswer: number;
+    timeSpent?: number;
+  }>;
+}
+
+const ExamResultsPage: React.FC = () => {
   const navigate = useNavigate();
-  
-  // Mock exam result data
-  const examResult = {
-    examId: examId,
-    title: `Practice Exam ${examId}`,
-    subject: "Physics",
-    topics: ["Mechanics", "Optics", "Waves"],
-    score: 78,
-    totalQuestions: 10,
-    correctAnswers: 8,
-    incorrectAnswers: 2,
-    timeTaken: "35 minutes",
-    maxTime: "60 minutes",
-    completedOn: new Date().toISOString(),
-    topicPerformance: [
-      { name: "Mechanics", score: 85, questions: 4 },
-      { name: "Optics", score: 70, questions: 3 },
-      { name: "Waves", score: 75, questions: 3 }
-    ],
-    questions: Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      text: `Question ${i + 1}: Sample physics question about mechanics and motion?`,
-      userAnswer: i % 3 === 0 ? "Incorrect answer" : "Correct answer",
-      correctAnswer: "Correct answer",
-      isCorrect: i % 3 !== 0,
-      explanation: `This is the explanation for question ${i + 1}. The correct answer demonstrates the fundamental principles of physics.`
-    })),
-    weakAreas: [
-      "Newton's Laws of Motion",
-      "Energy Conservation",
-      "Wave Properties"
-    ],
-    recommendations: [
-      "Review Newton's laws and practice more problems",
-      "Focus on energy conservation principles",
-      "Study wave mechanics and properties"
-    ]
+  const { examId = '' } = useParams<{ examId: string }>();
+  const { toast } = useToast();
+  const [examResult, setExamResult] = useState<ExamResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Load exam results from localStorage
+    const storedResult = localStorage.getItem(`examResult_${examId}`);
+    if (storedResult) {
+      try {
+        const result = JSON.parse(storedResult);
+        setExamResult(result);
+      } catch (error) {
+        console.error('Error parsing exam result:', error);
+        toast({
+          title: "Error",
+          description: "Could not load exam results",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Generate mock result if not found
+      const mockResult: ExamResult = {
+        examId,
+        title: `Practice Exam ${examId}`,
+        subject: "Physics",
+        score: 75,
+        totalQuestions: 45,
+        correctAnswers: 34,
+        completedAt: new Date().toISOString(),
+        timeTaken: 2400, // 40 minutes
+        userAnswers: []
+      };
+      setExamResult(mockResult);
+    }
+    setLoading(false);
+  }, [examId, toast]);
+
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
-  
+
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-amber-600";
-    return "text-red-600";
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
   };
-  
-  const getProgressColor = (score: number) => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-amber-500";
-    return "bg-red-500";
+
+  const getScoreBadgeVariant = (score: number) => {
+    if (score >= 80) return 'default';
+    if (score >= 60) return 'secondary';
+    return 'destructive';
   };
-  
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-  
-  const handleBackToPracticeExams = () => {
-    navigate("/dashboard/student/practice-exam");
-  };
-  
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="container py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!examResult) {
+    return (
+      <MainLayout>
+        <div className="container py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Exam Results Not Found</h1>
+            <p className="text-gray-600 mb-6">We couldn't find the results for this exam.</p>
+            <Button onClick={() => navigate('/dashboard/student/practice-exam')}>
+              Back to Practice Exams
+            </Button>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
       <div className="container py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold">Exam Results</h1>
-            <p className="text-gray-600">{examResult.title} • {examResult.subject}</p>
+            <h1 className="text-2xl font-bold">{examResult.title}</h1>
+            <p className="text-gray-600">{examResult.subject} - Results</p>
           </div>
-          <Button variant="outline" onClick={handleBackToPracticeExams}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Practice Exams
+          <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            Back to Exams
           </Button>
         </div>
 
         {/* Score Overview */}
-        <Card className="overflow-hidden mb-6">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div className="flex flex-wrap justify-between items-center">
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-amber-500" />
-                Exam Performance
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                {examResult.topics.map(topic => (
-                  <Badge key={topic} variant="outline">
-                    {topic}
-                  </Badge>
-                ))}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Trophy className={`h-8 w-8 mx-auto mb-2 ${getScoreColor(examResult.score)}`} />
+              <p className={`text-3xl font-bold ${getScoreColor(examResult.score)}`}>
+                {examResult.score}%
+              </p>
+              <p className="text-sm text-gray-600">Overall Score</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Target className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+              <p className="text-3xl font-bold text-blue-600">
+                {examResult.correctAnswers}/{examResult.totalQuestions}
+              </p>
+              <p className="text-sm text-gray-600">Correct Answers</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Clock className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+              <p className="text-3xl font-bold text-purple-600">
+                {formatTime(examResult.timeTaken)}
+              </p>
+              <p className="text-sm text-gray-600">Time Taken</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 text-center">
+              <BarChart3 className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+              <Badge variant={getScoreBadgeVariant(examResult.score)} className="text-lg px-3 py-1">
+                {examResult.score >= 80 ? 'Excellent' : examResult.score >= 60 ? 'Good' : 'Needs Improvement'}
+              </Badge>
+              <p className="text-sm text-gray-600 mt-2">Performance</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Progress Bar */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Score Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Correct Answers</span>
+                  <span>{examResult.correctAnswers} of {examResult.totalQuestions}</span>
+                </div>
+                <Progress value={(examResult.correctAnswers / examResult.totalQuestions) * 100} className="h-3" />
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Overall Score</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className={`text-4xl font-bold ${getScoreColor(examResult.score)}`}>
-                    {examResult.score}%
+          </CardContent>
+        </Card>
+
+        {/* Detailed Analysis */}
+        <Tabs defaultValue="performance" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+            <TabsTrigger value="comparison">Comparison</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="performance" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  Performance Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-medium mb-2">Strengths</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-center text-green-600">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Strong conceptual understanding
+                      </li>
+                      <li className="flex items-center text-green-600">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Good time management
+                      </li>
+                    </ul>
                   </div>
-                  <Progress 
-                    value={examResult.score} 
-                    className="h-2 mt-2" 
-                  />
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Questions</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex justify-between">
-                    <div>
-                      <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-                        <span className="text-sm text-gray-600">Correct</span>
-                      </div>
-                      <div className="text-xl font-medium">{examResult.correctAnswers}</div>
-                    </div>
-                    <div>
-                      <div className="flex items-center">
-                        <XCircle className="h-4 w-4 text-red-500 mr-1" />
-                        <span className="text-sm text-gray-600">Incorrect</span>
-                      </div>
-                      <div className="text-xl font-medium">{examResult.incorrectAnswers}</div>
-                    </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-2">Areas to Improve</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-center text-red-600">
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Complex problem solving
+                      </li>
+                      <li className="flex items-center text-red-600">
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Application-based questions
+                      </li>
+                    </ul>
                   </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Time</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center mb-1">
-                    <Clock className="h-4 w-4 text-gray-500 mr-1" />
-                    <span className="text-sm text-gray-600">Time taken</span>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="recommendations" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  Study Recommendations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-blue-900 mb-2">Recommended Actions</h4>
+                    <ul className="space-y-2 text-blue-800">
+                      <li>• Review chapters on mechanics and thermodynamics</li>
+                      <li>• Practice more numerical problems</li>
+                      <li>• Take additional mock tests</li>
+                      <li>• Focus on time management strategies</li>
+                    </ul>
                   </div>
-                  <div className="text-xl font-medium">{examResult.timeTaken}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    out of {examResult.maxTime}
+                  
+                  <div className="flex gap-2">
+                    <Button onClick={() => navigate('/dashboard/student/concepts')}>
+                      Study Concepts
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
+                      Take Another Test
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="questions">Question Review</TabsTrigger>
-                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="overview" className="space-y-5">
-                <div>
-                  <h3 className="font-medium text-lg mb-3">Topic Performance</h3>
-                  <div className="space-y-3">
-                    {examResult.topicPerformance.map(topic => (
-                      <div key={topic.name}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>{topic.name}</span>
-                          <span className={getScoreColor(topic.score)}>{topic.score}%</span>
-                        </div>
-                        <Progress 
-                          value={topic.score}
-                          className="h-2" 
-                        />
-                        <div className="text-xs text-gray-500 mt-1 text-right">
-                          {topic.questions} questions
-                        </div>
-                      </div>
-                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="comparison" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Comparison</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <p className="text-2xl font-bold text-gray-700">78%</p>
+                    <p className="text-sm text-gray-600">Average Score</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <p className="text-2xl font-bold text-blue-700">{examResult.score}%</p>
+                    <p className="text-sm text-blue-600">Your Score</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-700">85%</p>
+                    <p className="text-sm text-green-600">Top 10% Score</p>
                   </div>
                 </div>
                 
-                <div>
-                  <h3 className="font-medium text-lg mb-3">Areas for Improvement</h3>
-                  <div className="space-y-2">
-                    {examResult.weakAreas.map((area, index) => (
-                      <div key={index} className="flex items-start">
-                        <AlertTriangle className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
-                        <span>{area}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="mt-4">
+                  <p className="text-center text-gray-600">
+                    {examResult.score > 78 
+                      ? "Great job! You scored above average." 
+                      : "Keep practicing to improve your score!"}
+                  </p>
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="questions">
-                <div className="space-y-4">
-                  {examResult.questions.map((question, index) => (
-                    <Card key={question.id}>
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-base">Question {index + 1}</CardTitle>
-                          {question.isCorrect ? (
-                            <Badge className="bg-green-100 text-green-800 border-green-200">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Correct
-                            </Badge>
-                          ) : (
-                            <Badge variant="destructive">
-                              <XCircle className="h-3 w-3 mr-1" />
-                              Incorrect
-                            </Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="mb-3">{question.text}</p>
-                        <div className="space-y-2">
-                          <div>
-                            <span className="text-sm font-medium">Your Answer: </span>
-                            <span className={question.isCorrect ? 'text-green-600' : 'text-red-600'}>
-                              {question.userAnswer}
-                            </span>
-                          </div>
-                          {!question.isCorrect && (
-                            <div>
-                              <span className="text-sm font-medium">Correct Answer: </span>
-                              <span className="text-green-600">{question.correctAnswer}</span>
-                            </div>
-                          )}
-                          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                            <span className="text-sm font-medium">Explanation: </span>
-                            <span className="text-sm">{question.explanation}</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="recommendations">
-                <div className="space-y-6">
-                  <h3 className="font-medium text-lg">Suggested Actions</h3>
-                  <div className="space-y-4">
-                    {examResult.recommendations.map((recommendation, index) => (
-                      <Card key={index}>
-                        <CardContent className="p-4 flex">
-                          <BarChart className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
-                          <div>
-                            <p>{recommendation}</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                  
-                  <div className="flex justify-end space-x-3">
-                    <Button variant="outline" onClick={handleBackToPracticeExams}>
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back to Practice Exams
-                    </Button>
-                    <Button>
-                      <Book className="h-4 w-4 mr-2" />
-                      Study Related Concepts
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-4 mt-8">
+          <Button onClick={() => navigate(`/dashboard/student/exam/${examId}/start`)}>
+            Retake Exam
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
+            Browse More Exams
+          </Button>
+        </div>
       </div>
     </MainLayout>
   );
