@@ -1,519 +1,322 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { 
-  BookOpen, 
-  Brain, 
-  FileText, 
-  ChevronRight, 
-  Trophy, 
-  Clock,
-  Target,
-  CheckCircle,
-  Star,
-  Play,
-  Zap
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  mastered: boolean;
-  progress: number;
-  flashcardCount: number;
-  examQuestions: number;
-  estimatedTime: number;
-  weightage: number;
-}
-
-interface Topic {
-  id: string;
-  name: string;
-  description: string;
-  weightage: number;
-  totalConcepts: number;
-  masteredConcepts: number;
-  progress: number;
-  concepts: ConceptCard[];
-}
-
-interface Subject {
-  id: string;
-  name: string;
-  code: string;
-  totalMarks: number;
-  topics: Topic[];
-  overallProgress: number;
-  color: string;
-}
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CheckCircle, Circle, Star, Trophy, Target, BookOpen, Clock, Award, Crown, Zap } from 'lucide-react';
+import MainLayout from '@/components/layouts/MainLayout';
 
 const ExamSyllabusPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [activeSubject, setActiveSubject] = useState('physics');
-  const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState('physics');
 
-  const syllabusData: Subject[] = [
-    {
-      id: 'physics',
-      name: 'Physics',
-      code: 'PHY',
-      totalMarks: 180,
-      overallProgress: 68,
-      color: 'bg-blue-500',
-      topics: [
+  const syllabusData = {
+    physics: {
+      title: "Physics - NEET 2026",
+      totalTopics: 97,
+      completedTopics: 45,
+      weightage: "25%",
+      chapters: [
         {
-          id: 'mechanics',
-          name: 'Mechanics',
-          description: 'Laws of motion, work, energy and power',
-          weightage: 23,
-          totalConcepts: 12,
-          masteredConcepts: 8,
-          progress: 67,
-          concepts: [
-            {
-              id: 'newtons-laws',
-              title: "Newton's Laws of Motion",
-              description: 'Three fundamental laws governing motion of objects',
-              difficulty: 'medium',
-              mastered: true,
-              progress: 100,
-              flashcardCount: 15,
-              examQuestions: 8,
-              estimatedTime: 45,
-              weightage: 8
-            },
-            {
-              id: 'work-energy',
-              title: 'Work and Energy',
-              description: 'Work-energy theorem and conservation of energy',
-              difficulty: 'medium',
-              mastered: true,
-              progress: 95,
-              flashcardCount: 12,
-              examQuestions: 6,
-              estimatedTime: 40,
-              weightage: 7
-            },
-            {
-              id: 'momentum',
-              title: 'Momentum and Collisions',
-              description: 'Conservation of momentum and collision types',
-              difficulty: 'hard',
-              mastered: false,
-              progress: 45,
-              flashcardCount: 18,
-              examQuestions: 10,
-              estimatedTime: 60,
-              weightage: 8
-            }
+          id: 1,
+          title: "Physical World and Measurement",
+          topics: [
+            { name: "Physics scope and nature", completed: true, difficulty: "Easy", weightage: "2%" },
+            { name: "Units and Dimensions", completed: true, difficulty: "Medium", weightage: "3%" },
+            { name: "Errors in Measurement", completed: false, difficulty: "Medium", weightage: "2%" }
           ]
         },
         {
-          id: 'thermodynamics',
-          name: 'Thermodynamics',
-          description: 'Heat, temperature and laws of thermodynamics',
-          weightage: 16,
-          totalConcepts: 8,
-          masteredConcepts: 5,
-          progress: 63,
-          concepts: [
-            {
-              id: 'first-law',
-              title: 'First Law of Thermodynamics',
-              description: 'Conservation of energy in thermal processes',
-              difficulty: 'medium',
-              mastered: true,
-              progress: 90,
-              flashcardCount: 10,
-              examQuestions: 5,
-              estimatedTime: 35,
-              weightage: 6
-            },
-            {
-              id: 'heat-transfer',
-              title: 'Heat Transfer',
-              description: 'Conduction, convection and radiation',
-              difficulty: 'easy',
-              mastered: true,
-              progress: 100,
-              flashcardCount: 8,
-              examQuestions: 4,
-              estimatedTime: 25,
-              weightage: 5
-            }
+          id: 2,
+          title: "Kinematics",
+          topics: [
+            { name: "Motion in a straight line", completed: true, difficulty: "Medium", weightage: "4%" },
+            { name: "Motion in a plane", completed: false, difficulty: "Hard", weightage: "5%" },
+            { name: "Projectile Motion", completed: false, difficulty: "Hard", weightage: "4%" }
+          ]
+        },
+        {
+          id: 3,
+          title: "Laws of Motion",
+          topics: [
+            { name: "Newton's Laws", completed: true, difficulty: "Medium", weightage: "5%" },
+            { name: "Friction", completed: false, difficulty: "Medium", weightage: "3%" },
+            { name: "Circular Motion", completed: false, difficulty: "Hard", weightage: "4%" }
           ]
         }
       ]
     },
-    {
-      id: 'chemistry',
-      name: 'Chemistry',
-      code: 'CHM',
-      totalMarks: 180,
-      overallProgress: 72,
-      color: 'bg-purple-500',
-      topics: [
+    chemistry: {
+      title: "Chemistry - NEET 2026",
+      totalTopics: 105,
+      completedTopics: 52,
+      weightage: "25%",
+      chapters: [
         {
-          id: 'organic',
-          name: 'Organic Chemistry',
-          description: 'Hydrocarbons, functional groups and reactions',
-          weightage: 30,
-          totalConcepts: 15,
-          masteredConcepts: 11,
-          progress: 73,
-          concepts: [
-            {
-              id: 'hydrocarbons',
-              title: 'Hydrocarbons',
-              description: 'Alkanes, alkenes, alkynes and their properties',
-              difficulty: 'medium',
-              mastered: true,
-              progress: 95,
-              flashcardCount: 20,
-              examQuestions: 12,
-              estimatedTime: 50,
-              weightage: 10
-            },
-            {
-              id: 'alcohols-phenols',
-              title: 'Alcohols and Phenols',
-              description: 'Properties, preparation and reactions',
-              difficulty: 'hard',
-              mastered: false,
-              progress: 55,
-              flashcardCount: 16,
-              examQuestions: 8,
-              estimatedTime: 45,
-              weightage: 8
-            }
+          id: 1,
+          title: "Some Basic Concepts of Chemistry",
+          topics: [
+            { name: "Matter and its Classification", completed: true, difficulty: "Easy", weightage: "2%" },
+            { name: "Atomic and Molecular Masses", completed: true, difficulty: "Medium", weightage: "3%" },
+            { name: "Mole Concept", completed: false, difficulty: "Hard", weightage: "4%" }
+          ]
+        },
+        {
+          id: 2,
+          title: "Structure of Atom",
+          topics: [
+            { name: "Discovery of Electron, Proton and Neutron", completed: true, difficulty: "Easy", weightage: "2%" },
+            { name: "Atomic Models", completed: false, difficulty: "Medium", weightage: "4%" },
+            { name: "Electronic Configuration", completed: false, difficulty: "Hard", weightage: "5%" }
           ]
         }
       ]
     },
-    {
-      id: 'biology',
-      name: 'Biology',
-      code: 'BIO',
-      totalMarks: 180,
-      overallProgress: 65,
-      color: 'bg-green-500',
-      topics: [
+    biology: {
+      title: "Biology - NEET 2026",
+      totalTopics: 128,
+      completedTopics: 67,
+      weightage: "50%",
+      chapters: [
         {
-          id: 'genetics',
-          name: 'Genetics and Evolution',
-          description: 'Heredity, variation and evolution',
-          weightage: 18,
-          totalConcepts: 10,
-          masteredConcepts: 6,
-          progress: 60,
-          concepts: [
-            {
-              id: 'mendels-laws',
-              title: "Mendel's Laws",
-              description: 'Laws of inheritance and genetic crosses',
-              difficulty: 'medium',
-              mastered: true,
-              progress: 90,
-              flashcardCount: 14,
-              examQuestions: 7,
-              estimatedTime: 40,
-              weightage: 9
-            }
+          id: 1,
+          title: "The Living World",
+          topics: [
+            { name: "What is Living?", completed: true, difficulty: "Easy", weightage: "1%" },
+            { name: "Biodiversity", completed: true, difficulty: "Medium", weightage: "2%" },
+            { name: "Need for Classification", completed: false, difficulty: "Easy", weightage: "1%" }
+          ]
+        },
+        {
+          id: 2,
+          title: "Biological Classification",
+          topics: [
+            { name: "Five Kingdom Classification", completed: true, difficulty: "Medium", weightage: "3%" },
+            { name: "Kingdom Monera", completed: false, difficulty: "Hard", weightage: "4%" },
+            { name: "Kingdom Protista", completed: false, difficulty: "Medium", weightage: "3%" }
           ]
         }
       ]
     }
-  ];
+  };
 
-  const activeSubjectData = syllabusData.find(s => s.id === activeSubject);
+  const currentSubject = syllabusData[selectedSubject as keyof typeof syllabusData];
+  const completionPercentage = Math.round((currentSubject.completedTopics / currentSubject.totalTopics) * 100);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
+      case 'Easy': return 'bg-green-100 text-green-800 border-green-200';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'Hard': return 'bg-red-100 text-red-800 border-red-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const handleConceptClick = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/${conceptId}`);
-  };
-
-  const handleFlashcardClick = (conceptId: string) => {
-    navigate(`/dashboard/student/flashcards/${conceptId}/interactive`);
-  };
-
-  const handleExamClick = (conceptId: string) => {
-    navigate(`/dashboard/student/practice-exam/${conceptId}/start`);
-  };
-
-  const toggleTopicExpansion = (topicId: string) => {
-    setExpandedTopic(expandedTopic === topicId ? null : topicId);
-  };
-
   return (
-    <SharedPageLayout
-      title="NEET 2026 Exam Syllabus"
-      subtitle="Complete syllabus breakdown with concept-wise preparation tracking"
-    >
-      {/* Premium Header Banner */}
-      <div className="mb-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">NEET 2026 Premium Syllabus</h2>
-            <p className="text-indigo-100">Complete topic-wise breakdown with 2000+ concepts</p>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold">540</div>
-            <div className="text-sm text-indigo-100">Total Marks</div>
+    <MainLayout>
+      <div className="container py-8 space-y-8">
+        {/* Premium Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                <Crown className="h-8 w-8 text-yellow-300" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold">NEET 2026 Syllabus</h1>
+                <p className="text-indigo-100 text-lg">Complete Premium Study Guide</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="h-5 w-5 text-green-300" />
+                  <span className="text-sm font-medium">Total Progress</span>
+                </div>
+                <div className="text-2xl font-bold">164/330</div>
+                <div className="text-sm text-indigo-200">Topics Completed</div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Trophy className="h-5 w-5 text-yellow-300" />
+                  <span className="text-sm font-medium">Study Streak</span>
+                </div>
+                <div className="text-2xl font-bold">15 Days</div>
+                <div className="text-sm text-indigo-200">Keep it up!</div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-5 w-5 text-blue-300" />
+                  <span className="text-sm font-medium">Time to Exam</span>
+                </div>
+                <div className="text-2xl font-bold">387 Days</div>
+                <div className="text-sm text-indigo-200">Stay focused!</div>
+              </div>
+            </div>
           </div>
         </div>
-        
-        {/* Overall Progress */}
-        <div className="mt-4 bg-white/10 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-medium">Overall Progress</span>
-            <span className="font-bold">68%</span>
-          </div>
-          <Progress value={68} className="h-2 bg-white/20" />
-        </div>
-      </div>
 
-      {/* Subject Tabs */}
-      <Tabs value={activeSubject} onValueChange={setActiveSubject} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
-          {syllabusData.map((subject) => (
+        {/* Subject Navigation */}
+        <Tabs value={selectedSubject} onValueChange={setSelectedSubject}>
+          <TabsList className="grid w-full grid-cols-3 p-1 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm">
             <TabsTrigger 
-              key={subject.id} 
-              value={subject.id}
-              className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 rounded-lg py-3"
+              value="physics" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${subject.color}`}></div>
-                <span className="font-medium">{subject.name}</span>
-                <Badge variant="outline" className="ml-1">
-                  {subject.totalMarks}
-                </Badge>
+                <Zap className="h-4 w-4" />
+                Physics
               </div>
             </TabsTrigger>
-          ))}
-        </TabsList>
+            <TabsTrigger 
+              value="chemistry"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Chemistry
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="biology"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-center gap-2">
+                <Award className="h-4 w-4" />
+                Biology
+              </div>
+            </TabsTrigger>
+          </TabsList>
 
-        {syllabusData.map((subject) => (
-          <TabsContent key={subject.id} value={subject.id} className="space-y-6">
-            {/* Subject Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-                <CardContent className="p-4 text-center">
-                  <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                  <div className="text-2xl font-bold text-blue-900">
-                    {subject.topics.reduce((sum, topic) => sum + topic.totalConcepts, 0)}
-                  </div>
-                  <div className="text-sm text-blue-700">Total Concepts</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-                <CardContent className="p-4 text-center">
-                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                  <div className="text-2xl font-bold text-green-900">
-                    {subject.topics.reduce((sum, topic) => sum + topic.masteredConcepts, 0)}
-                  </div>
-                  <div className="text-sm text-green-700">Mastered</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
-                <CardContent className="p-4 text-center">
-                  <Target className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                  <div className="text-2xl font-bold text-purple-900">{subject.overallProgress}%</div>
-                  <div className="text-sm text-purple-700">Progress</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
-                <CardContent className="p-4 text-center">
-                  <Trophy className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                  <div className="text-2xl font-bold text-orange-900">{subject.totalMarks}</div>
-                  <div className="text-sm text-orange-700">Total Marks</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Topics List */}
-            <div className="space-y-4">
-              {subject.topics.map((topic) => (
-                <Card key={topic.id} className="border-2 hover:border-indigo-200 transition-colors">
-                  <CardHeader 
-                    className="cursor-pointer"
-                    onClick={() => toggleTopicExpansion(topic.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <CardTitle className="text-lg">{topic.name}</CardTitle>
-                          <Badge variant="outline" className="bg-indigo-50 text-indigo-700">
-                            {topic.weightage}% weightage
-                          </Badge>
-                          <Badge className="bg-green-100 text-green-800">
-                            {topic.masteredConcepts}/{topic.totalConcepts} mastered
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-3">{topic.description}</p>
-                        
-                        {/* Topic Progress */}
-                        <div className="flex items-center gap-3">
-                          <div className="flex-1">
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>Progress</span>
-                              <span className="font-medium">{topic.progress}%</span>
-                            </div>
-                            <Progress value={topic.progress} className="h-2" />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <ChevronRight 
-                        className={`h-5 w-5 text-gray-400 transition-transform ${
-                          expandedTopic === topic.id ? 'rotate-90' : ''
-                        }`} 
-                      />
+          {/* Subject Overview Card */}
+          <div className="mt-6">
+            <Card className="border-2 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl text-white">
+                      <BookOpen className="h-6 w-6" />
                     </div>
-                  </CardHeader>
+                    <div>
+                      <CardTitle className="text-2xl font-bold">{currentSubject.title}</CardTitle>
+                      <p className="text-muted-foreground">Exam Weightage: {currentSubject.weightage}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-300">
+                      <Star className="h-3 w-3 mr-1" />
+                      Premium
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="text-3xl font-bold text-blue-600">{currentSubject.totalTopics}</div>
+                    <div className="text-sm text-blue-700 dark:text-blue-300">Total Topics</div>
+                  </div>
+                  <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                    <div className="text-3xl font-bold text-green-600">{currentSubject.completedTopics}</div>
+                    <div className="text-sm text-green-700 dark:text-green-300">Completed</div>
+                  </div>
+                  <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                    <div className="text-3xl font-bold text-purple-600">{completionPercentage}%</div>
+                    <div className="text-sm text-purple-700 dark:text-purple-300">Progress</div>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="font-medium">Overall Progress</span>
+                    <span className="text-muted-foreground">{completionPercentage}%</span>
+                  </div>
+                  <Progress value={completionPercentage} className="h-3 bg-gradient-to-r from-gray-200 to-gray-300" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-                  {/* Expanded Concepts */}
-                  {expandedTopic === topic.id && (
-                    <CardContent className="pt-0">
-                      <div className="border-t pt-4">
-                        <h4 className="font-semibold mb-4 text-gray-900">Concept Breakdown</h4>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          {topic.concepts.map((concept) => (
-                            <Card 
-                              key={concept.id} 
-                              className={`border-l-4 ${
-                                concept.mastered ? 'border-l-green-500 bg-green-50/50' : 'border-l-orange-500 bg-orange-50/50'
-                              } hover:shadow-md transition-shadow`}
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex items-start justify-between mb-3">
-                                  <div className="flex-1">
-                                    <h5 className="font-semibold text-gray-900 mb-1">{concept.title}</h5>
-                                    <p className="text-sm text-gray-600 mb-2">{concept.description}</p>
-                                    
-                                    {/* Concept Badges */}
-                                    <div className="flex gap-2 mb-3">
-                                      <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
-                                        {concept.difficulty}
-                                      </Badge>
-                                      <Badge variant="outline" className="bg-purple-50 text-purple-700">
-                                        {concept.weightage}% marks
-                                      </Badge>
-                                      {concept.mastered && (
-                                        <Badge className="bg-green-500 text-white">
-                                          <CheckCircle className="h-3 w-3 mr-1" />
-                                          Mastered
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Concept Progress */}
-                                <div className="mb-4">
-                                  <div className="flex justify-between text-sm mb-1">
-                                    <span>Understanding</span>
-                                    <span className="font-medium">{concept.progress}%</span>
-                                  </div>
-                                  <Progress value={concept.progress} className="h-1.5" />
-                                </div>
-
-                                {/* Concept Stats */}
-                                <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
-                                  <div className="text-center bg-blue-50 rounded p-2">
-                                    <div className="font-bold text-blue-900">{concept.flashcardCount}</div>
-                                    <div className="text-blue-700">Flashcards</div>
-                                  </div>
-                                  <div className="text-center bg-purple-50 rounded p-2">
-                                    <div className="font-bold text-purple-900">{concept.examQuestions}</div>
-                                    <div className="text-purple-700">Questions</div>
-                                  </div>
-                                  <div className="text-center bg-orange-50 rounded p-2">
-                                    <div className="font-bold text-orange-900">{concept.estimatedTime}m</div>
-                                    <div className="text-orange-700">Est. Time</div>
-                                  </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="grid grid-cols-3 gap-2">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => handleConceptClick(concept.id)}
-                                    className="text-xs"
-                                  >
-                                    <BookOpen className="h-3 w-3 mr-1" />
-                                    Study
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => handleFlashcardClick(concept.id)}
-                                    className="text-xs"
-                                  >
-                                    <Brain className="h-3 w-3 mr-1" />
-                                    Cards
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => handleExamClick(concept.id)}
-                                    className="text-xs"
-                                  >
-                                    <FileText className="h-3 w-3 mr-1" />
-                                    Test
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
+          {/* Chapter Content */}
+          {Object.entries(syllabusData).map(([key, subject]) => (
+            <TabsContent key={key} value={key} className="mt-6">
+              <div className="space-y-4">
+                {subject.chapters.map((chapter) => (
+                  <Card key={chapter.id} className="border-l-4 border-l-indigo-500 shadow-md hover:shadow-lg transition-shadow duration-200 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                            {chapter.id}
+                          </div>
+                          {chapter.title}
+                        </CardTitle>
+                        <Button variant="outline" size="sm" className="border-indigo-200 hover:bg-indigo-50">
+                          <BookOpen className="h-4 w-4 mr-1" />
+                          Study Now
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {chapter.topics.map((topic, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors duration-200">
+                            <div className="flex items-center gap-3">
+                              {topic.completed ? (
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                              ) : (
+                                <Circle className="h-5 w-5 text-gray-400" />
+                              )}
+                              <span className={`font-medium ${topic.completed ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'}`}>
+                                {topic.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs font-medium">
+                                {topic.weightage}
+                              </Badge>
+                              <Badge variant="outline" className={`text-xs ${getDifficultyColor(topic.difficulty)}`}>
+                                {topic.difficulty}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
 
-      {/* Premium Features Banner */}
-      <Card className="mt-6 bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-bold mb-2">🚀 Premium NEET 2026 Features</h3>
-              <p className="text-violet-100">
-                AI-powered study plans • Concept mastery tracking • Adaptive difficulty • Performance analytics
-              </p>
+        {/* Premium Features Banner */}
+        <Card className="border-2 border-gradient-to-r from-yellow-200 to-orange-200 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 shadow-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl">
+                <Crown className="h-8 w-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-yellow-800 dark:text-yellow-200">Premium NEET 2026 Features</h3>
+                <p className="text-yellow-700 dark:text-yellow-300">
+                  Get AI-powered study recommendations, detailed analytics, and personalized revision schedules
+                </p>
+              </div>
+              <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg">
+                <Star className="h-4 w-4 mr-2" />
+                Explore Premium
+              </Button>
             </div>
-            <Button variant="secondary" className="bg-white text-violet-600 hover:bg-gray-100">
-              <Star className="h-4 w-4 mr-2" />
-              Explore Premium
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </SharedPageLayout>
+          </CardContent>
+        </Card>
+      </div>
+    </MainLayout>
   );
 };
 
