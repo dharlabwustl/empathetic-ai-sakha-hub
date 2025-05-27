@@ -16,8 +16,8 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
   // Priority order for female voices
   const femaleVoicePreferences = [
     'Google US English Female',
-    'Microsoft Zira - English (United States)',
-    'Microsoft Hazel - English (Great Britain)',
+    'Microsoft Zira',
+    'Microsoft Hazel',
     'Samantha',
     'Karen',
     'Moira',
@@ -57,8 +57,8 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
 export const getDefaultVoiceConfig = (): VoiceConfig => {
   return {
     voice: getPreferredFemaleVoice(),
-    rate: 0.9,
-    pitch: 1.2,
+    rate: 0.95,
+    pitch: 1.1,
     volume: 0.8,
     language: 'en-US'
   };
@@ -69,8 +69,7 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
-  // Fix PREPZR pronunciation
-  utterance.text = text.replace(/PREPZR/gi, 'Prep Zer');
+  utterance.text = text.replace(/PREPZR/gi, 'PREP-ZER');
   utterance.lang = finalConfig.language;
   utterance.rate = finalConfig.rate;
   utterance.pitch = finalConfig.pitch;
