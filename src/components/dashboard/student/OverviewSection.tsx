@@ -96,7 +96,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        // For practice exams, call the callback to switch to available exams tab
         if (onContinueLearning) {
           onContinueLearning();
         } else {
@@ -126,7 +125,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       {/* Subject Progress Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {subjects.map((subject) => (
-          <Card key={subject.name} className="border-2 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleSubjectStudy(subject.name)}>
+          <Card key={subject.name} className="border-2 hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-blue-300" onClick={() => handleSubjectStudy(subject.name)}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{subject.name}</CardTitle>
@@ -177,7 +176,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-orange-800">
             <Lightbulb className="h-5 w-5" />
-            Prep-Zer AI Study Suggestions
+            PREPZR AI Study Suggestions
           </CardTitle>
         </CardHeader>
         <CardContent>

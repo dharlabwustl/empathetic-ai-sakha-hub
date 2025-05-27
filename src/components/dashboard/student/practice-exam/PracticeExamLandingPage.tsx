@@ -6,13 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Plus, Play, ChevronRight, Clock, Target, TrendingUp, Users } from 'lucide-react';
+import { FileText, Plus, Play, ChevronRight, Clock, Target, TrendingUp, Users, Star, Trophy } from 'lucide-react';
 import OverviewSection from '../OverviewSection';
+import CreateExamDialog from './CreateExamDialog';
 
 const PracticeExamLandingPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   // Listen for URL parameter changes
   useEffect(() => {
@@ -63,7 +65,9 @@ const PracticeExamLandingPage = () => {
       difficulty: 'Medium',
       attempts: 2,
       bestScore: 75,
-      avgScore: 68
+      avgScore: 68,
+      rating: 4.8,
+      takenBy: 1250
     },
     {
       id: '6', 
@@ -74,7 +78,9 @@ const PracticeExamLandingPage = () => {
       difficulty: 'Hard',
       attempts: 3,
       bestScore: 82,
-      avgScore: 76
+      avgScore: 76,
+      rating: 4.6,
+      takenBy: 890
     },
     {
       id: '7',
@@ -85,7 +91,9 @@ const PracticeExamLandingPage = () => {
       difficulty: 'Medium',
       attempts: 1,
       bestScore: 65,
-      avgScore: 65
+      avgScore: 65,
+      rating: 4.7,
+      takenBy: 650
     }
   ];
 
@@ -118,6 +126,15 @@ const PracticeExamLandingPage = () => {
     setSearchParams({ tab: 'available-exams' });
   };
 
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-800 border-green-300';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'Hard': return 'bg-red-100 text-red-800 border-red-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -145,7 +162,7 @@ const PracticeExamLandingPage = () => {
                 <Play className="mr-2 h-4 w-4" />
                 Quick Test
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => setShowCreateDialog(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Custom Test
               </Button>
@@ -210,47 +227,78 @@ const PracticeExamLandingPage = () => {
             <CardContent>
               <div className="space-y-4">
                 {availableExams.map((exam) => (
-                  <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium">{exam.title}</h4>
-                        <Badge variant="outline">{exam.subject}</Badge>
-                        <Badge variant={exam.difficulty === 'Easy' ? 'default' : exam.difficulty === 'Medium' ? 'secondary' : 'destructive'}>
-                          {exam.difficulty}
-                        </Badge>
+                  <Card key={exam.id} className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-semibold text-lg">{exam.title}</h4>
+                            <Badge variant="outline">{exam.subject}</Badge>
+                            <Badge variant="outline" className={getDifficultyColor(exam.difficulty)}>
+                              {exam.difficulty}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
+                            <span className="flex items-center gap-1">
+                              <FileText className="h-4 w-4" />
+                              {exam.questions} questions
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              {exam.duration}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Trophy className="h-4 w-4" />
+                              Best: {exam.bestScore}%
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Target className="h-4 w-4" />
+                              {exam.attempts} attempts
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                              <span className="font-medium">{exam.rating}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-500">
+                              <Users className="h-4 w-4" />
+                              <span>{exam.takenBy.toLocaleString()} students</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col gap-2 ml-4">
+                          <Button 
+                            size="sm" 
+                            onClick={() => {
+                              console.log('🔥 START EXAM BUTTON CLICKED FOR:', exam.id);
+                              handleStartExam(exam.id);
+                            }}
+                            className="min-w-[120px]"
+                          >
+                            <Play className="h-4 w-4 mr-1" />
+                            Start Exam
+                          </Button>
+                          {exam.attempts > 0 && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => {
+                                console.log('🔥 VIEW RESULTS BUTTON CLICKED FOR:', exam.id);
+                                handleViewResults(exam.id);
+                              }}
+                              className="min-w-[120px]"
+                            >
+                              View Results
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>{exam.questions} questions</span>
-                        <span>{exam.duration}</span>
-                        <span>Best: {exam.bestScore}%</span>
-                        <span>{exam.attempts} attempts</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        onClick={() => {
-                          console.log('🔥 START EXAM BUTTON CLICKED FOR:', exam.id);
-                          handleStartExam(exam.id);
-                        }}
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        Start Exam
-                      </Button>
-                      {exam.attempts > 0 && (
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => {
-                            console.log('🔥 VIEW RESULTS BUTTON CLICKED FOR:', exam.id);
-                            handleViewResults(exam.id);
-                          }}
-                        >
-                          View Results
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </CardContent>
@@ -289,6 +337,11 @@ const PracticeExamLandingPage = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <CreateExamDialog 
+        open={showCreateDialog} 
+        onOpenChange={setShowCreateDialog} 
+      />
     </div>
   );
 };

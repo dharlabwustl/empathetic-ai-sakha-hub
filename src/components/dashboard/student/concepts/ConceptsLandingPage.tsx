@@ -1,315 +1,279 @@
-import React, { useState } from 'react';
-import ConceptOverviewSection from './ConceptOverviewSection';
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, BookOpen, Clock, ArrowRight, Bookmark, Star } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BookOpen, Play, Clock, Target, Star, Users, ChevronRight } from 'lucide-react';
+import OverviewSection from '../OverviewSection';
 
-const ConceptsLandingPage: React.FC = () => {
-  const [activeView, setActiveView] = useState<'overview' | 'concepts'>('overview');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('all');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-  const [showCompleted, setShowCompleted] = useState(true);
-  const [activeTab, setActiveTab] = useState('all');
+const ConceptsLandingPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const subjects = [
-    { id: 'all', name: 'All Subjects' },
-    { id: 'physics', name: 'Physics' },
-    { id: 'chemistry', name: 'Chemistry' },
-    { id: 'biology', name: 'Biology' }
-  ];
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && (tab === 'overview' || tab === 'all-concepts')) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
-  const difficulties = [
-    { id: 'all', name: 'All Difficulties' },
-    { id: 'easy', name: 'Easy' },
-    { id: 'medium', name: 'Medium' },
-    { id: 'hard', name: 'Hard' }
-  ];
+  const overviewData = {
+    type: "Concepts" as const,
+    title: "NEET Concepts Overview",
+    subjects: [
+      { name: "Physics", completed: 45, total: 60, progress: 75, efficiency: 88, studyTime: 32 },
+      { name: "Chemistry", completed: 38, total: 55, progress: 69, efficiency: 85, studyTime: 28 },
+      { name: "Biology", completed: 52, total: 70, progress: 74, efficiency: 82, studyTime: 35 }
+    ],
+    totalStudyTime: 95,
+    overallProgress: 73,
+    suggestions: [
+      "Focus on Physics electromagnetic induction concepts",
+      "Review Chemistry coordination compounds", 
+      "Strengthen Biology genetics and evolution",
+      "Practice more numerical problems in concepts"
+    ]
+  };
 
-  const conceptCategories = [
-    { id: 'all', name: 'All Concepts' },
-    { id: 'recommended', name: 'Recommended' },
-    { id: 'popular', name: 'Most Popular' },
-    { id: 'recent', name: 'Recently Added' },
-    { id: 'bookmarked', name: 'Bookmarked' }
-  ];
-
-  const mockConcepts = [
+  const allConcepts = [
     {
-      id: 'c1',
-      title: 'Newton\'s Laws of Motion',
+      id: '1',
+      title: 'Laws of Motion',
       subject: 'Physics',
-      topic: 'Mechanics',
       difficulty: 'Medium',
-      duration: 25,
-      completed: false,
-      description: 'Learn about the three fundamental laws that form the foundation of classical mechanics.',
-      popularity: 95
+      studyTime: '45 mins',
+      progress: 85,
+      rating: 4.8,
+      studentsStudied: 1250,
+      description: 'Newton\'s three laws of motion and their applications',
+      topics: ['Inertia', 'Force and Acceleration', 'Action-Reaction']
     },
     {
-      id: 'c2',
-      title: 'Periodic Table & Elements',
+      id: '2',
+      title: 'Chemical Bonding',
       subject: 'Chemistry',
-      topic: 'Inorganic Chemistry',
-      difficulty: 'Easy',
-      duration: 20,
-      completed: true,
-      description: 'Explore the organization of elements in the periodic table and their properties.',
-      popularity: 92
+      difficulty: 'Hard',
+      studyTime: '60 mins',
+      progress: 60,
+      rating: 4.7,
+      studentsStudied: 980,
+      description: 'Ionic, covalent, and metallic bonds formation',
+      topics: ['Ionic Bonds', 'Covalent Bonds', 'Hybridization']
     },
     {
-      id: 'c3',
-      title: 'Cell Structure & Function',
+      id: '3',
+      title: 'Cell Division',
       subject: 'Biology',
-      topic: 'Cell Biology',
       difficulty: 'Medium',
-      duration: 30,
-      completed: false,
-      description: 'Understand the structure of cells and how different organelles function.',
-      popularity: 98
+      studyTime: '50 mins',
+      progress: 90,
+      rating: 4.9,
+      studentsStudied: 1100,
+      description: 'Mitosis and meiosis processes in detail',
+      topics: ['Mitosis', 'Meiosis', 'Cell Cycle']
     },
     {
-      id: 'c4',
+      id: '4',
       title: 'Thermodynamics',
       subject: 'Physics',
-      topic: 'Heat & Energy',
       difficulty: 'Hard',
-      duration: 35,
-      completed: false,
-      description: 'Study the relationships between heat, energy, and work in physical systems.',
-      popularity: 88
-    },
-    {
-      id: 'c5',
-      title: 'Organic Compounds',
-      subject: 'Chemistry',
-      topic: 'Organic Chemistry',
-      difficulty: 'Hard',
-      duration: 40,
-      completed: false,
-      description: 'Learn about carbon-based compounds and their reactions.',
-      popularity: 85
-    },
-    {
-      id: 'c6',
-      title: 'Human Physiology',
-      subject: 'Biology',
-      topic: 'Anatomy',
-      difficulty: 'Medium',
-      duration: 30,
-      completed: true,
-      description: 'Explore the functions of different systems in the human body.',
-      popularity: 94
+      studyTime: '70 mins',
+      progress: 40,
+      rating: 4.6,
+      studentsStudied: 850,
+      description: 'Laws of thermodynamics and their applications',
+      topics: ['First Law', 'Second Law', 'Entropy']
     }
   ];
 
-  const filteredConcepts = mockConcepts.filter(concept => {
-    // Filter by search query
-    if (searchQuery && !concept.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    // Filter by subject
-    if (selectedSubject !== 'all' && concept.subject.toLowerCase() !== selectedSubject) {
-      return false;
-    }
-    
-    // Filter by difficulty
-    if (selectedDifficulty !== 'all' && concept.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) {
-      return false;
-    }
-    
-    // Filter by completion status
-    if (!showCompleted && concept.completed) {
-      return false;
-    }
-    
-    // Filter by tab category
-    if (activeTab === 'recommended') {
-      return concept.popularity > 90;
-    } else if (activeTab === 'popular') {
-      return concept.popularity > 85;
-    } else if (activeTab === 'bookmarked') {
-      // Mock bookmarked items
-      return ['c1', 'c3', 'c6'].includes(concept.id);
-    }
-    
-    return true;
-  });
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setSearchParams({ tab: value });
+  };
 
-  const handleConceptClick = (conceptId: string) => {
+  const handleContinueLearning = () => {
+    setActiveTab('all-concepts');
+    setSearchParams({ tab: 'all-concepts' });
+  };
+
+  const handleStudyConcept = (conceptId: string) => {
     navigate(`/dashboard/student/concepts/${conceptId}`);
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-800 border-green-300';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'Hard': return 'bg-red-100 text-red-800 border-red-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  const getSubjectColor = (subject: string) => {
+    switch (subject) {
+      case 'Physics': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Chemistry': return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'Biology': return 'bg-green-100 text-green-800 border-green-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Navigation Tabs */}
-      <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
-        <button
-          onClick={() => setActiveView('overview')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            activeView === 'overview'
-              ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
-        >
-          Overview
-        </button>
-        <button
-          onClick={() => setActiveView('concepts')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            activeView === 'concepts'
-              ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
-        >
-          All Concepts
-        </button>
-      </div>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="all-concepts">All Concepts</TabsTrigger>
+        </TabsList>
 
-      {/* Content based on active view */}
-      {activeView === 'overview' ? (
-        <ConceptOverviewSection />
-      ) : (
-        <div className="space-y-6">
-          {/* Search and Filter Bar */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input
-                placeholder="Search concepts..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          <OverviewSection 
+            {...overviewData} 
+            onContinueLearning={handleContinueLearning}
+          />
+        </TabsContent>
+
+        <TabsContent value="all-concepts" className="space-y-6 mt-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Concepts</h1>
+              <p className="text-gray-600 dark:text-gray-400">Master key concepts across all subjects</p>
             </div>
-            <div className="flex gap-2">
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  {difficulties.map((difficulty) => (
-                    <SelectItem key={difficulty.id} value={difficulty.id}>
-                      {difficulty.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="show-completed" 
-                  checked={showCompleted} 
-                  onCheckedChange={(checked) => setShowCompleted(checked as boolean)}
-                />
-                <Label htmlFor="show-completed">Show Completed</Label>
-              </div>
-            </div>
+            <Button variant="outline">
+              View All <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
           </div>
-          
-          {/* Concept Categories Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-4">
-              {conceptCategories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id}>
-                  {category.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            
-            {/* Concepts Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredConcepts.map((concept) => (
-                <Card 
-                  key={concept.id} 
-                  className={`cursor-pointer transition-all hover:shadow-md ${
-                    concept.completed ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : ''
-                  }`}
-                  onClick={() => handleConceptClick(concept.id)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <Badge 
-                        variant="outline" 
-                        className={
-                          concept.subject === 'Physics' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                          concept.subject === 'Chemistry' ? 'bg-green-50 text-green-700 border-green-200' :
-                          'bg-purple-50 text-purple-700 border-purple-200'
-                        }
-                      >
-                        {concept.subject}
-                      </Badge>
-                      {concept.completed ? (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          Completed
-                        </Badge>
-                      ) : (
-                        <Badge 
-                          variant="outline" 
-                          className={
-                            concept.difficulty === 'Easy' ? 'bg-green-50 text-green-700 border-green-200' :
-                            concept.difficulty === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                            'bg-red-50 text-red-700 border-red-200'
-                          }
-                        >
-                          {concept.difficulty}
-                        </Badge>
-                      )}
+
+          {/* Subject Progress Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {overviewData.subjects.map((subject) => (
+              <Card key={subject.name} className="hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-blue-300" onClick={() => handleContinueLearning()}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{subject.name}</h3>
+                    <Badge variant="outline" className={getSubjectColor(subject.name)}>
+                      {subject.progress}% Complete
+                    </Badge>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span>{subject.completed}/{subject.total} Concepts</span>
+                      <span>{subject.studyTime}h studied</span>
                     </div>
-                    
-                    <h3 className="font-medium text-lg mb-2">{concept.title}</h3>
-                    
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                      {concept.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{concept.duration} min</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <BookOpen className="h-4 w-4" />
-                        <span>{concept.topic}</span>
-                      </div>
+                    <Progress value={subject.progress} className="h-2" />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="p-2 bg-blue-50 rounded text-center">
+                      <p className="text-sm font-bold text-blue-700">{subject.efficiency}%</p>
+                      <p className="text-xs text-blue-600">Mastery</p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            
-            {filteredConcepts.length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No concepts match your filters. Try adjusting your search criteria.</p>
+                    <div className="p-2 bg-green-50 rounded text-center">
+                      <p className="text-sm font-bold text-green-700">{subject.studyTime}h</p>
+                      <p className="text-xs text-green-600">Study Time</p>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    className="w-full" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleContinueLearning();
+                    }}
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Study {subject.name}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* All Concepts List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Featured Concepts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {allConcepts.map((concept) => (
+                  <Card key={concept.id} className="border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 cursor-pointer" onClick={() => handleStudyConcept(concept.id)}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-semibold text-lg">{concept.title}</h4>
+                            <Badge variant="outline" className={getSubjectColor(concept.subject)}>
+                              {concept.subject}
+                            </Badge>
+                            <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+                              {concept.difficulty}
+                            </Badge>
+                          </div>
+                          
+                          <p className="text-gray-600 mb-3">{concept.description}</p>
+                          
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {concept.topics.map((topic, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {topic}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              {concept.studyTime}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                              {concept.rating}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              {concept.studentsStudied.toLocaleString()} students
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Your Progress</span>
+                              <span>{concept.progress}%</span>
+                            </div>
+                            <Progress value={concept.progress} className="h-2" />
+                          </div>
+                        </div>
+                        
+                        <div className="ml-4">
+                          <Button 
+                            size="sm" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStudyConcept(concept.id);
+                            }}
+                            className="min-w-[120px]"
+                          >
+                            <Play className="h-4 w-4 mr-1" />
+                            Study Concept
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            )}
-          </Tabs>
-        </div>
-      )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

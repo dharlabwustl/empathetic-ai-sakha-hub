@@ -6,15 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, BookOpen, Clock, Target, TrendingUp, Play, ChevronRight, Plus } from 'lucide-react';
+import { Brain, Play, Clock, Target, Star, Users, ChevronRight, Zap, RotateCcw } from 'lucide-react';
 import OverviewSection from '../OverviewSection';
 
 const FlashcardsLandingPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Listen for URL parameter changes
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab && (tab === 'overview' || tab === 'all-flashcards')) {
@@ -22,82 +21,125 @@ const FlashcardsLandingPage = () => {
     }
   }, [searchParams]);
 
-  // Listen for popstate events (back/forward navigation)
-  useEffect(() => {
-    const handlePopState = () => {
-      const tab = new URLSearchParams(window.location.search).get('tab');
-      if (tab && (tab === 'overview' || tab === 'all-flashcards')) {
-        setActiveTab(tab);
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
   const overviewData = {
     type: "Flashcards" as const,
     title: "NEET Flashcards Overview",
     subjects: [
-      { name: "Physics", completed: 285, total: 450, progress: 63, efficiency: 78, studyTime: 24 },
-      { name: "Chemistry", completed: 340, total: 520, progress: 65, efficiency: 82, studyTime: 28 },
-      { name: "Biology", completed: 410, total: 680, progress: 60, efficiency: 75, studyTime: 35 }
+      { name: "Physics", completed: 120, total: 180, progress: 67, efficiency: 85, studyTime: 28 },
+      { name: "Chemistry", completed: 95, total: 140, progress: 68, efficiency: 88, studyTime: 25 },
+      { name: "Biology", completed: 150, total: 200, progress: 75, efficiency: 82, studyTime: 32 }
     ],
-    totalStudyTime: 87,
-    overallProgress: 63,
+    totalStudyTime: 85,
+    overallProgress: 70,
     suggestions: [
-      "Focus on Chemistry organic reactions - you're making great progress!",
-      "Review Physics thermodynamics concepts to strengthen weak areas",
-      "Biology cell structure cards need attention - schedule 20 min today",
-      "Consider creating custom cards for NEET previous year questions"
+      "Review missed Physics formula flashcards daily",
+      "Focus on Chemistry reaction mechanism cards", 
+      "Strengthen Biology terminology with spaced repetition",
+      "Use active recall techniques for better retention"
     ]
   };
 
-  const recentFlashcardSets = [
+  const allFlashcards = [
     {
       id: '1',
-      title: 'Organic Chemistry Reactions',
-      subject: 'Chemistry',
-      cards: 25,
-      mastered: 18,
+      title: 'Physics Formulas & Constants',
+      subject: 'Physics',
       difficulty: 'Medium',
-      lastStudied: '2 hours ago',
-      recallAccuracy: 78,
-      attempts: 5
+      totalCards: 85,
+      mastered: 62,
+      studyTime: '25 mins',
+      rating: 4.8,
+      studentsUsed: 2100,
+      description: 'Essential physics formulas and important constants',
+      topics: ['Mechanics', 'Thermodynamics', 'Optics', 'Modern Physics'],
+      lastStudied: '2 days ago',
+      streak: 5
     },
     {
       id: '2',
-      title: 'Cell Biology Fundamentals',
-      subject: 'Biology',
-      cards: 30,
-      mastered: 22,
-      difficulty: 'Easy',
+      title: 'Organic Chemistry Reactions',
+      subject: 'Chemistry',
+      difficulty: 'Hard',
+      totalCards: 120,
+      mastered: 78,
+      studyTime: '35 mins',
+      rating: 4.7,
+      studentsUsed: 1850,
+      description: 'Major organic reactions and mechanisms',
+      topics: ['Alkanes', 'Alkenes', 'Aromatics', 'Functional Groups'],
       lastStudied: '1 day ago',
-      recallAccuracy: 85,
-      attempts: 3
+      streak: 8
     },
     {
       id: '3',
-      title: 'Thermodynamics Concepts',
-      subject: 'Physics',
-      cards: 20,
-      mastered: 12,
-      difficulty: 'Hard',
+      title: 'Biology Terminology',
+      subject: 'Biology',
+      difficulty: 'Easy',
+      totalCards: 95,
+      mastered: 85,
+      studyTime: '20 mins',
+      rating: 4.9,
+      studentsUsed: 2500,
+      description: 'Key biological terms and definitions',
+      topics: ['Cell Biology', 'Genetics', 'Ecology', 'Evolution'],
+      lastStudied: 'Today',
+      streak: 12
+    },
+    {
+      id: '4',
+      title: 'Inorganic Chemistry',
+      subject: 'Chemistry',
+      difficulty: 'Medium',
+      totalCards: 75,
+      mastered: 45,
+      studyTime: '30 mins',
+      rating: 4.6,
+      studentsUsed: 1600,
+      description: 'Periodic table trends and inorganic compounds',
+      topics: ['Periodic Table', 'Metals', 'Non-metals', 'Coordination'],
       lastStudied: '3 days ago',
-      recallAccuracy: 62,
-      attempts: 7
+      streak: 3
     }
   ];
 
-  const handleStudyFlashcards = (setId?: string) => {
-    navigate('/dashboard/student/flashcards/2/interactive');
-  };
-
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', value);
-    window.history.pushState({}, '', url.toString());
+    setSearchParams({ tab: value });
+  };
+
+  const handleContinueLearning = () => {
+    setActiveTab('all-flashcards');
+    setSearchParams({ tab: 'all-flashcards' });
+  };
+
+  const handleStudyFlashcard = (flashcardId: string) => {
+    navigate(`/dashboard/student/flashcards/${flashcardId}/practice`);
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-800 border-green-300';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'Hard': return 'bg-red-100 text-red-800 border-red-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  const getSubjectColor = (subject: string) => {
+    switch (subject) {
+      case 'Physics': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Chemistry': return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'Biology': return 'bg-green-100 text-green-800 border-green-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  const getMasteryLevel = (mastered: number, total: number) => {
+    const percentage = (mastered / total) * 100;
+    if (percentage >= 90) return { level: 'Expert', color: 'text-green-600' };
+    if (percentage >= 70) return { level: 'Advanced', color: 'text-blue-600' };
+    if (percentage >= 50) return { level: 'Intermediate', color: 'text-yellow-600' };
+    return { level: 'Beginner', color: 'text-red-600' };
   };
 
   return (
@@ -109,7 +151,10 @@ const FlashcardsLandingPage = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
-          <OverviewSection {...overviewData} />
+          <OverviewSection 
+            {...overviewData} 
+            onContinueLearning={handleContinueLearning}
+          />
         </TabsContent>
 
         <TabsContent value="all-flashcards" className="space-y-6 mt-6">
@@ -117,128 +162,192 @@ const FlashcardsLandingPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Flashcards</h1>
-              <p className="text-gray-600 dark:text-gray-400">Master concepts with smart spaced repetition</p>
+              <p className="text-gray-600 dark:text-gray-400">Review and memorize with smart flashcards</p>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={() => handleStudyFlashcards()}>
-                <Play className="mr-2 h-4 w-4" />
-                Study Now
-              </Button>
-              <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                Create New Set
-              </Button>
-            </div>
+            <Button variant="outline">
+              View All <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
           </div>
 
-          {/* Subject Study Cards - Enhanced with recall accuracy and study time */}
+          {/* Subject Progress Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {overviewData.subjects.map((subject) => (
-              <Card key={subject.name} className="hover:shadow-md transition-shadow">
+              <Card key={subject.name} className="hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-purple-300" onClick={() => handleContinueLearning()}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">{subject.name}</h3>
-                    <Badge variant="outline">{subject.progress}% Complete</Badge>
+                    <Badge variant="outline" className={getSubjectColor(subject.name)}>
+                      {subject.progress}% Mastered
+                    </Badge>
                   </div>
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
                       <span>{subject.completed}/{subject.total} Cards</span>
-                      <span>{subject.studyTime}h studied</span>
+                      <span>{subject.studyTime}h practiced</span>
                     </div>
                     <Progress value={subject.progress} className="h-2" />
                   </div>
                   
-                  {/* Enhanced Stats with Recall Accuracy and Study Time */}
                   <div className="grid grid-cols-2 gap-2 mb-4">
-                    <div className="p-2 bg-blue-50 rounded text-center">
-                      <p className="text-sm font-bold text-blue-700">
-                        {subject.name === 'Physics' ? '78%' : subject.name === 'Chemistry' ? '85%' : '72%'}
-                      </p>
-                      <p className="text-xs text-blue-600">Recall Accuracy</p>
+                    <div className="p-2 bg-purple-50 rounded text-center">
+                      <p className="text-sm font-bold text-purple-700">{subject.efficiency}%</p>
+                      <p className="text-xs text-purple-600">Retention</p>
                     </div>
-                    <div className="p-2 bg-green-50 rounded text-center">
-                      <p className="text-sm font-bold text-green-700">{subject.studyTime}h</p>
-                      <p className="text-xs text-green-600">Study Time</p>
+                    <div className="p-2 bg-blue-50 rounded text-center">
+                      <p className="text-sm font-bold text-blue-700">{subject.studyTime}h</p>
+                      <p className="text-xs text-blue-600">Study Time</p>
                     </div>
                   </div>
+                  
+                  <Button 
+                    className="w-full" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStudyFlashcard('1');
+                    }}
+                  >
+                    <Brain className="mr-2 h-4 w-4" />
+                    Study {subject.name}
+                  </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* Recent Flashcard Sets */}
+          {/* All Flashcards List */}
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Recent Flashcard Sets</CardTitle>
-                <Button variant="ghost" size="sm">
-                  View All <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
+              <CardTitle>Featured Flashcard Sets</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentFlashcardSets.map((set) => (
-                  <div key={set.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium">{set.title}</h4>
-                        <Badge variant="outline">{set.subject}</Badge>
-                        <Badge variant={set.difficulty === 'Easy' ? 'default' : set.difficulty === 'Medium' ? 'secondary' : 'destructive'}>
-                          {set.difficulty}
-                        </Badge>
-                        <Badge variant="outline" className="bg-green-50 text-green-700">
-                          {set.recallAccuracy}% Accuracy
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>{set.cards} cards</span>
-                        <span>{set.mastered} mastered</span>
-                        <span>Last studied: {set.lastStudied}</span>
-                        <span>{set.attempts} attempts</span>
-                      </div>
-                      <div className="mt-2">
-                        <Progress value={(set.mastered / set.cards) * 100} className="h-1" />
-                      </div>
-                    </div>
-                    <Button size="sm" onClick={() => handleStudyFlashcards(set.id)}>
-                      <Play className="h-4 w-4 mr-1" />
-                      Study
-                    </Button>
-                  </div>
-                ))}
+                {allFlashcards.map((flashcard) => {
+                  const masteryLevel = getMasteryLevel(flashcard.mastered, flashcard.totalCards);
+                  const masteryPercentage = (flashcard.mastered / flashcard.totalCards) * 100;
+                  
+                  return (
+                    <Card key={flashcard.id} className="border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-200 cursor-pointer" onClick={() => handleStudyFlashcard(flashcard.id)}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className="font-semibold text-lg">{flashcard.title}</h4>
+                              <Badge variant="outline" className={getSubjectColor(flashcard.subject)}>
+                                {flashcard.subject}
+                              </Badge>
+                              <Badge variant="outline" className={getDifficultyColor(flashcard.difficulty)}>
+                                {flashcard.difficulty}
+                              </Badge>
+                              {flashcard.streak > 0 && (
+                                <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
+                                  🔥 {flashcard.streak} day streak
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <p className="text-gray-600 mb-3">{flashcard.description}</p>
+                            
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {flashcard.topics.map((topic, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {topic}
+                                </Badge>
+                              ))}
+                            </div>
+                            
+                            <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
+                              <span className="flex items-center gap-1">
+                                <Brain className="h-4 w-4" />
+                                {flashcard.totalCards} cards
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                {flashcard.studyTime}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                                {flashcard.rating}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="h-4 w-4" />
+                                {flashcard.studentsUsed.toLocaleString()} students
+                              </span>
+                              <span className="text-gray-500">
+                                Last studied: {flashcard.lastStudied}
+                              </span>
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span>Mastery Level: <span className={masteryLevel.color}>{masteryLevel.level}</span></span>
+                                <span>{flashcard.mastered}/{flashcard.totalCards} mastered ({Math.round(masteryPercentage)}%)</span>
+                              </div>
+                              <Progress value={masteryPercentage} className="h-2" />
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col gap-2 ml-4">
+                            <Button 
+                              size="sm" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStudyFlashcard(flashcard.id);
+                              }}
+                              className="min-w-[120px]"
+                            >
+                              <Play className="h-4 w-4 mr-1" />
+                              Study Cards
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStudyFlashcard(flashcard.id);
+                              }}
+                              className="min-w-[120px]"
+                            >
+                              <RotateCcw className="h-4 w-4 mr-1" />
+                              Quick Review
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                <p className="text-2xl font-bold">1,650</p>
-                <p className="text-sm text-gray-600">Total Cards</p>
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <Zap className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
+                <h3 className="font-semibold mb-2">Quick Review</h3>
+                <p className="text-sm text-gray-600 mb-3">Review cards you struggled with</p>
+                <Button size="sm" variant="outline" className="w-full">Start Review</Button>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
+            
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
                 <Target className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                <p className="text-2xl font-bold">1,035</p>
-                <p className="text-sm text-gray-600">Mastered</p>
+                <h3 className="font-semibold mb-2">Spaced Repetition</h3>
+                <p className="text-sm text-gray-600 mb-3">Cards due for review today</p>
+                <Button size="sm" variant="outline" className="w-full">Review Now</Button>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Clock className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                <p className="text-2xl font-bold">88h</p>
-                <p className="text-sm text-gray-600">Study Time</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                <p className="text-2xl font-bold">78%</p>
-                <p className="text-sm text-gray-600">Avg Accuracy</p>
+            
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                <h3 className="font-semibold mb-2">Create Custom Set</h3>
+                <p className="text-sm text-gray-600 mb-3">Make your own flashcards</p>
+                <Button size="sm" variant="outline" className="w-full">Create Set</Button>
               </CardContent>
             </Card>
           </div>
