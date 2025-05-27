@@ -110,13 +110,12 @@ const FlashcardsPage: React.FC = () => {
     };
   }, [flashcardDecks]);
 
+  // Fixed routing to interactive flashcard page
   const handleStudyDeck = (deckId: string) => {
-    // Fixed routing to interactive flashcard page
     navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
   };
 
   const handleQuickReview = (deckId: string) => {
-    // Quick review also routes to interactive page
     navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
   };
 
