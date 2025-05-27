@@ -15,7 +15,7 @@ const VoiceSettingsTab = () => {
     updateVoiceSettings,
     testVoice,
     isVoiceSupported,
-    supportedLanguages
+    availableVoices
   } = useVoiceAnnouncer();
   
   const [localSettings, setLocalSettings] = useState<VoiceSettings>(voiceSettings);
@@ -98,7 +98,7 @@ const VoiceSettingsTab = () => {
             <Label htmlFor="voice-language">Language</Label>
             <Select 
               value={localSettings.language} 
-              onValueChange={(value) => handleChange('language', value as SupportedLanguage)}
+              onValueChange={(value) => handleChange('language', value)}
             >
               <SelectTrigger id="voice-language">
                 <SelectValue placeholder="Select language" />
