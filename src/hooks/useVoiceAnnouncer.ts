@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { VoiceSettings } from '@/types/voice';
 
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  volume: 0.8,
+  volume: 0.9,
   rate: 1.0,
-  pitch: 1.0,
+  pitch: 1.1,
   language: 'en-US',
   enabled: true,
   muted: false,
@@ -35,6 +34,7 @@ export const useVoiceAnnouncer = ({
   const recognitionRef = useRef<any>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const isInitializedRef = useRef(false);
+  const restartTimeoutRef = useRef<number | null>(null);
 
   // Check for voice support
   useEffect(() => {
@@ -57,9 +57,19 @@ export const useVoiceAnnouncer = ({
         const voices = window.speechSynthesis.getVoices();
         setAvailableVoices(voices);
         
-        // Find best voice
-        const preferredVoice = voices.find(voice => 
-          voice.lang.includes('en-US') || voice.lang.includes('en-IN')
+        // Prefer female voices for consistent experience
+        const femaleVoices = voices.filter(voice => 
+          voice.name.toLowerCase().includes('female') ||
+          voice.name.toLowerCase().includes('zira') ||
+          voice.name.toLowerCase().includes('samantha') ||
+          voice.name.toLowerCase().includes('serena') ||
+          voice.name.toLowerCase().includes('alex')
+        );
+        
+        const preferredVoice = femaleVoices.find(voice => 
+          voice.lang.includes('en-US')
+        ) || voices.find(voice => 
+          voice.lang.includes('en-US') || voice.lang.includes('en-GB')
         ) || voices[0];
         
         if (preferredVoice) {
@@ -71,88 +81,92 @@ export const useVoiceAnnouncer = ({
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
 
-    // Initialize speech recognition
+    // Initialize speech recognition with better error handling
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-      const recognition = new SpeechRecognition();
+      setupSpeechRecognition();
+    }
+    
+    setVoiceInitialized(true);
+    isInitializedRef.current = true;
+  }, []);
+
+  const setupSpeechRecognition = useCallback(() => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      } catch (error) {
+        console.log('Cleanup recognition error:', error);
+      }
+    }
+
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = false; // Changed to false for better command handling
+    recognition.interimResults = false;
+    recognition.lang = voiceSettings.language;
+    recognition.maxAlternatives = 1;
+    
+    recognition.onstart = () => {
+      console.log('Speech recognition started');
+      setIsListening(true);
+    };
+    
+    recognition.onend = () => {
+      console.log('Speech recognition ended');
+      setIsListening(false);
       
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = voiceSettings.language;
+      // Clear any existing restart timeout
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+      }
       
-      recognition.onstart = () => {
-        console.log('Speech recognition started');
-        setIsListening(true);
-      };
-      
-      recognition.onend = () => {
-        console.log('Speech recognition ended');
-        setIsListening(false);
-        
-        // Auto-restart if enabled
-        if (voiceSettings.enabled && !voiceSettings.muted) {
-          setTimeout(() => {
-            if (recognitionRef.current && voiceSettings.enabled) {
-              try {
-                recognitionRef.current.start();
-              } catch (error) {
-                console.log('Recognition restart failed:', error);
-              }
-            }
-          }, 1000);
-        }
-      };
-      
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        
-        // Restart on error after delay
-        if (voiceSettings.enabled && !voiceSettings.muted) {
-          setTimeout(() => {
-            if (recognitionRef.current && voiceSettings.enabled) {
-              try {
-                recognitionRef.current.start();
-              } catch (error) {
-                console.log('Recognition error restart failed:', error);
-              }
-            }
-          }, 2000);
-        }
-      };
-      
-      recognition.onresult = (event) => {
-        let finalTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
+      // Auto-restart after a short delay if enabled
+      if (voiceSettings.enabled && !voiceSettings.muted) {
+        restartTimeoutRef.current = window.setTimeout(() => {
+          if (voiceSettings.enabled && !voiceSettings.muted) {
+            startListening();
           }
-        }
-        
-        if (finalTranscript) {
+        }, 2000);
+      }
+    };
+    
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+      
+      // Clear any existing restart timeout
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+      }
+      
+      // Restart on error after longer delay
+      if (voiceSettings.enabled && !voiceSettings.muted && event.error !== 'aborted') {
+        restartTimeoutRef.current = window.setTimeout(() => {
+          if (voiceSettings.enabled && !voiceSettings.muted) {
+            startListening();
+          }
+        }, 3000);
+      }
+    };
+    
+    recognition.onresult = (event) => {
+      if (event.results.length > 0) {
+        const result = event.results[0];
+        if (result.isFinal) {
+          const finalTranscript = result[0].transcript.trim();
           console.log('Voice command received:', finalTranscript);
           setTranscript(finalTranscript);
           if (onCommand) {
             onCommand(finalTranscript);
           }
         }
-      };
-      
-      recognitionRef.current = recognition;
-    }
+      }
+    };
     
-    setVoiceInitialized(true);
-    isInitializedRef.current = true;
+    recognitionRef.current = recognition;
   }, [voiceSettings.language, voiceSettings.enabled, voiceSettings.muted, onCommand]);
-
-  // Auto-start listening if enabled
-  useEffect(() => {
-    if (voiceInitialized && autoStart && voiceSettings.enabled && !voiceSettings.muted) {
-      startListening();
-    }
-  }, [voiceInitialized, autoStart, voiceSettings.enabled, voiceSettings.muted]);
 
   const speakMessage = useCallback((message: string) => {
     if (!voiceSettings.enabled || voiceSettings.muted || !isVoiceSupported) {
@@ -185,14 +199,19 @@ export const useVoiceAnnouncer = ({
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current || !voiceSettings.enabled || voiceSettings.muted) {
-      return;
+      if (!recognitionRef.current) {
+        setupSpeechRecognition();
+      }
+      if (!voiceSettings.enabled || voiceSettings.muted) {
+        return;
+      }
     }
 
     try {
       if (isListening) {
         recognitionRef.current.stop();
         setTimeout(() => {
-          if (recognitionRef.current) {
+          if (recognitionRef.current && voiceSettings.enabled && !voiceSettings.muted) {
             recognitionRef.current.start();
           }
         }, 100);
@@ -201,10 +220,26 @@ export const useVoiceAnnouncer = ({
       }
     } catch (error) {
       console.error('Error starting recognition:', error);
+      // Reinitialize and try again
+      setupSpeechRecognition();
+      setTimeout(() => {
+        if (recognitionRef.current && voiceSettings.enabled && !voiceSettings.muted) {
+          try {
+            recognitionRef.current.start();
+          } catch (retryError) {
+            console.error('Retry error:', retryError);
+          }
+        }
+      }, 500);
     }
-  }, [isListening, voiceSettings.enabled, voiceSettings.muted]);
+  }, [isListening, voiceSettings.enabled, voiceSettings.muted, setupSpeechRecognition]);
 
   const stopListening = useCallback(() => {
+    if (restartTimeoutRef.current) {
+      clearTimeout(restartTimeoutRef.current);
+      restartTimeoutRef.current = null;
+    }
+    
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
@@ -212,6 +247,25 @@ export const useVoiceAnnouncer = ({
         console.error('Error stopping recognition:', error);
       }
     }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error('Cleanup error:', error);
+        }
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, []);
 
   const toggleVoiceEnabled = useCallback(() => {
@@ -247,22 +301,6 @@ export const useVoiceAnnouncer = ({
   const testVoice = useCallback(() => {
     speakMessage(`Hello ${userName}! This is a test of the PREPZR voice assistant. How does this sound?`);
   }, [speakMessage, userName]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (error) {
-          console.error('Cleanup error:', error);
-        }
-      }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
 
   return {
     voiceSettings,

@@ -94,7 +94,6 @@ const PracticeExamLandingPage = () => {
   };
 
   const handleViewResults = (examId: string) => {
-    // Use exam ID 6 for review as specified
     navigate(`/dashboard/student/practice-exam/6/review`);
   };
 
@@ -102,6 +101,14 @@ const PracticeExamLandingPage = () => {
     setActiveTab(value);
     const url = new URL(window.location.href);
     url.searchParams.set('tab', value);
+    window.history.pushState({}, '', url.toString());
+  };
+
+  const handleSubjectPracticeTest = (subjectName: string) => {
+    // Navigate to available exams tab when subject practice test is clicked
+    setActiveTab('available-exams');
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'available-exams');
     window.history.pushState({}, '', url.toString());
   };
 
@@ -168,7 +175,7 @@ const PracticeExamLandingPage = () => {
                     className="w-full" 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleTabChange('available-exams')}
+                    onClick={() => handleSubjectPracticeTest(subject.name)}
                   >
                     <Play className="mr-2 h-4 w-4" />
                     Take Practice Test
