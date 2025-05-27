@@ -206,7 +206,7 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      {/* Speech Recognition Button positioned above voice assistant */}
+      {/* Speech Recognition Button positioned above PREPZR AI */}
       <SpeechRecognitionButton
         position="dashboard"
         onCommand={handleSpeechCommand}
