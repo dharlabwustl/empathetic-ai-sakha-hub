@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -79,8 +78,8 @@ export const ConceptFlashcardsSection: React.FC<ConceptFlashcardsSectionProps> =
       title: "Starting Practice",
       description: `Beginning flashcard session for ${conceptTitle}`,
     });
-    // Navigate to flashcard practice page
-    navigate(`/dashboard/student/flashcards/practice/${conceptId}`);
+    // Navigate to flashcard practice page - FIXED TO INTERACTIVE
+    navigate(`/dashboard/student/flashcards/1/interactive`);
   };
   
   const updateConfidence = (id: string, confidence: 'low' | 'medium' | 'high') => {

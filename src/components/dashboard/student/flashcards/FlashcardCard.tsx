@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,7 +73,7 @@ export default function FlashcardCard({
 
   // FIXED: Ensure ALL navigation goes to INTERACTIVE (not practice)
   const handleStudyNow = () => {
-    const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
+    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
     console.log('🚨🚨🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
     console.log('🚨🚨🚨 Current location before navigation:', window.location.href);
     navigate(targetRoute);
@@ -83,7 +82,7 @@ export default function FlashcardCard({
 
   const handleQuickReview = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
+    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
     console.log('🚨🚨🚨 FLASHCARD CARD - QUICK REVIEW CLICKED:', targetRoute);
     navigate(targetRoute);
   };
