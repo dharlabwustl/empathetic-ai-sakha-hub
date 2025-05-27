@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -16,7 +18,8 @@ import {
   Clock,
   TrendingUp,
   Star,
-  Filter
+  Filter,
+  CheckCircle
 } from 'lucide-react';
 import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
@@ -24,9 +27,7 @@ const FlashcardLandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
-
-  console.log('🚨 FLASHCARD LANDING PAGE - Component loaded');
-  console.log('🚨 Current window location:', window.location.href);
+  const [statusFilter, setStatusFilter] = useState<'today' | 'pending' | 'completed'>('today');
 
   const overviewData = {
     type: "Flashcards" as const,
@@ -55,7 +56,9 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "2 days ago",
       masteryLevel: 85,
       topic: "Mechanics, Thermodynamics",
-      estimatedTime: 25
+      estimatedTime: 25,
+      status: "today",
+      completed: false
     },
     {
       id: 2,
@@ -66,7 +69,9 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "1 day ago",
       masteryLevel: 65,
       topic: "Reaction Mechanisms",
-      estimatedTime: 30
+      estimatedTime: 30,
+      status: "pending",
+      completed: false
     },
     {
       id: 3,
@@ -77,7 +82,9 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "Today",
       masteryLevel: 92,
       topic: "Circulatory, Respiratory",
-      estimatedTime: 20
+      estimatedTime: 20,
+      status: "completed",
+      completed: true
     },
     {
       id: 4,
@@ -88,7 +95,9 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "3 days ago", 
       masteryLevel: 78,
       topic: "Ionic, Covalent Bonds",
-      estimatedTime: 18
+      estimatedTime: 18,
+      status: "today",
+      completed: false
     }
   ];
 
@@ -98,8 +107,16 @@ const FlashcardLandingPage: React.FC = () => {
     const matchesSearch = set.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          set.topic.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = selectedSubject === 'all' || set.subject === selectedSubject;
-    return matchesSearch && matchesSubject;
+    const matchesStatus = set.status === statusFilter || (statusFilter === 'completed' && set.completed);
+    return matchesSearch && matchesSubject && matchesStatus;
   });
+
+  // Count sets by status
+  const statusCounts = {
+    today: flashcardSets.filter(s => s.status === 'today').length,
+    pending: flashcardSets.filter(s => s.status === 'pending').length,
+    completed: flashcardSets.filter(s => s.completed).length
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -131,12 +148,10 @@ const FlashcardLandingPage: React.FC = () => {
         <meta name="description" content="NEET flashcards for quick review and memorization" />
       </Helmet>
 
-      {/* Overview Section */}
-      <div className="p-6">
+      <div className="p-6 space-y-8">
+        {/* Overview Section */}
         <OverviewSection {...overviewData} />
-      </div>
 
-      <div className="container mx-auto px-4 py-6 space-y-8">
         {/* Hero Section */}
         <motion.div 
           className="text-center space-y-4"
@@ -171,6 +186,30 @@ const FlashcardLandingPage: React.FC = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Status Filter Tabs with Count Indicators */}
+        <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="today" className="flex items-center gap-2">
+              Today
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {statusCounts.today}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="flex items-center gap-2">
+              Pending
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {statusCounts.pending}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="flex items-center gap-2">
+              Completed
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {statusCounts.completed}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Search and Filters */}
         <motion.div
@@ -224,7 +263,9 @@ const FlashcardLandingPage: React.FC = () => {
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
               <Card 
-                className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
+                className={`h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 ${
+                  set.completed ? 'border-l-green-500 bg-green-50/30' : 'border-l-purple-500'
+                } bg-gradient-to-r from-white to-purple-50/30 dark:from-gray-800 dark:to-purple-900/20`}
                 onClick={() => {
                   console.log(`🔥🔥🔥 CARD CLICKED - SET ID: ${set.id}`);
                   navigateToFlashcard(set.id);
@@ -233,8 +274,9 @@ const FlashcardLandingPage: React.FC = () => {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg font-semibold line-clamp-2">
+                      <CardTitle className="text-lg font-semibold line-clamp-2 flex items-center gap-2">
                         {set.title}
+                        {set.completed && <CheckCircle className="h-4 w-4 text-green-500" />}
                       </CardTitle>
                       <p className="text-sm text-gray-600 mt-1">{set.topic}</p>
                     </div>
@@ -287,8 +329,9 @@ const FlashcardLandingPage: React.FC = () => {
                         console.log(`🔥🔥🔥 QUICK REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
                         navigateToFlashcard(set.id);
                       }}
+                      disabled={set.completed}
                     >
-                      Quick Review
+                      {set.completed ? 'Reviewed' : 'Quick Review'}
                     </Button>
                     <Button 
                       size="sm"
@@ -297,8 +340,9 @@ const FlashcardLandingPage: React.FC = () => {
                         console.log(`🔥🔥🔥 STUDY CARDS BUTTON CLICKED - SET ID: ${set.id}`);
                         navigateToFlashcard(set.id);
                       }}
+                      disabled={set.completed}
                     >
-                      Study Cards
+                      {set.completed ? 'Review Again' : 'Study Cards'}
                     </Button>
                   </div>
                   
@@ -310,9 +354,10 @@ const FlashcardLandingPage: React.FC = () => {
                       console.log(`🔥🔥🔥 START REVIEW BUTTON CLICKED - SET ID: ${set.id}`);
                       navigateToFlashcard(set.id);
                     }}
+                    disabled={set.completed}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Start Review
+                    {set.completed ? 'Completed' : 'Start Review'}
                   </Button>
                 </CardContent>
               </Card>

@@ -21,6 +21,7 @@ const StudentAppRoutes = () => {
       <Route path="/concepts/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/concept/:conceptId" element={<ConceptDetailPage />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
+      <Route path="/flashcards/:setId/interactive" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">Interactive Flashcards Coming Soon</h1><p>This is where the interactive flashcard experience will be.</p></div>} />
       <Route path="/practice-exam" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
