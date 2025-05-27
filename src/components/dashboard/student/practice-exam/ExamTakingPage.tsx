@@ -5,11 +5,37 @@ import { Button } from '@/components/ui/button';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useToast } from '@/hooks/use-toast';
 import LoadingScreen from '@/components/common/LoadingScreen';
-import { PracticeExam, ExamQuestion, UserAnswer } from '@/types/practice-exam';
 import { Timer, AlertCircle, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 import QuestionView from './QuestionView';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+// Define proper interfaces
+interface ExamQuestion {
+  id: string;
+  text: string;
+  options: { id: string; text: string; }[];
+  correctOptionId: string;
+  explanation: string;
+  difficulty: string;
+}
+
+interface UserAnswer {
+  questionId: string;
+  selectedOptionId: string;
+  isCorrect?: boolean;
+}
+
+interface PracticeExam {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  topic: string;
+  totalQuestions: number;
+  timeAllowed: number;
+  questions: ExamQuestion[];
+}
 
 // Mock data for a practice exam
 const getMockExam = (examId: string): PracticeExam => {
@@ -168,7 +194,7 @@ const ExamTakingPage: React.FC = () => {
         title="Exam Not Found"
         subtitle="The requested exam could not be found"
         showBackButton
-        backButtonUrl="/dashboard/student/practice-exams"
+        backButtonUrl="/dashboard/student/practice-exam"
       >
         <div className="flex flex-col items-center justify-center py-12">
           <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
@@ -176,7 +202,7 @@ const ExamTakingPage: React.FC = () => {
           <p className="text-muted-foreground mb-6">
             We couldn't find the exam you're looking for.
           </p>
-          <Button onClick={() => navigate('/dashboard/student/practice-exams')}>
+          <Button onClick={() => navigate('/dashboard/student/practice-exam')}>
             Return to Practice Exams
           </Button>
         </div>

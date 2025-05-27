@@ -32,6 +32,7 @@ interface OverviewSectionProps {
   totalStudyTime: number;
   overallProgress: number;
   suggestions: string[];
+  onContinueLearning?: () => void;
 }
 
 const OverviewSection: React.FC<OverviewSectionProps> = ({
@@ -40,7 +41,8 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   subjects,
   totalStudyTime,
   overallProgress,
-  suggestions
+  suggestions,
+  onContinueLearning
 }) => {
   const navigate = useNavigate();
 
@@ -67,6 +69,11 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   };
 
   const handleContinueLearning = () => {
+    if (onContinueLearning) {
+      onContinueLearning();
+      return;
+    }
+    
     switch (type) {
       case 'Concepts':
         navigate('/dashboard/student/concepts?tab=all-concepts');
@@ -89,7 +96,12 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        navigate('/dashboard/student/practice-exam?tab=available-exams');
+        // For practice exams, call the callback to switch to available exams tab
+        if (onContinueLearning) {
+          onContinueLearning();
+        } else {
+          navigate('/dashboard/student/practice-exam?tab=available-exams');
+        }
         break;
     }
   };

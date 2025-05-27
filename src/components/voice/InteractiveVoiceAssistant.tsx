@@ -29,10 +29,27 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
   const hasGreetedRef = useRef(false);
 
   useEffect(() => {
-    // Initial greeting when component mounts
+    // Initial greeting when component mounts (smarter context-aware greeting)
     if (!hasGreetedRef.current && !isMuted) {
       setTimeout(() => {
-        const greeting = `Hello ${userName}! I'm Prep-Zer AI, your intelligent learning companion. I'm here to help you navigate through your studies and answer any questions you have about your exam preparation.`;
+        const currentPage = window.location.pathname;
+        let contextualGreeting = '';
+        
+        if (currentPage.includes('/dashboard/student')) {
+          if (currentPage.includes('/concepts')) {
+            contextualGreeting = `I see you're on the concepts page! I can help you navigate through different subjects, find specific topics, or guide you to practice materials. What would you like to explore in your NEET preparation today?`;
+          } else if (currentPage.includes('/practice-exam')) {
+            contextualGreeting = `You're on the practice exams section! I can help you start mock tests, review your performance, or suggest exam strategies based on your preparation level. Ready to test your knowledge?`;
+          } else if (currentPage.includes('/flashcards')) {
+            contextualGreeting = `Welcome to the flashcards section! I can help you find subject-specific cards, track your revision progress, or suggest optimal study schedules. Let's make your revision more effective!`;
+          } else {
+            contextualGreeting = `Welcome to your dashboard! I can see your study progress, help you navigate to different sections, provide personalized study recommendations, and answer questions about your NEET preparation journey.`;
+          }
+        } else {
+          contextualGreeting = `Hello ${userName}! I'm Prep-Zer AI, your intelligent learning companion specialized for NEET preparation. I can help you navigate through study materials, provide exam strategies, track your progress, and offer personalized guidance.`;
+        }
+        
+        const greeting = `${contextualGreeting} How can I assist you today?`;
         speakMessage(greeting);
         hasGreetedRef.current = true;
       }, 2000);
@@ -43,7 +60,7 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     if (isMuted || !('speechSynthesis' in window)) return;
 
     const speech = new SpeechSynthesisUtterance();
-    // Use phonetic pronunciation for PREPZR
+    // Use phonetic pronunciation for PREPZR - most natural pronunciation
     speech.text = message
       .replace(/PREPZR/gi, 'Prep-Zer')
       .replace(/Prepzr/gi, 'Prep-Zer')

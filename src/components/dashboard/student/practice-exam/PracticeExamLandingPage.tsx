@@ -11,7 +11,7 @@ import OverviewSection from '../OverviewSection';
 
 const PracticeExamLandingPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Listen for URL parameter changes
@@ -101,17 +101,19 @@ const PracticeExamLandingPage = () => {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', value);
-    window.history.pushState({}, '', url.toString());
+    setSearchParams({ tab: value });
   };
 
   const handleSubjectClick = (subjectName: string) => {
     // Navigate to available exams tab when subject card is clicked
     setActiveTab('available-exams');
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', 'available-exams');
-    window.history.pushState({}, '', url.toString());
+    setSearchParams({ tab: 'available-exams' });
+  };
+
+  const handleContinueLearning = () => {
+    // Navigate to available exams tab when "Take Practice Test" is clicked
+    setActiveTab('available-exams');
+    setSearchParams({ tab: 'available-exams' });
   };
 
   return (
@@ -123,7 +125,10 @@ const PracticeExamLandingPage = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
-          <OverviewSection {...overviewData} />
+          <OverviewSection 
+            {...overviewData} 
+            onContinueLearning={handleContinueLearning}
+          />
         </TabsContent>
 
         <TabsContent value="available-exams" className="space-y-6 mt-6">

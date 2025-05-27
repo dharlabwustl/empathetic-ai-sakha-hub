@@ -19,7 +19,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
 
   const handleVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase().trim();
-    console.log('PREPZR AI processing dashboard command:', lowerCommand);
+    console.log('Prep-Zer AI processing dashboard command:', lowerCommand);
 
     // Dashboard navigation commands
     if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
