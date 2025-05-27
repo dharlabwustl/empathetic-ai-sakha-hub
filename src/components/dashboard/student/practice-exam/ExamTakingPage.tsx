@@ -32,6 +32,8 @@ const getMockExam = (examId: string): PracticeExam => {
       ],
       correctOptionId: "a",
       explanation: "According to Newton's second law, force equals mass times acceleration (F = ma).",
+      subject: "Physics",
+      topic: "Mechanics",
       difficulty: i % 3 === 0 ? "hard" : i % 2 === 0 ? "medium" : "easy"
     }))
   };
@@ -76,7 +78,11 @@ const ExamTakingPage: React.FC = () => {
   const handleAnswerChange = (questionId: string, optionId: string) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: { questionId, selectedOptionId: optionId }
+      [questionId]: { 
+        questionId, 
+        selectedAnswer: 0, // Keep for compatibility
+        selectedOptionId: optionId 
+      }
     }));
   };
   
@@ -118,6 +124,7 @@ const ExamTakingPage: React.FC = () => {
       
       const userAnswer: UserAnswer = {
         questionId: question.id,
+        selectedAnswer: 0, // Keep for compatibility
         selectedOptionId: answer?.selectedOptionId || "",
         isCorrect: answer?.selectedOptionId === question.correctOptionId
       };
@@ -148,7 +155,7 @@ const ExamTakingPage: React.FC = () => {
       localStorage.setItem(`examResult_${examId}`, JSON.stringify(examResults));
       
       // Navigate to review page
-      navigate(`/dashboard/student/practice-exam/${examId}/review`);
+      navigate(`/dashboard/student/exam/${examId}/results`);
     }, 1500);
   };
   
@@ -168,7 +175,7 @@ const ExamTakingPage: React.FC = () => {
         title="Exam Not Found"
         subtitle="The requested exam could not be found"
         showBackButton
-        backButtonUrl="/dashboard/student/practice-exams"
+        backButtonUrl="/dashboard/student/practice-exam"
       >
         <div className="flex flex-col items-center justify-center py-12">
           <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
@@ -176,7 +183,7 @@ const ExamTakingPage: React.FC = () => {
           <p className="text-muted-foreground mb-6">
             We couldn't find the exam you're looking for.
           </p>
-          <Button onClick={() => navigate('/dashboard/student/practice-exams')}>
+          <Button onClick={() => navigate('/dashboard/student/practice-exam')}>
             Return to Practice Exams
           </Button>
         </div>
@@ -223,13 +230,53 @@ const ExamTakingPage: React.FC = () => {
       />
       
       <div className="space-y-6">
-        <QuestionView
-          question={currentQuestion}
-          selectedOptionId={answers[currentQuestion.id]?.selectedOptionId}
-          onAnswerSelect={(optionId) => handleAnswerChange(currentQuestion.id, optionId)}
-          questionNumber={currentQuestionIndex + 1}
-          isFlagged={isQuestionFlagged}
-        />
+        {/* Question Display */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border p-6">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-lg font-semibold">
+              Question {currentQuestionIndex + 1}
+            </h3>
+            {isQuestionFlagged && (
+              <span className="bg-yellow-100 text-yellow-800 border-yellow-300 px-2 py-1 rounded text-sm">
+                <Flag className="h-3 w-3 mr-1 fill-yellow-500 inline" />
+                Flagged
+              </span>
+            )}
+          </div>
+          
+          <p className="text-lg leading-relaxed mb-6">{currentQuestion.text}</p>
+          
+          <div className="space-y-3">
+            {currentQuestion.options.map((option) => {
+              const isSelected = answers[currentQuestion.id]?.selectedOptionId === option.id;
+              
+              return (
+                <div
+                  key={option.id}
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => handleAnswerChange(currentQuestion.id, option.id)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-4 h-4 rounded-full border-2 ${
+                      isSelected
+                        ? 'border-blue-500 bg-blue-500'
+                        : 'border-gray-300'
+                    } flex items-center justify-center`}>
+                      {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+                    </div>
+                    <span className={`text-sm ${isSelected ? 'font-medium text-blue-900' : 'text-gray-700'}`}>
+                      {option.text}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
         
         <div className="flex justify-between items-center pt-4 border-t">
           <Button 

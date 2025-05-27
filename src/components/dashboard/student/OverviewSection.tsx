@@ -69,15 +69,13 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleContinueLearning = () => {
     switch (type) {
       case 'Concepts':
-        // Navigate to all concepts tab
-        window.location.href = '/dashboard/student/concepts?tab=all-concepts';
+        navigate('/dashboard/student/concepts?tab=all-concepts');
         break;
       case 'Flashcards':
-        window.location.href = '/dashboard/student/flashcards?tab=all-flashcards';
+        navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        // Navigate to available exams tab
-        window.location.href = '/dashboard/student/practice-exam?tab=available-exams';
+        navigate('/dashboard/student/practice-exam?tab=available-exams');
         break;
     }
   };
@@ -85,15 +83,13 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const handleSubjectStudy = (subjectName: string) => {
     switch (type) {
       case 'Concepts':
-        // Navigate to all concepts tab
-        window.location.href = '/dashboard/student/concepts?tab=all-concepts';
+        navigate('/dashboard/student/concepts?tab=all-concepts');
         break;
       case 'Flashcards':
-        window.location.href = '/dashboard/student/flashcards?tab=all-flashcards';
+        navigate('/dashboard/student/flashcards?tab=all-flashcards');
         break;
       case 'Practice Exams':
-        // Navigate to available exams tab on the same page
-        window.location.href = '/dashboard/student/practice-exam?tab=available-exams';
+        navigate('/dashboard/student/practice-exam?tab=available-exams');
         break;
     }
   };
