@@ -52,25 +52,30 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
       transition={{ duration: 0.8 }}
       className="space-y-6 md:space-y-8 px-4 md:px-0"
     >
-      {/* Badge and NEET Button Row */}
+      {/* Badge */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="flex flex-col sm:flex-row items-center gap-3"
+        className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-300 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium border border-blue-200/50 dark:border-blue-800/50"
       >
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-300 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium border border-blue-200/50 dark:border-blue-800/50">
-          <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="hidden sm:inline">India's #1 AI-Powered Exam Prep Platform</span>
-          <span className="sm:hidden">#1 AI Exam Prep</span>
-        </div>
+        <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
+        <span className="hidden sm:inline">India's #1 AI-Powered Exam Prep Platform</span>
+        <span className="sm:hidden">#1 AI Exam Prep</span>
+      </motion.div>
 
-        {/* NEET 2026 Prep Button */}
+      {/* NEET 2026 Prep Button with Pulsing Animation */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="relative"
+      >
         <Button
           onClick={handleNEETPrep}
-          className="relative bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 hover:from-emerald-700 hover:via-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-full font-bold text-sm shadow-2xl overflow-hidden group"
+          className="relative bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 hover:from-emerald-700 hover:via-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-full font-bold text-lg shadow-2xl overflow-hidden group"
         >
+          {/* Pulsing animation background */}
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-green-400 rounded-full"
             animate={{
@@ -84,13 +89,14 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
             }}
           />
           
+          {/* Shimmer effect */}
           <motion.div 
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
             animate={{ x: ["-100%", "100%"] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           />
           
-          <div className="relative flex items-center gap-2 z-10">
+          <div className="relative flex items-center gap-3 z-10">
             <motion.div
               animate={{ 
                 rotate: [0, 360],
@@ -102,11 +108,11 @@ const CleanHeroContent: React.FC<CleanHeroContentProps> = ({ onAnalyzeClick }) =
                 ease: "easeInOut"
               }}
             >
-              <Rocket className="w-4 h-4" />
+              <Rocket className="w-6 h-6" />
             </motion.div>
-            <span className="text-xs sm:text-sm">NEET 2026 PREP - JOIN NOW!</span>
+            <span>NEET 2026 PREP - JOIN NOW!</span>
             <motion.div
-              className="w-1.5 h-1.5 bg-white rounded-full"
+              className="w-2 h-2 bg-white rounded-full"
               animate={{ 
                 opacity: [1, 0.4, 1],
                 scale: [1, 1.3, 1]

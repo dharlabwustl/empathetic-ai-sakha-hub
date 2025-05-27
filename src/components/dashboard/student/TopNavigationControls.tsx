@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
 
 interface TopNavigationControlsProps {
   hideSidebar?: boolean;
@@ -51,7 +50,10 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
+  const [isContinuousListening, setIsContinuousListening] = useState(false);
   
   const handleLogout = async () => {
     await logout();
@@ -62,6 +64,14 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     setIsVoiceAssistantOpen(true);
   };
 
+  const handleMicToggle = () => {
+    setIsMicActive(!isMicActive);
+  };
+
+  const handleMuteToggle = () => {
+    setIsMuted(!isMuted);
+  };
+
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
   };
@@ -70,8 +80,9 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
     navigate('/dashboard/student/subscription');
   };
 
-  const handleSpeechCommand = (command: string) => {
-    console.log('Speech command received in dashboard:', command);
+  const handleContinuousListening = () => {
+    setIsContinuousListening(!isContinuousListening);
+    console.log('Continuous listening:', !isContinuousListening);
   };
 
   const getCurrentPlan = () => {
@@ -147,16 +158,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Speech Recognition Button - positioned above voice assistant */}
-        <div className="relative">
-          <SpeechRecognitionButton
-            position="dashboard"
-            onCommand={handleSpeechCommand}
-            className="relative z-50"
-          />
-        </div>
-
-        {/* Voice Assistant Button - positioned below speech recognition */}
+        {/* Voice Assistant Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -164,14 +166,14 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
                 variant="outline"
                 size="icon"
                 onClick={handleVoiceAssistant}
-                className="relative bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 hover:from-purple-600 hover:to-blue-600 z-40"
+                className="relative bg-gradient-to-r from-purple-500 to-blue-500 text-white border-0 hover:from-purple-600 hover:to-blue-600"
               >
                 <Volume2 className="h-4 w-4" />
                 <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>PREPZR AI Voice Assistant</p>
+              <p>Sakha AI Voice Assistant</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
