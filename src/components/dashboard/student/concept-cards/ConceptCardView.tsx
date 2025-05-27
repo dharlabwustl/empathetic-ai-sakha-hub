@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Brain, BookOpen, Clock, Book } from 'lucide-react';
+import { ArrowRight, Brain, BookOpen, Clock, Book, Lightbulb, Zap, Target } from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -28,6 +27,38 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
   const [activeSubject, setActiveSubject] = useState<string>(subject || 'all');
   const [showAllCards, setShowAllCards] = useState(false);
   const navigate = useNavigate();
+  
+  // Smart suggestions data
+  const smartSuggestions = [
+    {
+      id: 'sg1',
+      title: 'Focus on Physics Today',
+      description: 'Your Physics performance needs attention. Start with Laws of Motion.',
+      type: 'priority',
+      priority: 'high'
+    },
+    {
+      id: 'sg2', 
+      title: 'Quick Chemistry Review',
+      description: 'Review organic reactions before starting new concepts.',
+      type: 'review',
+      priority: 'medium'
+    },
+    {
+      id: 'sg3',
+      title: 'Biology Weak Areas',
+      description: 'Focus on Cell Biology and Genetics for better scores.',
+      type: 'improvement',
+      priority: 'high'
+    },
+    {
+      id: 'sg4',
+      title: 'Daily Revision',
+      description: 'Spend 20 minutes reviewing yesterday\'s concepts.',
+      type: 'routine',
+      priority: 'low'
+    }
+  ];
   
   // Get unique subjects
   const subjects = React.useMemo(() => {
@@ -88,8 +119,54 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
   }
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {title && <h3 className="text-xl font-medium">{title}</h3>}
+      
+      {/* Smart Daily Suggestions - Only show on overview */}
+      {title === "Concept Cards" && (
+        <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-yellow-800">
+              <Lightbulb className="h-5 w-5" />
+              PREPZR AI Daily Smart Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {smartSuggestions.slice(0, 4).map((suggestion) => (
+                <div key={suggestion.id} className="p-3 bg-white rounded-lg border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-2">
+                    <div className={`p-1.5 rounded-full ${
+                      suggestion.priority === 'high' ? 'bg-red-100 text-red-600' :
+                      suggestion.priority === 'medium' ? 'bg-orange-100 text-orange-600' :
+                      'bg-green-100 text-green-600'
+                    }`}>
+                      {suggestion.type === 'priority' ? <Target className="h-3 w-3" /> : 
+                       suggestion.type === 'review' ? <Brain className="h-3 w-3" /> :
+                       suggestion.type === 'improvement' ? <Zap className="h-3 w-3" /> :
+                       <Clock className="h-3 w-3" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-800">{suggestion.title}</p>
+                      <p className="text-xs text-gray-600 mt-1">{suggestion.description}</p>
+                    </div>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs ${
+                        suggestion.priority === 'high' ? 'border-red-200 text-red-700' :
+                        suggestion.priority === 'medium' ? 'border-orange-200 text-orange-700' :
+                        'border-green-200 text-green-700'
+                      }`}
+                    >
+                      {suggestion.priority}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
         {/* Time Period Tabs */}
