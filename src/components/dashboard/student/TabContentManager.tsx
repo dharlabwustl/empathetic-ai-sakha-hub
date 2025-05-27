@@ -8,6 +8,7 @@ import ConceptsLandingPage from '@/components/dashboard/student/concepts/Concept
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
+import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import WelcomeTourReminderBanner from './WelcomeTourReminderBanner';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TabAIAssistant from './ai-assistant/TabAIAssistant';
@@ -130,6 +131,8 @@ export const generateTabContents = ({
     "flashcards": createTabContent("Flashcards", <FlashcardsLandingPage />),
     
     "practice-exam": createTabContent("Practice Exams", <PracticeExamLandingPage />),
+    
+    "syllabus": createTabContent("Exam Syllabus", <ExamSyllabusPage />),
     
     "notifications": createTabContent("Notifications", <NotificationsPage />)
   };
