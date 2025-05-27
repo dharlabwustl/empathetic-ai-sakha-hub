@@ -61,53 +61,53 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
         }}
       />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12">
-        <div className="text-center max-w-5xl mx-auto space-y-4">
-          {/* India's #1 Platform Text - moved higher */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+        <div className="text-center max-w-5xl mx-auto space-y-3">
+          {/* India's #1 Platform Text - moved higher and reduced spacing */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-2"
+            className="mb-1"
           >
             <p className="text-lg text-gray-600 dark:text-gray-400 font-semibold">
               India's #1 AI-Powered Exam Prep Platform
             </p>
           </motion.div>
 
-          {/* Main Headline - Compact One Row with reduced spacing */}
+          {/* Main Headline - Single row, optimized spacing */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-3"
+            className="mb-2"
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 leading-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 leading-tight whitespace-nowrap">
               Master Exam Preparation with AI-Powered Precision
             </h1>
           </motion.div>
 
-          {/* Enhanced Subtitle - reduced spacing */}
+          {/* Enhanced Subtitle - compact spacing */}
           <motion.div
-            className="mb-3"
+            className="mb-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <p className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            <p className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-1">
               We understand your mindset, not just the exam
             </p>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-3 max-w-4xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-2 max-w-4xl mx-auto">
               Master JEE, NEET, UPSC, CAT and more with our emotionally intelligent AI that understands your learning style and adapts to your needs.
             </p>
           </motion.div>
 
-          {/* NEET 2026 Banner - Separate and Highlighted with reduced spacing */}
+          {/* NEET 2026 Banner - positioned after subtitle */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mb-4"
+            className="mb-3"
           >
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full text-sm font-bold shadow-lg border-2 border-white/20">
               <Star className="h-4 w-4 fill-current animate-pulse" />
@@ -115,19 +115,19 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Animated Key Benefits - reduced spacing */}
+          {/* Animated Key Benefits - compact spacing */}
           <motion.div
-            className="mb-6"
+            className="mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
               7 Key Benefits That Transform Your Journey
             </h3>
             
             {/* Dynamic Benefit Display */}
-            <div className="min-h-[70px] flex items-center justify-center">
+            <div className="min-h-[60px] flex items-center justify-center">
               <motion.div
                 key={currentBenefitIndex}
                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -160,9 +160,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* CTA Buttons - more prominent and earlier */}
+          {/* CTA Buttons - prominently positioned */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}

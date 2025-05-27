@@ -95,9 +95,9 @@ const FlashcardsLandingPage = () => {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    const url = new URL(window.location);
+    const url = new URL(window.location.href);
     url.searchParams.set('tab', value);
-    window.history.pushState({}, '', url);
+    window.history.pushState({}, '', url.toString());
   };
 
   return (

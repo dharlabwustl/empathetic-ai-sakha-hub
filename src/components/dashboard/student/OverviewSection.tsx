@@ -73,9 +73,9 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       case 'Concepts':
         if (currentPath.includes('/concepts')) {
           // If we're on concepts page, switch to all-concepts tab
-          const url = new URL(window.location);
+          const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-concepts');
-          window.history.pushState({}, '', url);
+          window.history.pushState({}, '', url.toString());
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else {
           navigate('/dashboard/student/concepts?tab=all-concepts');
@@ -84,9 +84,9 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       case 'Flashcards':
         if (currentPath.includes('/flashcards')) {
           // If we're on flashcards page, switch to all-flashcards tab
-          const url = new URL(window.location);
+          const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-flashcards');
-          window.history.pushState({}, '', url);
+          window.history.pushState({}, '', url.toString());
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else {
           navigate('/dashboard/student/flashcards?tab=all-flashcards');
@@ -95,9 +95,9 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       case 'Practice Exams':
         if (currentPath.includes('/practice-exam')) {
           // If we're on practice exam page, switch to available-exams tab
-          const url = new URL(window.location);
+          const url = new URL(window.location.href);
           url.searchParams.set('tab', 'available-exams');
-          window.history.pushState({}, '', url);
+          window.history.pushState({}, '', url.toString());
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else {
           navigate('/dashboard/student/practice-exam?tab=available-exams');
@@ -113,9 +113,9 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       case 'Concepts':
         if (currentPath.includes('/concepts')) {
           // If we're on concepts page, switch to all-concepts tab
-          const url = new URL(window.location);
+          const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-concepts');
-          window.history.pushState({}, '', url);
+          window.history.pushState({}, '', url.toString());
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else {
           navigate('/dashboard/student/concepts?tab=all-concepts');
@@ -124,9 +124,9 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       case 'Flashcards':
         if (currentPath.includes('/flashcards')) {
           // If we're on flashcards page, switch to all-flashcards tab
-          const url = new URL(window.location);
+          const url = new URL(window.location.href);
           url.searchParams.set('tab', 'all-flashcards');
-          window.history.pushState({}, '', url);
+          window.history.pushState({}, '', url.toString());
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else {
           navigate('/dashboard/student/flashcards?tab=all-flashcards');
@@ -135,9 +135,9 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
       case 'Practice Exams':
         if (currentPath.includes('/practice-exam')) {
           // If we're on practice exam page, switch to available-exams tab
-          const url = new URL(window.location);
+          const url = new URL(window.location.href);
           url.searchParams.set('tab', 'available-exams');
-          window.history.pushState({}, '', url);
+          window.history.pushState({}, '', url.toString());
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else {
           navigate('/dashboard/student/practice-exam?tab=available-exams');
