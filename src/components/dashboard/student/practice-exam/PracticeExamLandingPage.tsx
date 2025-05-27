@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,21 +90,21 @@ const PracticeExamLandingPage = () => {
 
   const handleStartExam = (examId: string) => {
     if (examId === '4') {
-      window.location.href = '/dashboard/student/practice-exam/4/start';
+      window.location.href = '/dashboard/student/exam/4/start';
     } else if (examId === '6') {
-      window.location.href = '/dashboard/student/practice-exam/6/start';
+      window.location.href = '/dashboard/student/exam/6/start';
     } else {
-      window.location.href = `/dashboard/student/practice-exam/${examId}/start`;
+      window.location.href = `/dashboard/student/exam/${examId}/start`;
     }
   };
 
   const handleViewResults = (examId: string) => {
     if (examId === '6') {
-      window.location.href = '/dashboard/student/practice-exam/6/review';
+      window.location.href = '/dashboard/student/exam/6/results';
     } else if (examId === '4') {
-      window.location.href = '/dashboard/student/practice-exam/4/review';
+      window.location.href = '/dashboard/student/exam/4/results';
     } else {
-      window.location.href = `/dashboard/student/practice-exam/${examId}/review`;
+      window.location.href = `/dashboard/student/exam/${examId}/results`;
     }
   };
 

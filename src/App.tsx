@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -67,6 +68,10 @@ import LoginPage from '@/pages/auth/Login';
 import PostLoginWelcomeBack from '@/pages/dashboard/PostLoginWelcomeBack';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
 import AdminForgotPassword from '@/pages/admin/ForgotPassword';
+
+// Import new exam pages
+import ExamTakingPageNew from '@/pages/dashboard/student/exam/ExamTakingPage';
+import ExamResultsPage from '@/pages/dashboard/student/exam/ExamResultsPage';
 
 // Import new footer pages
 import About from '@/pages/About';
