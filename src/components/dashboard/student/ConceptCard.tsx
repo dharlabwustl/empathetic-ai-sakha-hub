@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight, Star, Clock, Target, Calendar, CheckCircle, AlertCircle } from "lucide-react";
 import { motion } from 'framer-motion';
 
 interface ConceptCardProps {
@@ -16,6 +16,11 @@ interface ConceptCardProps {
   difficulty: 'easy' | 'medium' | 'hard';
   completed?: boolean;
   progress?: number;
+  accuracy?: number;
+  daysToGo?: number;
+  totalCards?: number;
+  masteredCards?: number;
+  status?: 'pending' | 'in-progress' | 'completed' | 'overdue';
   relatedConcepts?: string[];
   onView?: () => void;
 }
@@ -28,33 +33,50 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   difficulty,
   completed = false,
   progress = 0,
+  accuracy = 0,
+  daysToGo = 0,
+  totalCards = 0,
+  masteredCards = 0,
+  status = 'pending',
   relatedConcepts = [],
   onView
 }) => {
   const navigate = useNavigate();
   
-  const difficultyColors = {
-    'easy': 'bg-green-100 text-green-800 border-green-200 shadow-sm shadow-green-100',
-    'medium': 'bg-yellow-100 text-yellow-800 border-yellow-200 shadow-sm shadow-yellow-100',
-    'hard': 'bg-red-100 text-red-800 border-red-200 shadow-sm shadow-red-100'
+  const subjectColors = {
+    'Physics': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20',
+    'Chemistry': 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20',
+    'Biology': 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20',
+    'Mathematics': 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20'
   };
 
+  const difficultyColors = {
+    'easy': 'bg-green-100 text-green-800 border-green-200',
+    'medium': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'hard': 'bg-red-100 text-red-800 border-red-200'
+  };
+
+  const statusConfig = {
+    'pending': { color: 'bg-gray-100 text-gray-700', icon: Clock },
+    'in-progress': { color: 'bg-blue-100 text-blue-700', icon: Target },
+    'completed': { color: 'bg-green-100 text-green-700', icon: CheckCircle },
+    'overdue': { color: 'bg-red-100 text-red-700', icon: AlertCircle }
+  };
+
+  const StatusIcon = statusConfig[status].icon;
+
   const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate to concept card detail page with consistent path
-    console.log("ConceptCard - Navigating to detail page for concept:", id);
+    console.log("ConceptCard - Navigating to concept detail:", id);
     navigate(`/dashboard/student/concepts/${id}`);
     
-    // If onView handler provided, also call it
     if (onView) onView();
   };
 
   const handleStudyNowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Use the same route format for consistency
-    console.log("ConceptCard Study Button - Navigating to detail page for concept:", id);
+    console.log("ConceptCard StudyNow - Navigating to concept detail:", id);
     navigate(`/dashboard/student/concepts/${id}`);
     
-    // If onView handler provided, also call it
     if (onView) onView();
   };
 
@@ -69,74 +91,88 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
                   bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-950/80"
         onClick={handleCardClick}
       >
-        <CardHeader className="pb-2 space-y-2 border-b border-gray-100 dark:border-gray-800">
+        <CardHeader className="pb-3 space-y-3">
           <div className="flex justify-between items-start">
-            <Badge variant="outline" className={`${difficultyColors[difficulty]} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
-              {difficulty}
-            </Badge>
-            {completed && (
-              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 rounded-full px-3 py-1 text-xs font-semibold shadow-sm shadow-blue-100">
-                Completed
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className={`${subjectColors[subject as keyof typeof subjectColors] || 'bg-gray-50 text-gray-700'} px-3 py-1 rounded-full text-xs font-semibold`}>
+                {subject}
               </Badge>
-            )}
+              <Badge variant="outline" className={`${difficultyColors[difficulty]} px-3 py-1 rounded-full text-xs font-semibold`}>
+                {difficulty}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className={`${statusConfig[status].color} px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1`}>
+                <StatusIcon className="h-3 w-3" />
+                {status.replace('-', ' ')}
+              </Badge>
+            </div>
           </div>
-          <CardTitle 
-            className="text-lg font-semibold mt-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-400 dark:hover:to-purple-400 transition-all duration-300"
-          >
+          
+          <CardTitle className="text-lg font-semibold leading-tight text-gray-900 dark:text-white">
             {title}
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            <Badge variant="secondary" className="font-normal rounded-md mr-2">
-              {subject}
-            </Badge>
+          
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            {description}
           </p>
         </CardHeader>
         
-        <CardContent className="flex-grow pt-4 px-6 pb-3">
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-            {description}
-          </p>
-          
-          {progress > 0 && (
-            <div className="mt-4">
-              <div className="flex justify-between text-xs font-medium mb-1">
-                <span>Progress</span>
-                <span className="text-indigo-600 dark:text-indigo-400">{progress}%</span>
-              </div>
-              <Progress 
-                value={progress} 
-                className="h-2 bg-gray-100 dark:bg-gray-800" 
-                indicatorClassName={
-                  progress >= 80 ? "bg-gradient-to-r from-green-400 to-green-500 shadow-sm shadow-green-200 dark:shadow-green-900/20" :
-                  progress >= 40 ? "bg-gradient-to-r from-yellow-400 to-yellow-500 shadow-sm shadow-yellow-200 dark:shadow-yellow-900/20" :
-                  "bg-gradient-to-r from-red-400 to-red-500 shadow-sm shadow-red-200 dark:shadow-red-900/20"
-                }
-              />
+        <CardContent className="flex-grow space-y-4">
+          {/* Progress Section */}
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="font-medium text-gray-700 dark:text-gray-300">Progress</span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">{progress}%</span>
             </div>
-          )}
-          
+            <Progress value={progress} className="h-2 bg-gray-200 dark:bg-gray-700" />
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2">
+              <div className="text-sm font-bold text-blue-700 dark:text-blue-300">{accuracy}%</div>
+              <div className="text-xs text-blue-600 dark:text-blue-400">Accuracy</div>
+            </div>
+            
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2">
+              <div className="text-sm font-bold text-green-700 dark:text-green-300">{masteredCards}/{totalCards}</div>
+              <div className="text-xs text-green-600 dark:text-green-400">Mastered</div>
+            </div>
+            
+            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-2">
+              <div className="text-sm font-bold text-orange-700 dark:text-orange-300">{daysToGo}</div>
+              <div className="text-xs text-orange-600 dark:text-orange-400">Days Left</div>
+            </div>
+          </div>
+
           {relatedConcepts && relatedConcepts.length > 0 && (
-            <div className="mt-4 space-y-1">
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Related Concepts:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {relatedConcepts.map((concept, i) => (
-                  <Badge key={i} variant="outline" className="text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-0.5">
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Related:</p>
+              <div className="flex flex-wrap gap-1">
+                {relatedConcepts.slice(0, 2).map((concept, i) => (
+                  <Badge key={i} variant="outline" className="text-xs bg-gray-50 dark:bg-gray-800">
                     {concept}
                   </Badge>
                 ))}
+                {relatedConcepts.length > 2 && (
+                  <Badge variant="outline" className="text-xs bg-gray-50 dark:bg-gray-800">
+                    +{relatedConcepts.length - 2}
+                  </Badge>
+                )}
               </div>
             </div>
           )}
         </CardContent>
         
-        <CardFooter className="pt-3 border-t border-gray-100 dark:border-gray-800 px-4 pb-4">
+        <CardFooter className="pt-3 border-t border-gray-100 dark:border-gray-800 p-4">
           <Button 
             onClick={handleStudyNowClick}
-            variant="default" 
-            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-200"
+            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 text-white"
           >
+            <BookOpen className="h-4 w-4" />
             <span>Study Now</span>
-            <ArrowRight className="h-4 w-4 animate-pulse" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </CardFooter>
       </Card>

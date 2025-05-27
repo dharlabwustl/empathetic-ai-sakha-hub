@@ -18,10 +18,19 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
   pendingTasks = []
 }) => {
   const hasSpokenRef = useRef(false);
+  const lastSpokenTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    // Only speak once per mount
-    if (hasSpokenRef.current) return;
+    // Prevent multiple announcements within a short time period
+    const now = Date.now();
+    const timeSinceLastSpoken = now - lastSpokenTimeRef.current;
+    const MIN_INTERVAL = 30000; // 30 seconds minimum between announcements
+
+    // Only speak once per mount and respect time interval
+    if (hasSpokenRef.current || timeSinceLastSpoken < MIN_INTERVAL) {
+      console.log('🔇 Voice Greeting: Skipping announcement - already spoken or too soon');
+      return;
+    }
     
     const speakGreeting = () => {
       if (!('speechSynthesis' in window)) return;
@@ -29,21 +38,21 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       let greeting = '';
       
       if (isReturningUser) {
-        greeting = `Welcome back to PREPZR, ${userName}! I'm Sakha AI, your learning companion. `;
+        greeting = `Welcome back to PREPZR, ${userName}! I'm your PREPZR AI assistant, ready to help you with your studies today.`;
         
         if (lastActivity) {
-          greeting += `Last time you were ${lastActivity}. `;
+          greeting += ` Last time you were ${lastActivity}. `;
         }
         
         if (pendingTasks.length > 0) {
           greeting += `You have ${pendingTasks.length} pending activities waiting for you. `;
         }
         
-        greeting += `I'm here to help you with your study plan, daily activities, and any questions you have. Let's make today productive!`;
+        greeting += `Let's make today productive!`;
       } else if (isFirstTimeUser) {
-        greeting = `Welcome to PREPZR, ${userName}! I'm Sakha AI, your AI-powered learning companion. I'm excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
+        greeting = `Welcome to PREPZR, ${userName}! I'm your PREPZR AI assistant, excited to help you on your journey to exam success. Let's explore what PREPZR has to offer and create your personalized study plan.`;
       } else {
-        greeting = `Hello ${userName}! I'm Sakha AI, ready to assist you with your studies today. How can I help you achieve your learning goals?`;
+        greeting = `Hello ${userName}! I'm your PREPZR AI assistant, ready to help you achieve your learning goals today.`;
       }
       
       // Use the centralized female voice function
@@ -56,6 +65,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         },
         () => {
           hasSpokenRef.current = true;
+          lastSpokenTimeRef.current = Date.now();
           console.log('🔊 Voice Greeting: Started speaking');
         },
         () => {
@@ -68,8 +78,8 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     if (window.speechSynthesis.getVoices().length === 0) {
       window.speechSynthesis.addEventListener('voiceschanged', speakGreeting, { once: true });
     } else {
-      // Small delay to ensure voices are loaded
-      setTimeout(speakGreeting, 1000);
+      // Small delay to ensure voices are loaded and prevent conflicts
+      setTimeout(speakGreeting, 1500);
     }
     
     return () => {
