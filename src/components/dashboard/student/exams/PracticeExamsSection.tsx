@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import PracticeExamOverviewSection from './PracticeExamOverviewSection';
+import EnhancedPracticeExamOverviewSection from '../practice-exam/EnhancedPracticeExamOverviewSection';
 
 const PracticeExamsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -135,7 +134,7 @@ const PracticeExamsSection: React.FC = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          <PracticeExamOverviewSection />
+          <EnhancedPracticeExamOverviewSection />
         </TabsContent>
 
         <TabsContent value="physics">
