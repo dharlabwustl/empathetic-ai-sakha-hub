@@ -6,9 +6,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import ConceptCard from '@/components/dashboard/ConceptCard';
-import ContentFeedbackButton from '@/components/dashboard/student/feedback/ContentFeedbackButton';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ChevronLeft, ArrowRight } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
@@ -176,24 +175,17 @@ const ConceptsPage = () => {
               ) : (
                 filteredCards.map((card) => (
                   <motion.div key={card.id} variants={itemVariants}>
-                    <div className="space-y-3">
-                      <ConceptCard 
-                        id={card.id}
-                        title={card.title}
-                        description={card.description}
-                        subject={card.subject}
-                        difficulty={card.difficulty.toLowerCase() as any}
-                        completed={card.completed}
-                        progress={card.progress}
-                        relatedConcepts={card.relatedConcepts}
-                        onView={() => window.location.href = `/dashboard/student/concepts/${card.id}`}
-                      />
-                      <ContentFeedbackButton
-                        contentId={card.id}
-                        contentType="concept"
-                        contentTitle={card.title}
-                      />
-                    </div>
+                    <ConceptCard 
+                      id={card.id}
+                      title={card.title}
+                      description={card.description}
+                      subject={card.subject}
+                      difficulty={card.difficulty.toLowerCase() as any}
+                      completed={card.completed}
+                      progress={card.progress}
+                      relatedConcepts={card.relatedConcepts}
+                      onView={() => window.location.href = `/dashboard/student/concepts/${card.id}`}
+                    />
                   </motion.div>
                 ))
               )}
