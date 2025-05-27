@@ -1,33 +1,39 @@
 
+export interface PracticeExam {
+  id: string;
+  title: string;
+  subject: string;
+  topic?: string;
+  duration: number;
+  timeAllowed?: number;
+  totalQuestions: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  description?: string;
+  questions?: ExamQuestion[];
+}
+
 export interface ExamQuestion {
   id: string;
-  text: string;
-  options: Array<{
-    id: string;
-    text: string;
-  }>;
-  correctOptionId: string;
-  explanation: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation?: string;
   subject: string;
   topic: string;
-  difficulty: 'easy' | 'medium' | 'hard';
 }
 
 export interface UserAnswer {
   questionId: string;
   selectedAnswer: number;
-  selectedOptionId?: string;
-  isCorrect?: boolean;
   timeSpent?: number;
 }
 
-export interface PracticeExam {
+export interface ExamResult {
   id: string;
-  title: string;
-  description: string;
-  subject: string;
-  topic: string;
+  examId: string;
+  score: number;
   totalQuestions: number;
-  timeAllowed: number;
-  questions: ExamQuestion[];
+  timeTaken: number;
+  completedAt: Date;
+  answers?: UserAnswer[];
 }
