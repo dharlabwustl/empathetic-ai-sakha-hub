@@ -21,6 +21,9 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   const timeoutRef = useRef<number | null>(null);
   const lastCommandTimeRef = useRef<number>(0);
   
+  // FIXED: Track spoken messages to prevent repetition
+  const spokenMessagesRef = useRef<Set<string>>(new Set());
+  
   const shouldPlayGreeting = location.pathname === '/' || 
                             location.pathname.includes('/signup') ||
                             location.pathname.includes('/welcome') ||
@@ -100,6 +103,13 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   const speak = (text: string) => {
     if (!('speechSynthesis' in window) || audioMuted) return;
     
+    // FIXED: Check if message was already spoken (prevent repetition)
+    const messageKey = text.toLowerCase().trim();
+    if (spokenMessagesRef.current.has(messageKey)) {
+      console.log('🔇 Voice: Message already spoken, skipping:', text);
+      return;
+    }
+    
     window.speechSynthesis.cancel();
     
     const speech = new SpeechSynthesisUtterance();
@@ -119,6 +129,16 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
     if (preferredVoice) {
       speech.voice = preferredVoice;
     }
+    
+    speech.onstart = () => {
+      // Add to spoken messages to prevent repetition
+      spokenMessagesRef.current.add(messageKey);
+      console.log('🔊 Voice: Speaking:', text);
+    };
+    
+    speech.onend = () => {
+      console.log('🔇 Voice: Finished speaking');
+    };
     
     window.speechSynthesis.speak(speech);
   };
@@ -228,6 +248,8 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
   useEffect(() => {
     cleanupVoiceResources();
     setGreetingPlayed(false);
+    // FIXED: Clear spoken messages cache when navigating to new page
+    spokenMessagesRef.current.clear();
     
     const muteSetting = localStorage.getItem('voice_assistant_muted');
     if (muteSetting === 'true') {
@@ -280,6 +302,16 @@ const EnhancedHomePageAssistant: React.FC<EnhancedHomePageAssistantProps> = ({
       cleanupVoiceResources();
     };
   }, [greetingPlayed, shouldPlayGreeting, audioMuted]);
+
+  // FIXED: Clear spoken messages periodically to allow re-speaking after some time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      spokenMessagesRef.current.clear();
+      console.log('🔄 Voice: Cleared spoken messages cache');
+    }, 300000); // Clear every 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
   
   return null;
 };

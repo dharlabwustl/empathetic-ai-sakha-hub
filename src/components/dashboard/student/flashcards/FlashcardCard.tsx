@@ -50,13 +50,13 @@ export default function FlashcardCard({
     }
   };
 
-  // CRITICAL: ENSURE ALL NAVIGATION GOES TO INTERACTIVE
+  // FIXED: Ensure ALL navigation goes to INTERACTIVE (not practice)
   const handleStudyNow = () => {
     const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
-    console.log('🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
-    console.log('🚨 Current location before navigation:', window.location.href);
+    console.log('🚨🚨🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
+    console.log('🚨🚨🚨 Current location before navigation:', window.location.href);
     navigate(targetRoute);
-    console.log('🚨 Navigate called from FlashcardCard');
+    console.log('🚨🚨🚨 Navigate called from FlashcardCard');
   };
 
   return (
@@ -109,7 +109,7 @@ export default function FlashcardCard({
             <Button variant="ghost" size="sm">
               View Details
             </Button>
-            {/* CRITICAL: BUTTON MUST GO TO INTERACTIVE, NOT PRACTICE */}
+            {/* FIXED: BUTTON MUST GO TO INTERACTIVE, NOT PRACTICE */}
             <Button onClick={handleStudyNow}>
               Study Now
             </Button>

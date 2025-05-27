@@ -117,7 +117,7 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // FIXED: Direct navigation to interactive flashcard route
+  // FIXED: ALL NAVIGATION MUST GO TO INTERACTIVE (not practice)
   const navigateToInteractive = (setId: number, source: string) => {
     const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
     console.log(`🚨🚨🚨 NAVIGATION FROM ${source.toUpperCase()}`);
@@ -134,6 +134,7 @@ const FlashcardLandingPage: React.FC = () => {
     }, 100);
   };
 
+  // FIXED: ALL handlers route to INTERACTIVE
   const handleStartReview = (setId: number) => {
     navigateToInteractive(setId, 'START_REVIEW_BUTTON');
   };
