@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -8,7 +7,8 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
+import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -149,14 +149,6 @@ const StudentDashboard = () => {
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
 
-  // Prepare user performance data for voice assistant
-  const userPerformance = {
-    examReadiness: Math.round(Math.random() * 100), // This should come from actual data
-    completedTasks: 5, // This should come from actual data
-    totalTasks: 8, // This should come from actual data
-    streak: 7 // This should come from actual data
-  };
-
   return (
     <>
       <DashboardLayout
@@ -184,11 +176,12 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Dashboard Voice Assistant with Text AI */}
-      <DashboardVoiceAssistant 
+      {/* Interactive Voice Assistant with enhanced navigation */}
+      <InteractiveVoiceAssistant 
         userName={userProfile.name}
         language="en-US"
-        userPerformance={userPerformance}
+        onNavigationCommand={(route) => navigate(route)}
+        position="bottom-right"
       />
     </>
   );
