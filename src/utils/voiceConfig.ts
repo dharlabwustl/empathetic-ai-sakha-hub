@@ -1,11 +1,11 @@
 
 // Centralized voice configuration for consistent female voice across the app
-
-export interface VoiceSettings {
+export interface VoiceConfig {
+  voice: SpeechSynthesisVoice | null;
   rate: number;
   pitch: number;
   volume: number;
-  voice?: SpeechSynthesisVoice;
+  language: string;
 }
 
 export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
@@ -16,67 +16,92 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
   // Priority order for female voices
   const femaleVoicePreferences = [
     'Google US English Female',
-    'Microsoft Zira Desktop',
+    'Microsoft Zira',
+    'Microsoft Hazel',
     'Samantha',
-    'Victoria',
     'Karen',
     'Moira',
     'Tessa',
-    'Fiona'
+    'Victoria',
+    'Fiona',
+    'female',
+    'woman'
   ];
   
-  // First try to find exact matches
+  // First, try to find exact matches
   for (const preference of femaleVoicePreferences) {
-    const voice = voices.find(v => v.name.includes(preference));
+    const voice = voices.find(v => 
+      v.name.toLowerCase().includes(preference.toLowerCase())
+    );
     if (voice) return voice;
   }
   
-  // Then try to find any female voice
-  const femaleVoice = voices.find(v => 
-    v.name.toLowerCase().includes('female') ||
-    v.name.toLowerCase().includes('woman') ||
-    (!v.name.toLowerCase().includes('male') && v.lang.includes('en'))
+  // Then try to find voices that don't contain "male" and are English
+  const englishFemaleVoices = voices.filter(voice => 
+    voice.lang.includes('en') && 
+    !voice.name.toLowerCase().includes('male') &&
+    (voice.name.toLowerCase().includes('female') || 
+     voice.name.toLowerCase().includes('woman') ||
+     !voice.name.toLowerCase().includes('man'))
   );
   
-  return femaleVoice || voices[0] || null;
+  if (englishFemaleVoices.length > 0) {
+    return englishFemaleVoices[0];
+  }
+  
+  // Fallback to any English voice
+  const englishVoices = voices.filter(voice => voice.lang.includes('en'));
+  return englishVoices.length > 0 ? englishVoices[0] : null;
+};
+
+export const getDefaultVoiceConfig = (): VoiceConfig => {
+  return {
+    voice: getPreferredFemaleVoice(),
+    rate: 0.95,
+    pitch: 1.1,
+    volume: 0.8,
+    language: 'en-US'
+  };
+};
+
+export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
+  const defaultConfig = getDefaultVoiceConfig();
+  const finalConfig = { ...defaultConfig, ...config };
+  
+  const utterance = new SpeechSynthesisUtterance();
+  utterance.text = text.replace(/PREPZR/gi, 'PREP-ZER');
+  utterance.lang = finalConfig.language;
+  utterance.rate = finalConfig.rate;
+  utterance.pitch = finalConfig.pitch;
+  utterance.volume = finalConfig.volume;
+  
+  if (finalConfig.voice) {
+    utterance.voice = finalConfig.voice;
+  }
+  
+  return utterance;
 };
 
 export const speakWithFemaleVoice = (
-  text: string,
-  settings: Partial<VoiceSettings> = {},
+  text: string, 
+  config?: Partial<VoiceConfig>,
   onStart?: () => void,
   onEnd?: () => void
-) => {
+): void => {
   if (!('speechSynthesis' in window)) return;
   
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
   
-  // Fix pronunciation of PREPZR
-  const correctedText = text
-    .replace(/PREPZR/gi, 'PREP-ZR')
-    .replace(/Prepzr/g, 'PREP-ZR')
-    .replace(/prepzr/gi, 'prep-zr')
-    .replace(/Sakha/gi, 'PREPZR');
+  const utterance = createFemaleUtterance(text, config);
   
-  const utterance = new SpeechSynthesisUtterance(correctedText);
-  
-  // Apply female voice
-  const femaleVoice = getPreferredFemaleVoice();
-  if (femaleVoice) {
-    utterance.voice = femaleVoice;
+  if (onStart) {
+    utterance.onstart = onStart;
   }
   
-  // Apply settings with defaults optimized for female voice
-  utterance.rate = settings.rate || 0.9;
-  utterance.pitch = settings.pitch || 1.1;
-  utterance.volume = settings.volume || 0.8;
-  utterance.lang = 'en-US';
+  if (onEnd) {
+    utterance.onend = onEnd;
+  }
   
-  // Set event handlers
-  if (onStart) utterance.onstart = onStart;
-  if (onEnd) utterance.onend = onEnd;
-  
-  // Speak
   window.speechSynthesis.speak(utterance);
 };

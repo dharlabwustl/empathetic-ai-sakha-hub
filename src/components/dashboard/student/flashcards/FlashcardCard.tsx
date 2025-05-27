@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Clock, Star, PlayCircle, CheckCircle, Calendar } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { BookOpen, Clock, Star } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 interface FlashcardCardProps {
@@ -17,9 +17,6 @@ interface FlashcardCardProps {
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: number;
   accuracy?: number;
-  status?: 'daily' | 'pending' | 'completed';
-  dueDate?: string;
-  masteryLevel?: number;
 }
 
 export default function FlashcardCard({
@@ -30,40 +27,18 @@ export default function FlashcardCard({
   completedCards,
   difficulty,
   estimatedTime,
-  accuracy,
-  status = 'pending',
-  dueDate,
-  masteryLevel = 0
+  accuracy
 }: FlashcardCardProps) {
   const navigate = useNavigate();
   const progressPercentage = (completedCards / totalCards) * 100;
 
   const getDifficultyColor = (diff: string) => {
     switch (diff) {
-      case 'easy': return 'text-green-600 bg-green-100 dark:bg-green-900/30 border-green-200';
-      case 'medium': return 'text-amber-600 bg-amber-100 dark:bg-amber-900/30 border-amber-200';
-      case 'hard': return 'text-red-600 bg-red-100 dark:bg-red-900/30 border-red-200';
-      default: return 'text-slate-600 bg-slate-100 border-slate-200';
+      case 'easy': return 'text-green-600 bg-green-100 dark:bg-green-900/30';
+      case 'medium': return 'text-amber-600 bg-amber-100 dark:bg-amber-900/30';
+      case 'hard': return 'text-red-600 bg-red-100 dark:bg-red-900/30';
+      default: return 'text-slate-600 bg-slate-100';
     }
-  };
-
-  const statusColors = {
-    'daily': 'bg-blue-100 text-blue-800 border-blue-200',
-    'pending': 'bg-orange-100 text-orange-800 border-orange-200',
-    'completed': 'bg-green-100 text-green-800 border-green-200'
-  };
-
-  const statusIcons = {
-    'daily': <Calendar className="h-4 w-4" />,
-    'pending': <Clock className="h-4 w-4" />,
-    'completed': <CheckCircle className="h-4 w-4" />
-  };
-
-  const subjectColors = {
-    'Physics': 'bg-blue-50 border-blue-200 text-blue-700',
-    'Chemistry': 'bg-green-50 border-green-200 text-green-700',
-    'Biology': 'bg-purple-50 border-purple-200 text-purple-700',
-    'Mathematics': 'bg-red-50 border-red-200 text-red-700'
   };
 
   const getBorderColorClass = (diff: string) => {
@@ -75,10 +50,13 @@ export default function FlashcardCard({
     }
   };
 
+  // FIXED: Ensure ALL navigation goes to INTERACTIVE (not practice)
   const handleStudyNow = () => {
     const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
-    console.log('🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
+    console.log('🚨🚨🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
+    console.log('🚨🚨🚨 Current location before navigation:', window.location.href);
     navigate(targetRoute);
+    console.log('🚨🚨🚨 Navigate called from FlashcardCard');
   };
 
   return (
@@ -86,74 +64,56 @@ export default function FlashcardCard({
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className={`overflow-hidden border-l-4 ${getBorderColorClass(difficulty)} shadow-sm hover:shadow-md transition-shadow ${status === 'completed' ? 'opacity-80' : ''}`}>
-        <CardHeader className="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-950 dark:to-blue-950 p-4">
+      <Card className={`overflow-hidden border-l-4 ${getBorderColorClass(difficulty)} shadow-sm hover:shadow-md transition-shadow`}>
+        <div className="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-950 dark:to-blue-950 p-4">
           <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className={`${statusColors[status]} capitalize px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1`}>
-                  {statusIcons[status]}
-                  {status}
-                </Badge>
-                <Badge variant="outline" className={getDifficultyColor(difficulty)}>
-                  {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                </Badge>
-              </div>
-              <h3 className="text-lg font-semibold">{title}</h3>
-              <Badge variant="secondary" className={`${subjectColors[subject] || 'bg-gray-50 border-gray-200 text-gray-700'} font-medium w-fit`}>
-                {subject}
+            <div>
+              <Badge 
+                variant="outline" 
+                className={getDifficultyColor(difficulty)}
+              >
+                {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
               </Badge>
+              <h3 className="text-lg font-semibold mt-2">{title}</h3>
+              <p className="text-sm text-muted-foreground">{subject}</p>
             </div>
-            <div className="flex items-center gap-2">
-              {status === 'daily' && <Star className="h-5 w-5 text-yellow-500 fill-current" />}
+            <Star className="h-5 w-5 text-amber-500" />
+          </div>
+        </div>
+
+        <CardContent className="pt-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Progress</span>
+              <span>{completedCards}/{totalCards} cards</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+            
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-slate-500" />
+                <span className="text-sm">{estimatedTime}m</span>
+              </div>
               {accuracy !== undefined && (
-                <div className="text-right">
-                  <div className="text-xs text-gray-500">Accuracy</div>
-                  <div className="text-sm font-semibold">{accuracy}%</div>
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-slate-500" />
+                  <span className="text-sm">{accuracy}% accuracy</span>
                 </div>
               )}
             </div>
           </div>
-        </CardHeader>
-
-        <CardContent className="pt-4 space-y-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium">{completedCards}/{totalCards} cards</span>
-          </div>
-          <Progress value={progressPercentage} className="h-2" />
-          
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-slate-500" />
-              <span className="text-sm">{estimatedTime}m</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-slate-500" />
-              <span className="text-sm">{masteryLevel}% Mastery</span>
-            </div>
-          </div>
-
-          {dueDate && status !== 'completed' && (
-            <div className="text-xs text-gray-500 flex items-center gap-1 pt-2 border-t">
-              <Calendar className="h-3 w-3" />
-              <span>Due: {dueDate}</span>
-            </div>
-          )}
         </CardContent>
 
-        <CardFooter className="pt-2">
-          <Button 
-            className={`w-full flex items-center justify-center gap-2 ${
-              status === 'completed' 
-                ? 'bg-green-600 hover:bg-green-700' 
-                : 'bg-purple-600 hover:bg-purple-700'
-            }`}
-            onClick={handleStudyNow}
-          >
-            <PlayCircle className="h-4 w-4" />
-            {status === 'completed' ? 'Review Cards' : 'Start Practice'}
-          </Button>
+        <CardFooter className="bg-gray-50 dark:bg-gray-900/50">
+          <div className="w-full flex items-center justify-between">
+            <Button variant="ghost" size="sm">
+              View Details
+            </Button>
+            {/* FIXED: BUTTON MUST GO TO INTERACTIVE, NOT PRACTICE */}
+            <Button onClick={handleStudyNow}>
+              Study Now
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </motion.div>

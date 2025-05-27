@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -116,9 +117,9 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  // FIXED: Route to interactive flashcard page with the interactive URL format
+  // FIXED: Route to interactive flashcard page
   const navigateToFlashcard = (setId: number) => {
-    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
+    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
     console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE FLASHCARDS: ${targetRoute}`);
     console.log(`🔥🔥🔥 SET ID: ${setId}`);
     navigate(targetRoute);
