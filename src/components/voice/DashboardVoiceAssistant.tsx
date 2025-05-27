@@ -1,204 +1,248 @@
-
-import React, { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useEffect, useRef } from 'react';
+import { MessageSquare, X, Mic, MicOff, Volume2, VolumeX, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MoodType } from '@/types/user/base';
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
-  userMood?: MoodType;
   language?: string;
+  userMood?: MoodType;
 }
 
 const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
   userName = 'Student',
-  userMood,
-  language = 'en-US'
+  language = 'en-US',
+  userMood
 }) => {
-  const [greetingPlayed, setGreetingPlayed] = useState(false);
-  const [audioMuted, setAudioMuted] = useState(false);
-  const location = useLocation();
-  const { toast } = useToast();
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  
-  // Load mute preference
+  const [isOpen, setIsOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [messages, setMessages] = useState<Array<{id: string, text: string, sender: 'user' | 'assistant'}>>([]);
+  const recognitionRef = useRef<any>(null);
+  const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+
   useEffect(() => {
-    const muteSetting = localStorage.getItem('voice_assistant_muted');
-    if (muteSetting === 'true') {
-      setAudioMuted(true);
-    }
-  }, []);
-  
-  // Get context-aware and mood-aware greeting message
-  const getContextMessage = (path: string, mood?: MoodType) => {
-    // Get user's first name only for more personal touch
-    const firstName = userName.split(' ')[0];
-    
-    // Base greeting including user's name
-    let baseGreeting = `Congratulations on joining PREPZR, ${firstName}! I'm Sakha AI, your personal learning assistant.`;
-    
-    // First-time user welcome
-    if (localStorage.getItem('new_user_signup') === 'true') {
-      baseGreeting = `Congratulations on joining PREPZR, ${firstName}! Welcome to your personalized learning journey. I'm Sakha AI, your intelligent learning companion.`;
-    }
-    
-    // Mood-specific additions for returning users
-    if (mood && !localStorage.getItem('new_user_signup')) {
-      switch(mood) {
-        case MoodType.HAPPY:
-          baseGreeting = `It's great to see you looking happy today, ${firstName}! Your positive energy will boost your learning journey.`;
-          break;
-        case MoodType.MOTIVATED:
-          baseGreeting = `I can see you're feeling motivated today, ${firstName}. That's excellent! Let's harness that energy for effective learning.`;
-          break;
-        case MoodType.FOCUSED:
-          baseGreeting = `You're in a focused state today, ${firstName}. Perfect timing! Let's tackle those challenging concepts together.`;
-          break;
-        case MoodType.TIRED:
-          baseGreeting = `I notice you're feeling tired today, ${firstName}. Let's focus on lighter, engaging content to maintain your progress.`;
-          break;
-        case MoodType.STRESSED:
-          baseGreeting = `I see you're feeling stressed, ${firstName}. Don't worry, we'll break down complex topics into manageable steps today.`;
-          break;
-        case MoodType.ANXIOUS:
-          baseGreeting = `I understand you're feeling anxious, ${firstName}. We'll start with confidence-building exercises to help you feel more prepared.`;
-          break;
-        case MoodType.OVERWHELMED:
-          baseGreeting = `Feeling overwhelmed is completely normal during exam preparation, ${firstName}. Let's organize your study plan into smaller, achievable goals.`;
-          break;
-        default:
-          // Use default greeting for other moods
-          break;
-      }
-    }
-    
-    // Path-specific content with more engaging, supportive language
-    if (path.includes('/analytics')) {
-      return `${baseGreeting} You're now in your analytics dashboard, where you can track your progress and identify areas for improvement. I've analyzed your recent performance and highlighted key insights to help optimize your study strategy.`;
-    } else if (path.includes('/concepts')) {
-      return `${baseGreeting} Welcome to the concepts section, your interactive learning hub. I've curated personalized concept cards based on your learning style and recent performance. Explore each concept through multiple learning modalities for deeper understanding.`;
-    } else if (path.includes('/study-plan')) {
-      return `${baseGreeting} Your customized study plan is ready! I've optimized your schedule to balance different subjects and maximize your exam readiness. Each study session is designed to adapt to your learning pace and preferences.`;
-    } else if (path.includes('/feel-good')) {
-      return `${baseGreeting} Welcome to the Feel-Good Corner. This is your space to recharge and rejuvenate. I've selected motivational content and stress-relief activities specifically for you to maintain peak mental performance.`;
-    } else if (path.includes('/settings')) {
-      return `${baseGreeting} In settings, you can personalize your PREPZR experience. Adjust your learning preferences, notification settings, and voice assistant options to create your ideal learning environment.`;
-    } else if (path.includes('/exams')) {
-      return `${baseGreeting} In the exam section, you'll find realistic practice tests designed to boost your confidence and exam readiness. Each question targets specific concepts and provides detailed feedback to accelerate your learning.`;
-    }
-    
-    // Default dashboard message with UN sustainability goal mention
-    return `${baseGreeting} Your personalized dashboard is fully loaded with adaptive learning resources designed for your unique learning style. My AI-driven recommendations support UN Sustainability Goal 4 for quality education by making learning more accessible and effective. Use the microphone button anytime you need assistance with your studies.`;
-  };
-  
-  useEffect(() => {
-    const newPageGreeting = sessionStorage.getItem(`visited_${location.pathname}`);
-    const shouldGreet = !newPageGreeting && !greetingPlayed;
-    
-    // Only play greeting if speech synthesis is supported and we're not muted
-    if ('speechSynthesis' in window && shouldGreet && !audioMuted) {
-      // Use a timeout to ensure the component is fully mounted
-      const timer = setTimeout(() => {
-        try {
-          const message = getContextMessage(location.pathname, userMood);
-          
-          // Create speech synthesis utterance
-          utteranceRef.current = new SpeechSynthesisUtterance();
-          
-          // Correct PREPZR pronunciation by using proper spelling in the text
-          utteranceRef.current.text = message.replace(/PREPZR/gi, 'PREP-zer');
-          utteranceRef.current.lang = language;
-          utteranceRef.current.rate = 0.98; // Slightly slower for clarity
-          utteranceRef.current.pitch = 1.05; // Slightly higher for a more vibrant tone
-          utteranceRef.current.volume = 0.9;
-          
-          // Get available voices
-          const voices = window.speechSynthesis.getVoices();
-          
-          // Try to find a clear, confident voice
-          const preferredVoiceNames = ['Google US English Female', 'Microsoft Zira', 'Samantha', 'en-US'];
-          let selectedVoice = null;
-          
-          for (const name of preferredVoiceNames) {
-            const voice = voices.find(v => 
-              v.name?.toLowerCase().includes(name.toLowerCase()) || 
-              v.lang?.toLowerCase().includes(name.toLowerCase())
-            );
-            if (voice) {
-              selectedVoice = voice;
-              break;
-            }
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = language;
+
+      recognitionRef.current.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognitionRef.current.onresult = (event: any) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            setTranscript(event.results[i][0].transcript);
+          } else {
+            interimTranscript += event.results[i][0].transcript;
           }
-          
-          if (selectedVoice) {
-            utteranceRef.current.voice = selectedVoice;
-          }
-          
-          // Handle events
-          utteranceRef.current.onstart = () => console.log("Voice greeting started");
-          utteranceRef.current.onend = () => {
-            setGreetingPlayed(true);
-            console.log("Voice greeting completed");
-            
-            // Mark this page as visited to avoid repeating the greeting
-            sessionStorage.setItem(`visited_${location.pathname}`, 'true');
-          };
-          utteranceRef.current.onerror = (e) => {
-            console.error("Speech synthesis error", e);
-            setGreetingPlayed(true);
-          };
-          
-          // Speak the message
-          window.speechSynthesis.speak(utteranceRef.current);
-          
-          // Show toast notification
-          toast({
-            title: "Sakha AI Voice Assistant",
-            description: "Voice guidance is active. Click the mic button for assistance.",
-            duration: 3000,
-          });
-        } catch (error) {
-          console.error("Error playing greeting:", error);
-          setGreetingPlayed(true);
         }
-      }, 1500);
-      
-      return () => clearTimeout(timer);
+        setTranscript(interimTranscript);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    } else {
+      console.warn('Speech Recognition API not supported in this browser.');
     }
-    
-    // Cleanup function to cancel any ongoing speech when component unmounts
+
+    if ('speechSynthesis' in window) {
+      speechSynthesisRef.current = window.speechSynthesis;
+    } else {
+      console.warn('Speech Synthesis API not supported in this browser.');
+    }
+
     return () => {
-      if ('speechSynthesis' in window && utteranceRef.current) {
-        window.speechSynthesis.cancel();
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+      if (speechSynthesisRef.current) {
+        speechSynthesisRef.current.cancel();
       }
     };
-  }, [greetingPlayed, location.pathname, language, audioMuted, userMood, userName, toast]);
-  
-  // Listen for custom events to mute/unmute
+  }, [language]);
+
   useEffect(() => {
-    const handleMuteEvent = () => {
-      setAudioMuted(true);
-      localStorage.setItem('voice_assistant_muted', 'true');
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+    if (transcript) {
+      const userMessage = { id: Date.now().toString(), text: transcript, sender: 'user' }
+      setMessages(prevMessages => [...prevMessages, userMessage]);
+      processCommand(transcript);
+      setTranscript('');
+    }
+  }, [transcript]);
+
+  const processCommand = (command: string) => {
+    let response = '';
+    if (command.toLowerCase().includes('hello')) {
+      response = `Hello ${userName}! How can I assist you today?`;
+    } else if (command.toLowerCase().includes('how are you')) {
+      response = `I'm doing great, thank you for asking! Ready to help with your studies.`;
+    } else if (command.toLowerCase().includes('what is my mood')) {
+      response = userMood ? `Your current mood is set to ${userMood}.` : `Your mood is not set.`;
+    } else {
+      response = `I'm still learning, but I heard you say: ${command}. I will forward this to the team to improve my understanding.`;
+    }
+    addAssistantMessage(response);
+  };
+
+  const addAssistantMessage = (text: string) => {
+    const assistantMessage = { id: Date.now().toString(), text: text, sender: 'assistant' };
+    setMessages(prevMessages => [...prevMessages, assistantMessage]);
+    speak(text);
+  };
+
+  const speak = (text: string) => {
+    if (!speechSynthesisRef.current || isMuted) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    speechSynthesisRef.current.speak(utterance);
+  };
+
+  const toggleListening = () => {
+    if (isSpeaking) return;
+
+    if (isListening) {
+      recognitionRef.current.abort();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error("Error starting recognition:", error);
+        setIsListening(false);
       }
-    };
-    
-    const handleUnmuteEvent = () => {
-      setAudioMuted(false);
-      localStorage.setItem('voice_assistant_muted', 'false');
-    };
-    
-    document.addEventListener('voice-assistant-mute', handleMuteEvent);
-    document.addEventListener('voice-assistant-unmute', handleUnmuteEvent);
-    
-    return () => {
-      document.removeEventListener('voice-assistant-mute', handleMuteEvent);
-      document.removeEventListener('voice-assistant-unmute', handleUnmuteEvent);
-    };
-  }, []);
-  
-  return null; // This component doesn't render any UI
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (speechSynthesisRef.current && isSpeaking) {
+      speechSynthesisRef.current.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-40">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            className="mb-4"
+          >
+            <Card className="w-80 max-h-96 shadow-lg border-2 border-purple-200 dark:border-purple-800">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    PREPZR AI
+                    {userMood && (
+                      <Badge variant="outline" className="text-xs">
+                        {userMood} mode
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsOpen(false)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                  {messages.length === 0 && (
+                    <div className="text-center text-sm text-gray-500 py-4">
+                      Hi {userName}! I'm PREPZR AI, your study companion. How can I help you today?
+                    </div>
+                  )}
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`p-2 rounded text-xs ${
+                        message.sender === 'user'
+                          ? 'bg-purple-100 dark:bg-purple-900 ml-4'
+                          : 'bg-gray-100 dark:bg-gray-800 mr-4'
+                      }`}
+                    >
+                      {message.text}
+                    </div>
+                  ))}
+                </div>
+
+                {transcript && (
+                  <div className="mb-2 p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded text-xs">
+                    Listening: {transcript}
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    variant={isListening ? "destructive" : "default"}
+                    size="sm"
+                    onClick={toggleListening}
+                    className="flex-1"
+                    disabled={isSpeaking}
+                  >
+                    {isListening ? <MicOff className="h-3 w-3 mr-1" /> : <Mic className="h-3 w-3 mr-1" />}
+                    {isListening ? 'Stop' : 'Talk'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleMute}
+                    className="px-2"
+                  >
+                    {isSpeaking ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          className="rounded-full w-12 h-12 shadow-lg bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 border-2 border-white dark:border-gray-800"
+          size="sm"
+        >
+          <MessageSquare className="h-5 w-5 text-white" />
+        </Button>
+      </motion.div>
+    </div>
+  );
 };
 
 export default DashboardVoiceAssistant;
