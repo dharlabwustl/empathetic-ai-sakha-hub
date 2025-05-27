@@ -14,7 +14,7 @@ import OverviewSection from '@/components/dashboard/student/OverviewSection';
 const ConceptsPage = () => {
   const { conceptCards, loading } = useUserStudyPlan();
   const [searchParams] = useSearchParams();
-  const [timeView, setTimeView] = useState<'today' | 'week' | 'month'>('today');
+  const [statusView, setStatusView] = useState<'today' | 'upcoming' | 'completed'>('today');
   const [activeSubject, setActiveSubject] = useState('all');
   const [showAllCards, setShowAllCards] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -22,17 +22,30 @@ const ConceptsPage = () => {
   // Listen for URL parameter changes
   useEffect(() => {
     const tab = searchParams.get('tab');
+    const subject = searchParams.get('subject');
+    
     if (tab && (tab === 'overview' || tab === 'all-concepts')) {
       setActiveTab(tab);
+    }
+    
+    if (subject && tab === 'all-concepts') {
+      setActiveSubject(decodeURIComponent(subject));
     }
   }, [searchParams]);
 
   // Listen for popstate events (back/forward navigation)
   useEffect(() => {
     const handlePopState = () => {
-      const tab = new URLSearchParams(window.location.search).get('tab');
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      const subject = params.get('subject');
+      
       if (tab && (tab === 'overview' || tab === 'all-concepts')) {
         setActiveTab(tab);
+      }
+      
+      if (subject && tab === 'all-concepts') {
+        setActiveSubject(decodeURIComponent(subject));
       }
     };
 
@@ -64,17 +77,38 @@ const ConceptsPage = () => {
     return Array.from(subjectsSet);
   }, [conceptCards]);
 
-  // Count concepts per subject
+  // Count concepts per subject and status
   const conceptCounts = useMemo(() => {
-    return conceptCards.reduce((acc, card) => {
-      acc[card.subject] = (acc[card.subject] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const counts: Record<string, Record<string, number>> = {};
+    
+    conceptCards.forEach(card => {
+      if (!counts[card.subject]) {
+        counts[card.subject] = { today: 0, upcoming: 0, completed: 0 };
+      }
+      
+      if (card.completed) {
+        counts[card.subject].completed++;
+      } else if (card.scheduledFor === 'today') {
+        counts[card.subject].today++;
+      } else {
+        counts[card.subject].upcoming++;
+      }
+    });
+    
+    return counts;
   }, [conceptCards]);
 
-  // Filter cards based on time view, subject, and show all state
+  // Filter cards based on status, subject, and show all state
   const filteredCards = useMemo(() => {
-    let filtered = conceptCards.filter(card => card.scheduledFor === timeView);
+    let filtered = conceptCards.filter(card => {
+      if (statusView === 'completed') {
+        return card.completed;
+      } else if (statusView === 'today') {
+        return !card.completed && card.scheduledFor === 'today';
+      } else { // upcoming
+        return !card.completed && card.scheduledFor !== 'today';
+      }
+    });
     
     if (activeSubject !== 'all') {
       filtered = filtered.filter(card => card.subject === activeSubject);
@@ -85,12 +119,26 @@ const ConceptsPage = () => {
     }
     
     return filtered;
-  }, [conceptCards, timeView, activeSubject, showAllCards]);
+  }, [conceptCards, statusView, activeSubject, showAllCards]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     const url = new URL(window.location);
     url.searchParams.set('tab', value);
+    if (value === 'overview') {
+      url.searchParams.delete('subject');
+    }
+    window.history.pushState({}, '', url);
+  };
+
+  const handleSubjectChange = (subject: string) => {
+    setActiveSubject(subject);
+    const url = new URL(window.location);
+    if (subject === 'all') {
+      url.searchParams.delete('subject');
+    } else {
+      url.searchParams.set('subject', encodeURIComponent(subject));
+    }
     window.history.pushState({}, '', url);
   };
 
@@ -126,22 +174,51 @@ const ConceptsPage = () => {
           </TabsContent>
 
           <TabsContent value="all-concepts" className="space-y-6 mt-6">
-            {/* Time-based Tabs */}
-            <Tabs value={timeView} onValueChange={(v) => setTimeView(v as typeof timeView)}>
+            {/* Status-based Tabs */}
+            <Tabs value={statusView} onValueChange={(v) => setStatusView(v as typeof statusView)}>
               <TabsList>
                 <TabsTrigger value="today">Today</TabsTrigger>
-                <TabsTrigger value="week">This Week</TabsTrigger>
-                <TabsTrigger value="month">This Month</TabsTrigger>
+                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                <TabsTrigger value="completed">Completed</TabsTrigger>
               </TabsList>
             </Tabs>
 
             {/* Subject Tabs */}
-            <SubjectTabs
-              subjects={subjects}
-              activeSubject={activeSubject}
-              onSubjectChange={setActiveSubject}
-              conceptCounts={conceptCounts}
-            />
+            <div className="border-b">
+              <div className="flex space-x-8 overflow-x-auto">
+                <button
+                  onClick={() => handleSubjectChange('all')}
+                  className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                    activeSubject === 'all'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  All Subjects
+                  <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                    {conceptCards.filter(c => statusView === 'completed' ? c.completed : 
+                      statusView === 'today' ? (!c.completed && c.scheduledFor === 'today') :
+                      (!c.completed && c.scheduledFor !== 'today')).length}
+                  </span>
+                </button>
+                {subjects.map(subject => (
+                  <button
+                    key={subject}
+                    onClick={() => handleSubjectChange(subject)}
+                    className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeSubject === subject
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    {subject}
+                    <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                      {conceptCounts[subject]?.[statusView] || 0}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Cards Grid */}
             <motion.div 
@@ -158,7 +235,9 @@ const ConceptsPage = () => {
                 ))
               ) : filteredCards.length === 0 ? (
                 <div className="col-span-full text-center py-10">
-                  <p className="text-gray-500">No concept cards found for {activeSubject !== 'all' ? activeSubject : ''} {timeView === 'today' ? 'today' : timeView === 'week' ? 'this week' : 'this month'}</p>
+                  <p className="text-gray-500">
+                    No {statusView} concept cards found {activeSubject !== 'all' ? `for ${activeSubject}` : ''}
+                  </p>
                 </div>
               ) : (
                 filteredCards.map((card) => (
@@ -180,7 +259,7 @@ const ConceptsPage = () => {
             </motion.div>
 
             {/* View All Button */}
-            {!showAllCards && filteredCards.length === 6 && filteredCards.length < conceptCards.filter(card => card.scheduledFor === timeView && (activeSubject === 'all' || card.subject === activeSubject)).length && (
+            {!showAllCards && filteredCards.length === 6 && (
               <div className="flex justify-center mt-6">
                 <Button
                   variant="outline"
