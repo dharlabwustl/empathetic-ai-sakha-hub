@@ -125,8 +125,17 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       return;
     }
 
+    if (lowerCommand.includes('break') || lowerCommand.includes('rest') || lowerCommand.includes('tired')) {
+      const breakAdvice = userMood === MoodType.TIRED 
+        ? `You're right to listen to your body, ${userName}. After ${studyStreak} days of consistent studying, a quality break will actually improve your retention.`
+        : `Smart thinking, ${userName}! Taking strategic breaks is crucial for optimal learning.`;
+      
+      speakMessage(`${breakAdvice} Research shows 15-20 minute breaks every hour enhance memory consolidation. How about some light stretching, deep breathing, or a short walk? I'll remind you when it's time to return to your studies.`);
+      return;
+    }
+
     if (lowerCommand.includes('help') || lowerCommand.includes('what can you do') || lowerCommand.includes('commands')) {
-      speakMessage(`Hi ${userName}! I'm PREPZR AI, your personalized study companion. I can help you navigate to concepts, flashcards, practice exams, and formula lab. I can analyze your progress currently at ${userProgress.overallProgress}%, provide study recommendations, motivate you based on your mood, suggest break times, and answer questions about your NEET preparation strategy. I know all your dashboard sections and can guide you smoothly. What would you like to explore?`);
+      speakMessage(`Hi ${userName}! I'm PREPZR AI, your personalized study companion. I can help you navigate to concepts, flashcards, practice exams, and formula lab. I can analyze your progress (currently ${userProgress.overallProgress}%), provide study recommendations, motivate you based on your mood, suggest break times, and answer questions about your NEET preparation strategy. I know all your dashboard sections and can guide you smoothly. What would you like to explore?`);
       return;
     }
 
@@ -149,6 +158,12 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
       return;
     }
 
+    // Mood-based responses
+    if (lowerCommand.includes('anxious') || lowerCommand.includes('nervous') || lowerCommand.includes('worried')) {
+      speakMessage(`I understand you're feeling anxious, ${userName}. This is completely normal for NEET aspirants. Your ${userProgress.examReadinessScore}% readiness score shows you're well-prepared. Let's start with some quick wins today - perhaps reviewing topics you're already good at to build confidence before tackling new challenges.`);
+      return;
+    }
+
     // Default response with personalization
     speakMessage(`I heard you say: "${command}", ${userName}. I'm PREPZR AI, your intelligent study companion specialized for NEET preparation. With your current ${userProgress.overallProgress}% progress and ${studyStreak}-day study streak, you're on an excellent path. I can help you navigate sections, check detailed progress, provide personalized study guidance, or answer specific questions about your preparation. How can I assist you today?`);
   };
@@ -163,12 +178,10 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     onCommand: handleVoiceCommand
   });
 
-  // Personalized greeting when component mounts - only once per session
+  // Personalized greeting when component mounts
   useEffect(() => {
     if (isVoiceSupported && voiceInitialized) {
-      const sessionKey = 'prepzr_dashboard_voice_greeted';
-      const hasGreeted = sessionStorage.getItem(sessionKey);
-      
+      const hasGreeted = sessionStorage.getItem('prepzr_dashboard_voice_greeted');
       if (!hasGreeted) {
         setTimeout(() => {
           const moodContext = userMood === MoodType.ANXIOUS 
@@ -188,7 +201,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
           const greeting = `Welcome back, ${userName}! I'm PREPZR AI, your personalized study companion. ${moodContext} ${progressContext} Your ${studyStreak}-day study streak demonstrates remarkable consistency. I'm here to guide you through concepts, flashcards, practice exams, formula lab, and provide intelligent study recommendations. How can I support your NEET preparation journey today?`;
           
           speakMessage(greeting);
-          sessionStorage.setItem(sessionKey, 'true');
+          sessionStorage.setItem('prepzr_dashboard_voice_greeted', 'true');
         }, 2000);
       }
     }
