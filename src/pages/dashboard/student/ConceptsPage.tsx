@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ArrowRight } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import OverviewSection from '@/components/dashboard/student/OverviewSection';
+import ContentFeedback from '@/components/dashboard/student/feedback/ContentFeedback';
 
 const ConceptsPage = () => {
   const { conceptCards, loading } = useUserStudyPlan();
@@ -64,7 +65,7 @@ const ConceptsPage = () => {
     return Array.from(subjectsSet);
   }, [conceptCards]);
 
-  // Count concepts per subject
+  // Count concepts per subject and status
   const conceptCounts = useMemo(() => {
     return conceptCards.reduce((acc, card) => {
       acc[card.subject] = (acc[card.subject] || 0) + 1;
@@ -136,16 +137,18 @@ const ConceptsPage = () => {
           </TabsContent>
 
           <TabsContent value="all-concepts" className="space-y-6 mt-6">
-            {/* Status Filter Tabs */}
-            <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-              <TabsList>
-                <TabsTrigger value="today">Today</TabsTrigger>
-                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {/* Enhanced Status Filter Tabs */}
+            <div className="bg-white rounded-lg border border-gray-200 p-1">
+              <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="today" className="text-sm">Today ({conceptCards.filter(c => c.scheduledFor === 'today').length})</TabsTrigger>
+                  <TabsTrigger value="upcoming" className="text-sm">Upcoming ({conceptCards.filter(c => c.scheduledFor === 'week' || c.scheduledFor === 'month').length})</TabsTrigger>
+                  <TabsTrigger value="completed" className="text-sm">Completed ({conceptCards.filter(c => c.completed).length})</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
 
-            {/* Subject Tabs */}
+            {/* Subject-Specific Tabs with Counts for Current Status */}
             <SubjectTabs
               subjects={subjects}
               activeSubject={activeSubject}
@@ -153,7 +156,7 @@ const ConceptsPage = () => {
               conceptCounts={conceptCounts}
             />
 
-            {/* Cards Grid */}
+            {/* Enhanced Cards Grid */}
             <motion.div 
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               variants={containerVariants}
@@ -174,7 +177,7 @@ const ConceptsPage = () => {
                 </div>
               ) : (
                 filteredCards.map((card) => (
-                  <motion.div key={card.id} variants={itemVariants}>
+                  <motion.div key={card.id} variants={itemVariants} className="relative">
                     <ConceptCard 
                       id={card.id}
                       title={card.title}
@@ -186,6 +189,14 @@ const ConceptsPage = () => {
                       relatedConcepts={card.relatedConcepts}
                       onView={() => window.location.href = `/dashboard/student/concepts/${card.id}`}
                     />
+                    {/* Add feedback component to each card */}
+                    <div className="absolute top-2 right-2">
+                      <ContentFeedback
+                        contentId={card.id}
+                        contentType="concept"
+                        contentTitle={card.title}
+                      />
+                    </div>
                   </motion.div>
                 ))
               )}

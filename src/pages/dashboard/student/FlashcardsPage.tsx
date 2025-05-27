@@ -1,200 +1,232 @@
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Brain, Clock, Play, CheckCircle, BookOpen, Target, TrendingUp } from 'lucide-react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BookOpen, CheckCircle, Clock, Search, Star, Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
-import OverviewSection from '@/components/dashboard/student/OverviewSection';
+import ContentFeedback from '@/components/dashboard/student/feedback/ContentFeedback';
 
-// Mock flashcard decks for demonstration
-const mockFlashcardDecks = [
-  {
-    id: "1",
-    title: "Organic Chemistry Reactions",
-    subject: "Chemistry",
-    cardsCount: 45,
-    mastered: 18,
-    lastPracticed: "2023-10-25T14:30:00Z",
-    difficulty: "hard",
-    tags: ["Chemistry", "Reactions", "Organic"],
-    status: "pending",
-    scheduledFor: "today"
-  },
-  {
-    id: "2",
-    title: "Physics Formulas",
-    subject: "Physics",
-    cardsCount: 30,
-    mastered: 25,
-    lastPracticed: "2023-10-27T09:15:00Z",
-    difficulty: "medium",
-    tags: ["Physics", "Formulas", "Mechanics"],
-    status: "completed",
-    scheduledFor: "today"
-  },
-  {
-    id: "3",
-    title: "Cell Biology Terms",
-    subject: "Biology",
-    cardsCount: 40,
-    mastered: 12,
-    lastPracticed: "2023-10-20T16:45:00Z",
-    difficulty: "medium",
-    tags: ["Biology", "Cells", "Terminology"],
-    status: "pending",
-    scheduledFor: "upcoming"
-  },
-  {
-    id: "4",
-    title: "Calculus Concepts",
-    subject: "Mathematics",
-    cardsCount: 35,
-    mastered: 15,
-    lastPracticed: "2023-10-24T10:30:00Z",
-    difficulty: "hard",
-    tags: ["Mathematics", "Calculus", "Integration"],
-    status: "pending",
-    scheduledFor: "today"
-  },
-  {
-    id: "5",
-    title: "English Literature Authors",
-    subject: "English",
-    cardsCount: 25,
-    mastered: 22,
-    lastPracticed: "2023-10-28T13:00:00Z",
-    difficulty: "easy",
-    tags: ["English", "Literature", "Authors"],
-    status: "completed",
-    scheduledFor: "completed"
-  },
-  {
-    id: "6",
-    title: "World History Dates",
-    subject: "History",
-    cardsCount: 50,
-    mastered: 28,
-    lastPracticed: "2023-10-26T15:20:00Z",
-    difficulty: "medium",
-    tags: ["History", "Dates", "World Events"],
-    status: "pending",
-    scheduledFor: "upcoming"
-  }
-];
+interface FlashcardDeck {
+  id: string;
+  title: string;
+  subject: string;
+  cardCount: number;
+  masteredCards: number;
+  reviewCards: number;
+  newCards: number;
+  lastStudied?: string;
+  estimatedTime: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  status: 'pending' | 'completed' | 'today';
+}
 
-const FlashcardsPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+const FlashcardsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [statusFilter, setStatusFilter] = useState<'today' | 'pending' | 'completed'>('today');
   const [activeSubject, setActiveSubject] = useState('all');
-  const navigate = useNavigate();
 
-  const overviewData = {
-    type: "Flashcards" as const,
-    title: "PREPZR Flashcards Overview",
-    subjects: [
-      { name: "Physics", completed: 25, total: 35, progress: 71, efficiency: 88, studyTime: 18 },
-      { name: "Chemistry", completed: 18, total: 30, progress: 60, efficiency: 75, studyTime: 22 },
-      { name: "Biology", completed: 22, total: 40, progress: 55, efficiency: 82, studyTime: 20 }
-    ],
-    totalStudyTime: 60,
-    overallProgress: 62,
-    suggestions: [
-      "Review Chemistry flashcards more frequently for better retention",
-      "Physics formulas are well mastered, maintain regular practice",
-      "Biology terminology needs consistent daily review",
-      "Focus on difficult concepts during peak concentration hours"
-    ]
-  };
+  // Mock flashcard data
+  const flashcardDecks: FlashcardDeck[] = [
+    {
+      id: 'deck-1',
+      title: 'Physics Formulas & Constants',
+      subject: 'Physics',
+      cardCount: 45,
+      masteredCards: 30,
+      reviewCards: 10,
+      newCards: 5,
+      lastStudied: '2 days ago',
+      estimatedTime: 25,
+      difficulty: 'Medium',
+      status: 'today'
+    },
+    {
+      id: 'deck-2',
+      title: 'Organic Chemistry Reactions',
+      subject: 'Chemistry',
+      cardCount: 60,
+      masteredCards: 45,
+      reviewCards: 15,
+      newCards: 0,
+      lastStudied: '1 day ago',
+      estimatedTime: 30,
+      difficulty: 'Hard',
+      status: 'pending'
+    },
+    {
+      id: 'deck-3',
+      title: 'Biology Classification',
+      subject: 'Biology',
+      cardCount: 35,
+      masteredCards: 35,
+      reviewCards: 0,
+      newCards: 0,
+      lastStudied: 'Today',
+      estimatedTime: 15,
+      difficulty: 'Easy',
+      status: 'completed'
+    }
+  ];
 
   // Get unique subjects
-  const subjects = React.useMemo(() => {
-    const subjectsSet = new Set(mockFlashcardDecks.map(deck => deck.subject));
+  const subjects = useMemo(() => {
+    const subjectsSet = new Set(flashcardDecks.map(deck => deck.subject));
     return Array.from(subjectsSet);
-  }, []);
-  
-  // Filter flashcards based on search query, status, and subject
-  const filteredDecks = React.useMemo(() => {
-    let filtered = mockFlashcardDecks;
+  }, [flashcardDecks]);
 
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(deck => 
-        deck.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deck.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deck.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }
+  // Filter decks based on status and subject
+  const filteredDecks = useMemo(() => {
+    let filtered = flashcardDecks;
 
-    // Apply status filter
-    if (statusFilter === 'today') {
-      filtered = filtered.filter(deck => deck.scheduledFor === 'today');
-    } else if (statusFilter === 'pending') {
-      filtered = filtered.filter(deck => deck.status === 'pending');
-    } else if (statusFilter === 'completed') {
-      filtered = filtered.filter(deck => deck.status === 'completed');
-    }
-
-    // Apply subject filter
+    // Filter by status
+    filtered = filtered.filter(deck => deck.status === statusFilter);
+    
+    // Filter by subject
     if (activeSubject !== 'all') {
       filtered = filtered.filter(deck => deck.subject === activeSubject);
     }
-
-    return filtered;
-  }, [searchQuery, statusFilter, activeSubject]);
-  
-  // Calculate mastery percentage
-  const calculateMasteryPercentage = (mastered: number, total: number) => {
-    return Math.round((mastered / total) * 100);
-  };
-  
-  // Format last practiced date
-  const formatLastPracticed = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const diffTime = Math.abs(today.getTime() - date.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) {
-      return "Today";
-    } else if (diffDays === 1) {
-      return "Yesterday";
-    } else {
-      return `${diffDays} days ago`;
-    }
+    return filtered;
+  }, [flashcardDecks, statusFilter, activeSubject]);
+
+  // Calculate overview stats
+  const overviewStats = useMemo(() => {
+    const totalDecks = flashcardDecks.length;
+    const completedDecks = flashcardDecks.filter(d => d.status === 'completed').length;
+    const totalCards = flashcardDecks.reduce((sum, deck) => sum + deck.cardCount, 0);
+    const masteredCards = flashcardDecks.reduce((sum, deck) => sum + deck.masteredCards, 0);
+    
+    return {
+      totalDecks,
+      completedDecks,
+      totalCards,
+      masteredCards,
+      progressPercentage: Math.round((masteredCards / totalCards) * 100)
+    };
+  }, [flashcardDecks]);
+
+  const handleStudyDeck = (deckId: string) => {
+    // Fixed routing to interactive flashcard page
+    navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
   };
-  
-  // Get color for difficulty badge
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy": return "bg-green-100 text-green-800 border-green-200";
-      case "medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "hard": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
+
+  const handleQuickReview = (deckId: string) => {
+    // Quick review also routes to interactive page
+    navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
   };
-  
-  // Get color for mastery progress
-  const getMasteryColor = (percentage: number) => {
-    if (percentage >= 80) return "bg-green-500";
-    if (percentage >= 50) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-  
-  // Handle navigate to flashcard details - Fixed routing
-  const handleOpenDeck = (id: string) => {
-    navigate(`/dashboard/student/flashcards/${id}/interactive`);
+
+  const FlashcardDeckCard = ({ deck }: { deck: FlashcardDeck }) => {
+    const progressPercentage = Math.round((deck.masteredCards / deck.cardCount) * 100);
+    const isCompleted = deck.status === 'completed';
+
+    return (
+      <Card className={`transition-all hover:shadow-lg border-2 ${
+        isCompleted ? 'bg-green-50 border-green-200' : 'hover:border-purple-200'
+      }`}>
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <CardTitle className={`text-lg ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+                {deck.title}
+              </CardTitle>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  {deck.subject}
+                </Badge>
+                <Badge variant="outline" className={
+                  deck.difficulty === 'Hard' ? 'bg-red-50 text-red-700 border-red-200' :
+                  deck.difficulty === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                  'bg-green-50 text-green-700 border-green-200'
+                }>
+                  {deck.difficulty}
+                </Badge>
+              </div>
+            </div>
+            <ContentFeedback
+              contentId={deck.id}
+              contentType="flashcard"
+              contentTitle={deck.title}
+            />
+          </div>
+        </CardHeader>
+        
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+              <p className="text-2xl font-bold text-green-700">{deck.masteredCards}</p>
+              <p className="text-xs text-green-600 font-medium">Mastered</p>
+            </div>
+            <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+              <p className="text-2xl font-bold text-yellow-700">{deck.reviewCards}</p>
+              <p className="text-xs text-yellow-600 font-medium">Review</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+              <p className="text-2xl font-bold text-blue-700">{deck.newCards}</p>
+              <p className="text-xs text-blue-600 font-medium">New</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Progress</span>
+              <span className="font-semibold text-purple-600">{progressPercentage}%</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+          </div>
+
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {deck.estimatedTime} min
+            </span>
+            {deck.lastStudied && (
+              <span>Last: {deck.lastStudied}</span>
+            )}
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            {!isCompleted ? (
+              <>
+                <Button 
+                  onClick={() => handleStudyDeck(deck.id)}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  <Play className="h-4 w-4 mr-1" />
+                  Study Cards
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleQuickReview(deck.id)}
+                  className="flex-1"
+                >
+                  Quick Review
+                </Button>
+              </>
+            ) : (
+              <Button 
+                variant="outline" 
+                onClick={() => handleStudyDeck(deck.id)}
+                className="w-full"
+              >
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Review Again
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   return (
-    <SharedPageLayout 
-      title="Flashcards" 
-      subtitle="Review and master key concepts using spaced repetition"
+    <SharedPageLayout
+      title="Flashcards"
+      subtitle="Master concepts through spaced repetition"
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -204,172 +236,88 @@ const FlashcardsPage = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
-            <OverviewSection {...overviewData} />
+            {/* Overview Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <CardContent className="p-4 text-center">
+                  <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                  <p className="text-2xl font-bold text-purple-800">{overviewStats.totalDecks}</p>
+                  <p className="text-sm text-purple-600 font-medium">Total Decks</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <CardContent className="p-4 text-center">
+                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                  <p className="text-2xl font-bold text-green-800">{overviewStats.completedDecks}</p>
+                  <p className="text-sm text-green-600 font-medium">Completed</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <CardContent className="p-4 text-center">
+                  <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+                  <p className="text-2xl font-bold text-blue-800">{overviewStats.totalCards}</p>
+                  <p className="text-sm text-blue-600 font-medium">Total Cards</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                <CardContent className="p-4 text-center">
+                  <Target className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+                  <p className="text-2xl font-bold text-orange-800">{overviewStats.progressPercentage}%</p>
+                  <p className="text-sm text-orange-600 font-medium">Mastery</p>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="all-flashcards" className="space-y-6 mt-6">
-            {/* Search and filters */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <div className="relative w-full max-w-md">
-                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search flashcards..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              
-              <Button className="whitespace-nowrap">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Flashcards
-              </Button>
+            {/* Enhanced Status Filter Tabs */}
+            <div className="bg-white rounded-lg border border-gray-200 p-1">
+              <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="today" className="text-sm">
+                    Today ({flashcardDecks.filter(d => d.status === 'today').length})
+                  </TabsTrigger>
+                  <TabsTrigger value="pending" className="text-sm">
+                    Pending ({flashcardDecks.filter(d => d.status === 'pending').length})
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="text-sm">
+                    Completed ({flashcardDecks.filter(d => d.status === 'completed').length})
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
-
-            {/* Status Filter Tabs */}
-            <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-              <TabsList>
-                <TabsTrigger value="today">Today</TabsTrigger>
-                <TabsTrigger value="pending">Pending</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
-            </Tabs>
 
             {/* Subject Filter Tabs */}
-            <Tabs value={activeSubject} onValueChange={setActiveSubject}>
-              <TabsList className="flex flex-wrap h-auto">
-                <TabsTrigger value="all">All Subjects</TabsTrigger>
-                {subjects.map(subject => (
-                  <TabsTrigger key={subject} value={subject}>{subject}</TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-            
-            {/* Stats cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Decks</p>
-                      <p className="text-3xl font-bold">{filteredDecks.length}</p>
-                    </div>
-                    <BookOpen className="h-8 w-8 text-primary opacity-80" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Cards</p>
-                      <p className="text-3xl font-bold">
-                        {filteredDecks.reduce((acc, deck) => acc + deck.cardsCount, 0)}
-                      </p>
-                    </div>
-                    <Star className="h-8 w-8 text-amber-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Mastered Cards</p>
-                      <p className="text-3xl font-bold">
-                        {filteredDecks.reduce((acc, deck) => acc + deck.mastered, 0)}
-                      </p>
-                    </div>
-                    <CheckCircle className="h-8 w-8 text-green-500" />
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="bg-white rounded-lg border border-gray-200 p-1">
+              <Tabs value={activeSubject} onValueChange={setActiveSubject}>
+                <TabsList className={`grid w-full grid-cols-${subjects.length + 1}`}>
+                  <TabsTrigger value="all" className="text-sm">All Subjects</TabsTrigger>
+                  {subjects.map(subject => (
+                    <TabsTrigger key={subject} value={subject} className="text-sm">
+                      {subject} ({flashcardDecks.filter(d => d.subject === subject && d.status === statusFilter).length})
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
             </div>
-            
-            {/* Flashcard decks grid */}
-            <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ staggerChildren: 0.1 }}
-            >
-              {filteredDecks.map(deck => {
-                const masteryPercentage = calculateMasteryPercentage(deck.mastered, deck.cardsCount);
-                
-                return (
-                  <motion.div
-                    key={deck.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Card className="h-full flex flex-col overflow-hidden hover:shadow-md transition-shadow">
-                      <CardHeader className={`pb-4 border-b border-${deck.subject.toLowerCase()}-100`}>
-                        <div className="flex justify-between">
-                          <CardTitle className="text-lg">{deck.title}</CardTitle>
-                          <Badge className={getDifficultyColor(deck.difficulty)}>
-                            {deck.difficulty.charAt(0).toUpperCase() + deck.difficulty.slice(1)}
-                          </Badge>
-                        </div>
-                        <Badge variant="outline" className="w-fit">
-                          {deck.subject}
-                        </Badge>
-                      </CardHeader>
-                      
-                      <CardContent className="py-4 flex-grow">
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                          <div>
-                            <p className="text-muted-foreground">Cards</p>
-                            <p className="font-medium">{deck.cardsCount}</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">Mastered</p>
-                            <p className="font-medium">{deck.mastered}</p>
-                          </div>
-                          <div className="col-span-2">
-                            <div className="flex justify-between text-xs mb-1">
-                              <span>Mastery</span>
-                              <span>{masteryPercentage}%</span>
-                            </div>
-                            <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full ${getMasteryColor(masteryPercentage)}`} 
-                                style={{ width: `${masteryPercentage}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-3 flex items-center text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3 mr-1" />
-                          <span>Last practiced: {formatLastPracticed(deck.lastPracticed)}</span>
-                        </div>
-                        
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {deck.tags.map((tag, i) => (
-                            <Badge key={i} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </CardContent>
-                      
-                      <CardFooter className="pt-0 border-t">
-                        <Button 
-                          className="w-full" 
-                          variant="default"
-                          onClick={() => handleOpenDeck(deck.id)}
-                        >
-                          Study Now
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
+
+            {/* Flashcard Decks Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredDecks.length === 0 ? (
+                <div className="col-span-full text-center py-10">
+                  <p className="text-gray-500">
+                    No flashcard decks found for {activeSubject !== 'all' ? activeSubject : ''} {statusFilter} status
+                  </p>
+                </div>
+              ) : (
+                filteredDecks.map((deck) => (
+                  <FlashcardDeckCard key={deck.id} deck={deck} />
+                ))
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
