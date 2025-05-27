@@ -45,11 +45,14 @@ const StudentDashboard = () => {
 
   // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
+  
+  // FIXED: Determine if user is first-time vs returning user properly
+  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+  const hasSeenDashboard = localStorage.getItem('hasSeenDashboardWelcome') === 'true';
 
   useEffect(() => {
     // Explicitly mark tour as seen to prevent it from appearing
     localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
     
     // Don't show splash screen for now
     setShowSplash(false);
@@ -157,7 +160,7 @@ const StudentDashboard = () => {
   };
 
   const studyStreak = 5;
-  const lastActivity = 'completed Physics concepts';
+  const lastActivityDesc = 'completed Physics concepts';
 
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
@@ -196,7 +199,9 @@ const StudentDashboard = () => {
         userMood={currentMood}
         userProgress={userProgressData}
         studyStreak={studyStreak}
-        lastActivity={lastActivity}
+        lastActivity={lastActivityDesc}
+        isFirstTimeUser={isFirstTimeUser && !hasSeenDashboard}
+        isReturningUser={!isFirstTimeUser && userProfile.loginCount > 1}
       />
 
       {/* Interactive Voice Assistant with enhanced navigation */}
