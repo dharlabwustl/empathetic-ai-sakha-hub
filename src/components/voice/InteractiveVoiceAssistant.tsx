@@ -43,7 +43,11 @@ const InteractiveVoiceAssistant: React.FC<InteractiveVoiceAssistantProps> = ({
     if (isMuted || !('speechSynthesis' in window)) return;
 
     const speech = new SpeechSynthesisUtterance();
-    speech.text = message.replace(/PREPZR/gi, 'PREP-zer');
+    // Fix pronunciation of PREPZR by breaking it down phonetically
+    speech.text = message
+      .replace(/PREPZR/gi, 'PREP ZR')
+      .replace(/Prepzr/gi, 'Prep zr')
+      .replace(/prepzr/gi, 'prep zr');
     speech.lang = language;
     speech.rate = 0.9;
     speech.pitch = 1.0;

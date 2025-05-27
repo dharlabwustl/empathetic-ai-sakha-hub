@@ -90,11 +90,11 @@ const PracticeExamLandingPage = () => {
   ];
 
   const handleStartExam = (examId: string) => {
-    navigate(`/dashboard/student/exam/${examId}/start`);
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
 
   const handleViewResults = (examId: string) => {
-    navigate(`/dashboard/student/exam/${examId}/results`);
+    navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
 
   const handleTabChange = (value: string) => {
