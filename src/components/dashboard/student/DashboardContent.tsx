@@ -6,6 +6,7 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import ExamReadinessSection from '@/components/dashboard/student/ExamReadinessSection';
+import SmartDailySuggestions from '@/components/dashboard/student/SmartDailySuggestions';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -52,11 +53,6 @@ const DashboardContent = ({
   const [showReturnRecap, setShowReturnRecap] = useState(
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
-  
-  // State to track whether voice has been tested
-  const [hasTestedVoice, setHasTestedVoice] = useState(() => {
-    return localStorage.getItem('voice-tested') === 'true';
-  });
 
   // Example weekly trends data for the exam readiness score
   const weeklyTrendsData = [
@@ -103,6 +99,15 @@ const DashboardContent = ({
           suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
           onClose={handleCloseRecap}
           loginCount={userProfile.loginCount}
+        />
+      )}
+      
+      {/* Smart Daily Suggestions - Below name header, above subject cards */}
+      {activeTab === 'overview' && (
+        <SmartDailySuggestions
+          userName={userProfile.name}
+          currentMood={currentMood}
+          lastActivity={lastActivity?.description}
         />
       )}
       

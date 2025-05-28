@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -10,6 +11,7 @@ import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import PrepzrVoiceAssistant from "@/components/voice/PrepzrVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -45,8 +47,19 @@ const StudentDashboard = () => {
 
   // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(false);
 
   useEffect(() => {
+    // Check if this is first time user
+    const newUserSignup = localStorage.getItem('new_user_signup') === 'true';
+    const hasSeenDashboard = localStorage.getItem('has_seen_dashboard') === 'true';
+    
+    setIsFirstTime(newUserSignup && !hasSeenDashboard);
+    
+    if (!hasSeenDashboard) {
+      localStorage.setItem('has_seen_dashboard', 'true');
+    }
+    
     // Explicitly mark tour as seen to prevent it from appearing
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.removeItem('new_user_signup');
@@ -157,13 +170,23 @@ const StudentDashboard = () => {
   };
 
   const studyStreak = 5;
-  const lastActivity = 'completed Physics concepts';
+  const lastActivityDescription = lastActivity?.description || 'completed Physics concepts';
 
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
 
+  // Determine voice context
+  const voiceContext = isFirstTime ? 'dashboard-first' : 'dashboard-returning';
+
   return (
     <>
+      {/* PREPZR Voice Assistant - Dashboard Context */}
+      <PrepzrVoiceAssistant 
+        context={voiceContext}
+        userName={userProfile.name}
+        lastActivity={lastActivityDescription}
+      />
+      
       <DashboardLayout
         userProfile={enhancedUserProfile}
         hideSidebar={false}
@@ -196,7 +219,7 @@ const StudentDashboard = () => {
         userMood={currentMood}
         userProgress={userProgressData}
         studyStreak={studyStreak}
-        lastActivity={lastActivity}
+        lastActivity={lastActivityDescription}
       />
 
       {/* Interactive Voice Assistant with enhanced navigation */}

@@ -13,17 +13,18 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
   
   const voices = window.speechSynthesis.getVoices();
   
-  // Priority order for female voices
+  // Priority order for female voices (confident, warm female voice)
   const femaleVoicePreferences = [
     'Google US English Female',
-    'Microsoft Zira',
-    'Microsoft Hazel',
+    'Microsoft Zira Desktop',
+    'Microsoft Hazel Desktop',
     'Samantha',
     'Karen',
     'Moira',
     'Tessa',
     'Victoria',
     'Fiona',
+    'Alex (Female)',
     'female',
     'woman'
   ];
@@ -36,12 +37,15 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
     if (voice) return voice;
   }
   
-  // Then try to find voices that don't contain "male" and are English
+  // Then try to find voices that are clearly female
   const englishFemaleVoices = voices.filter(voice => 
     voice.lang.includes('en') && 
     !voice.name.toLowerCase().includes('male') &&
     (voice.name.toLowerCase().includes('female') || 
      voice.name.toLowerCase().includes('woman') ||
+     voice.name.toLowerCase().includes('zira') ||
+     voice.name.toLowerCase().includes('hazel') ||
+     voice.name.toLowerCase().includes('cortana') ||
      !voice.name.toLowerCase().includes('man'))
   );
   
@@ -57,9 +61,9 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
 export const getDefaultVoiceConfig = (): VoiceConfig => {
   return {
     voice: getPreferredFemaleVoice(),
-    rate: 0.95,
-    pitch: 1.1,
-    volume: 0.8,
+    rate: 0.95, // Slightly slower for clarity
+    pitch: 1.1, // Slightly higher for female voice
+    volume: 0.8, // Comfortable volume
     language: 'en-US'
   };
 };
@@ -69,8 +73,15 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
-  // Ensure consistent pronunciation of PREPZR as "PREP-ZER"
-  utterance.text = text.replace(/PREPZR/gi, 'PREP-ZER').replace(/Sakha AI/gi, 'PREP-ZER AI');
+  
+  // Ensure consistent pronunciation of PREPZR as "PREP-ZER" throughout the app
+  const processedText = text
+    .replace(/PREPZR/gi, 'PREP-ZER')
+    .replace(/Sakha AI/gi, 'PREP-ZER AI')
+    .replace(/PrepZR/gi, 'PREP-ZER')
+    .replace(/Prepzr/gi, 'PREP-ZER');
+  
+  utterance.text = processedText;
   utterance.lang = finalConfig.language;
   utterance.rate = finalConfig.rate;
   utterance.pitch = finalConfig.pitch;
@@ -91,7 +102,7 @@ export const speakWithFemaleVoice = (
 ): void => {
   if (!('speechSynthesis' in window)) return;
   
-  // Cancel any ongoing speech
+  // Cancel any ongoing speech to prevent overlap
   window.speechSynthesis.cancel();
   
   const utterance = createFemaleUtterance(text, config);
@@ -104,5 +115,28 @@ export const speakWithFemaleVoice = (
     utterance.onend = onEnd;
   }
   
+  utterance.onerror = (event) => {
+    console.error('Speech synthesis error:', event);
+  };
+  
   window.speechSynthesis.speak(utterance);
+};
+
+// Helper function to check if voice is available
+export const isVoiceAvailable = (): boolean => {
+  return 'speechSynthesis' in window && window.speechSynthesis.getVoices().length > 0;
+};
+
+// Helper function to wait for voices to load
+export const waitForVoices = (): Promise<SpeechSynthesisVoice[]> => {
+  return new Promise((resolve) => {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      resolve(voices);
+    } else {
+      window.speechSynthesis.onvoiceschanged = () => {
+        resolve(window.speechSynthesis.getVoices());
+      };
+    }
+  });
 };
