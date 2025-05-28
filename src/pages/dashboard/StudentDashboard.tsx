@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ const StudentDashboard = () => {
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showQuickOnboarding, setShowQuickOnboarding] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -32,24 +34,30 @@ const StudentDashboard = () => {
     upcomingEvents
   } = useStudentDashboard();
 
-  // Check URL parameters for first-time user status
+  // Check for first-time user and setup
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNew = params.get('new') === 'true';
+    const hasCompletedOnboarding = localStorage.getItem('completed_onboarding') === 'true';
+    
     setIsFirstTimeUser(isNew);
     
-    // Try to get saved mood from local storage
+    // Show quick onboarding only for brand new users who haven't seen it
+    if (isNew && !hasCompletedOnboarding) {
+      setShowQuickOnboarding(true);
+    }
+    
+    // Setup mood
     const savedMood = getCurrentMoodFromLocalStorage();
     if (savedMood) {
       setCurrentMood(savedMood);
     } else {
-      // Set default mood for new users
       const defaultMood = MoodType.MOTIVATED;
       setCurrentMood(defaultMood);
       storeMoodInLocalStorage(defaultMood);
     }
     
-    // Clean up URL parameters after first load
+    // Clean up URL
     if (isNew) {
       navigate('/dashboard/student', { replace: true });
     }
@@ -60,35 +68,40 @@ const StudentDashboard = () => {
     storeMoodInLocalStorage(mood);
   };
 
-  const handleCompleteOnboardingWrapper = () => {
+  const handleCompleteQuickOnboarding = () => {
+    setShowQuickOnboarding(false);
+    localStorage.setItem('completed_onboarding', 'true');
+    // Mark original onboarding as complete too
     handleCompleteOnboarding();
-    navigate('/dashboard/student?new=true');
   };
 
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Show onboarding flow only for users who haven't completed it
-  if (showOnboarding) {
-    const defaultGoal = "NEET";
-    const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
+  // Show quick onboarding for new users
+  if (showQuickOnboarding) {
+    const goalTitle = userProfile?.goals?.[0]?.title || userProfile.examPreparation || "Your Exam";
     
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Complete Your Profile</h2>
-          <p className="text-muted-foreground mb-6">
-            Please complete your onboarding to access your personalized dashboard.
-          </p>
-          <button 
-            onClick={handleCompleteOnboardingWrapper}
-            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
-          >
-            Continue Setup
-          </button>
-        </div>
-      </div>
+      <OnboardingFlow 
+        userProfile={userProfile} 
+        goalTitle={goalTitle}
+        onComplete={handleCompleteQuickOnboarding}
+      />
+    );
+  }
+
+  // Show original onboarding if it was never completed (fallback)
+  if (showOnboarding) {
+    const goalTitle = userProfile?.goals?.[0]?.title || userProfile.examPreparation || "Your Exam";
+    
+    return (
+      <OnboardingFlow 
+        userProfile={userProfile} 
+        goalTitle={goalTitle}
+        onComplete={handleCompleteOnboarding}
+      />
     );
   }
 

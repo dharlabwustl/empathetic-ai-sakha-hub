@@ -39,8 +39,8 @@ const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
         dailyHours: userProfile.studyPreferences?.hoursPerDay || 4
       },
       performanceLevel: inferPerformanceLevel(userProfile),
-      weakSubjects: ['Physics', 'Mathematics'], // This would come from analytics
-      strongSubjects: ['Chemistry'], // This would come from analytics
+      weakSubjects: ['Physics', 'Mathematics'],
+      strongSubjects: ['Chemistry'],
       moodPatterns: {
         typical: 'motivated',
         current: currentMood,
@@ -60,13 +60,50 @@ const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
   };
 
   const inferLearningStyle = (profile: UserProfileBase): 'visual' | 'auditory' | 'kinesthetic' | 'mixed' => {
-    // This would be based on user interactions and preferences
-    return 'visual'; // Default for now
+    return 'visual';
   };
 
   const inferPerformanceLevel = (profile: UserProfileBase): 'beginner' | 'intermediate' | 'advanced' => {
-    // This would be based on test scores and progress
-    return 'intermediate'; // Default for now
+    return 'intermediate';
+  };
+
+  const getGridClass = (layout: string) => {
+    switch (layout) {
+      case 'grid':
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+      case 'list':
+        return 'flex flex-col gap-4';
+      case 'masonry':
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max';
+      default:
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+    }
+  };
+
+  const getWidgetSizeClass = (size: string) => {
+    switch (size) {
+      case 'small':
+        return 'min-h-[150px]';
+      case 'medium':
+        return 'min-h-[250px]';
+      case 'large':
+        return 'min-h-[350px] md:col-span-2';
+      default:
+        return 'min-h-[250px]';
+    }
+  };
+
+  const getThemeClass = (theme: string) => {
+    switch (theme) {
+      case 'calm-blue':
+        return 'theme-calm-blue';
+      case 'energetic-orange':
+        return 'theme-energetic-orange';
+      case 'focused-green':
+        return 'theme-focused-green';
+      default:
+        return 'theme-default';
+    }
   };
 
   if (isLoading || !dashboardLayout) {
@@ -78,7 +115,7 @@ const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
   }
 
   return (
-    <div className={`personalized-dashboard theme-${dashboardLayout.theme}`}>
+    <div className={`personalized-dashboard ${getThemeClass(dashboardLayout.theme)}`}>
       {/* AI Insights Panel */}
       <AIInsightsPanel 
         userProfile={userProfile}
@@ -88,7 +125,7 @@ const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
 
       {/* Personalized Widgets Grid */}
       <motion.div 
-        className={`dashboard-grid ${dashboardLayout.layout}`}
+        className={getGridClass(dashboardLayout.layout)}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -99,64 +136,12 @@ const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
-            className={`widget-container ${widget.size}`}
-            style={{
-              gridRow: widget.position.row + 1,
-              gridColumn: widget.position.col + 1
-            }}
+            className={getWidgetSizeClass(widget.size)}
           >
             <PersonalizedWidget widget={widget} userProfile={userProfile} />
           </motion.div>
         ))}
       </motion.div>
-
-      <style jsx>{`
-        .dashboard-grid.grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 1.5rem;
-        }
-        
-        .dashboard-grid.list {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-        
-        .dashboard-grid.masonry {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 1rem;
-          grid-auto-rows: max-content;
-        }
-
-        .widget-container.small {
-          min-height: 150px;
-        }
-        
-        .widget-container.medium {
-          min-height: 250px;
-        }
-        
-        .widget-container.large {
-          min-height: 350px;
-        }
-
-        .theme-calm-blue {
-          --primary-color: #3b82f6;
-          --bg-color: #eff6ff;
-        }
-        
-        .theme-energetic-orange {
-          --primary-color: #f97316;
-          --bg-color: #fff7ed;
-        }
-        
-        .theme-focused-green {
-          --primary-color: #10b981;
-          --bg-color: #ecfdf5;
-        }
-      `}</style>
     </div>
   );
 };
