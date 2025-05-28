@@ -1,7 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
-import ExamGoalAdaptiveDashboard from './ExamGoalAdaptiveDashboard';
+import ComprehensiveAdaptiveDashboard from './ComprehensiveAdaptiveDashboard';
 
 interface AdaptiveDashboardControllerProps {
   userProfile: UserProfileBase;
@@ -24,9 +24,9 @@ const AdaptiveDashboardController: React.FC<AdaptiveDashboardControllerProps> = 
     const today = new Date();
     const daysLeft = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (daysLeft <= 30) return 'critical';
-    if (daysLeft <= 90) return 'urgent';
-    if (daysLeft <= 180) return 'moderate';
+    if (daysLeft <= 7) return 'critical';
+    if (daysLeft <= 30) return 'urgent';
+    if (daysLeft <= 90) return 'moderate';
     return 'relaxed';
   }, [userProfile.examDate]);
 
@@ -41,11 +41,12 @@ const AdaptiveDashboardController: React.FC<AdaptiveDashboardControllerProps> = 
   }, [userProfile.currentMood, userProfile.mood, preferences]);
 
   return (
-    <ExamGoalAdaptiveDashboard
+    <ComprehensiveAdaptiveDashboard
       userProfile={userProfile}
       examProximity={examProximity}
       learningStyle={learningStyle}
       currentMood={currentMood}
+      onMoodChange={onMoodChange}
       {...otherProps}
     />
   );
