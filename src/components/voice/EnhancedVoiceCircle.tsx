@@ -17,7 +17,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 }) => {
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      {/* Outer vibrant pulse ring */}
+      {/* Outer vibrant pulse ring - only when speaking */}
       {isSpeaking && (
         <motion.div
           className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400"
@@ -33,7 +33,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
         />
       )}
       
-      {/* Middle pulse ring */}
+      {/* Middle pulse ring - only when speaking */}
       {isSpeaking && (
         <motion.div
           className="absolute inset-1 rounded-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
@@ -50,7 +50,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
         />
       )}
       
-      {/* Inner active ring */}
+      {/* Inner active ring - when speaking or listening */}
       {(isSpeaking || isListening) && (
         <motion.div
           className={`absolute inset-2 rounded-full ${
@@ -70,7 +70,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
         />
       )}
       
-      {/* Main AI circle with dynamic color changes */}
+      {/* Main AI circle with dynamic animations */}
       <motion.div
         className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
           isSpeaking 
@@ -80,23 +80,14 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
             : 'bg-gradient-to-r from-blue-500 to-purple-500'
         }`}
         animate={isSpeaking ? {
-          background: [
-            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)',
-            'linear-gradient(45deg, #ec4899, #9333ea, #3b82f6)',
-            'linear-gradient(45deg, #3b82f6, #ec4899, #9333ea)',
-            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)'
-          ],
           scale: [1, 1.05, 1, 1.02, 1]
+        } : isListening ? {
+          scale: [1, 1.03, 1]
         } : {}}
         transition={{
-          background: {
-            duration: 3,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          },
           scale: {
-            duration: 0.8,
-            repeat: isSpeaking ? Infinity : 0,
+            duration: isSpeaking ? 0.8 : 1.5,
+            repeat: (isSpeaking || isListening) ? Infinity : 0,
             ease: "easeInOut"
           }
         }}
@@ -117,7 +108,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
         </motion.span>
       </motion.div>
       
-      {/* Sound waves */}
+      {/* Sound waves animation - only when speaking */}
       {isSpeaking && (
         <div className="absolute inset-0 flex items-center justify-center">
           {[...Array(3)].map((_, i) => (

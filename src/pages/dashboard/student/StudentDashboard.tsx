@@ -7,13 +7,15 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
-import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
-import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
+import UltraFastSpeechRecognition from '@/components/voice/UltraFastSpeechRecognition';
+import IntelligentDashboardAssistant from '@/components/voice/IntelligentDashboardAssistant';
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -43,7 +45,7 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Important: Force disable welcome tour completely
+  // Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
 
   useEffect(() => {
@@ -69,11 +71,10 @@ const StudentDashboard = () => {
 
     // Ensure profile image is available
     if (userProfile && userProfile.avatar) {
-      // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
   }, [location, userProfile]);
-  
+
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
@@ -110,6 +111,17 @@ const StudentDashboard = () => {
       }
     } else {
       localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
+  };
+
+  const handleSpeechCommand = (command: string) => {
+    console.log('Dashboard speech command received:', command);
+  };
+
+  const handleStopSpeaking = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
     }
   };
 
@@ -150,14 +162,13 @@ const StudentDashboard = () => {
   // Mock user progress data for voice assistant
   const userProgressData = {
     overallProgress: 68,
-    physicsProgress: 56,
-    chemistryProgress: 69,
-    biologyProgress: 72,
+    studyStreak: 5,
+    lastActivity: 'completed Physics concepts',
     examReadinessScore: 78
   };
 
-  const studyStreak = 5;
-  const lastActivity = 'completed Physics concepts';
+  // Check if user is first time
+  const isFirstTimeUser = !userProfile.loginCount || userProfile.loginCount <= 1;
 
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
@@ -189,23 +200,34 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Dashboard Voice Assistant with user progress context */}
-      <DashboardVoiceAssistant
-        userName={userProfile.name}
-        language="en-IN"
-        userMood={currentMood}
-        userProgress={userProgressData}
-        studyStreak={studyStreak}
-        lastActivity={lastActivity}
+      {/* Ultra-fast Speech Recognition for Dashboard */}
+      <UltraFastSpeechRecognition
+        onCommand={handleSpeechCommand}
+        onListeningChange={setIsListening}
+        onStopSpeaking={handleStopSpeaking}
+        language="en-US"
+        continuous={true}
+        enabled={true}
       />
-
-      {/* Interactive Voice Assistant with enhanced navigation */}
-      <InteractiveVoiceAssistant 
+      
+      {/* Intelligent Dashboard Voice Assistant */}
+      <IntelligentDashboardAssistant
         userName={userProfile.name}
         language="en-US"
-        onNavigationCommand={(route) => navigate(route)}
-        position="bottom-right"
+        isFirstTimeUser={isFirstTimeUser}
+        userProgress={userProgressData}
+        onSpeakingChange={setIsSpeaking}
+        isMicrophoneActive={isListening}
       />
+
+      {/* Enhanced floating voice assistant button with dynamic AI label */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <FloatingVoiceButton 
+          isSpeaking={isSpeaking}
+          isListening={isListening}
+          className="cursor-pointer"
+        />
+      </div>
     </>
   );
 };

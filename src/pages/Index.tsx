@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -17,17 +18,16 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
-import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
+import UltraFastSpeechRecognition from '@/components/voice/UltraFastSpeechRecognition';
+import IntelligentHomepageAssistant from '@/components/voice/IntelligentHomepageAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -36,14 +36,16 @@ const Index = () => {
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
   };
-  
-  const handleNavigationCommand = (route: string) => {
-    navigate(route);
-  };
 
   const handleSpeechCommand = (command: string) => {
-    console.log('Speech command received:', command);
-    // Commands are processed within the SpeechRecognitionButton component
+    console.log('Homepage speech command received:', command);
+  };
+
+  const handleStopSpeaking = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   };
 
   // Listen for events
@@ -65,7 +67,7 @@ const Index = () => {
         <Header />
         
         <main>
-          {/* Enhanced 3D hero section with voice interaction */}
+          {/* Enhanced 3D hero section */}
           <HeroSection onAnalyzeClick={handleOpenExamAnalyzer} />
           
           {/* Smart Data section with animation and KPI stats */}
@@ -116,23 +118,28 @@ const Index = () => {
         
         <Footer />
         
-        {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
-        <EnhancedHomepageAssistant 
+        {/* Ultra-fast Speech Recognition */}
+        <UltraFastSpeechRecognition
+          onCommand={handleSpeechCommand}
+          onListeningChange={setIsListening}
+          onStopSpeaking={handleStopSpeaking}
           language="en-US"
-          onSpeakingChange={setIsSpeaking}
+          continuous={true}
+          enabled={true}
         />
         
-        {/* Speech Recognition Button - positioned above voice assistant */}
-        <SpeechRecognitionButton
-          position="homepage"
-          onCommand={handleSpeechCommand}
-          className="fixed bottom-24 right-6 z-50"
+        {/* Intelligent Homepage Voice Assistant */}
+        <IntelligentHomepageAssistant 
+          language="en-US"
+          onSpeakingChange={setIsSpeaking}
+          isMicrophoneActive={isListening}
         />
 
-        {/* Enhanced Floating Voice Button with vibrant animations */}
+        {/* Enhanced Floating Voice Button with AI label */}
         <div className="fixed bottom-6 right-6 z-40">
           <FloatingVoiceButton 
             isSpeaking={isSpeaking}
+            isListening={isListening}
             className="cursor-pointer"
           />
         </div>
