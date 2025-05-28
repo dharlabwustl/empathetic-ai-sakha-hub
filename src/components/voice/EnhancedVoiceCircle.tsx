@@ -80,12 +80,17 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
             : 'bg-gradient-to-r from-blue-500 to-purple-500'
         }`}
         animate={isSpeaking ? {
-          backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+          background: [
+            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)',
+            'linear-gradient(45deg, #ec4899, #9333ea, #3b82f6)',
+            'linear-gradient(45deg, #3b82f6, #ec4899, #9333ea)',
+            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)'
+          ],
           scale: [1, 1.05, 1, 1.02, 1]
         } : {}}
         transition={{
-          backgroundPosition: {
-            duration: 2,
+          background: {
+            duration: 3,
             repeat: isSpeaking ? Infinity : 0,
             ease: "easeInOut"
           },
@@ -94,9 +99,6 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
             repeat: isSpeaking ? Infinity : 0,
             ease: "easeInOut"
           }
-        }}
-        style={{
-          backgroundSize: '200% 200%'
         }}
       >
         <motion.span 

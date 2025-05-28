@@ -1,96 +1,98 @@
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useIntelligentVoiceAssistant } from '@/hooks/useIntelligentVoiceAssistant';
 import EnhancedSpeechRecognition from './EnhancedSpeechRecognition';
 
-interface DashboardVoiceGreetingProps {
-  userName: string;
-  isFirstTimeUser: boolean;
+interface EnhancedHomepageAssistantProps {
   language?: string;
   onSpeakingChange?: (isSpeaking: boolean) => void;
 }
 
-const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
-  userName,
-  isFirstTimeUser,
+const EnhancedHomepageAssistant: React.FC<EnhancedHomepageAssistantProps> = ({ 
   language = 'en-US',
   onSpeakingChange
 }) => {
+  const location = useLocation();
+  const shouldPlayWelcome = location.pathname === '/';
   const [hasOfferedHelp, setHasOfferedHelp] = useState(false);
-  const helpOfferTimerRef = useRef<number | null>(null);
   const lastActivityRef = useRef(Date.now());
+  const helpOfferTimerRef = useRef<number | null>(null);
   
   const { isSpeaking, playInitialGreeting, speak, trackActivity } = useIntelligentVoiceAssistant({
-    userName,
     language,
     onSpeakingChange,
-    inactivityTimeout: 12000 // 12 seconds for dashboard
+    inactivityTimeout: 10000 // 10 seconds for homepage
   });
 
+  // Enhanced welcome message with breaks
   useEffect(() => {
-    if (userName && userName !== 'there') {
-      const greetingMessage = isFirstTimeUser 
-        ? `Welcome to your PREPZR dashboard, ${userName}! This is your command center for exam preparation.`
-        : `Great to see you back, ${userName}! Ready for today's learning session?`;
+    if (shouldPlayWelcome) {
+      const welcomeMessage = "Welcome to PREPZR! I'm your AI companion here to guide you.";
+      playInitialGreeting(welcomeMessage);
       
+      // Schedule help offer after initial greeting
       setTimeout(() => {
-        playInitialGreeting(greetingMessage);
-        // Schedule help offer after greeting
-        setTimeout(() => {
-          scheduleHelpOffer();
-        }, 4000);
-      }, 2000);
+        scheduleHelpOffer();
+      }, 5000);
     }
-  }, [userName, isFirstTimeUser, playInitialGreeting]);
+  }, [shouldPlayWelcome, playInitialGreeting]);
 
+  // Track user activity and reset help offer timer
   const handleActivity = () => {
     lastActivityRef.current = Date.now();
     setHasOfferedHelp(false);
     
+    // Clear existing timer
     if (helpOfferTimerRef.current) {
       clearTimeout(helpOfferTimerRef.current);
       helpOfferTimerRef.current = null;
     }
     
+    // Schedule new help offer
     scheduleHelpOffer();
     trackActivity();
   };
 
   const scheduleHelpOffer = () => {
+    // Clear existing timer
     if (helpOfferTimerRef.current) {
       clearTimeout(helpOfferTimerRef.current);
     }
     
+    // Set new timer for 10 seconds of inactivity
     helpOfferTimerRef.current = window.setTimeout(() => {
-      offerDashboardAssistance();
-    }, 12000);
+      offerAssistance();
+    }, 10000);
   };
 
-  const offerDashboardAssistance = () => {
+  const offerAssistance = () => {
     if (hasOfferedHelp || isSpeaking) return;
     
-    const dashboardOffers = [
-      "Need help navigating your dashboard? I can guide you to any section.",
-      "Would you like me to explain any dashboard features?",
-      "I can help you access study plans, concept cards, or practice exams.",
-      "Let me know if you need assistance with any learning tools."
+    const assistanceOffers = [
+      "Let me know if you need any assistance exploring PREPZR.",
+      "I'm here to help. Would you like to know about our features?",
+      "Need help getting started? Just ask me anything.",
+      "Ready to begin your learning journey? I can guide you."
     ];
     
-    const randomOffer = dashboardOffers[Math.floor(Math.random() * dashboardOffers.length)];
+    const randomOffer = assistanceOffers[Math.floor(Math.random() * assistanceOffers.length)];
     speak(randomOffer, false);
     setHasOfferedHelp(true);
     
+    // Schedule next offer after longer delay
     helpOfferTimerRef.current = window.setTimeout(() => {
       setHasOfferedHelp(false);
-      offerDashboardAssistance();
-    }, 25000);
+      offerAssistance();
+    }, 30000); // 30 seconds before next offer
   };
 
   const handleVoiceCommand = (command: string) => {
-    console.log('Dashboard voice command:', command);
-    handleActivity();
+    console.log('Voice command received:', command);
+    handleActivity(); // Reset activity timer on voice command
   };
 
+  // Set up activity listeners
   useEffect(() => {
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
     
@@ -109,9 +111,18 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
     };
   }, []);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (helpOfferTimerRef.current) {
+        clearTimeout(helpOfferTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
-      {/* Enhanced Speech Recognition for Dashboard */}
+      {/* Enhanced Speech Recognition for Homepage */}
       <EnhancedSpeechRecognition 
         language={language}
         continuous={true}
@@ -121,4 +132,4 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
   );
 };
 
-export default DashboardVoiceGreeting;
+export default EnhancedHomepageAssistant;

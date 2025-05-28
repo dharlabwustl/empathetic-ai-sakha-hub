@@ -1,17 +1,22 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
+import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
-import AdaptiveDashboardController from "@/components/dashboard/adaptive/AdaptiveDashboardController";
+import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 import WelcomeDashboardPrompt from "@/components/dashboard/student/WelcomeDashboardPrompt";
-import UnifiedVoiceAssistant from "@/components/voice/UnifiedVoiceAssistant";
+import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
+import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DashboardVoiceGreeting from "@/components/voice/DashboardVoiceGreeting";
+import SignupVoiceAssistant from "@/components/voice/SignupVoiceAssistant";
+import { FloatingVoiceButton as EnhancedFloatingVoiceButton } from "@/components/voice/EnhancedVoiceAnimations";
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
 
 const StudentDashboard = () => {
@@ -20,10 +25,9 @@ const StudentDashboard = () => {
   const [showTourModal, setShowTourModal] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
+  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [dashboardPreferences, setDashboardPreferences] = useState<any>(null);
-  
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -55,71 +59,50 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Load enhanced dashboard preferences
+  // Load profile image from localStorage
   useEffect(() => {
     const savedImage = localStorage.getItem('user_profile_image');
     if (savedImage) {
       setProfileImage(savedImage);
     }
+  }, []);
 
-    // Enhanced dashboard preferences for adaptive layout
-    const savedPreferences = localStorage.getItem('dashboardPreferences');
-    const isPersonalized = new URLSearchParams(location.search).get('personalized') === 'true';
-    
-    try {
-      const preferences = savedPreferences ? JSON.parse(savedPreferences) : {
-        examGoal: userProfile?.examGoal || 'NEET',
-        learningStyle: userProfile?.learningStyle || 'visual',
-        studyStyle: userProfile?.studyStyle || 'gradual',
-        weakSubjects: userProfile?.weakSubjects || ['Physics', 'Organic Chemistry'],
-        strongSubjects: userProfile?.strongSubjects || ['Biology'],
-        performanceLevel: userProfile?.performanceLevel || 'intermediate',
-        studyPreferences: userProfile?.studyPreferences || {
-          pace: "Moderate",
-          hoursPerDay: 4,
-          preferredTimeStart: "18:00",
-          preferredTimeEnd: "22:00"
-        }
-      };
-      setDashboardPreferences(preferences);
-    } catch (error) {
-      console.error('Error loading dashboard preferences:', error);
-      setDashboardPreferences({
-        examGoal: userProfile?.examGoal || 'NEET',
-        learningStyle: 'visual',
-        studyStyle: 'gradual',
-        weakSubjects: ['Physics', 'Organic Chemistry'],
-        strongSubjects: ['Biology'],
-        performanceLevel: 'intermediate'
-      });
-    }
-  }, [location, userProfile]);
-
-  // Check for first-time user status
+  // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
     
+    // For new users who haven't seen the tour
     if (isNew && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
-      setShowWelcomePrompt(false);
+      setShowWelcomePrompt(false); // Make sure only one modal shows
       setIsFirstTimeUser(true);
-    } else if (isNew && hasSeenTour && !hasSeenDashboardWelcome) {
+      console.log("New user detected, showing welcome tour");
+    } 
+    // For new users who have seen the tour but not the dashboard welcome
+    else if (isNew && hasSeenTour && !hasSeenDashboardWelcome) {
       setShowSplash(false);
       setShowTourModal(false);
       setShowWelcomePrompt(true);
       setIsFirstTimeUser(true);
-    } else {
+      console.log("New user needs dashboard welcome prompt");
+    }
+    // For returning users
+    else {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
+      
+      // Make sure we don't show the tour or welcome prompt for returning users who have seen them
       setShowTourModal(false);
       setShowWelcomePrompt(false);
       setIsFirstTimeUser(false);
+      console.log("Returning user detected, not showing welcome tour");
     }
     
+    // Try to get saved mood from local storage
     const savedMood = getCurrentMoodFromLocalStorage();
     if (savedMood) {
       setCurrentMood(savedMood);
@@ -130,6 +113,7 @@ const StudentDashboard = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
     
+    // For new users, show the tour after splash, but make sure welcome prompt is not shown simultaneously
     const isNew = localStorage.getItem('new_user_signup') === 'true';
     if (isNew) {
       const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
@@ -150,12 +134,54 @@ const StudentDashboard = () => {
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
     storeMoodInLocalStorage(mood);
+  };
+
+  const handleProfileImageUpdate = (imageUrl: string) => {
+    setProfileImage(imageUrl);
+    localStorage.setItem('user_profile_image', imageUrl);
     
-    // Update dashboard preferences to trigger adaptive layout re-render
-    setDashboardPreferences(prev => ({
-      ...prev,
-      currentMood: mood
-    }));
+    // If user profile exists, update its avatar property
+    if (userProfile) {
+      userProfile.avatar = imageUrl;
+    }
+  };
+
+  const handleSkipTourWrapper = () => {
+    handleSkipTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    
+    // After skipping tour, show welcome dashboard prompt
+    setShowWelcomePrompt(true);
+    
+    console.log("Tour skipped and marked as seen");
+  };
+
+  const handleCompleteTourWrapper = () => {
+    handleCompleteTour();
+    setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
+    
+    // After completing tour, show welcome dashboard prompt
+    setShowWelcomePrompt(true);
+    
+    console.log("Tour completed and marked as seen");
+  };
+
+  const handleWelcomePromptComplete = () => {
+    setShowWelcomePrompt(false);
+    localStorage.setItem("hasSeenDashboardWelcome", "true");
+  };
+
+  const handleCompleteOnboardingWrapper = () => {
+    handleCompleteOnboarding();
+    // Set the new user flag to show tour after onboarding
+    localStorage.setItem('new_user_signup', 'true');
+    navigate('/dashboard/student?new=true');
+  };
+
+  const handleNavigationCommand = (route: string) => {
+    navigate(route);
   };
 
   if (showSplash) {
@@ -166,6 +192,7 @@ const StudentDashboard = () => {
     return <DashboardLoading />;
   }
 
+  // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
     const defaultGoal = "NEET";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
@@ -174,82 +201,97 @@ const StudentDashboard = () => {
       <OnboardingFlow 
         userProfile={userProfile} 
         goalTitle={goalTitle}
-        onComplete={handleCompleteOnboarding}
+        onComplete={handleCompleteOnboardingWrapper}
       />
     );
   }
 
-  // Enhanced user profile with all adaptive data
+  // Update user profile with the profile image from localStorage
   const enhancedUserProfile = {
     ...userProfile,
-    avatar: profileImage || userProfile.avatar || userProfile.photoURL,
-    currentMood: currentMood,
-    examGoal: userProfile.examGoal || dashboardPreferences?.examGoal || 'NEET',
-    learningStyle: userProfile.learningStyle || dashboardPreferences?.learningStyle || 'visual',
-    studyStyle: userProfile.studyStyle || dashboardPreferences?.studyStyle || 'gradual',
-    weakSubjects: userProfile.weakSubjects || dashboardPreferences?.weakSubjects || ['Physics', 'Organic Chemistry'],
-    strongSubjects: userProfile.strongSubjects || dashboardPreferences?.strongSubjects || ['Biology'],
-    performanceLevel: userProfile.performanceLevel || dashboardPreferences?.performanceLevel || 'intermediate',
-    studyStreak: userProfile.studyStreak || 5,
-    examDate: userProfile.examDate || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    avatar: profileImage || userProfile.avatar || userProfile.photoURL
+  };
+
+  // Custom content based on active tab
+  const getTabContent = () => {
+    if (activeTab === "overview") {
+      return <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
+    }
+    return null;
   };
 
   return (
     <>
-      {/* Completely Redesigned Adaptive Dashboard */}
-      <AdaptiveDashboardController 
-        userProfile={enhancedUserProfile} 
-        preferences={dashboardPreferences}
-        onMoodChange={handleMoodChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        showStudyPlan={showStudyPlan}
-        onCloseStudyPlan={handleCloseStudyPlan}
+      <DashboardLayout
+        userProfile={enhancedUserProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={false} // Always false here since we handle it separately below
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+        onProfileImageUpdate={handleProfileImageUpdate}
         upcomingEvents={upcomingEvents}
-      />
+      >
+        {getTabContent()}
+      </DashboardLayout>
       
+      {/* Welcome Tour Modal - will show once for new users */}
       <WelcomeTour
         open={showTourModal}
         onOpenChange={setShowTourModal}
-        onSkipTour={() => {
-          setShowTourModal(false);
-          localStorage.setItem("hasSeenTour", "true");
-          setShowWelcomePrompt(true);
-        }}
-        onCompleteTour={() => {
-          setShowTourModal(false);
-          localStorage.setItem("hasSeenTour", "true");
-          setShowWelcomePrompt(true);
-        }}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
         isFirstTimeUser={isFirstTimeUser}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
       />
 
+      {/* Welcome Dashboard Prompt - shows after tour completion */}
       {showWelcomePrompt && (
         <WelcomeDashboardPrompt 
           userName={userProfile.name || userProfile.firstName || 'Student'}
-          onComplete={() => {
-            setShowWelcomePrompt(false);
-            localStorage.setItem("hasSeenDashboardWelcome", "true");
-          }}
+          onComplete={handleWelcomePromptComplete}
         />
       )}
 
-      {/* Unified Voice Assistant */}
-      <UnifiedVoiceAssistant
+      {/* Enhanced Voice Greeting with UN sustainability goals message */}
+      <VoiceGreeting 
+        isFirstTimeUser={isFirstTimeUser} 
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        userProfile={enhancedUserProfile}
+        language="en"
+      />
+      
+      {/* Enhanced Dashboard Voice Greeting with intelligent messaging */}
+      <DashboardVoiceGreeting
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        isFirstTimeUser={isFirstTimeUser}
         language="en-US"
         onSpeakingChange={setIsSpeaking}
       />
 
-      {/* Enhanced floating voice button */}
+      {/* Signup congratulations voice assistant */}
+      <SignupVoiceAssistant
+        userName={userProfile.name || userProfile.firstName}
+        language="en-US"
+        onSpeakingChange={setIsSpeaking}
+      />
+
+      {/* Enhanced floating voice assistant button with vibrant animations */}
       <div className="fixed bottom-6 right-6 z-40">
         <FloatingVoiceButton 
           isSpeaking={isSpeaking}
