@@ -43,14 +43,40 @@ const StepHandler = ({
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
       
+      // Check if this is a free trial signup
+      const isFreeTrial = localStorage.getItem('free_trial_signup') === 'true';
+      
+      // Set up subscription details for trial
+      let subscriptionData = {};
+      if (isFreeTrial) {
+        const trialStartDate = new Date();
+        const trialEndDate = new Date();
+        trialEndDate.setDate(trialStartDate.getDate() + 7);
+        
+        subscriptionData = {
+          subscription: {
+            planType: 'trial',
+            startDate: trialStartDate.toISOString(),
+            expiryDate: trialEndDate.toISOString(),
+            status: 'active',
+            autoRenew: false,
+            trialDaysLeft: 7
+          }
+        };
+        
+        // Clear the trial flag
+        localStorage.removeItem('free_trial_signup');
+      }
+      
       // Create a user object with the collected data
       const userData = {
         id: `user_${Date.now()}`,
         name: cleanName,
-        email: `${cleanMobile}@prepzr.com`, // Use consistent email format based on mobile
+        email: `${cleanMobile}@prepzr.com`,
         phoneNumber: cleanMobile,
         role: UserRole.Student,
         ...onboardingData,
+        ...subscriptionData,
         completedOnboarding: true,
         isNewUser: true,
         sawWelcomeTour: false
@@ -73,10 +99,17 @@ const StepHandler = ({
       // Dispatch auth state changed event
       window.dispatchEvent(new Event('auth-state-changed'));
       
-      toast({
-        title: "Welcome to Prepzr!",
-        description: "Let's start your learning journey.",
-      });
+      if (isFreeTrial) {
+        toast({
+          title: "7-Day Free Trial Activated!",
+          description: "Enjoy full premium access for 7 days. Start your learning journey now.",
+        });
+      } else {
+        toast({
+          title: "Welcome to Prepzr!",
+          description: "Let's start your learning journey.",
+        });
+      }
       
       // Navigate directly to welcome-flow, skipping login
       window.location.href = "/welcome-flow";
@@ -102,9 +135,8 @@ const StepHandler = ({
         Object.entries(data).forEach(([key, value]) => {
           userMessage += `${key}: ${value.trim()}, `;
         });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        userMessage = userMessage.slice(0, -2);
         
-        // Clean the data by trimming all string values
         const cleanData: Record<string, string> = {};
         Object.entries(data).forEach(([key, value]) => {
           cleanData[key] = value.trim();
@@ -151,23 +183,20 @@ const StepHandler = ({
         const cleanedHabits: Record<string, string> = {};
         
         Object.entries(habits).forEach(([key, value]) => {
-          // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
           cleanedHabits[key] = value.trim();
         });
         
-        // Create a readable message for chat from the habits
         let userMessage = "";
         Object.entries(cleanedHabits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        userMessage = userMessage.slice(0, -2);
         
         setOnboardingData({ ...onboardingData, ...cleanedHabits });
         
-        // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
           ? getSubjectsForGoal(onboardingData.goal)
           : [];
@@ -180,7 +209,6 @@ const StepHandler = ({
         setStep("interests");
       },
       handleInterestsSubmit: (interests: string) => {
-        // Clean and deduplicate interests
         const interestsList = Array.from(new Set(
           interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
         ));

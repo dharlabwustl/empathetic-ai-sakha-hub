@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import PaymentFlow from '@/components/subscription/PaymentFlow';
 import { SubscriptionPlan } from '@/types/user/subscription';
-import { Heart, Check } from 'lucide-react';
+import { Heart, Check, Clock, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const SubscriptionPage: React.FC = () => {
@@ -24,6 +23,12 @@ const SubscriptionPage: React.FC = () => {
   // Get the current plan type from user profile
   const currentPlanId = user?.subscription?.planType?.toString() || 'free';
   
+  // Check if user has an active trial
+  const isOnTrial = user?.subscription?.planType === 'trial';
+  const trialDaysLeft = user?.subscription?.trialDaysLeft || 0;
+  const trialStartDate = user?.subscription?.startDate;
+  const trialEndDate = user?.subscription?.expiryDate;
+
   const handleSelectPlan = (plan: SubscriptionPlan, isGroupPlan: boolean) => {
     console.log('Plan selected:', plan.name, isGroupPlan ? '(Group)' : '(Individual)');
     setSelectedPlan(plan);
@@ -44,9 +49,6 @@ const SubscriptionPage: React.FC = () => {
   };
   
   const handlePurchaseComplete = (plan: SubscriptionPlan) => {
-    // In a real app, this would typically happen via webhook
-    // For demo purposes, we'll simulate updating the user profile
-    
     if (user) {
       updateUserProfile({
         ...user,
@@ -65,11 +67,9 @@ const SubscriptionPage: React.FC = () => {
       description: `You are now subscribed to the ${plan.name} plan`
     });
     
-    // Redirect to profile billing section
     navigate('/dashboard/student/profile', { state: { activeTab: 'billing' } });
   };
 
-  // Define feature comparisons for different plans
   const featureComparison = [
     { name: "Access to all study materials", free: true, basic: true, premium: true, pro: true },
     { name: "Personalized study plan", free: false, basic: true, premium: true, pro: true },
@@ -107,6 +107,42 @@ const SubscriptionPage: React.FC = () => {
             </Button>
           </div>
 
+          {/* Trial Status Card - Show if user is on trial */}
+          {isOnTrial && (
+            <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-100 dark:bg-green-900/40 p-3 rounded-full">
+                      <Clock className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-green-600 dark:text-green-400">
+                        🎉 7-Day Free Trial Active
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        You have {trialDaysLeft} days left in your free trial
+                      </p>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>Started: {trialStartDate ? new Date(trialStartDate).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>Ends: {trialEndDate ? new Date(trialEndDate).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                    Trial Active
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* UN Sustainability Card */}
           <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
             <CardContent className="flex items-center gap-4 p-4">
@@ -123,29 +159,28 @@ const SubscriptionPage: React.FC = () => {
             </CardContent>
           </Card>
           
-          {/* 7 Days Free Trial Banner */}
-          <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
-            <CardContent className="p-4">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                  <h3 className="text-xl font-bold text-green-600 dark:text-green-400">🎉 Try Premium Free for 7 Days</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                    Experience all premium features with no commitment. Cancel anytime.
-                  </p>
+          {/* 7 Days Free Trial Banner - Hide if already on trial */}
+          {!isOnTrial && (
+            <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-green-600 dark:text-green-400">🎉 Try Premium Free for 7 Days</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      Experience all premium features with no commitment. Cancel anytime.
+                    </p>
+                  </div>
+                  <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                          onClick={() => {
+                            localStorage.setItem('free_trial_signup', 'true');
+                            navigate('/signup');
+                          }}>
+                    Start Free Trial
+                  </Button>
                 </div>
-                <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                        onClick={() => handleSelectPlan({
-                          id: 'trial',
-                          name: 'Premium Trial',
-                          price: 0,
-                          features: ['7-day full access to premium features', 'No payment required', 'Cancel anytime'],
-                          type: 'trial'
-                        }, false)}>
-                  Start Free Trial
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
           
           <SubscriptionPlans
             currentPlanId={currentPlanId}
