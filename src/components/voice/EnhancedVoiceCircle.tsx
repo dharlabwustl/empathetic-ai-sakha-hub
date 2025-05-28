@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Mic, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface EnhancedVoiceCircleProps {
@@ -26,16 +25,10 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
     lg: 'h-20 w-20'
   };
 
-  const iconSizes = {
-    sm: 16,
-    md: 20,
-    lg: 24
-  };
-
-  const getIcon = () => {
-    if (isMuted) return <VolumeX size={iconSizes[size]} />;
-    if (isSpeaking) return <Volume2 size={iconSizes[size]} />;
-    return <Mic size={iconSizes[size]} />;
+  const textSizes = {
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base'
   };
 
   const getAnimationClasses = () => {
@@ -68,10 +61,10 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
           relative ${sizeClasses[size]} rounded-full border-2 border-white/20 
           ${getAnimationClasses()}
           text-white transition-all duration-300 hover:scale-105
-          flex items-center justify-center
+          flex items-center justify-center font-bold ${textSizes[size]}
         `}
       >
-        {getIcon()}
+        AI
       </Button>
       
       {/* Status indicator */}
