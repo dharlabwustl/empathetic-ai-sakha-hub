@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -116,7 +115,39 @@ const StudentDashboard = () => {
   };
 
   const handleSpeechCommand = (command: string) => {
-    console.log('Dashboard speech command received:', command);
+    console.log('🎤 Dashboard speech command received:', command);
+    
+    // Enhanced command processing with immediate feedback
+    const lowerCommand = command.toLowerCase().trim();
+    
+    // Navigation commands
+    if (lowerCommand.includes('concept') || lowerCommand.includes('learn')) {
+      navigate('/dashboard/student/concepts');
+      return;
+    }
+    
+    if (lowerCommand.includes('flashcard')) {
+      navigate('/dashboard/student/flashcards');
+      return;
+    }
+    
+    if (lowerCommand.includes('practice') || lowerCommand.includes('exam') || lowerCommand.includes('test')) {
+      navigate('/dashboard/student/practice-exam');
+      return;
+    }
+    
+    if (lowerCommand.includes('profile') || lowerCommand.includes('setting')) {
+      navigate('/dashboard/student/profile');
+      return;
+    }
+    
+    // Study assistance commands
+    if (lowerCommand.includes('progress')) {
+      // Show progress feedback
+      return;
+    }
+    
+    console.log('🎤 Command processed:', command);
   };
 
   const handleStopSpeaking = () => {
@@ -124,6 +155,11 @@ const StudentDashboard = () => {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
     }
+  };
+
+  const handleListeningChange = (listening: boolean) => {
+    console.log('🎤 Listening state changed:', listening);
+    setIsListening(listening);
   };
 
   if (showSplash) {
@@ -201,10 +237,10 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Ultra-fast Speech Recognition for Dashboard with manual activation */}
+      {/* Ultra-fast Speech Recognition for Dashboard with immediate response */}
       <UltraFastSpeechRecognition
         onCommand={handleSpeechCommand}
-        onListeningChange={setIsListening}
+        onListeningChange={handleListeningChange}
         onStopSpeaking={handleStopSpeaking}
         language="en-US"
         continuous={false}
@@ -222,7 +258,7 @@ const StudentDashboard = () => {
         isMicrophoneActive={isListening}
       />
 
-      {/* Enhanced floating voice assistant button with microphone functionality */}
+      {/* Enhanced floating voice assistant button with immediate response */}
       <div className="fixed bottom-6 right-6 z-40">
         <FloatingVoiceButton 
           isSpeaking={isSpeaking}

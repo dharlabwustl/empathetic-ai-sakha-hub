@@ -174,6 +174,8 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
   const clickedRef = useRef(false);
 
   const handleClick = () => {
+    console.log('🎤 FloatingVoiceButton clicked - immediate action');
+    
     // Immediate feedback - stop speech instantly
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
@@ -184,13 +186,6 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
     
     clickedRef.current = true;
     
-    // Enhanced voice recognition control with immediate response
-    if (isListening) {
-      window.dispatchEvent(new Event('stop-voice-recognition'));
-    } else {
-      window.dispatchEvent(new Event('start-voice-recognition'));
-    }
-    
     if (onClick) {
       onClick();
     }
@@ -198,18 +193,18 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
     // Reset clicked state after shorter duration for better UX
     setTimeout(() => {
       clickedRef.current = false;
-    }, 8000);
+    }, 5000);
   };
 
   return (
     <motion.div
       className={`relative ${className}`}
-      whileHover={{ scale: 1.08 }}
-      whileTap={{ scale: 0.92 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       transition={{
         type: "spring",
-        stiffness: 300,
-        damping: 20
+        stiffness: 400,
+        damping: 25
       }}
     >
       {/* Enhanced background gradient pulse with smoother animations */}
