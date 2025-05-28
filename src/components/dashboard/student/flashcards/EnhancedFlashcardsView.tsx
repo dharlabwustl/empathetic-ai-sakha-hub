@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { BookOpen, Clock, Target, TrendingUp, Play, ChevronRight, Brain, Star, ChevronDown, BarChart3, Zap, Award, Calendar } from 'lucide-react';
+import { BookOpen, Clock, Target, TrendingUp, Play, ChevronRight, Brain, Star, ChevronDown, BarChart3, Zap, Award, Calendar, Plus } from 'lucide-react';
 
-const EnhancedConceptLandingPage = () => {
+const EnhancedFlashcardsView = () => {
   const navigate = useNavigate();
   const [expandedTopics, setExpandedTopics] = useState<string[]>([]);
 
@@ -21,161 +21,162 @@ const EnhancedConceptLandingPage = () => {
     );
   };
 
-  // Overall stats
+  // Overall flashcard stats
   const overallStats = {
-    totalConcepts: 450,
-    masteredConcepts: 320,
-    weeklyProgress: 85,
-    studyStreak: 12,
-    averageAccuracy: 89,
-    timeSpent: '24h 30m'
+    totalDecks: 45,
+    totalCards: 1250,
+    masteredCards: 890,
+    weeklyProgress: 78,
+    studyStreak: 15,
+    averageAccuracy: 85,
+    timeSpent: '18h 45m'
   };
 
-  // Daily AI suggestions
+  // Daily AI suggestions for flashcards
   const aiSuggestions = [
-    "Focus on Physics Waves - 73% accuracy needs improvement",
-    "Review Chemistry Thermodynamics before tomorrow's test",
-    "Biology Cell Division concepts are ready for advanced practice",
-    "Mathematics Calculus showing excellent progress - continue momentum"
+    "Review Physics Mechanics cards - due for spaced repetition",
+    "Chemistry Organic reactions showing 68% accuracy - needs focus",
+    "Biology Genetics flashcards ready for advanced difficulty",
+    "Create new cards for weak areas in Thermodynamics"
   ];
 
-  // Subject data with detailed breakdown
+  // Subject data for flashcards
   const subjectData = [
     {
       subject: 'Physics',
-      totalConcepts: 120,
-      masteredConcepts: 85,
-      progress: 71,
+      totalDecks: 15,
+      totalCards: 420,
+      masteredCards: 295,
+      progress: 70,
       weightage: 33,
       priority: 'High',
       color: 'bg-blue-500',
       topics: [
         {
-          id: 'mechanics',
+          id: 'mechanics-flash',
           name: 'Mechanics',
-          progress: 90,
+          decks: 5,
+          cards: 125,
+          mastered: 110,
+          progress: 88,
           weightage: 25,
           priority: 'Medium',
-          concepts: 25,
-          mastered: 23,
           accuracy: 92,
+          dueForReview: 8,
           subtopics: [
-            { name: 'Laws of Motion', progress: 95, weightage: 8 },
-            { name: 'Work & Energy', progress: 88, weightage: 7 },
-            { name: 'Rotational Motion', progress: 85, weightage: 6 },
-            { name: 'Gravitation', progress: 92, weightage: 4 }
+            { name: 'Laws of Motion', cards: 35, mastered: 33, accuracy: 94, weightage: 8 },
+            { name: 'Work & Energy', cards: 30, mastered: 27, accuracy: 90, weightage: 7 },
+            { name: 'Rotational Motion', cards: 35, mastered: 30, accuracy: 86, weightage: 6 },
+            { name: 'Gravitation', cards: 25, mastered: 20, accuracy: 80, weightage: 4 }
           ]
         },
         {
-          id: 'thermodynamics',
+          id: 'thermodynamics-flash',
           name: 'Thermodynamics',
-          progress: 75,
+          decks: 3,
+          cards: 85,
+          mastered: 60,
+          progress: 71,
           weightage: 20,
           priority: 'High',
-          concepts: 18,
-          mastered: 14,
-          accuracy: 78,
+          accuracy: 75,
+          dueForReview: 15,
           subtopics: [
-            { name: 'Laws of Thermodynamics', progress: 80, weightage: 8 },
-            { name: 'Heat Transfer', progress: 70, weightage: 6 },
-            { name: 'Kinetic Theory', progress: 75, weightage: 6 }
-          ]
-        },
-        {
-          id: 'waves',
-          name: 'Waves & Optics',
-          progress: 65,
-          weightage: 22,
-          priority: 'High',
-          concepts: 22,
-          mastered: 14,
-          accuracy: 73,
-          subtopics: [
-            { name: 'Wave Properties', progress: 70, weightage: 7 },
-            { name: 'Sound Waves', progress: 65, weightage: 5 },
-            { name: 'Light & Optics', progress: 60, weightage: 10 }
+            { name: 'Laws of Thermodynamics', cards: 30, mastered: 24, accuracy: 80, weightage: 8 },
+            { name: 'Heat Transfer', cards: 25, mastered: 18, accuracy: 72, weightage: 6 },
+            { name: 'Kinetic Theory', cards: 30, mastered: 18, accuracy: 60, weightage: 6 }
           ]
         }
       ]
     },
     {
       subject: 'Chemistry',
-      totalConcepts: 150,
-      masteredConcepts: 110,
-      progress: 73,
+      totalDecks: 18,
+      totalCards: 485,
+      masteredCards: 365,
+      progress: 75,
       weightage: 33,
       priority: 'Medium',
       color: 'bg-green-500',
       topics: [
         {
-          id: 'organic',
+          id: 'organic-flash',
           name: 'Organic Chemistry',
-          progress: 85,
+          decks: 8,
+          cards: 195,
+          mastered: 155,
+          progress: 79,
           weightage: 40,
           priority: 'High',
-          concepts: 45,
-          mastered: 38,
-          accuracy: 87,
+          accuracy: 81,
+          dueForReview: 22,
           subtopics: [
-            { name: 'Hydrocarbons', progress: 90, weightage: 12 },
-            { name: 'Functional Groups', progress: 85, weightage: 15 },
-            { name: 'Reactions', progress: 80, weightage: 13 }
+            { name: 'Hydrocarbons', cards: 60, mastered: 52, accuracy: 87, weightage: 12 },
+            { name: 'Functional Groups', cards: 75, mastered: 58, accuracy: 77, weightage: 15 },
+            { name: 'Reactions', cards: 60, mastered: 45, accuracy: 75, weightage: 13 }
           ]
         },
         {
-          id: 'inorganic',
+          id: 'inorganic-flash',
           name: 'Inorganic Chemistry',
-          progress: 70,
+          decks: 6,
+          cards: 145,
+          mastered: 108,
+          progress: 74,
           weightage: 30,
           priority: 'Medium',
-          concepts: 35,
-          mastered: 25,
-          accuracy: 82,
+          accuracy: 83,
+          dueForReview: 18,
           subtopics: [
-            { name: 'Periodic Table', progress: 85, weightage: 10 },
-            { name: 'Chemical Bonding', progress: 65, weightage: 12 },
-            { name: 'Coordination Compounds', progress: 60, weightage: 8 }
+            { name: 'Periodic Table', cards: 50, mastered: 42, accuracy: 84, weightage: 10 },
+            { name: 'Chemical Bonding', cards: 55, mastered: 38, accuracy: 69, weightage: 12 },
+            { name: 'Coordination Compounds', cards: 40, mastered: 28, accuracy: 70, weightage: 8 }
           ]
         }
       ]
     },
     {
       subject: 'Biology',
-      totalConcepts: 180,
-      masteredConcepts: 125,
-      progress: 69,
+      totalDecks: 12,
+      totalCards: 345,
+      masteredCards: 230,
+      progress: 67,
       weightage: 34,
       priority: 'Medium',
       color: 'bg-purple-500',
       topics: [
         {
-          id: 'cell-biology',
+          id: 'cell-biology-flash',
           name: 'Cell Biology',
-          progress: 95,
+          decks: 4,
+          cards: 120,
+          mastered: 110,
+          progress: 92,
           weightage: 25,
           priority: 'Low',
-          concepts: 30,
-          mastered: 29,
-          accuracy: 96,
+          accuracy: 94,
+          dueForReview: 5,
           subtopics: [
-            { name: 'Cell Structure', progress: 98, weightage: 8 },
-            { name: 'Cell Division', progress: 95, weightage: 9 },
-            { name: 'Cell Cycle', progress: 92, weightage: 8 }
+            { name: 'Cell Structure', cards: 40, mastered: 38, accuracy: 95, weightage: 8 },
+            { name: 'Cell Division', cards: 45, mastered: 42, accuracy: 93, weightage: 9 },
+            { name: 'Cell Cycle', cards: 35, mastered: 30, accuracy: 86, weightage: 8 }
           ]
         },
         {
-          id: 'genetics',
+          id: 'genetics-flash',
           name: 'Genetics',
-          progress: 70,
+          decks: 5,
+          cards: 105,
+          mastered: 65,
+          progress: 62,
           weightage: 30,
           priority: 'High',
-          concepts: 25,
-          mastered: 18,
-          accuracy: 84,
+          accuracy: 78,
+          dueForReview: 28,
           subtopics: [
-            { name: 'Mendel\'s Laws', progress: 85, weightage: 10 },
-            { name: 'DNA & RNA', progress: 65, weightage: 12 },
-            { name: 'Gene Expression', progress: 60, weightage: 8 }
+            { name: 'Mendel\'s Laws', cards: 35, mastered: 28, accuracy: 80, weightage: 10 },
+            { name: 'DNA & RNA', cards: 40, mastered: 22, accuracy: 55, weightage: 12 },
+            { name: 'Gene Expression', cards: 30, mastered: 15, accuracy: 50, weightage: 8 }
           ]
         }
       ]
@@ -192,33 +193,39 @@ const EnhancedConceptLandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Concept Mastery Hub
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Smart Flashcards Hub
             </h1>
-            <p className="text-gray-600 mt-2">Master NEET concepts with AI-powered personalized learning</p>
+            <p className="text-gray-600 mt-2">Master concepts with spaced repetition and active recall</p>
           </div>
-          <Button className="bg-gradient-to-r from-indigo-600 to-purple-600">
-            <BookOpen className="mr-2 h-4 w-4" />
-            Create Custom Concept
+          <Button className="bg-gradient-to-r from-emerald-600 to-teal-600">
+            <Plus className="mr-2 h-4 w-4" />
+            Create New Deck
           </Button>
         </div>
 
         {/* Overview Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-indigo-600">{overallStats.totalConcepts}</div>
-              <div className="text-sm text-gray-600">Total Concepts</div>
+              <div className="text-2xl font-bold text-emerald-600">{overallStats.totalDecks}</div>
+              <div className="text-sm text-gray-600">Total Decks</div>
             </CardContent>
           </Card>
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{overallStats.masteredConcepts}</div>
+              <div className="text-2xl font-bold text-teal-600">{overallStats.totalCards}</div>
+              <div className="text-sm text-gray-600">Total Cards</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">{overallStats.masteredCards}</div>
               <div className="text-sm text-gray-600">Mastered</div>
             </CardContent>
           </Card>
@@ -249,9 +256,9 @@ const EnhancedConceptLandingPage = () => {
         </div>
 
         {/* AI Suggestions */}
-        <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200 shadow-lg">
+        <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-indigo-800">
+            <CardTitle className="flex items-center gap-2 text-emerald-800">
               <Brain className="h-5 w-5" />
               Daily Smart Suggestions
             </CardTitle>
@@ -259,8 +266,8 @@ const EnhancedConceptLandingPage = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {aiSuggestions.map((suggestion, index) => (
-                <div key={index} className="p-3 bg-white rounded-lg border border-indigo-200 shadow-sm flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
+                <div key={index} className="p-3 bg-white rounded-lg border border-emerald-200 shadow-sm flex items-start gap-2">
+                  <Zap className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-gray-700">{suggestion}</p>
                 </div>
               ))}
@@ -288,14 +295,16 @@ const EnhancedConceptLandingPage = () => {
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Progress</span>
+                      <span>Mastery</span>
                       <span className="font-medium">{subject.progress}%</span>
                     </div>
                     <Progress value={subject.progress} className="h-2" />
                   </div>
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Weightage: {subject.weightage}%</span>
-                    <span>{subject.masteredConcepts}/{subject.totalConcepts} mastered</span>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="text-gray-600">Decks: {subject.totalDecks}</div>
+                    <div className="text-gray-600">Cards: {subject.totalCards}</div>
+                    <div className="text-gray-600">Weightage: {subject.weightage}%</div>
+                    <div className="text-green-600">Mastered: {subject.masteredCards}</div>
                   </div>
                 </div>
               ))}
@@ -320,7 +329,7 @@ const EnhancedConceptLandingPage = () => {
               <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{subject.subject} Overview</span>
+                    <span>{subject.subject} Flashcards</span>
                     <Badge variant="outline" className={getPriorityColor(subject.priority)}>
                       {subject.priority} Priority
                     </Badge>
@@ -328,21 +337,21 @@ const EnhancedConceptLandingPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{subject.weightage}%</div>
-                      <div className="text-sm text-blue-700">Exam Weightage</div>
+                    <div className="text-center p-3 bg-emerald-50 rounded-lg">
+                      <div className="text-2xl font-bold text-emerald-600">{subject.totalDecks}</div>
+                      <div className="text-sm text-emerald-700">Total Decks</div>
+                    </div>
+                    <div className="text-center p-3 bg-teal-50 rounded-lg">
+                      <div className="text-2xl font-bold text-teal-600">{subject.totalCards}</div>
+                      <div className="text-sm text-teal-700">Total Cards</div>
                     </div>
                     <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">{subject.progress}%</div>
-                      <div className="text-sm text-green-700">Progress</div>
+                      <div className="text-2xl font-bold text-green-600">{subject.masteredCards}</div>
+                      <div className="text-sm text-green-700">Mastered</div>
                     </div>
-                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">{subject.masteredConcepts}</div>
-                      <div className="text-sm text-purple-700">Mastered</div>
-                    </div>
-                    <div className="text-center p-3 bg-orange-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600">{subject.totalConcepts}</div>
-                      <div className="text-sm text-orange-700">Total</div>
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{subject.weightage}%</div>
+                      <div className="text-sm text-blue-700">Weightage</div>
                     </div>
                   </div>
                 </CardContent>
@@ -368,16 +377,21 @@ const EnhancedConceptLandingPage = () => {
                               <Badge variant="outline" className={getPriorityColor(topic.priority)}>
                                 {topic.priority}
                               </Badge>
+                              {topic.dueForReview > 0 && (
+                                <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-200">
+                                  {topic.dueForReview} due
+                                </Badge>
+                              )}
                             </div>
                             <div className="flex items-center gap-4 text-sm">
+                              <span className="text-emerald-600 font-medium">{topic.accuracy}% accuracy</span>
                               <span className="text-blue-600 font-medium">{topic.weightage}% weightage</span>
-                              <span className="text-green-600 font-medium">{topic.progress}% complete</span>
                             </div>
                           </div>
                           <div className="mt-3">
                             <div className="flex justify-between text-sm mb-1">
-                              <span>Progress</span>
-                              <span>{topic.mastered}/{topic.concepts} concepts</span>
+                              <span>Mastery Progress</span>
+                              <span>{topic.mastered}/{topic.cards} cards</span>
                             </div>
                             <Progress value={topic.progress} className="h-2" />
                           </div>
@@ -389,24 +403,26 @@ const EnhancedConceptLandingPage = () => {
                             {topic.subtopics.map((subtopic, index) => (
                               <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                 <span className="text-sm font-medium">{subtopic.name}</span>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs text-emerald-600">{subtopic.accuracy}% acc</span>
                                   <span className="text-xs text-blue-600">{subtopic.weightage}%</span>
-                                  <div className="w-16">
-                                    <Progress value={subtopic.progress} className="h-1" />
-                                  </div>
-                                  <span className="text-xs text-gray-600">{subtopic.progress}%</span>
+                                  <span className="text-xs text-gray-600">{subtopic.mastered}/{subtopic.cards}</span>
                                 </div>
                               </div>
                             ))}
                           </div>
                           <div className="mt-3 flex gap-2">
-                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
                               <Play className="h-3 w-3 mr-1" />
-                              Study Now
+                              Study Cards
                             </Button>
                             <Button size="sm" variant="outline">
                               <BarChart3 className="h-3 w-3 mr-1" />
                               Analytics
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add Cards
                             </Button>
                           </div>
                         </div>
@@ -423,4 +439,4 @@ const EnhancedConceptLandingPage = () => {
   );
 };
 
-export default EnhancedConceptLandingPage;
+export default EnhancedFlashcardsView;
