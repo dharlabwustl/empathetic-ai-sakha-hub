@@ -5,6 +5,7 @@ import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
 import { MoodType } from "@/types/user/base";
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
+import { SubscriptionType } from "@/types/subscription";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -43,13 +44,44 @@ const StepHandler = ({
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
       
+      // Check if this is a free trial signup
+      const isFreeTrial = localStorage.getItem('free_trial_signup') === 'true' || 
+                         window.location.search.includes('trial=true');
+      
+      // Create trial info if this is a free trial
+      let subscriptionData = {
+        type: SubscriptionType.FREE,
+        plan: 'Free Plan'
+      };
+      
+      if (isFreeTrial) {
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setDate(startDate.getDate() + 7);
+        
+        subscriptionData = {
+          type: SubscriptionType.TRIAL,
+          plan: '7-Day Free Trial',
+          trial: {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            daysRemaining: 7,
+            isActive: true
+          }
+        };
+        
+        // Clear the trial signup flag
+        localStorage.removeItem('free_trial_signup');
+      }
+      
       // Create a user object with the collected data
       const userData = {
         id: `user_${Date.now()}`,
         name: cleanName,
-        email: `${cleanMobile}@prepzr.com`, // Use consistent email format based on mobile
+        email: `${cleanMobile}@prepzr.com`,
         phoneNumber: cleanMobile,
         role: UserRole.Student,
+        subscription: subscriptionData,
         ...onboardingData,
         completedOnboarding: true,
         isNewUser: true,
@@ -74,8 +106,8 @@ const StepHandler = ({
       window.dispatchEvent(new Event('auth-state-changed'));
       
       toast({
-        title: "Welcome to Prepzr!",
-        description: "Let's start your learning journey.",
+        title: isFreeTrial ? "Welcome to your 7-day free trial!" : "Welcome to Prepzr!",
+        description: isFreeTrial ? "Your trial starts now. Let's begin your learning journey." : "Let's start your learning journey.",
       });
       
       // Navigate directly to welcome-flow, skipping login
@@ -102,9 +134,8 @@ const StepHandler = ({
         Object.entries(data).forEach(([key, value]) => {
           userMessage += `${key}: ${value.trim()}, `;
         });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        userMessage = userMessage.slice(0, -2);
         
-        // Clean the data by trimming all string values
         const cleanData: Record<string, string> = {};
         Object.entries(data).forEach(([key, value]) => {
           cleanData[key] = value.trim();
@@ -151,23 +182,20 @@ const StepHandler = ({
         const cleanedHabits: Record<string, string> = {};
         
         Object.entries(habits).forEach(([key, value]) => {
-          // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
           cleanedHabits[key] = value.trim();
         });
         
-        // Create a readable message for chat from the habits
         let userMessage = "";
         Object.entries(cleanedHabits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        userMessage = userMessage.slice(0, -2);
         
         setOnboardingData({ ...onboardingData, ...cleanedHabits });
         
-        // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
           ? getSubjectsForGoal(onboardingData.goal)
           : [];
