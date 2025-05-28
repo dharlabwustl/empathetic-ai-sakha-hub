@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -7,13 +8,13 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
-import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
-import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import IntelligentDashboardAssistant from "@/components/voice/IntelligentDashboardAssistant";
+import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -147,17 +148,17 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Mock user progress data for voice assistant
+  // Enhanced user progress data for voice assistant
   const userProgressData = {
     overallProgress: 68,
-    physicsProgress: 56,
-    chemistryProgress: 69,
-    biologyProgress: 72,
+    completedTasks: 12,
+    studyStreak: 5,
+    lastActivity: 'completed Physics concepts',
     examReadinessScore: 78
   };
 
-  const studyStreak = 5;
-  const lastActivity = 'completed Physics concepts';
+  // Determine if user is first time based on login count or local storage
+  const isFirstTimeUser = userProfile.loginCount <= 1 || localStorage.getItem('new_user_signup') === 'true';
 
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
@@ -189,23 +190,22 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Dashboard Voice Assistant with user progress context */}
-      <DashboardVoiceAssistant
-        userName={userProfile.name}
-        language="en-IN"
-        userMood={currentMood}
+      {/* Intelligent Dashboard Voice Assistant with context-aware messaging */}
+      <IntelligentDashboardAssistant
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        isFirstTimeUser={isFirstTimeUser}
+        language="en-US"
+        onSpeakingChange={setIsSpeaking}
         userProgress={userProgressData}
-        studyStreak={studyStreak}
-        lastActivity={lastActivity}
       />
 
-      {/* Interactive Voice Assistant with enhanced navigation */}
-      <InteractiveVoiceAssistant 
-        userName={userProfile.name}
-        language="en-US"
-        onNavigationCommand={(route) => navigate(route)}
-        position="bottom-right"
-      />
+      {/* Enhanced floating voice assistant button with vibrant animations */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <FloatingVoiceButton 
+          isSpeaking={isSpeaking}
+          className="cursor-pointer"
+        />
+      </div>
     </>
   );
 };

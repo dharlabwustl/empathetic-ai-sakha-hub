@@ -20,143 +20,163 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
   const recognitionRef = useRef<any>(null);
   const [isListening, setIsListening] = useState(false);
   const [lastCommand, setLastCommand] = useState('');
+  const commandTimeoutRef = useRef<number | null>(null);
   
-  // Homepage commands
+  // Enhanced homepage commands with quick action words
   const homepageCommands = {
+    // Quick action commands
+    'trial': () => navigate('/signup?trial=true'),
+    'free trial': () => navigate('/signup?trial=true'),
+    'start trial': () => navigate('/signup?trial=true'),
+    'try free': () => navigate('/signup?trial=true'),
+    'get started': () => navigate('/signup'),
+    
     // Authentication
     'sign up': () => navigate('/signup'),
     'signup': () => navigate('/signup'),
     'register': () => navigate('/signup'),
     'create account': () => navigate('/signup'),
+    'join': () => navigate('/signup'),
     'login': () => navigate('/login'),
     'log in': () => navigate('/login'),
-    'sign in': () => navigate('/sign-in'),
+    'sign in': () => navigate('/login'),
     
-    // Features
+    // Exam readiness and scholarship
     'exam readiness': () => window.dispatchEvent(new Event('open-exam-analyzer')),
-    'exam readiness test': () => window.dispatchEvent(new Event('open-exam-analyzer')),
     'readiness test': () => window.dispatchEvent(new Event('open-exam-analyzer')),
     'test readiness': () => window.dispatchEvent(new Event('open-exam-analyzer')),
-    'analyze readiness': () => window.dispatchEvent(new Event('open-exam-analyzer')),
-    
-    // Free trial
-    'free trial': () => navigate('/signup?trial=true'),
-    'start trial': () => navigate('/signup?trial=true'),
-    'try free': () => navigate('/signup?trial=true'),
+    'analyze': () => window.dispatchEvent(new Event('open-exam-analyzer')),
+    'scholarship': () => navigate('/scholarship'),
+    'scholarship test': () => navigate('/scholarship'),
+    'free scholarship': () => navigate('/scholarship'),
     
     // Navigation
-    'go to dashboard': () => navigate('/dashboard/student'),
     'dashboard': () => navigate('/dashboard/student'),
     'home': () => navigate('/'),
-    'back to home': () => navigate('/'),
   };
   
-  // Dashboard commands
+  // Comprehensive dashboard commands with quick navigation
   const dashboardCommands = {
-    // Main dashboard sections
-    'dashboard': () => navigate('/dashboard/student'),
+    // Main sections - quick commands
     'overview': () => navigate('/dashboard/student'),
-    'today plan': () => navigate('/dashboard/student'),
-    'daily plan': () => navigate('/dashboard/student'),
+    'dashboard': () => navigate('/dashboard/student'),
+    'today': () => navigate('/dashboard/student'),
+    'home': () => navigate('/dashboard/student'),
     
     // Study plan
     'study plan': () => navigate('/dashboard/student/study-plan'),
-    'my study plan': () => navigate('/dashboard/student/study-plan'),
-    'weekly plan': () => navigate('/dashboard/student/study-plan'),
+    'plan': () => navigate('/dashboard/student/study-plan'),
     'schedule': () => navigate('/dashboard/student/study-plan'),
+    'weekly plan': () => navigate('/dashboard/student/study-plan'),
+    'daily plan': () => navigate('/dashboard/student/study-plan'),
     
     // Academic advisor
-    'academic advisor': () => navigate('/dashboard/student/academic-advisor'),
     'advisor': () => navigate('/dashboard/student/academic-advisor'),
+    'academic advisor': () => navigate('/dashboard/student/academic-advisor'),
     'ai advisor': () => navigate('/dashboard/student/academic-advisor'),
+    'guidance': () => navigate('/dashboard/student/academic-advisor'),
     
     // Exam syllabus
-    'exam syllabus': () => navigate('/dashboard/student/exam-syllabus'),
     'syllabus': () => navigate('/dashboard/student/exam-syllabus'),
+    'exam syllabus': () => navigate('/dashboard/student/exam-syllabus'),
     'curriculum': () => navigate('/dashboard/student/exam-syllabus'),
+    'topics': () => navigate('/dashboard/student/exam-syllabus'),
     
     // Previous year papers
-    'previous year papers': () => navigate('/dashboard/student/previous-year-papers'),
+    'papers': () => navigate('/dashboard/student/previous-year-papers'),
     'previous papers': () => navigate('/dashboard/student/previous-year-papers'),
     'past papers': () => navigate('/dashboard/student/previous-year-papers'),
     'old papers': () => navigate('/dashboard/student/previous-year-papers'),
+    'question papers': () => navigate('/dashboard/student/previous-year-papers'),
     
     // Concept cards
-    'concept cards': () => navigate('/dashboard/student/concept-cards'),
     'concepts': () => navigate('/dashboard/student/concept-cards'),
-    'concept card': () => navigate('/dashboard/student/concept-cards'),
+    'concept cards': () => navigate('/dashboard/student/concept-cards'),
+    'theory': () => navigate('/dashboard/student/concept-cards'),
     
-    // Specific concept card detail
+    // Subject-specific concept cards
     'physics concepts': () => navigate('/dashboard/student/concept-cards/physics'),
     'chemistry concepts': () => navigate('/dashboard/student/concept-cards/chemistry'),
     'biology concepts': () => navigate('/dashboard/student/concept-cards/biology'),
-    'mathematics concepts': () => navigate('/dashboard/student/concept-cards/mathematics'),
     'math concepts': () => navigate('/dashboard/student/concept-cards/mathematics'),
+    'maths concepts': () => navigate('/dashboard/student/concept-cards/mathematics'),
     
     // Flashcards
     'flashcards': () => navigate('/dashboard/student/flashcards'),
     'flash cards': () => navigate('/dashboard/student/flashcards'),
-    'interactive flashcards': () => navigate('/dashboard/student/flashcards'),
+    'cards': () => navigate('/dashboard/student/flashcards'),
+    'quick review': () => navigate('/dashboard/student/flashcards'),
     
-    // Specific flashcard topics
+    // Subject-specific flashcards
     'physics flashcards': () => navigate('/dashboard/student/flashcards/physics'),
     'chemistry flashcards': () => navigate('/dashboard/student/flashcards/chemistry'),
     'biology flashcards': () => navigate('/dashboard/student/flashcards/biology'),
     'math flashcards': () => navigate('/dashboard/student/flashcards/mathematics'),
+    'maths flashcards': () => navigate('/dashboard/student/flashcards/mathematics'),
     
     // Practice exams
+    'practice': () => navigate('/dashboard/student/practice-exams'),
     'practice exam': () => navigate('/dashboard/student/practice-exams'),
     'practice exams': () => navigate('/dashboard/student/practice-exams'),
     'mock test': () => navigate('/dashboard/student/practice-exams'),
     'mock tests': () => navigate('/dashboard/student/practice-exams'),
-    'test exam': () => navigate('/dashboard/student/practice-exams'),
+    'test': () => navigate('/dashboard/student/practice-exams'),
+    'exam': () => navigate('/dashboard/student/practice-exams'),
     
-    // Exam taking pages
+    // Taking exams
     'take exam': () => navigate('/dashboard/student/practice-exams/take'),
     'start exam': () => navigate('/dashboard/student/practice-exams/take'),
+    'begin test': () => navigate('/dashboard/student/practice-exams/take'),
     'physics exam': () => navigate('/dashboard/student/practice-exams/take/physics'),
     'chemistry exam': () => navigate('/dashboard/student/practice-exams/take/chemistry'),
     'biology exam': () => navigate('/dashboard/student/practice-exams/take/biology'),
     'math exam': () => navigate('/dashboard/student/practice-exams/take/mathematics'),
+    'maths exam': () => navigate('/dashboard/student/practice-exams/take/mathematics'),
     
     // Feel good corner
-    'feel good corner': () => navigate('/dashboard/student/feel-good-corner'),
     'wellness': () => navigate('/dashboard/student/feel-good-corner'),
+    'feel good': () => navigate('/dashboard/student/feel-good-corner'),
     'mental health': () => navigate('/dashboard/student/feel-good-corner'),
     'stress relief': () => navigate('/dashboard/student/feel-good-corner'),
+    'meditation': () => navigate('/dashboard/student/feel-good-corner'),
+    'relax': () => navigate('/dashboard/student/feel-good-corner'),
     
     // AI Tutor
-    'ai tutor': () => navigate('/dashboard/student/ai-tutor'),
     'tutor': () => navigate('/dashboard/student/ai-tutor'),
-    'personal tutor': () => navigate('/dashboard/student/ai-tutor'),
-    'chat tutor': () => navigate('/dashboard/student/ai-tutor'),
+    'ai tutor': () => navigate('/dashboard/student/ai-tutor'),
+    'chat': () => navigate('/dashboard/student/ai-tutor'),
+    'help': () => navigate('/dashboard/student/ai-tutor'),
+    'ask question': () => navigate('/dashboard/student/ai-tutor'),
     
-    // Profile
+    // Profile and settings
     'profile': () => navigate('/dashboard/student/profile'),
-    'my profile': () => navigate('/dashboard/student/profile'),
     'account': () => navigate('/dashboard/student/profile'),
     'settings': () => navigate('/dashboard/student/profile'),
+    'my profile': () => navigate('/dashboard/student/profile'),
     
     // Notifications
     'notifications': () => navigate('/dashboard/student/notifications'),
     'alerts': () => navigate('/dashboard/student/notifications'),
     'messages': () => navigate('/dashboard/student/notifications'),
+    'updates': () => navigate('/dashboard/student/notifications'),
     
     // Subscription
     'subscription': () => navigate('/dashboard/student/subscription'),
-    'subscription plan': () => navigate('/dashboard/student/subscription'),
+    'plans': () => navigate('/dashboard/student/subscription'),
     'billing': () => navigate('/dashboard/student/subscription'),
     'upgrade': () => navigate('/dashboard/student/subscription'),
-    'plans': () => navigate('/dashboard/student/subscription'),
+    'premium': () => navigate('/dashboard/student/subscription'),
     
-    // Navigation
-    'go home': () => navigate('/'),
-    'home page': () => navigate('/'),
+    // Quick actions
     'logout': () => {
       localStorage.clear();
       navigate('/');
     },
     'log out': () => {
+      localStorage.clear();
+      navigate('/');
+    },
+    'exit': () => {
       localStorage.clear();
       navigate('/');
     }
@@ -171,11 +191,11 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
     const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
     const recognition = new SpeechRecognition();
     
-    // Enhanced settings for faster response
+    // Optimized settings for faster, more responsive recognition
     recognition.continuous = continuous;
     recognition.interimResults = true;
     recognition.lang = language;
-    recognition.maxAlternatives = 3; // Get multiple alternatives for better accuracy
+    recognition.maxAlternatives = 1; // Reduced for faster processing
     
     recognition.onstart = () => {
       setIsListening(true);
@@ -186,7 +206,7 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
       setIsListening(false);
       console.log('🎤 Speech recognition ended');
       
-      // Auto-restart for continuous listening
+      // Quick restart for continuous listening
       if (continuous) {
         setTimeout(() => {
           try {
@@ -194,7 +214,7 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
           } catch (error) {
             console.log('Recognition restart failed:', error);
           }
-        }, 500);
+        }, 300); // Reduced restart delay
       }
     };
 
@@ -202,7 +222,7 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
       console.error('Speech recognition error:', event.error);
       setIsListening(false);
       
-      // Restart on error with delay
+      // Quick restart on error
       if (continuous && event.error !== 'aborted') {
         setTimeout(() => {
           try {
@@ -210,27 +230,39 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
           } catch (error) {
             console.log('Recognition restart after error failed:', error);
           }
-        }, 1000);
+        }, 500);
       }
     };
 
     recognition.onresult = (event: any) => {
       const results = Array.from(event.results);
       
-      // Process both interim and final results for faster response
+      // Process results immediately for faster response
       for (let i = event.resultIndex; i < results.length; i++) {
         const result = results[i];
         const transcript = result[0].transcript.toLowerCase().trim();
         const confidence = result[0].confidence;
         
-        // Process final results with high confidence immediately
+        // Process even interim results with high confidence for instant response
+        if (confidence > 0.8 && transcript.length > 2) {
+          // Clear any existing timeout
+          if (commandTimeoutRef.current) {
+            clearTimeout(commandTimeoutRef.current);
+          }
+          
+          // Set a very short timeout to batch rapid speech
+          commandTimeoutRef.current = window.setTimeout(() => {
+            processCommand(transcript);
+          }, 100); // Very quick processing
+        }
+        
+        // Also process final results
         if (result.isFinal && confidence > 0.7) {
+          if (commandTimeoutRef.current) {
+            clearTimeout(commandTimeoutRef.current);
+          }
           processCommand(transcript);
           setLastCommand(transcript);
-        }
-        // Process interim results if confidence is very high for quick response
-        else if (!result.isFinal && confidence > 0.9 && transcript.length > 3) {
-          processCommand(transcript);
         }
       }
     };
@@ -254,7 +286,7 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
     
     const commandMap = isHomePage ? homepageCommands : dashboardCommands;
     
-    // Try exact match first
+    // Try exact match first (fastest)
     if (commandMap[command]) {
       console.log('✅ Executing exact command:', command);
       commandMap[command]();
@@ -262,23 +294,24 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
       toast({
         title: "Voice Command Executed",
         description: `Executing: ${command}`,
-        duration: 2000,
+        duration: 1500, // Shorter toast duration
       });
       
       if (onCommand) onCommand(command);
       return;
     }
     
-    // Try partial matches for better flexibility
-    for (const [key, action] of Object.entries(commandMap)) {
+    // Try partial matches with priority for shorter commands
+    const commandKeys = Object.keys(commandMap).sort((a, b) => a.length - b.length);
+    for (const key of commandKeys) {
       if (command.includes(key) || key.includes(command)) {
         console.log('✅ Executing partial command match:', key);
-        action();
+        commandMap[key]();
         
         toast({
           title: "Voice Command Executed",
           description: `Executing: ${key}`,
-          duration: 2000,
+          duration: 1500,
         });
         
         if (onCommand) onCommand(key);
@@ -288,7 +321,6 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
     
     // If no match found
     console.log('❌ No command match found for:', command);
-    
     if (onCommand) onCommand(command);
   };
 
@@ -311,26 +343,29 @@ const EnhancedSpeechRecognition: React.FC<EnhancedSpeechRecognitionProps> = ({
   useEffect(() => {
     initSpeechRecognition();
     
-    // Start listening immediately if continuous mode
+    // Start listening immediately for faster response
     if (continuous) {
-      setTimeout(startListening, 1000);
+      setTimeout(startListening, 500);
     }
     
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
+      if (commandTimeoutRef.current) {
+        clearTimeout(commandTimeoutRef.current);
+      }
     };
   }, [language, continuous]);
 
-  // Restart recognition when page changes
+  // Quick restart on page changes
   useEffect(() => {
     if (recognitionRef.current && continuous) {
       recognitionRef.current.abort();
       setTimeout(() => {
         initSpeechRecognition();
         startListening();
-      }, 500);
+      }, 200); // Faster restart
     }
   }, [location.pathname]);
 
