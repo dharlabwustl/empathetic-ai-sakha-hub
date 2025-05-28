@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -12,12 +13,9 @@ import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 import WelcomeDashboardPrompt from "@/components/dashboard/student/WelcomeDashboardPrompt";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
-import { useIsMobile } from "@/hooks/use-mobile";
-import DashboardVoiceGreeting from "@/components/voice/DashboardVoiceGreeting";
-import SignupVoiceAssistant from "@/components/voice/SignupVoiceAssistant";
-import { FloatingVoiceButton as EnhancedFloatingVoiceButton } from "@/components/voice/EnhancedVoiceAnimations";
+import PostSignupVoiceAssistant from "@/components/voice/PostSignupVoiceAssistant";
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -25,9 +23,9 @@ const StudentDashboard = () => {
   const [showTourModal, setShowTourModal] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
-  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isNewSignup, setIsNewSignup] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -74,11 +72,17 @@ const StudentDashboard = () => {
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     const hasSeenDashboardWelcome = localStorage.getItem("hasSeenDashboardWelcome") === "true";
     
+    // Check if this is a fresh signup (within last 5 minutes)
+    const signupTime = localStorage.getItem('signup_timestamp');
+    const isRecentSignup = signupTime && (Date.now() - parseInt(signupTime)) < 300000; // 5 minutes
+    
+    setIsNewSignup(Boolean(isRecentSignup));
+    
     // For new users who haven't seen the tour
     if (isNew && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
-      setShowWelcomePrompt(false); // Make sure only one modal shows
+      setShowWelcomePrompt(false);
       setIsFirstTimeUser(true);
       console.log("New user detected, showing welcome tour");
     } 
@@ -95,7 +99,6 @@ const StudentDashboard = () => {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
-      // Make sure we don't show the tour or welcome prompt for returning users who have seen them
       setShowTourModal(false);
       setShowWelcomePrompt(false);
       setIsFirstTimeUser(false);
@@ -177,11 +180,8 @@ const StudentDashboard = () => {
     handleCompleteOnboarding();
     // Set the new user flag to show tour after onboarding
     localStorage.setItem('new_user_signup', 'true');
+    localStorage.setItem('signup_timestamp', Date.now().toString());
     navigate('/dashboard/student?new=true');
-  };
-
-  const handleNavigationCommand = (route: string) => {
-    navigate(route);
   };
 
   if (showSplash) {
@@ -230,7 +230,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false} // Always false here since we handle it separately below
+        showWelcomeTour={false}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -269,35 +269,31 @@ const StudentDashboard = () => {
         />
       )}
 
-      {/* Enhanced Voice Greeting with UN sustainability goals message */}
-      <VoiceGreeting 
-        isFirstTimeUser={isFirstTimeUser} 
-        userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en"
-      />
-      
-      {/* Enhanced Dashboard Voice Greeting with intelligent messaging */}
-      <DashboardVoiceGreeting
-        userName={userProfile.name || userProfile.firstName || 'Student'}
-        isFirstTimeUser={isFirstTimeUser}
-        language="en-US"
-        onSpeakingChange={setIsSpeaking}
-      />
+      {/* Post-signup congratulations voice assistant for new signups */}
+      {isNewSignup && (
+        <PostSignupVoiceAssistant
+          userName={userProfile.name || userProfile.firstName || 'Student'}
+          onSpeakingChange={setIsSpeaking}
+        />
+      )}
 
-      {/* Signup congratulations voice assistant */}
-      <SignupVoiceAssistant
-        userName={userProfile.name || userProfile.firstName}
-        language="en-US"
-        onSpeakingChange={setIsSpeaking}
-      />
+      {/* Enhanced Dashboard Voice Assistant with intelligent messaging */}
+      {!isNewSignup && (
+        <DashboardVoiceAssistant
+          userName={userProfile.name || userProfile.firstName || 'Student'}
+          isFirstTimeUser={isFirstTimeUser}
+          loginCount={userProfile.loginCount}
+          lastActivity={lastActivity}
+          suggestedNextAction={suggestedNextAction}
+          onSpeakingChange={setIsSpeaking}
+        />
+      )}
 
       {/* Enhanced floating voice assistant button with vibrant animations */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <FloatingVoiceButton 
-          isSpeaking={isSpeaking}
-          className="cursor-pointer"
-        />
-      </div>
+      <FloatingVoiceButton 
+        isSpeaking={isSpeaking}
+        className="cursor-pointer"
+      />
     </>
   );
 };

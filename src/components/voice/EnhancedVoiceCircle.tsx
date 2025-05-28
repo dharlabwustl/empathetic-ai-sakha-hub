@@ -1,184 +1,153 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { Mic, Volume2, VolumeX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface EnhancedVoiceCircleProps {
-  isSpeaking: boolean;
   isListening?: boolean;
-  size?: number;
+  isSpeaking?: boolean;
+  isMuted?: boolean;
+  onClick?: () => void;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
-  isSpeaking,
   isListening = false,
-  size = 56,
-  className = ""
+  isSpeaking = false,
+  isMuted = false,
+  onClick,
+  className = '',
+  size = 'md'
 }) => {
+  const sizeClasses = {
+    sm: 'h-12 w-12',
+    md: 'h-16 w-16',
+    lg: 'h-20 w-20'
+  };
+
+  const iconSizes = {
+    sm: 16,
+    md: 20,
+    lg: 24
+  };
+
+  const getIcon = () => {
+    if (isMuted) return <VolumeX size={iconSizes[size]} />;
+    if (isSpeaking) return <Volume2 size={iconSizes[size]} />;
+    return <Mic size={iconSizes[size]} />;
+  };
+
+  const getAnimationClasses = () => {
+    if (isSpeaking) {
+      return 'animate-pulse bg-gradient-to-r from-green-500 to-blue-500 shadow-lg shadow-green-500/50';
+    }
+    if (isListening) {
+      return 'animate-ping bg-gradient-to-r from-red-500 to-pink-500 shadow-lg shadow-red-500/50';
+    }
+    return 'bg-gradient-to-r from-purple-500 to-blue-500 hover:shadow-lg hover:shadow-purple-500/50';
+  };
+
   return (
-    <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      {/* Outer vibrant pulse ring */}
+    <div className={`relative ${className}`}>
+      {/* Outer pulse ring for listening state */}
+      {isListening && (
+        <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-red-400 animate-ping opacity-75`} />
+      )}
+      
+      {/* Outer glow ring for speaking state */}
       {isSpeaking && (
-        <motion.div
-          className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400"
-          animate={{
-            scale: [1, 1.4, 1.2, 1.6, 1],
-            opacity: [0.6, 0.3, 0.5, 0.2, 0.6],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
+        <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-green-400 animate-pulse opacity-60 blur-sm`} />
       )}
       
-      {/* Middle pulse ring */}
-      {isSpeaking && (
-        <motion.div
-          className="absolute inset-1 rounded-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
-          animate={{
-            scale: [1, 1.3, 1.1, 1.4, 1],
-            opacity: [0.5, 0.7, 0.4, 0.6, 0.5],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.2
-          }}
-        />
-      )}
-      
-      {/* Inner active ring */}
-      {(isSpeaking || isListening) && (
-        <motion.div
-          className={`absolute inset-2 rounded-full ${
-            isSpeaking 
-              ? 'bg-gradient-to-r from-pink-500 to-violet-500' 
-              : 'bg-gradient-to-r from-green-400 to-blue-400'
-          }`}
-          animate={{
-            scale: isSpeaking ? [1, 1.2, 1] : [1, 1.1, 1],
-            opacity: [0.8, 0.9, 0.8],
-          }}
-          transition={{
-            duration: isSpeaking ? 1 : 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      )}
-      
-      {/* Main AI circle with dynamic color changes */}
-      <motion.div
-        className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
-          isSpeaking 
-            ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600' 
-            : isListening
-            ? 'bg-gradient-to-r from-green-500 to-blue-500'
-            : 'bg-gradient-to-r from-blue-500 to-purple-500'
-        }`}
-        animate={isSpeaking ? {
-          background: [
-            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)',
-            'linear-gradient(45deg, #ec4899, #9333ea, #3b82f6)',
-            'linear-gradient(45deg, #3b82f6, #ec4899, #9333ea)',
-            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)'
-          ],
-          scale: [1, 1.05, 1, 1.02, 1]
-        } : {}}
-        transition={{
-          background: {
-            duration: 3,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          },
-          scale: {
-            duration: 0.8,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          }
-        }}
+      {/* Main button */}
+      <Button
+        onClick={onClick}
+        variant="ghost"
+        className={`
+          relative ${sizeClasses[size]} rounded-full border-2 border-white/20 
+          ${getAnimationClasses()}
+          text-white transition-all duration-300 hover:scale-105
+          flex items-center justify-center
+        `}
       >
-        <motion.span 
-          className="text-white font-bold text-lg select-none"
-          animate={isSpeaking ? {
-            scale: [1, 1.1, 1, 1.05, 1],
-            color: ['#ffffff', '#fbbf24', '#ffffff', '#34d399', '#ffffff']
-          } : {}}
-          transition={{
-            duration: 1.5,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          }}
-        >
-          AI
-        </motion.span>
-      </motion.div>
+        {getIcon()}
+      </Button>
       
-      {/* Sound waves */}
-      {isSpeaking && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 bg-gradient-to-t from-purple-400 to-pink-400 rounded-full"
-              style={{
-                left: `${30 + i * 15}%`,
-                height: '8px'
-              }}
-              animate={{
-                scaleY: [1, 2, 0.5, 1.5, 1],
-                opacity: [0.6, 1, 0.4, 0.8, 0.6]
-              }}
-              transition={{
-                duration: 0.6,
-                repeat: Infinity,
-                delay: i * 0.1,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </div>
-      )}
+      {/* Status indicator */}
+      <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white">
+        {isSpeaking && (
+          <div className="h-full w-full rounded-full bg-green-500 animate-pulse" />
+        )}
+        {isListening && !isSpeaking && (
+          <div className="h-full w-full rounded-full bg-red-500 animate-pulse" />
+        )}
+        {!isListening && !isSpeaking && !isMuted && (
+          <div className="h-full w-full rounded-full bg-purple-500" />
+        )}
+        {isMuted && (
+          <div className="h-full w-full rounded-full bg-gray-500" />
+        )}
+      </div>
     </div>
   );
 };
 
-export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
-  isSpeaking,
-  isListening,
-  className = ""
+// Enhanced floating voice button with more animations
+interface FloatingVoiceButtonProps {
+  isSpeaking?: boolean;
+  isListening?: boolean;
+  className?: string;
+  onClick?: () => void;
+}
+
+export const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
+  isSpeaking = false,
+  isListening = false,
+  className = '',
+  onClick
 }) => {
   return (
-    <motion.div
-      className={`relative ${className}`}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      {/* Background gradient pulse */}
-      {(isSpeaking || isListening) && (
-        <motion.div
-          className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.7, 0.3, 0.7],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      )}
+    <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
+      <div className="relative">
+        {/* Floating animation wrapper */}
+        <div className="animate-bounce">
+          <EnhancedVoiceCircle
+            isListening={isListening}
+            isSpeaking={isSpeaking}
+            onClick={onClick}
+            size="lg"
+            className="drop-shadow-2xl"
+          />
+        </div>
+        
+        {/* Floating particles effect when speaking */}
+        {isSpeaking && (
+          <div className="absolute inset-0 pointer-events-none">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className={`absolute h-2 w-2 bg-green-400 rounded-full animate-ping opacity-70`}
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${i * 0.2}s`,
+                  animationDuration: '1.5s'
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
       
-      <EnhancedVoiceCircle 
-        isSpeaking={isSpeaking}
-        isListening={isListening}
-        size={56}
-        className="relative z-10"
-      />
-    </motion.div>
+      {/* Status text */}
+      {(isSpeaking || isListening) && (
+        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+          <div className="bg-black/80 text-white text-xs px-3 py-1 rounded-full">
+            {isSpeaking ? 'PREPZR is speaking...' : 'Listening...'}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

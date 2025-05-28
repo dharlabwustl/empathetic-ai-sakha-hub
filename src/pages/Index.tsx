@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -17,11 +18,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
-import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
+import HomepageVoiceAssistant from '@/components/voice/HomepageVoiceAssistant';
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
 
 const Index = () => {
@@ -35,10 +34,6 @@ const Index = () => {
   
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
-  };
-  
-  const handleNavigationCommand = (route: string) => {
-    navigate(route);
   };
 
   const handleSpeechCommand = (command: string) => {
@@ -117,8 +112,7 @@ const Index = () => {
         <Footer />
         
         {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
-        <EnhancedHomepageAssistant 
-          language="en-US"
+        <HomepageVoiceAssistant 
           onSpeakingChange={setIsSpeaking}
         />
         
@@ -130,12 +124,10 @@ const Index = () => {
         />
 
         {/* Enhanced Floating Voice Button with vibrant animations */}
-        <div className="fixed bottom-6 right-6 z-40">
-          <FloatingVoiceButton 
-            isSpeaking={isSpeaking}
-            className="cursor-pointer"
-          />
-        </div>
+        <FloatingVoiceButton 
+          isSpeaking={isSpeaking}
+          className="cursor-pointer"
+        />
       </div>
     </AuthGuard>
   );
