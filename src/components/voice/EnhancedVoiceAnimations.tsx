@@ -90,57 +90,6 @@ export const VoiceAssistantAvatar: React.FC<EnhancedVoiceAnimationsProps> = ({
         />
       </motion.div>
       
-      {/* Dynamic "Text AI" label with color animation */}
-      <motion.div
-        className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-20"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ 
-          opacity: 1, 
-          y: 0,
-        }}
-        transition={{ duration: 0.3 }}
-      >
-        <motion.div
-          className={`px-2 py-1 rounded-full text-xs font-semibold text-center whitespace-nowrap shadow-lg ${
-            isSpeaking 
-              ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white' 
-              : 'bg-white text-gray-700 border border-gray-200'
-          }`}
-          animate={isSpeaking ? {
-            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-            scale: [1, 1.05, 1],
-          } : {}}
-          transition={{
-            backgroundPosition: {
-              duration: 2,
-              repeat: Infinity,
-              ease: "linear"
-            },
-            scale: {
-              duration: 1,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }
-          }}
-          style={{
-            backgroundSize: isSpeaking ? '200% 200%' : '100% 100%'
-          }}
-        >
-          <motion.span
-            animate={isSpeaking ? {
-              color: ['#ffffff', '#f8fafc', '#ffffff'],
-            } : {}}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            Text AI
-          </motion.span>
-        </motion.div>
-      </motion.div>
-      
       {/* Sound waves */}
       {isSpeaking && (
         <div className="absolute inset-0 flex items-center justify-center">
