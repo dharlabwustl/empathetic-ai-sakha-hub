@@ -1,3 +1,4 @@
+
 // Study Plan Types
 export interface StudyPlanTopic {
   id: string;
@@ -6,18 +7,6 @@ export interface StudyPlanTopic {
   completed: boolean;
   status: 'completed' | 'in-progress' | 'pending' | 'skipped';
   priority: 'high' | 'medium' | 'low';
-  // Enhanced fields for topic analysis
-  weightage?: number;
-  progress?: number;
-  subtopics?: {
-    id: string;
-    name: string;
-    weightage: number;
-    completed: boolean;
-  }[];
-  examImportance?: 'critical' | 'important' | 'moderate' | 'low';
-  estimatedHours?: number;
-  prerequisites?: string[];
 }
 
 export interface StudyPlanSubject {
@@ -31,11 +20,6 @@ export interface StudyPlanSubject {
   status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
   topics?: StudyPlanTopic[];
-  // Enhanced fields for weightage analysis
-  examWeightage?: number;
-  completionRate?: number;
-  weightageProgress?: number;
-  remainingWeight?: number;
 }
 
 export interface StudyPlan {
