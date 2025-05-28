@@ -55,7 +55,7 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Load profile image and enhanced dashboard preferences
+  // Load enhanced dashboard preferences
   useEffect(() => {
     const savedImage = localStorage.getItem('user_profile_image');
     if (savedImage) {
@@ -95,7 +95,7 @@ const StudentDashboard = () => {
     }
   }, [location, userProfile]);
 
-  // Check URL parameters and localStorage for first-time user status
+  // Check for first-time user status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
@@ -196,7 +196,7 @@ const StudentDashboard = () => {
 
   return (
     <>
-      {/* Main Adaptive Dashboard - Completely redesigned based on exam goals and learning profile */}
+      {/* Completely Redesigned Adaptive Dashboard */}
       <AdaptiveDashboardController 
         userProfile={enhancedUserProfile} 
         preferences={dashboardPreferences}

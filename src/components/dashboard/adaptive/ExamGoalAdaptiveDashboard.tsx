@@ -1,444 +1,398 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import React, { useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { UserProfileBase, MoodType } from '@/types/user/base';
-import { Clock, Target, TrendingUp, BookOpen, Brain, Calendar, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { 
+  Brain, 
+  Clock, 
+  Target, 
+  TrendingUp, 
+  BookOpen, 
+  Calendar, 
+  Zap, 
+  Award,
+  AlertTriangle,
+  CheckCircle,
+  ArrowRight,
+  Star,
+  Timer,
+  Users,
+  Lightbulb
+} from 'lucide-react';
 
 interface ExamGoalAdaptiveDashboardProps {
   userProfile: UserProfileBase;
   examProximity: 'critical' | 'urgent' | 'moderate' | 'relaxed';
-  learningStyle: 'visual' | 'auditory' | 'kinesthetic' | 'reading_writing';
+  learningStyle: string;
   currentMood?: MoodType;
+  [key: string]: any;
 }
 
 const ExamGoalAdaptiveDashboard: React.FC<ExamGoalAdaptiveDashboardProps> = ({
   userProfile,
   examProximity,
   learningStyle,
-  currentMood
+  currentMood,
+  ...otherProps
 }) => {
-  const examGoal = userProfile.examGoal || 'NEET';
-  const daysLeft = calculateDaysLeft(userProfile.examDate);
-  
-  // Adaptive color scheme based on exam proximity
-  const getThemeColors = () => {
+  // Adaptive color schemes based on exam proximity
+  const adaptiveColors = useMemo(() => {
     switch (examProximity) {
       case 'critical':
         return {
           primary: 'bg-red-500',
           secondary: 'bg-red-100',
           accent: 'text-red-600',
-          border: 'border-red-200'
+          border: 'border-red-200',
+          gradient: 'from-red-50 to-orange-50'
         };
       case 'urgent':
         return {
           primary: 'bg-orange-500',
           secondary: 'bg-orange-100',
           accent: 'text-orange-600',
-          border: 'border-orange-200'
+          border: 'border-orange-200',
+          gradient: 'from-orange-50 to-yellow-50'
         };
       case 'moderate':
         return {
           primary: 'bg-blue-500',
           secondary: 'bg-blue-100',
           accent: 'text-blue-600',
-          border: 'border-blue-200'
+          border: 'border-blue-200',
+          gradient: 'from-blue-50 to-indigo-50'
         };
       default:
         return {
           primary: 'bg-green-500',
           secondary: 'bg-green-100',
           accent: 'text-green-600',
-          border: 'border-green-200'
+          border: 'border-green-200',
+          gradient: 'from-green-50 to-emerald-50'
         };
     }
-  };
+  }, [examProximity]);
 
-  const theme = getThemeColors();
+  // Adaptive priority features based on exam goal and proximity
+  const adaptiveFeatures = useMemo(() => {
+    const examGoal = userProfile.examGoal || 'NEET';
+    
+    const baseFeatures = {
+      NEET: {
+        critical: ['Mock Tests', 'Weak Areas', 'Quick Revision', 'Time Management'],
+        urgent: ['Practice Papers', 'Concept Clarity', 'Speed Building', 'Stress Management'],
+        moderate: ['Systematic Study', 'Chapter Tests', 'Formula Practice', 'Doubt Clearing'],
+        relaxed: ['Foundation Building', 'Concept Learning', 'Regular Practice', 'Study Planning']
+      },
+      JEE: {
+        critical: ['JEE Mains Mocks', 'Problem Solving', 'Time Optimization', 'Error Analysis'],
+        urgent: ['Advanced Problems', 'Concept Revision', 'Speed Practice', 'Shortcuts'],
+        moderate: ['Chapter Mastery', 'Problem Banks', 'Concept Tests', 'Study Schedule'],
+        relaxed: ['Theory Building', 'Basic Problems', 'Concept Maps', 'Long-term Planning']
+      },
+      UPSC: {
+        critical: ['Answer Writing', 'Current Affairs', 'Revision Notes', 'Mock Interviews'],
+        urgent: ['Previous Papers', 'Static Portions', 'Essay Practice', 'GS Revision'],
+        moderate: ['Subject Studies', 'Note Making', 'Test Series', 'Optional Prep'],
+        relaxed: ['Foundation Reading', 'Basic Concepts', 'Newspaper Reading', 'Planning']
+      }
+    };
+    
+    return baseFeatures[examGoal]?.[examProximity] || baseFeatures.NEET[examProximity];
+  }, [userProfile.examGoal, examProximity]);
 
-  // Adaptive priorities based on exam goal and proximity
-  const getAdaptivePriorities = () => {
-    const basePriorities = getExamGoalPriorities(examGoal);
-    return adjustPrioritiesForProximity(basePriorities, examProximity);
-  };
+  // Adaptive learning recommendations based on learning style
+  const learningRecommendations = useMemo(() => {
+    const recommendations = {
+      visual: ['Mind Maps', 'Flowcharts', 'Video Lectures', 'Infographics'],
+      auditory: ['Audio Notes', 'Discussions', 'Verbal Explanations', 'Podcasts'],
+      kinesthetic: ['Hands-on Practice', 'Lab Work', 'Physical Models', 'Interactive Demos'],
+      reading_writing: ['Text Notes', 'Summary Writing', 'Reading Materials', 'Written Practice']
+    };
+    return recommendations[learningStyle as keyof typeof recommendations] || recommendations.visual;
+  }, [learningStyle]);
 
-  const priorities = getAdaptivePriorities();
+  // Calculate exam countdown
+  const examCountdown = useMemo(() => {
+    if (!userProfile.examDate) return null;
+    const examDate = new Date(userProfile.examDate);
+    const today = new Date();
+    const daysLeft = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return daysLeft;
+  }, [userProfile.examDate]);
 
-  // Learning style specific components
-  const getLearningStyleComponents = () => {
-    switch (learningStyle) {
-      case 'visual':
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <VisualProgressCharts theme={theme} priorities={priorities} />
-            <ConceptMindMaps theme={theme} examGoal={examGoal} />
-            <VisualStudyPlan theme={theme} daysLeft={daysLeft} />
-          </div>
-        );
-      case 'auditory':
-        return (
-          <div className="space-y-6">
-            <AudioLearningSection theme={theme} examGoal={examGoal} />
-            <VoiceNotesSection theme={theme} />
-            <PodcastRecommendations theme={theme} examGoal={examGoal} />
-          </div>
-        );
-      case 'kinesthetic':
-        return (
-          <div className="space-y-6">
-            <InteractiveSimulations theme={theme} examGoal={examGoal} />
-            <HandsOnPractice theme={theme} />
-            <MovementBasedLearning theme={theme} />
-          </div>
-        );
-      default:
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ReadingMaterials theme={theme} examGoal={examGoal} />
-            <WritingExercises theme={theme} />
-          </div>
-        );
-    }
+  // Performance indicators
+  const performanceData = {
+    overallProgress: 72,
+    weakSubjects: userProfile.weakSubjects || ['Physics', 'Organic Chemistry'],
+    strongSubjects: userProfile.strongSubjects || ['Biology', 'Inorganic Chemistry'],
+    studyStreak: userProfile.studyStreak || 12,
+    weeklyGoal: 85,
+    weeklyProgress: 68
   };
 
   return (
-    <div className={`min-h-screen p-6 ${theme.secondary}`}>
-      {/* Adaptive Header */}
-      <div className="mb-8">
-        <ExamProximityHeader 
-          examGoal={examGoal}
-          daysLeft={daysLeft}
-          examProximity={examProximity}
-          theme={theme}
-          userName={userProfile.name || 'Student'}
-        />
-      </div>
+    <div className={`min-h-screen bg-gradient-to-br ${adaptiveColors.gradient} p-6`}>
+      <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* Adaptive Header Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Exam Countdown & Priority */}
+          <Card className={`${adaptiveColors.border} ${adaptiveColors.secondary}/50`}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className={`text-lg ${adaptiveColors.accent}`}>
+                  {userProfile.examGoal || 'NEET'} 2025
+                </CardTitle>
+                <Badge variant={examProximity === 'critical' ? 'destructive' : examProximity === 'urgent' ? 'default' : 'secondary'}>
+                  {examProximity.toUpperCase()}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className={`text-3xl font-bold ${adaptiveColors.accent}`}>
+                    {examCountdown || 180}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Days Remaining</p>
+                </div>
+                <Progress value={((365 - (examCountdown || 180)) / 365) * 100} className="h-2" />
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Critical Actions Bar (appears for urgent/critical proximity) */}
-      {(examProximity === 'critical' || examProximity === 'urgent') && (
-        <CriticalActionsBar theme={theme} priorities={priorities} />
-      )}
+          {/* Personal Performance Hub */}
+          <Card className={`${adaptiveColors.border} ${adaptiveColors.secondary}/50`}>
+            <CardHeader className="pb-3">
+              <CardTitle className={`text-lg ${adaptiveColors.accent} flex items-center gap-2`}>
+                <TrendingUp className="h-5 w-5" />
+                Your Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Overall Readiness</span>
+                  <span className={`text-lg font-semibold ${adaptiveColors.accent}`}>
+                    {performanceData.overallProgress}%
+                  </span>
+                </div>
+                <Progress value={performanceData.overallProgress} className="h-2" />
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-600">Strong: {performanceData.strongSubjects.length}</span>
+                  <span className="text-red-600">Need Focus: {performanceData.weakSubjects.length}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Main Adaptive Content */}
-      <div className="space-y-8">
-        {/* Priority Tasks Section */}
-        <PriorityTasksSection 
-          priorities={priorities}
-          theme={theme}
-          examProximity={examProximity}
-          learningStyle={learningStyle}
-        />
+          {/* Adaptive Study Mode */}
+          <Card className={`${adaptiveColors.border} ${adaptiveColors.secondary}/50`}>
+            <CardHeader className="pb-3">
+              <CardTitle className={`text-lg ${adaptiveColors.accent} flex items-center gap-2`}>
+                <Brain className="h-5 w-5" />
+                Smart Recommendations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Badge variant="outline" className="text-xs">
+                  {learningStyle} Learner
+                </Badge>
+                <p className="text-sm text-muted-foreground">
+                  Focus on {learningRecommendations[0]} and {learningRecommendations[1]} today
+                </p>
+                <Button size="sm" className={`w-full ${adaptiveColors.primary}`}>
+                  Start Smart Session
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Learning Style Specific Components */}
-        {getLearningStyleComponents()}
+        {/* Priority Action Section */}
+        <Card className={`${adaptiveColors.border}`}>
+          <CardHeader>
+            <CardTitle className={`${adaptiveColors.accent} flex items-center gap-2`}>
+              <Target className="h-5 w-5" />
+              Priority Actions ({examProximity.charAt(0).toUpperCase() + examProximity.slice(1)} Phase)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {adaptiveFeatures.map((feature, index) => (
+                <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${adaptiveColors.secondary}`}>
+                        {index === 0 && <Clock className={`h-4 w-4 ${adaptiveColors.accent}`} />}
+                        {index === 1 && <AlertTriangle className={`h-4 w-4 ${adaptiveColors.accent}`} />}
+                        {index === 2 && <Zap className={`h-4 w-4 ${adaptiveColors.accent}`} />}
+                        {index === 3 && <CheckCircle className={`h-4 w-4 ${adaptiveColors.accent}`} />}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-sm">{feature}</h4>
+                        <p className="text-xs text-muted-foreground">Start now</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Exam Goal Specific Widgets */}
-        <ExamSpecificWidgets 
-          examGoal={examGoal}
-          theme={theme}
-          daysLeft={daysLeft}
-          examProximity={examProximity}
-        />
+        {/* Personalized Learning Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Subject Focus Area */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                Subject Focus
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-red-600 mb-2">Need Immediate Attention</h4>
+                  {performanceData.weakSubjects.map((subject, index) => (
+                    <div key={index} className="flex items-center justify-between py-2">
+                      <span className="text-sm">{subject}</span>
+                      <Button size="sm" variant="outline" className="text-xs">
+                        Practice
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-green-600 mb-2">Maintain Strength</h4>
+                  {performanceData.strongSubjects.slice(0, 2).map((subject, index) => (
+                    <div key={index} className="flex items-center justify-between py-2">
+                      <span className="text-sm">{subject}</span>
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Smart Plan */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Today's Smart Plan
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-sm">Morning Focus</p>
+                    <p className="text-xs text-muted-foreground">9:00 AM - 11:00 AM</p>
+                  </div>
+                  <Badge variant="secondary">Physics</Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-sm">Afternoon Practice</p>
+                    <p className="text-xs text-muted-foreground">2:00 PM - 4:00 PM</p>
+                  </div>
+                  <Badge variant="secondary">Chemistry</Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-sm">Evening Revision</p>
+                    <p className="text-xs text-muted-foreground">6:00 PM - 8:00 PM</p>
+                  </div>
+                  <Badge variant="secondary">Biology</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Performance Insights */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5" />
+                Weekly Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Star className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{performanceData.studyStreak} Day Streak!</p>
+                    <p className="text-xs text-muted-foreground">Keep it going</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm">Weekly Goal</span>
+                    <span className="text-sm font-medium">{performanceData.weeklyProgress}%</span>
+                  </div>
+                  <Progress value={performanceData.weeklyProgress} className="h-2" />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Lightbulb className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm">Study during your peak hours</p>
+                    <p className="text-xs text-muted-foreground">6-8 PM works best for you</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Access Adaptive Tools */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5" />
+              Quick Access Tools
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {[
+                { icon: Timer, label: 'Mock Test', urgent: true },
+                { icon: Brain, label: 'Flashcards', urgent: false },
+                { icon: BookOpen, label: 'Concepts', urgent: false },
+                { icon: Users, label: 'Study Group', urgent: false },
+                { icon: Target, label: 'Practice', urgent: true },
+                { icon: Calendar, label: 'Schedule', urgent: false }
+              ].map((tool, index) => (
+                <Button
+                  key={index}
+                  variant={tool.urgent ? "default" : "outline"}
+                  className={`h-20 flex-col gap-2 ${tool.urgent ? adaptiveColors.primary : ''}`}
+                >
+                  <tool.icon className="h-5 w-5" />
+                  <span className="text-xs">{tool.label}</span>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 };
-
-// Helper Components
-const ExamProximityHeader: React.FC<any> = ({ examGoal, daysLeft, examProximity, theme, userName }) => {
-  const urgencyMessages = {
-    critical: "🚨 Final Sprint Mode",
-    urgent: "⚡ Intensive Preparation",
-    moderate: "📚 Steady Progress",
-    relaxed: "🌱 Foundation Building"
-  };
-
-  return (
-    <Card className={`${theme.border} ${theme.secondary}`}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold">
-              Welcome back, {userName}!
-            </CardTitle>
-            <p className={`${theme.accent} font-medium`}>
-              {urgencyMessages[examProximity]} - {examGoal} Preparation
-            </p>
-          </div>
-          <div className="text-right">
-            <div className={`text-3xl font-bold ${theme.accent}`}>
-              {daysLeft}
-            </div>
-            <p className="text-sm text-gray-600">days to {examGoal}</p>
-          </div>
-        </div>
-      </CardHeader>
-    </Card>
-  );
-};
-
-const CriticalActionsBar: React.FC<any> = ({ theme, priorities }) => (
-  <Card className={`${theme.border} border-l-4 ${theme.primary.replace('bg-', 'border-l-')}`}>
-    <CardContent className="py-4">
-      <div className="flex items-center gap-4 flex-wrap">
-        <AlertTriangle className={`h-5 w-5 ${theme.accent}`} />
-        <span className="font-medium">Critical Actions Today:</span>
-        {priorities.slice(0, 3).map((priority: any, index: number) => (
-          <Button key={index} size="sm" className={theme.primary}>
-            {priority.title}
-          </Button>
-        ))}
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const PriorityTasksSection: React.FC<any> = ({ priorities, theme, examProximity, learningStyle }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    {priorities.map((priority: any, index: number) => (
-      <Card key={index} className={`${theme.border} hover:shadow-lg transition-shadow`}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <Badge variant={priority.urgency === 'high' ? 'destructive' : 'default'}>
-              {priority.category}
-            </Badge>
-            <priority.icon className={`h-5 w-5 ${theme.accent}`} />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <h3 className="font-medium mb-2">{priority.title}</h3>
-          <p className="text-sm text-gray-600 mb-3">{priority.description}</p>
-          <Progress value={priority.progress} className="mb-3" />
-          <Button size="sm" className={`w-full ${theme.primary}`}>
-            {priority.action}
-          </Button>
-        </CardContent>
-      </Card>
-    ))}
-  </div>
-);
-
-// Learning Style Components
-const VisualProgressCharts: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <TrendingUp className={`h-5 w-5 ${theme.accent}`} />
-        Visual Progress
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-4">
-        <div className="h-32 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-          <p className="text-gray-600">Interactive Progress Charts</p>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const ConceptMindMaps: React.FC<any> = ({ theme, examGoal }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <Brain className={`h-5 w-5 ${theme.accent}`} />
-        Concept Maps - {examGoal}
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="h-32 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-        <p className="text-gray-600">Interactive Mind Maps</p>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const VisualStudyPlan: React.FC<any> = ({ theme, daysLeft }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <Calendar className={`h-5 w-5 ${theme.accent}`} />
-        Visual Timeline
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span>Study Plan Progress</span>
-          <span>{daysLeft} days left</span>
-        </div>
-        <Progress value={Math.max(10, 100 - (daysLeft / 365) * 100)} />
-      </div>
-    </CardContent>
-  </Card>
-);
-
-// Helper functions
-const calculateDaysLeft = (examDate?: string) => {
-  if (!examDate) return 100;
-  const exam = new Date(examDate);
-  const today = new Date();
-  const diffTime = exam.getTime() - today.getTime();
-  return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-};
-
-const getExamGoalPriorities = (examGoal: string) => {
-  const examPriorities: any = {
-    'NEET': [
-      { category: 'Biology', title: 'Human Physiology', description: 'High weightage in NEET', urgency: 'high', progress: 75, action: 'Study Now', icon: BookOpen },
-      { category: 'Chemistry', title: 'Organic Chemistry', description: 'Practice reaction mechanisms', urgency: 'high', progress: 60, action: 'Practice', icon: Brain },
-      { category: 'Physics', title: 'Mechanics', description: 'Numerical problem solving', urgency: 'medium', progress: 80, action: 'Review', icon: Target }
-    ],
-    'JEE': [
-      { category: 'Mathematics', title: 'Calculus', description: 'Critical for JEE Advanced', urgency: 'high', progress: 70, action: 'Practice', icon: BookOpen },
-      { category: 'Physics', title: 'Electromagnetism', description: 'High scoring potential', urgency: 'high', progress: 65, action: 'Study', icon: Brain },
-      { category: 'Chemistry', title: 'Physical Chemistry', description: 'Numerical problems', urgency: 'medium', progress: 75, action: 'Solve', icon: Target }
-    ]
-  };
-  
-  return examPriorities[examGoal] || examPriorities['NEET'];
-};
-
-const adjustPrioritiesForProximity = (priorities: any[], proximity: string) => {
-  if (proximity === 'critical') {
-    return priorities.map(p => ({ ...p, urgency: 'high', action: 'URGENT: ' + p.action }));
-  }
-  return priorities;
-};
-
-// Additional components would be implemented here...
-const AudioLearningSection: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>🎧 Audio Learning</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Podcast-style lessons and audio notes</p>
-    </CardContent>
-  </Card>
-);
-
-const VoiceNotesSection: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>🎤 Voice Notes</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Record and review your study notes</p>
-    </CardContent>
-  </Card>
-);
-
-const PodcastRecommendations: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>📻 Study Podcasts</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Curated educational content</p>
-    </CardContent>
-  </Card>
-);
-
-const InteractiveSimulations: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>🔬 Interactive Simulations</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Hands-on virtual experiments</p>
-    </CardContent>
-  </Card>
-);
-
-const HandsOnPractice: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>✋ Hands-on Practice</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Physical problem-solving activities</p>
-    </CardContent>
-  </Card>
-);
-
-const MovementBasedLearning: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>🏃 Movement Learning</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Learn through physical activities</p>
-    </CardContent>
-  </Card>
-);
-
-const ReadingMaterials: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>📖 Reading Materials</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Comprehensive study texts</p>
-    </CardContent>
-  </Card>
-);
-
-const WritingExercises: React.FC<any> = ({ theme }) => (
-  <Card className={theme.border}>
-    <CardHeader>
-      <CardTitle>✍️ Writing Exercises</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Note-taking and essay practice</p>
-    </CardContent>
-  </Card>
-);
-
-const ExamSpecificWidgets: React.FC<any> = ({ examGoal, theme, daysLeft, examProximity }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <Card className={theme.border}>
-      <CardHeader>
-        <CardTitle>{examGoal} Specific Resources</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p>Exam-specific study materials and patterns</p>
-        <Button className={`mt-4 ${theme.primary}`}>
-          Access Resources
-        </Button>
-      </CardContent>
-    </Card>
-    
-    <Card className={theme.border}>
-      <CardHeader>
-        <CardTitle>Performance Analytics</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span>Overall Progress</span>
-            <span className={theme.accent}>78%</span>
-          </div>
-          <Progress value={78} />
-        </div>
-      </CardContent>
-    </Card>
-    
-    <Card className={theme.border}>
-      <CardHeader>
-        <CardTitle>Smart Recommendations</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p>AI-powered study suggestions based on your progress</p>
-        <Button variant="outline" className="mt-4">
-          View Suggestions
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
-);
 
 export default ExamGoalAdaptiveDashboard;
