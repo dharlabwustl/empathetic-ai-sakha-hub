@@ -24,18 +24,17 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
     userName,
     language,
     onSpeakingChange,
-    inactivityTimeout: 12000 // 12 seconds for dashboard
+    inactivityTimeout: 12000
   });
 
   useEffect(() => {
     if (userName && userName !== 'there') {
       const greetingMessage = isFirstTimeUser 
-        ? `Welcome to your PREPZR dashboard, ${userName}! This is your command center for exam preparation.`
-        : `Great to see you back, ${userName}! Ready for today's learning session?`;
+        ? `Welcome to your PREPZR dashboard, ${userName}! Let's start your learning journey together.`
+        : `Great to see you back, ${userName}! Ready to continue your studies today?`;
       
       setTimeout(() => {
         playInitialGreeting(greetingMessage);
-        // Schedule help offer after greeting
         setTimeout(() => {
           scheduleHelpOffer();
         }, 4000);
@@ -70,10 +69,12 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
     if (hasOfferedHelp || isSpeaking) return;
     
     const dashboardOffers = [
-      "Need help navigating your dashboard? I can guide you to any section.",
-      "Would you like me to explain any dashboard features?",
-      "I can help you access study plans, concept cards, or practice exams.",
-      "Let me know if you need assistance with any learning tools."
+      "Need help navigating your dashboard? I can guide you to study materials.",
+      "Would you like me to explain your progress or suggest what to study next?",
+      "I can help you access concept cards, practice exams, or today's study plan.",
+      "Let me know if you need assistance with any learning features.",
+      "Want to check your study progress or start a practice session?",
+      "I'm here to help with your studies. What would you like to work on?"
     ];
     
     const randomOffer = dashboardOffers[Math.floor(Math.random() * dashboardOffers.length)];
@@ -111,7 +112,6 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
 
   return (
     <>
-      {/* Enhanced Speech Recognition for Dashboard */}
       <EnhancedSpeechRecognition 
         language={language}
         continuous={true}
