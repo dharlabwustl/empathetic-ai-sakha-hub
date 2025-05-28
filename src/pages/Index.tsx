@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -23,7 +22,7 @@ import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton'
 import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
 import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
-import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceAnimations';
+import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
 
 const Index = () => {
   const navigate = useNavigate();
