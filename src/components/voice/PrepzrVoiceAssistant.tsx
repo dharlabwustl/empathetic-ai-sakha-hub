@@ -19,6 +19,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
 }) => {
   const [hasGreeted, setHasGreeted] = useState(false);
   const [currentContext, setCurrentContext] = useState<string>('');
+  const [messagesSent, setMessagesSent] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,26 +37,34 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   // Get contextual message based on current page
   const getContextMessage = (path: string, userName: string, isNewUser: boolean) => {
     if (path === '/') {
-      if (!spokenInSessionRef.current.has('home-intro')) {
-        spokenInSessionRef.current.add('home-intro');
+      const messageKey = 'home-intro';
+      if (!messagesSent.has(messageKey)) {
+        setMessagesSent(prev => new Set(prev).add(messageKey));
         return `Hi ${userName}! I'm Prep Zer AI, your personal exam prep guide. Prep Zer isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`;
       }
       return null;
     } else if (path.includes('/signup')) {
-      if (!spokenInSessionRef.current.has('signup-help')) {
-        spokenInSessionRef.current.add('signup-help');
+      const messageKey = 'signup-help';
+      if (!messagesSent.has(messageKey)) {
+        setMessagesSent(prev => new Set(prev).add(messageKey));
         return `Sign up to unlock a customized study journey. Prep Zer will guide you at every step.`;
       }
       return null;
     } else if (path.includes('/dashboard')) {
-      if (isNewUser && !spokenInSessionRef.current.has('dashboard-welcome')) {
-        spokenInSessionRef.current.add('dashboard-welcome');
-        return `Congratulations, ${userName}! You've officially joined Prep Zer – your ultimate prep companion. Together, we'll build your confidence, track your progress, and make sure you're fully exam-ready.`;
-      } else if (!isNewUser && !spokenInSessionRef.current.has('dashboard-return')) {
-        spokenInSessionRef.current.add('dashboard-return');
-        return lastActivity 
-          ? `Welcome back, ${userName}! Last time you were working on ${lastActivity}. Ready to pick up where you left off?`
-          : `Welcome back, ${userName}! Ready to continue your learning journey?`;
+      if (isNewUser) {
+        const messageKey = 'dashboard-welcome';
+        if (!messagesSent.has(messageKey)) {
+          setMessagesSent(prev => new Set(prev).add(messageKey));
+          return `Congratulations, ${userName}! You've officially joined Prep Zer – your ultimate prep companion. Together, we'll build your confidence, track your progress, and make sure you're fully exam-ready.`;
+        }
+      } else {
+        const messageKey = 'dashboard-return';
+        if (!messagesSent.has(messageKey)) {
+          setMessagesSent(prev => new Set(prev).add(messageKey));
+          return lastActivity 
+            ? `Welcome back, ${userName}! Last time you were working on ${lastActivity}. Ready to pick up where you left off?`
+            : `Welcome back, ${userName}! Ready to continue your learning journey?`;
+        }
       }
       return null;
     }
@@ -67,24 +76,25 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   const getSmartSuggestion = (path: string) => {
     if (path === '/') {
       const suggestions = [
-        "Want to try Prep Zer free before signing up? Just say 'Free trial'.",
-        "Curious how Prep Zer is different from coaching centers? Ask me – I'll explain.",
-        "Looking for scholarships or readiness tests? I'll help you get started."
+        { key: 'free-trial', text: "Want to try Prep Zer free before signing up? Just say 'Free trial'." },
+        { key: 'explain-prepzr', text: "Curious how Prep Zer is different from coaching centers? Ask me – I'll explain." },
+        { key: 'scholarship', text: "Looking for scholarships or readiness tests? I'll help you get started." }
       ];
       
       const unspokenSuggestions = suggestions.filter(s => 
-        !spokenInSessionRef.current.has(`suggestion-${s}`)
+        !messagesSent.has(`suggestion-${s.key}`)
       );
       
       if (unspokenSuggestions.length > 0) {
         const suggestion = unspokenSuggestions[0];
-        spokenInSessionRef.current.add(`suggestion-${suggestion}`);
-        return suggestion;
+        setMessagesSent(prev => new Set(prev).add(`suggestion-${suggestion.key}`));
+        return suggestion.text;
       }
       
       // After all suggestions, offer to pause
-      if (!spokenInSessionRef.current.has('pause-offer')) {
-        spokenInSessionRef.current.add('pause-offer');
+      const pauseKey = 'pause-offer';
+      if (!messagesSent.has(pauseKey)) {
+        setMessagesSent(prev => new Set(prev).add(pauseKey));
         return "I'll pause now. Ask me anything when you're ready.";
       }
     }
@@ -92,7 +102,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     return null;
   };
 
-  // Speak with intelligent timing
+  // Speak with intelligent timing and prevent repetition
   const speakMessage = async (message: string) => {
     const now = Date.now();
     
@@ -101,10 +111,17 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       return;
     }
     
+    // Prevent repetition by checking if message was already sent
+    const messageKey = message.toLowerCase().trim();
+    if (messagesSent.has(messageKey)) {
+      return;
+    }
+    
     const success = speakWithFemaleVoice(message, { language });
     if (success) {
       lastMessageTimeRef.current = now;
       messageCountRef.current++;
+      setMessagesSent(prev => new Set(prev).add(messageKey));
       
       // After speaking, create an intelligent pause before next message
       await createIntelligentPause(4000);
@@ -139,7 +156,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     setTimeout(handleContextualGreeting, 1500);
   }, [location.pathname, userName, isNewUser, hasGreeted, shouldPlayGreeting]);
 
-  // Reset context when changing routes
+  // Reset context when changing routes but preserve message history
   useEffect(() => {
     if (location.pathname !== currentContext) {
       setHasGreeted(false);

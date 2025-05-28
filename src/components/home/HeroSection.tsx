@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, Target, TrendingUp, Users, Star, CheckCircle, Rocket } from 'lucide-react';
+import HeroButtons from './hero/HeroButtons';
 
 interface HeroSectionProps {
   onAnalyzeClick: () => void;
@@ -250,22 +251,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <Button 
-              size="lg" 
-              className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800 text-white px-8 py-5 rounded-2xl text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border border-white/20"
-            >
-              Start 7 Days Free Trial
-              <ArrowRight className="ml-3 h-5 w-5" />
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={onAnalyzeClick}
-              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-8 py-5 rounded-2xl text-lg font-bold transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
-            >
-              Exam Readiness & Scholarship Test
-            </Button>
+            <HeroButtons onAnalyzeClick={onAnalyzeClick} />
           </motion.div>
         </div>
       </div>

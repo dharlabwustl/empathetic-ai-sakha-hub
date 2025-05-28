@@ -53,7 +53,7 @@ const StepHandler = ({
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       daysRemaining: 7,
-      planType: SubscriptionType.FREE
+      planType: SubscriptionType.PRO // Set to PRO for premium features during trial
     };
   };
   
@@ -83,7 +83,7 @@ const StepHandler = ({
         isNewUser: true,
         sawWelcomeTour: false,
         subscription: trialSubscription ? {
-          type: SubscriptionType.FREE,
+          type: isTrial ? SubscriptionType.PRO : SubscriptionType.FREE,
           isActive: true,
           trial: trialSubscription
         } : {
@@ -107,6 +107,7 @@ const StepHandler = ({
       // Store trial information if applicable
       if (trialSubscription) {
         localStorage.setItem('trial_subscription', JSON.stringify(trialSubscription));
+        localStorage.setItem('trial_active', 'true');
       }
       
       // Set flag to show study plan creation dialog after tour
