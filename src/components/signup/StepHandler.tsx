@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
 import { MoodType } from "@/types/user/base";
+import { SubscriptionType, TrialSubscription } from "@/types/subscription";
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 
 interface StepHandlerProps {
@@ -35,6 +36,27 @@ const StepHandler = ({
     setStep("goal");
   };
   
+  // Check if this is a trial signup
+  const isTrialSignup = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('trial') === 'true';
+  };
+
+  // Create trial subscription
+  const createTrialSubscription = (): TrialSubscription => {
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(startDate.getDate() + 7); // 7 days from now
+    
+    return {
+      isActive: true,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      daysRemaining: 7,
+      planType: SubscriptionType.FREE
+    };
+  };
+  
   const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string }) => {
     setIsLoading(true);
     
@@ -42,6 +64,12 @@ const StepHandler = ({
       // Clean up user input
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
+      
+      // Check if this is a trial signup
+      const isTrial = isTrialSignup();
+      
+      // Create trial subscription if applicable
+      const trialSubscription = isTrial ? createTrialSubscription() : null;
       
       // Create a user object with the collected data
       const userData = {
@@ -53,7 +81,16 @@ const StepHandler = ({
         ...onboardingData,
         completedOnboarding: true,
         isNewUser: true,
-        sawWelcomeTour: false
+        sawWelcomeTour: false,
+        subscription: trialSubscription ? {
+          type: SubscriptionType.FREE,
+          isActive: true,
+          trial: trialSubscription
+        } : {
+          type: SubscriptionType.FREE,
+          isActive: false,
+          trial: null
+        }
       };
       
       console.log("Registering user:", userData);
@@ -67,6 +104,11 @@ const StepHandler = ({
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('new_user_signup', 'true');
       
+      // Store trial information if applicable
+      if (trialSubscription) {
+        localStorage.setItem('trial_subscription', JSON.stringify(trialSubscription));
+      }
+      
       // Set flag to show study plan creation dialog after tour
       localStorage.setItem('needs_study_plan_creation', 'true');
       
@@ -74,8 +116,8 @@ const StepHandler = ({
       window.dispatchEvent(new Event('auth-state-changed'));
       
       toast({
-        title: "Welcome to Prepzr!",
-        description: "Let's start your learning journey.",
+        title: isTrial ? "Welcome to your 7-day free trial!" : "Welcome to Prepzr!",
+        description: isTrial ? "Your trial has started. Explore all premium features!" : "Let's start your learning journey.",
       });
       
       // Navigate directly to welcome-flow, skipping login

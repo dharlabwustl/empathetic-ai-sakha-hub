@@ -13,7 +13,8 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({ onAnalyzeClick }) => {
   const navigate = useNavigate();
   
   const handleFreeTrial = () => {
-    navigate('/signup');
+    // Add trial parameter to trigger 7-day free trial
+    navigate('/signup?trial=true');
   };
 
   return (

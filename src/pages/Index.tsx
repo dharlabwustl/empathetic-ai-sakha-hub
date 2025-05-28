@@ -20,6 +20,8 @@ import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
+import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -56,78 +58,87 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
-      <Header />
-      
-      <main>
-        {/* Enhanced 3D hero section with voice interaction */}
-        <HeroSection onAnalyzeClick={handleOpenExamAnalyzer} />
+    <AuthGuard>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
+        <Header />
         
-        {/* Smart Data section with animation and KPI stats */}
-        <motion.section 
-          className="container mx-auto px-4 py-16 mb-20"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-              Smart Data. Real Impact. Humanizing exam prep.
-            </h2>
-          </div>
-          <KpiStats />
-        </motion.section>
+        <main>
+          {/* Enhanced 3D hero section with voice interaction */}
+          <HeroSection onAnalyzeClick={handleOpenExamAnalyzer} />
+          
+          {/* Smart Data section with animation and KPI stats */}
+          <motion.section 
+            className="container mx-auto px-4 py-16 mb-20"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                Smart Data. Real Impact. Humanizing exam prep.
+              </h2>
+            </div>
+            <KpiStats />
+          </motion.section>
+          
+          {/* Backed By Section with partner logos */}
+          <BackedBySection />
+          
+          {/* Add proper spacing between sections */}
+          <div className="pt-12"></div>
+                  
+          <WhatIsSection />
+          
+          {/* Champion Methodology Section */}
+          <ChampionMethodologySection />
+          
+          <EcosystemAnimation />
+          
+          <FeaturesSection />
+          
+          <ExamPreparationSection />
+          
+          {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
+          
+          <StudentBenefitsSection />
+          
+          <VideoSection />
+          
+          <FounderSection />
+          
+          <FoundingTeamSection />
+          
+          <CallToAction />
+        </main>
         
-        {/* Backed By Section with partner logos */}
-        <BackedBySection />
+        <Footer />
         
-        {/* Add proper spacing between sections */}
-        <div className="pt-12"></div>
-                
-        <WhatIsSection />
+        {/* PREPZR AI Voice Assistant - Home page version */}
+        <PrepzrVoiceAssistant 
+          userName="there"
+          language="en-US"
+          isNewUser={false}
+        />
         
-        {/* Champion Methodology Section */}
-        <ChampionMethodologySection />
-        
-        <EcosystemAnimation />
-        
-        <FeaturesSection />
-        
-        <ExamPreparationSection />
-        
-        {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
-        
-        <StudentBenefitsSection />
-        
-        <VideoSection />
-        
-        <FounderSection />
-        
-        <FoundingTeamSection />
-        
-        <CallToAction />
-      </main>
-      
-      <Footer />
-      
-      {/* Speech Recognition Button - positioned above voice assistant */}
-      <SpeechRecognitionButton
-        position="homepage"
-        onCommand={handleSpeechCommand}
-        className="fixed bottom-24 right-6 z-50"
-      />
+        {/* Speech Recognition Button - positioned above voice assistant */}
+        <SpeechRecognitionButton
+          position="homepage"
+          onCommand={handleSpeechCommand}
+          className="fixed bottom-24 right-6 z-50"
+        />
 
-      {/* PREPZR AI Voice Assistant - positioned below speech recognition */}
-      <InteractiveVoiceAssistant 
-        userName="Visitor"
-        language="en-US"
-        onNavigationCommand={handleNavigationCommand}
-        position="bottom-right"
-        className="fixed bottom-6 right-6 z-40"
-        assistantName="PREPZR AI"
-      />
-    </div>
+        {/* PREPZR AI Voice Assistant - positioned below speech recognition */}
+        <InteractiveVoiceAssistant 
+          userName="Visitor"
+          language="en-US"
+          onNavigationCommand={handleNavigationCommand}
+          position="bottom-right"
+          className="fixed bottom-6 right-6 z-40"
+          assistantName="PREPZR AI"
+        />
+      </div>
+    </AuthGuard>
   );
 };
 

@@ -64,13 +64,17 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
   };
 };
 
+// Track spoken messages to prevent repetition
+const spokenMessages = new Map<string, number>();
+const MESSAGE_COOLDOWN = 120000; // 2 minutes cooldown for same message
+
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
   // Ensure consistent pronunciation of PREPZR as "PREP-ZER"
-  utterance.text = text.replace(/PREPZR/gi, 'PREP-ZER').replace(/Sakha AI/gi, 'PREP-ZER AI');
+  utterance.text = text.replace(/PREPZR/gi, 'Prep Zer').replace(/Sakha AI/gi, 'Prep Zer AI');
   utterance.lang = finalConfig.language;
   utterance.rate = finalConfig.rate;
   utterance.pitch = finalConfig.pitch;
@@ -88,8 +92,18 @@ export const speakWithFemaleVoice = (
   config?: Partial<VoiceConfig>,
   onStart?: () => void,
   onEnd?: () => void
-): void => {
-  if (!('speechSynthesis' in window)) return;
+): boolean => {
+  if (!('speechSynthesis' in window)) return false;
+  
+  // Check if this message was spoken recently to prevent repetition
+  const messageKey = text.toLowerCase().trim();
+  const now = Date.now();
+  const lastSpoken = spokenMessages.get(messageKey);
+  
+  if (lastSpoken && (now - lastSpoken) < MESSAGE_COOLDOWN) {
+    console.log('🔇 Voice: Preventing repetition of message:', text);
+    return false;
+  }
   
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
@@ -104,5 +118,14 @@ export const speakWithFemaleVoice = (
     utterance.onend = onEnd;
   }
   
+  // Store the timestamp when we start speaking
+  spokenMessages.set(messageKey, now);
+  
   window.speechSynthesis.speak(utterance);
+  return true;
+};
+
+// Smart breaks between messages
+export const createIntelligentPause = (duration: number = 3000): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, duration));
 };

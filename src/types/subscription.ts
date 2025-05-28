@@ -25,3 +25,11 @@ export interface SubscriptionPlan {
   type: SubscriptionType;
   popular?: boolean;
 }
+
+export interface TrialSubscription {
+  isActive: boolean;
+  startDate: string;
+  endDate: string;
+  daysRemaining: number;
+  planType: SubscriptionType;
+}
