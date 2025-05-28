@@ -7,6 +7,16 @@ interface AdaptiveDashboardControllerProps {
   userProfile: UserProfileBase;
   preferences?: any;
   onMoodChange?: (mood: MoodType) => void;
+  kpis?: any[];
+  nudges?: any[];
+  markNudgeAsRead?: (id: string) => void;
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
+  upcomingEvents?: Array<{
+    title: string;
+    time: string;
+    type: "exam" | "task" | "revision";
+  }>;
   [key: string]: any;
 }
 
@@ -14,6 +24,12 @@ const AdaptiveDashboardController: React.FC<AdaptiveDashboardControllerProps> = 
   userProfile,
   preferences,
   onMoodChange,
+  kpis = [],
+  nudges = [],
+  markNudgeAsRead,
+  lastActivity,
+  suggestedNextAction,
+  upcomingEvents = [],
   ...otherProps
 }) => {
   // Calculate exam proximity based on exam date
@@ -47,6 +63,12 @@ const AdaptiveDashboardController: React.FC<AdaptiveDashboardControllerProps> = 
       learningStyle={learningStyle}
       currentMood={currentMood}
       onMoodChange={onMoodChange}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      upcomingEvents={upcomingEvents}
       {...otherProps}
     />
   );
