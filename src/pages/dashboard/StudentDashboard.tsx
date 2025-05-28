@@ -14,6 +14,9 @@ import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/compo
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DashboardVoiceGreeting from "@/components/voice/DashboardVoiceGreeting";
+import SignupVoiceAssistant from "@/components/voice/SignupVoiceAssistant";
+import { FloatingVoiceButton as EnhancedFloatingVoiceButton } from "@/components/voice/EnhancedVoiceAnimations";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -23,6 +26,7 @@ const StudentDashboard = () => {
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -175,14 +179,6 @@ const StudentDashboard = () => {
     navigate('/dashboard/student?new=true');
   };
 
-  const handleOpenVoiceAssistant = () => {
-    setShowVoiceAssistant(true);
-  };
-
-  const handleCloseVoiceAssistant = () => {
-    setShowVoiceAssistant(false);
-  };
-
   const handleNavigationCommand = (route: string) => {
     navigate(route);
   };
@@ -279,19 +275,28 @@ const StudentDashboard = () => {
         language="en"
       />
       
-      {/* Enhanced Dashboard Voice Assistant that considers user mood */}
-      <DashboardVoiceAssistant
+      {/* Enhanced Dashboard Voice Greeting with intelligent messaging */}
+      <DashboardVoiceGreeting
         userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en-IN"
-        userMood={currentMood}
+        isFirstTimeUser={isFirstTimeUser}
+        language="en-US"
+        onSpeakingChange={setIsSpeaking}
       />
 
-      {/* Floating voice assistant button with settings panel */}
-      <FloatingVoiceButton 
-        userName={userProfile.name || userProfile.firstName || 'Student'}
-        language="en-IN"
-        onNavigationCommand={handleNavigationCommand}
+      {/* Signup congratulations voice assistant */}
+      <SignupVoiceAssistant
+        userName={userProfile.name || userProfile.firstName}
+        language="en-US"
+        onSpeakingChange={setIsSpeaking}
       />
+
+      {/* Enhanced floating voice assistant button with vibrant animations */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <EnhancedFloatingVoiceButton 
+          isSpeaking={isSpeaking}
+          className="cursor-pointer"
+        />
+      </div>
     </>
   );
 };

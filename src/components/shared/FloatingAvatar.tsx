@@ -1,9 +1,11 @@
 
 import { useState } from 'react';
 import { MessageSquare, X } from 'lucide-react';
+import { VoiceAssistantAvatar } from '@/components/voice/EnhancedVoiceAnimations';
 
 const FloatingAvatar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [messages, setMessages] = useState([
     { 
       type: 'bot',
@@ -37,19 +39,16 @@ const FloatingAvatar = () => {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Enhanced Floating Button with vibrant animations */}
       <button 
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg flex items-center justify-center z-50"
+        className="fixed bottom-6 right-6 z-50"
         onClick={() => setIsOpen(true)}
       >
-        <div className="relative">
-          <div className="absolute w-full h-full rounded-full animate-pulse bg-sakha-light-blue/50"></div>
-          <img 
-            src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-            alt="PREPZR AI" 
-            className="w-10 h-10 object-cover relative z-10"
-          />
-        </div>
+        <VoiceAssistantAvatar 
+          isSpeaking={isSpeaking}
+          size={56}
+          className="hover:scale-105 transition-transform duration-200"
+        />
       </button>
 
       {/* Quick Chat Modal */}
@@ -58,10 +57,9 @@ const FloatingAvatar = () => {
           {/* Chat Header */}
           <div className="p-3 bg-gradient-to-r from-sakha-blue to-sakha-purple text-white flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <img 
-                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-                alt="PREPZR AI" 
-                className="w-8 h-8 rounded-full"
+              <VoiceAssistantAvatar 
+                isSpeaking={isSpeaking}
+                size={32}
               />
               <div>
                 <h3 className="font-medium text-sm">PREPZR AI</h3>
@@ -99,7 +97,7 @@ const FloatingAvatar = () => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Type your message..."
                 className="w-full p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sakha-blue text-sm"
               />
@@ -115,6 +113,29 @@ const FloatingAvatar = () => {
       )}
     </>
   );
+
+  function handleSendMessage() {
+    if (!input.trim()) return;
+    
+    // Add user message
+    setMessages([...messages, { type: 'user', content: input }]);
+    
+    // Simulate bot response
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: 'bot', 
+        content: "I'd be happy to assist you with that! To get the full exam preparation experience, why not sign up for a free account with PREP-zer?" 
+      }]);
+    }, 1000);
+    
+    setInput('');
+  }
+
+  function handleKeyPress(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  }
 };
 
 export default FloatingAvatar;

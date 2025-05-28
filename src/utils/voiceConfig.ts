@@ -64,9 +64,10 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
   };
 };
 
-// Track spoken messages to prevent repetition
-const spokenMessages = new Map<string, number>();
-const MESSAGE_COOLDOWN = 120000; // 2 minutes cooldown for same message
+// Enhanced message tracking with session-based prevention
+const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
+const SESSION_ID = Date.now().toString();
+const MESSAGE_COOLDOWN = 300000; // 5 minutes cooldown for same message
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -95,13 +96,15 @@ export const speakWithFemaleVoice = (
 ): boolean => {
   if (!('speechSynthesis' in window)) return false;
   
-  // Check if this message was spoken recently to prevent repetition
-  const messageKey = text.toLowerCase().trim();
+  // Enhanced repetition prevention
+  const messageKey = text.toLowerCase().trim().substring(0, 50); // Use first 50 chars as key
   const now = Date.now();
-  const lastSpoken = spokenMessages.get(messageKey);
+  const messageInfo = spokenMessages.get(messageKey);
   
-  if (lastSpoken && (now - lastSpoken) < MESSAGE_COOLDOWN) {
-    console.log('🔇 Voice: Preventing repetition of message:', text);
+  if (messageInfo && 
+      messageInfo.sessionId === SESSION_ID && 
+      (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
+    console.log('🔇 Voice: Preventing repetition of message:', text.substring(0, 50) + '...');
     return false;
   }
   
@@ -118,8 +121,8 @@ export const speakWithFemaleVoice = (
     utterance.onend = onEnd;
   }
   
-  // Store the timestamp when we start speaking
-  spokenMessages.set(messageKey, now);
+  // Store the timestamp and session when we start speaking
+  spokenMessages.set(messageKey, { timestamp: now, sessionId: SESSION_ID });
   
   window.speechSynthesis.speak(utterance);
   return true;

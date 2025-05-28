@@ -22,10 +22,13 @@ import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssist
 import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
 import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
+import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
+import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceAnimations';
 
 const Index = () => {
   const navigate = useNavigate();
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -114,11 +117,10 @@ const Index = () => {
         
         <Footer />
         
-        {/* PREPZR AI Voice Assistant - Home page version */}
-        <PrepzrVoiceAssistant 
-          userName="there"
+        {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
+        <EnhancedHomepageAssistant 
           language="en-US"
-          isNewUser={false}
+          onSpeakingChange={setIsSpeaking}
         />
         
         {/* Speech Recognition Button - positioned above voice assistant */}
@@ -128,15 +130,13 @@ const Index = () => {
           className="fixed bottom-24 right-6 z-50"
         />
 
-        {/* PREPZR AI Voice Assistant - positioned below speech recognition */}
-        <InteractiveVoiceAssistant 
-          userName="Visitor"
-          language="en-US"
-          onNavigationCommand={handleNavigationCommand}
-          position="bottom-right"
-          className="fixed bottom-6 right-6 z-40"
-          assistantName="PREPZR AI"
-        />
+        {/* Enhanced Floating Voice Button with vibrant animations */}
+        <div className="fixed bottom-6 right-6 z-40">
+          <FloatingVoiceButton 
+            isSpeaking={isSpeaking}
+            className="cursor-pointer"
+          />
+        </div>
       </div>
     </AuthGuard>
   );

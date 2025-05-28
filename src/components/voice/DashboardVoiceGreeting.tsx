@@ -1,35 +1,35 @@
 
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { getDefaultVoiceConfig } from '@/utils/voiceConfig';
 import { 
-  signupCongratulationMessages, 
+  firstTimeDashboardMessages, 
+  returningUserMessages,
   speakMessagesWithBreaks 
 } from '@/utils/voiceMessages';
 
-interface SignupVoiceAssistantProps {
-  userName?: string;
+interface DashboardVoiceGreetingProps {
+  userName: string;
+  isFirstTimeUser: boolean;
   language?: string;
   onSpeakingChange?: (isSpeaking: boolean) => void;
 }
 
-const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
-  userName = "there",
+const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
+  userName,
+  isFirstTimeUser,
   language = 'en-US',
   onSpeakingChange
 }) => {
   const [hasPlayed, setHasPlayed] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const location = useLocation();
-  
-  const isSignupSuccess = location.pathname.includes('/signup') && 
-                         location.search.includes('success=true');
 
-  const playCongratulations = async () => {
-    if (hasPlayed || !userName || userName === "there") return;
+  const playDashboardGreeting = async () => {
+    if (hasPlayed) return;
     
     const voiceConfig = getDefaultVoiceConfig();
-    const messages = signupCongratulationMessages(userName);
+    const messages = isFirstTimeUser 
+      ? firstTimeDashboardMessages(userName)
+      : returningUserMessages(userName);
     
     await speakMessagesWithBreaks(
       messages,
@@ -47,14 +47,15 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
   };
 
   useEffect(() => {
-    if (isSignupSuccess && userName && userName !== "there" && !hasPlayed) {
+    if (userName && !hasPlayed) {
+      // Delay to ensure dashboard is loaded
       setTimeout(() => {
-        playCongratulations();
-      }, 1500);
+        playDashboardGreeting();
+      }, 3000);
     }
-  }, [isSignupSuccess, userName, hasPlayed]);
+  }, [userName, hasPlayed]);
 
   return null;
 };
 
-export default SignupVoiceAssistant;
+export default DashboardVoiceGreeting;
