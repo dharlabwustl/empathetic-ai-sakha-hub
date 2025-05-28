@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,7 @@ import {
   Clock,
   TrendingUp,
   Star,
-  Filter,
-  Timer
+  Filter
 } from 'lucide-react';
 import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
@@ -48,7 +48,7 @@ const FlashcardLandingPage: React.FC = () => {
 
   const flashcardSets = [
     {
-      id: "1",
+      id: 1,
       title: "Physics Formulas & Constants",
       subject: "Physics",
       cardCount: 45,
@@ -59,7 +59,7 @@ const FlashcardLandingPage: React.FC = () => {
       estimatedTime: 25
     },
     {
-      id: "2",
+      id: 2,
       title: "Organic Chemistry Reactions",
       subject: "Chemistry", 
       cardCount: 32,
@@ -70,7 +70,7 @@ const FlashcardLandingPage: React.FC = () => {
       estimatedTime: 30
     },
     {
-      id: "3",
+      id: 3,
       title: "Human Anatomy Systems",
       subject: "Biology",
       cardCount: 38,
@@ -81,7 +81,7 @@ const FlashcardLandingPage: React.FC = () => {
       estimatedTime: 20
     },
     {
-      id: "4",
+      id: 4,
       title: "Chemical Bonding Concepts",
       subject: "Chemistry",
       cardCount: 28,
@@ -117,8 +117,10 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  const navigateToFlashcard = (setId: string) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
+  // FIXED: Route to interactive flashcard page - MUST GO TO /1/interactive
+  const navigateToFlashcard = () => {
+    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
+    console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE FLASHCARDS: ${targetRoute}`);
     navigate(targetRoute);
   };
 
@@ -129,11 +131,13 @@ const FlashcardLandingPage: React.FC = () => {
         <meta name="description" content="NEET flashcards for quick review and memorization" />
       </Helmet>
 
+      {/* Overview Section */}
       <div className="p-6">
         <OverviewSection {...overviewData} />
       </div>
 
       <div className="container mx-auto px-4 py-6 space-y-8">
+        {/* Hero Section */}
         <motion.div 
           className="text-center space-y-4"
           initial={{ opacity: 0, y: 20 }}
@@ -168,6 +172,7 @@ const FlashcardLandingPage: React.FC = () => {
           </div>
         </motion.div>
 
+        {/* Search and Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -204,11 +209,12 @@ const FlashcardLandingPage: React.FC = () => {
           </Button>
         </motion.div>
 
+        {/* Flashcard Sets Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {filteredSets.map((set, index) => (
             <motion.div
@@ -218,16 +224,19 @@ const FlashcardLandingPage: React.FC = () => {
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
               <Card 
-                className="aspect-square flex flex-col hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
-                onClick={() => navigateToFlashcard(set.id)}
+                className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
+                onClick={() => {
+                  console.log(`🔥🔥🔥 CARD CLICKED - SET ID: ${set.id}`);
+                  navigateToFlashcard();
+                }}
               >
-                <CardHeader className="pb-2 flex-shrink-0">
+                <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-sm font-semibold line-clamp-2 leading-tight">
+                    <div>
+                      <CardTitle className="text-lg font-semibold line-clamp-2">
                         {set.title}
                       </CardTitle>
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-1">{set.topic}</p>
+                      <p className="text-sm text-gray-600 mt-1">{set.topic}</p>
                     </div>
                     <Badge variant="outline" className={getDifficultyColor(set.difficulty)}>
                       {set.difficulty}
@@ -235,25 +244,22 @@ const FlashcardLandingPage: React.FC = () => {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="space-y-3 flex-grow text-xs">
-                  <div className="flex items-center justify-between">
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">{set.cardCount} cards</span>
-                    <Badge variant="outline" className="text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 flex items-center gap-1">
-                      <Timer className="h-3 w-3" />
-                      {set.estimatedTime}m
-                    </Badge>
+                    <span className="text-gray-600">~{set.estimatedTime} min</span>
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium">Mastery Level</span>
-                      <span className={`text-xs font-bold ${getMasteryColor(set.masteryLevel)}`}>
+                      <span className="text-sm font-medium">Mastery Level</span>
+                      <span className={`text-sm font-bold ${getMasteryColor(set.masteryLevel)}`}>
                         {set.masteryLevel}%
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                        className={`h-2 rounded-full transition-all duration-300 ${
                           set.masteryLevel >= 80 ? 'bg-green-500' :
                           set.masteryLevel >= 60 ? 'bg-yellow-500' : 'bg-red-500'
                         }`}
@@ -271,26 +277,50 @@ const FlashcardLandingPage: React.FC = () => {
                       {set.subject}
                     </Badge>
                   </div>
-                </CardContent>
-                
-                <div className="p-3 flex-shrink-0">
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log(`🔥🔥🔥 QUICK REVIEW BUTTON CLICKED`);
+                        navigateToFlashcard();
+                      }}
+                    >
+                      Quick Review
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log(`🔥🔥🔥 STUDY CARDS BUTTON CLICKED`);
+                        navigateToFlashcard();
+                      }}
+                    >
+                      Study Cards
+                    </Button>
+                  </div>
+                  
                   <Button 
-                    className="w-full text-xs" 
+                    className="w-full" 
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigateToFlashcard(set.id);
+                      console.log(`🔥🔥🔥 START REVIEW BUTTON CLICKED`);
+                      navigateToFlashcard();
                     }}
                   >
-                    <BookOpen className="h-3 w-3 mr-1" />
-                    Study Cards
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Start Review
                   </Button>
-                </div>
+                </CardContent>
               </Card>
             </motion.div>
           ))}
         </motion.div>
 
+        {/* No flashcard sets found section */}
         {filteredSets.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}

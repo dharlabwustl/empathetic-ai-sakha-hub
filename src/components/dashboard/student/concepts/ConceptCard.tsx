@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight, Star, Clock, BrainCircuit, Tag, CheckCircle, Timer, Target } from "lucide-react";
+import { BookOpen, ArrowRight, Star, Clock, BrainCircuit, Tag, CheckCircle } from "lucide-react";
 import { motion } from 'framer-motion';
 
 interface ConceptCardProps {
@@ -55,7 +55,9 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
+    console.log("ConceptCard - Navigating to concept detail:", id);
     navigate(`/dashboard/student/concepts/${id}`);
+    
     if (onView) {
       onView();
     }
@@ -63,7 +65,9 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
 
   const handleStudyNowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log("ConceptCard StudyNow - Navigating to concept detail:", id);
     navigate(`/dashboard/student/concepts/${id}`);
+    
     if (onView) {
       onView();
     }
@@ -75,54 +79,73 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
       <Card 
-        className="aspect-square flex flex-col hover:shadow-xl transition-all duration-300 overflow-hidden 
+        className="h-full flex flex-col hover:shadow-xl transition-all duration-300 overflow-hidden 
                   border border-gray-200/60 dark:border-gray-800/60 rounded-xl cursor-pointer 
                   bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-950/80"
         onClick={handleCardClick}
       >
-        <CardHeader className="pb-2 space-y-2 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
+        <CardHeader className="pb-2 space-y-2 border-b border-gray-100 dark:border-gray-800">
           <div className="flex justify-between items-start">
-            <Badge variant="outline" className={`${difficultyColors[difficulty]} capitalize px-2 py-1 rounded-full text-xs font-semibold`}>
+            <Badge variant="outline" className={`${difficultyColors[difficulty]} capitalize px-3 py-1 rounded-full text-xs font-semibold`}>
               {difficulty}
             </Badge>
             {isBookmarked && (
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             )}
           </div>
-          <CardTitle className="text-sm font-semibold line-clamp-2 leading-tight">
+          <CardTitle 
+            className="text-lg font-semibold mt-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-400 dark:hover:to-purple-400 transition-all duration-300"
+          >
             {title}
           </CardTitle>
-          <div className="flex flex-wrap gap-1">
-            <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-md">
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            <Badge variant="secondary" className="font-normal rounded-md">
               {subject}
             </Badge>
-            <Badge variant="outline" className="text-xs px-2 py-0.5 rounded-md flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30">
-              <Timer className="h-3 w-3" />
-              {timeEstimate}
-            </Badge>
+            
+            {tags && tags.length > 0 && tags.slice(0, 2).map((tag, i) => (
+              <Badge key={i} variant="outline" className="font-normal rounded-md flex items-center gap-1 bg-gray-50 dark:bg-gray-800">
+                <Tag className="h-3 w-3" />
+                {tag}
+              </Badge>
+            ))}
+            
+            {completed && (
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 font-normal rounded-md flex items-center gap-1">
+                <CheckCircle className="h-3 w-3" />
+                Completed
+              </Badge>
+            )}
           </div>
         </CardHeader>
         
-        <CardContent className="flex-grow pt-3 pb-2 text-xs space-y-3">
-          <p className="text-gray-600 dark:text-gray-400 line-clamp-2 text-xs">
+        <CardContent className="flex-grow pt-4 pb-3">
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
             {description}
           </p>
           
-          <div className="space-y-2">
+          <div className="mt-4 space-y-3">
             <div>
               <div className="flex justify-between text-xs font-medium mb-1">
-                <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                  <Clock className="h-3.5 w-3.5" /> Study Progress
+                </span>
                 <span className="text-indigo-600 dark:text-indigo-400">{progress}%</span>
               </div>
-              <Progress value={progress} className="h-1 bg-gray-100 dark:bg-gray-800" />
+              <Progress 
+                value={progress} 
+                className="h-1.5 bg-gray-100 dark:bg-gray-800" 
+              />
             </div>
             
             <div>
               <div className="flex justify-between text-xs font-medium mb-1">
-                <span className="text-gray-600 dark:text-gray-400">Mastery</span>
+                <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                  <BrainCircuit className="h-3.5 w-3.5" /> Mastery
+                </span>
                 <span className="text-indigo-600 dark:text-indigo-400">{mastery}%</span>
               </div>
-              <div className="h-1 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div 
                   className={`h-full ${getMasteryColor()} rounded-full`}
                   style={{ width: `${mastery}%` }}
@@ -130,35 +153,22 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
               </div>
             </div>
           </div>
-
-          {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {tags.slice(0, 2).map((tag, i) => (
-                <Badge key={i} variant="outline" className="text-xs px-1.5 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {completed && (
-            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs px-2 py-1 rounded-md flex items-center gap-1 w-fit">
-              <CheckCircle className="h-3 w-3" />
-              Completed
-            </Badge>
-          )}
+          
+          <div className="flex items-center mt-4 text-xs text-muted-foreground">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            <span>{timeEstimate}</span>
+          </div>
         </CardContent>
         
-        <CardFooter className="pt-2 border-t border-gray-100 dark:border-gray-800 p-3 flex-shrink-0">
+        <CardFooter className="pt-3 border-t border-gray-100 dark:border-gray-800 p-4">
           <Button 
             variant="default" 
-            size="sm"
-            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md transition-all duration-300 rounded-lg text-xs"
+            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-300 rounded-lg"
             onClick={handleStudyNowClick}
           >
-            <BookOpen className="h-3 w-3" />
+            <BookOpen className="h-4 w-4" />
             <span className="font-medium">Study Now</span>
-            <ArrowRight className="h-3 w-3" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </CardFooter>
       </Card>

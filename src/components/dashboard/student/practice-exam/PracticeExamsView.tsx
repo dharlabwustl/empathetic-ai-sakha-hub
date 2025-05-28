@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar, PlayCircle, Timer, Target, Star } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar, PlayCircle } from "lucide-react";
 import BackButton from '@/components/dashboard/student/BackButton';
 
 const exams = [
@@ -91,15 +91,15 @@ const PracticeExamsView: React.FC = () => {
   };
   
   const handleStartExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+    navigate(`/dashboard/student/exam/${examId}/start`);
   };
   
   const handleReviewExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/review`);
+    navigate(`/dashboard/student/exam/${examId}/results`);
   };
   
   const handleContinueExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+    navigate(`/dashboard/student/exam/${examId}/start`);
   };
   
   const getDifficultyColor = (difficulty: string) => {
@@ -115,87 +115,9 @@ const PracticeExamsView: React.FC = () => {
     }
   };
 
-  // Subject-wise exam data
-  const subjectExams = {
-    Physics: [
-      {
-        id: "phy1",
-        title: "Mechanics Mock Test",
-        questionsCount: 30,
-        timeEstimate: 60,
-        difficulty: "medium",
-        completed: false,
-        progress: 0,
-        examType: "Topic Test",
-        weightage: "25%"
-      },
-      {
-        id: "phy2", 
-        title: "Thermodynamics Test",
-        questionsCount: 25,
-        timeEstimate: 45,
-        difficulty: "hard",
-        completed: true,
-        progress: 100,
-        score: 78,
-        examType: "Chapter Test",
-        weightage: "15%"
-      }
-    ],
-    Chemistry: [
-      {
-        id: "chem1",
-        title: "Organic Chemistry",
-        questionsCount: 35,
-        timeEstimate: 70,
-        difficulty: "hard",
-        completed: false,
-        progress: 60,
-        examType: "Full Test",
-        weightage: "30%"
-      },
-      {
-        id: "chem2",
-        title: "Chemical Bonding",
-        questionsCount: 20,
-        timeEstimate: 40,
-        difficulty: "medium",
-        completed: true,
-        progress: 100,
-        score: 85,
-        examType: "Topic Test",
-        weightage: "20%"
-      }
-    ],
-    Biology: [
-      {
-        id: "bio1",
-        title: "Cell Biology",
-        questionsCount: 28,
-        timeEstimate: 50,
-        difficulty: "easy",
-        completed: true,
-        progress: 100,
-        score: 92,
-        examType: "Chapter Test",
-        weightage: "18%"
-      },
-      {
-        id: "bio2",
-        title: "Genetics & Evolution",
-        questionsCount: 32,
-        timeEstimate: 60,
-        difficulty: "hard",
-        completed: false,
-        progress: 30,
-        examType: "Topic Test",
-        weightage: "22%"
-      }
-    ]
-  };
-
   return (
     <div className="container py-6">
+      {/* Add Back Button */}
       <BackButton to="/dashboard/student" />
       
       <div className="flex justify-between items-center mt-4 mb-6">
@@ -215,13 +137,13 @@ const PracticeExamsView: React.FC = () => {
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
         <TabsList className="grid grid-cols-4 w-full sm:w-auto">
           <TabsTrigger value="all">All Exams</TabsTrigger>
-          <TabsTrigger value="physics">Physics</TabsTrigger>
-          <TabsTrigger value="chemistry">Chemistry</TabsTrigger>
-          <TabsTrigger value="biology">Biology</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {exams.map((exam) => (
               <ExamCard 
                 key={exam.id} 
@@ -235,13 +157,12 @@ const PracticeExamsView: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="physics" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {subjectExams.Physics.map((exam) => (
-              <SubjectExamCard 
+        <TabsContent value="pending" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filterExams("pending").map((exam) => (
+              <ExamCard 
                 key={exam.id} 
                 exam={exam} 
-                subject="Physics"
                 onStart={handleStartExam}
                 onReview={handleReviewExam}
                 onContinue={handleContinueExam}
@@ -251,13 +172,12 @@ const PracticeExamsView: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="chemistry" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {subjectExams.Chemistry.map((exam) => (
-              <SubjectExamCard 
+        <TabsContent value="in-progress" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filterExams("in-progress").map((exam) => (
+              <ExamCard 
                 key={exam.id} 
                 exam={exam} 
-                subject="Chemistry"
                 onStart={handleStartExam}
                 onReview={handleReviewExam}
                 onContinue={handleContinueExam}
@@ -267,13 +187,12 @@ const PracticeExamsView: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="biology" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {subjectExams.Biology.map((exam) => (
-              <SubjectExamCard 
+        <TabsContent value="completed" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filterExams("completed").map((exam) => (
+              <ExamCard 
                 key={exam.id} 
                 exam={exam} 
-                subject="Biology"
                 onStart={handleStartExam}
                 onReview={handleReviewExam}
                 onContinue={handleContinueExam}
@@ -321,175 +240,72 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam, onStart, onReview, onContinue
   };
   
   return (
-    <Card className="aspect-square flex flex-col">
-      <CardHeader className="pb-2">
+    <Card className="h-full flex flex-col">
+      <CardHeader>
         <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <CardTitle className="text-sm font-semibold line-clamp-2">{exam.title}</CardTitle>
-            <CardDescription className="mt-1 text-xs">
+          <div>
+            <CardTitle className="text-lg">{exam.title}</CardTitle>
+            <CardDescription className="mt-1">
               {exam.subject} • {exam.questionsCount} Questions
             </CardDescription>
           </div>
           {getStatusBadge()}
         </div>
       </CardHeader>
-      <CardContent className="flex-grow text-xs space-y-2">
-        <div className="flex flex-wrap gap-1">
-          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs px-2 py-0.5">
+      <CardContent className="flex-grow">
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
             {exam.examType}
           </Badge>
-          <Badge variant="outline" className={`${difficultyColorFn(exam.difficulty)} text-xs px-2 py-0.5`}>
+          <Badge variant="outline" className={difficultyColorFn(exam.difficulty)}>
             {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
           </Badge>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 flex items-center gap-1">
-            <Timer className="h-3 w-3" />
-            {exam.timeEstimate}m
-          </Badge>
         </div>
         
-        <div className="mt-3">
-          <div className="flex justify-between text-xs mb-1">
+        <p className="text-sm text-gray-500 mt-2">{exam.description}</p>
+        
+        <div className="mt-4">
+          <div className="flex justify-between text-sm mb-1">
             <span>Progress</span>
             <span>{exam.progress}%</span>
           </div>
-          <Progress value={exam.progress} className="h-1.5" />
+          <Progress value={exam.progress} className="h-2" />
         </div>
         
-        {exam.lastAttempted && (
-          <div className="text-xs text-gray-500">
-            Last: {new Date(exam.lastAttempted).toLocaleDateString()}
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="p-3">
-        {isCompleted ? (
-          <Button 
-            className="w-full text-xs" 
-            size="sm"
-            onClick={() => onReview(exam.id)}
-          >
-            <CheckCircle className="mr-1 h-3 w-3" />
-            Review
-          </Button>
-        ) : isStarted ? (
-          <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-xs" 
-            size="sm"
-            onClick={() => onContinue(exam.id)}
-          >
-            <BookOpen className="mr-1 h-3 w-3" />
-            Continue
-          </Button>
-        ) : (
-          <Button 
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-xs" 
-            size="sm"
-            onClick={() => onStart(exam.id)}
-          >
-            <PlayCircle className="mr-1 h-3 w-3" />
-            Start
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
-  );
-};
-
-interface SubjectExamCardProps {
-  exam: any;
-  subject: string;
-  onStart: (id: string) => void;
-  onReview: (id: string) => void;
-  onContinue: (id: string) => void;
-  difficultyColorFn: (difficulty: string) => string;
-}
-
-const SubjectExamCard: React.FC<SubjectExamCardProps> = ({ exam, subject, onStart, onReview, onContinue, difficultyColorFn }) => {
-  const isStarted = exam.progress > 0;
-  const isCompleted = exam.completed;
-
-  const subjectColors = {
-    'Physics': 'border-l-blue-500 bg-gradient-to-br from-blue-50 to-blue-100',
-    'Chemistry': 'border-l-purple-500 bg-gradient-to-br from-purple-50 to-purple-100', 
-    'Biology': 'border-l-green-500 bg-gradient-to-br from-green-50 to-green-100'
-  };
-
-  return (
-    <Card className={`aspect-square flex flex-col border-l-4 ${subjectColors[subject as keyof typeof subjectColors]}`}>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <CardTitle className="text-sm font-semibold line-clamp-2">{exam.title}</CardTitle>
-            <CardDescription className="mt-1 text-xs">
-              {exam.questionsCount} Questions
-            </CardDescription>
-          </div>
-          {exam.score && (
-            <Star className="h-4 w-4 text-yellow-500" />
+        <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+          <Clock className="h-4 w-4" />
+          <span>{exam.timeEstimate} min</span>
+          {exam.lastAttempted && (
+            <>
+              <span className="mx-1">•</span>
+              <span>Last attempt: {new Date(exam.lastAttempted).toLocaleDateString()}</span>
+            </>
           )}
         </div>
-      </CardHeader>
-      <CardContent className="flex-grow text-xs space-y-2">
-        <div className="flex flex-wrap gap-1">
-          <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200 text-xs px-2 py-0.5">
-            {exam.examType}
-          </Badge>
-          <Badge variant="outline" className={`${difficultyColorFn(exam.difficulty)} text-xs px-2 py-0.5`}>
-            {exam.difficulty}
-          </Badge>
-        </div>
-
-        <div className="flex gap-1">
-          <Badge variant="outline" className="bg-orange-50 text-orange-700 text-xs px-2 py-0.5 flex items-center gap-1">
-            <Timer className="h-3 w-3" />
-            {exam.timeEstimate}m
-          </Badge>
-          <Badge variant="outline" className="bg-green-50 text-green-700 text-xs px-2 py-0.5 flex items-center gap-1">
-            <Target className="h-3 w-3" />
-            {exam.weightage}
-          </Badge>
-        </div>
-        
-        <div className="mt-3">
-          <div className="flex justify-between text-xs mb-1">
-            <span>Progress</span>
-            <span>{exam.progress}%</span>
-          </div>
-          <Progress value={exam.progress} className="h-1.5" />
-        </div>
-
-        {exam.score && (
-          <div className="text-xs font-medium text-green-600">
-            Score: {exam.score}%
-          </div>
-        )}
       </CardContent>
-      <CardFooter className="p-3">
+      <CardFooter>
         {isCompleted ? (
           <Button 
-            className="w-full text-xs" 
-            size="sm"
+            className="w-full" 
             onClick={() => onReview(exam.id)}
           >
-            <CheckCircle className="mr-1 h-3 w-3" />
+            <CheckCircle className="mr-2 h-4 w-4" />
             Review Exam
           </Button>
         ) : isStarted ? (
           <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-xs" 
-            size="sm"
+            className="w-full bg-blue-600 hover:bg-blue-700" 
             onClick={() => onContinue(exam.id)}
           >
-            <BookOpen className="mr-1 h-3 w-3" />
-            Continue
+            <BookOpen className="mr-2 h-4 w-4" />
+            Continue Exam
           </Button>
         ) : (
           <Button 
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-xs" 
-            size="sm"
+            className="w-full bg-indigo-600 hover:bg-indigo-700" 
             onClick={() => onStart(exam.id)}
           >
-            <PlayCircle className="mr-1 h-3 w-3" />
+            <PlayCircle className="mr-2 h-4 w-4" />
             Start Exam
           </Button>
         )}
