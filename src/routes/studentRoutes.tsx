@@ -20,8 +20,8 @@ import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
-import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
-import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
+import ExamStartPage from '@/pages/dashboard/student/exam/ExamStartPage';
+import ExamResultsPage from '@/pages/dashboard/student/exam/ExamResultsPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -74,12 +74,6 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* CRITICAL: INTERACTIVE FLASHCARD ROUTE - MUST BE EXACT MATCH - FIXED TO /1/interactive */}
-      <Route path="/flashcards/1/interactive" element={
-        <SidebarLayout>
-          <InteractiveFlashcard />
-        </SidebarLayout>
-      } />
       <Route path="/flashcards/:id/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
@@ -92,12 +86,22 @@ const StudentRoutes = () => {
       } />
       <Route path="/practice-exam/:examId/start" element={
         <SidebarLayout>
-          <ExamTakingPage />
+          <ExamStartPage />
         </SidebarLayout>
       } />
       <Route path="/practice-exam/:examId/review" element={
         <SidebarLayout>
-          <ExamReviewPage />
+          <ExamResultsPage />
+        </SidebarLayout>
+      } />
+      <Route path="/exam/:examId/start" element={
+        <SidebarLayout>
+          <ExamStartPage />
+        </SidebarLayout>
+      } />
+      <Route path="/exam/:examId/results" element={
+        <SidebarLayout>
+          <ExamResultsPage />
         </SidebarLayout>
       } />
       <Route path="/syllabus" element={
