@@ -1,37 +1,23 @@
-
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { 
+  TrendingUp, Calendar, Clock, Target, Brain, BookOpen, 
+  Zap, Trophy, PlayCircle, MessageSquare, ChevronRight,
+  AlertCircle, CheckCircle2, Star, BarChart3, Users,
+  ChevronDown, ChevronUp, Lightbulb, Volume2, Mic
+} from 'lucide-react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Calendar, 
-  Zap, 
-  User, 
-  BookOpen,
-  Brain,
-  Target,
-  TrendingUp,
-  Clock,
-  Star,
-  Award,
-  ChevronRight,
-  Play,
-  BarChart3,
-  Heart,
-  Sparkles,
-  Timer,
-  CheckCircle2,
-  AlertCircle,
-  Trophy,
-  Flame
-} from 'lucide-react';
-import SurroundingInfluencesMeter from '../student/SurroundingInfluencesMeter';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { MoodSelector } from '../student/MoodSelector';
+import SurroundingInfluencesSection from '../student/SurroundingInfluencesSection';
 
 interface ComprehensiveAdaptiveDashboardProps {
   userProfile: UserProfileBase;
@@ -43,437 +29,362 @@ interface ComprehensiveAdaptiveDashboardProps {
 const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardProps> = ({
   userProfile,
   kpis,
-  currentMood,
+  currentMood = MoodType.MOTIVATED,
   onMoodChange
 }) => {
   const navigate = useNavigate();
-  const [selectedMood, setSelectedMood] = useState<MoodType>(currentMood || MoodType.Motivated);
+  const [showMoodDialog, setShowMoodDialog] = useState(false);
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
+  const [selectedMood, setSelectedMood] = useState(currentMood);
 
-  // Mock data for enhanced dashboard
-  const examReadinessScore = 72;
-  const daysToExam = 185;
-  const studyStreak = 15;
-  const studyHours = 127;
-  const testsCompleted = 23;
-
-  const subjectProgress = [
-    { name: 'Physics', progress: 68, color: 'bg-blue-500', priority: 'High' },
-    { name: 'Chemistry', progress: 78, color: 'bg-green-500', priority: 'Medium' },
-    { name: 'Biology', progress: 92, color: 'bg-purple-500', priority: 'High' }
+  // Sample data
+  const examReadinessData = [
+    { week: '1w ago', score: 65 },
+    { week: '6d ago', score: 67 },
+    { week: '5d ago', score: 69 },
+    { week: '4d ago', score: 70 },
+    { week: '3d ago', score: 71 },
+    { week: '2d ago', score: 72 },
+    { week: 'Today', score: 72 }
   ];
 
-  const todaysPlan = [
-    { subject: 'Physics', topic: 'Thermodynamics', duration: '2h 30m', color: 'bg-blue-500' },
-    { subject: 'Chemistry', topic: 'Organic Chemistry', duration: '2h 15m', color: 'bg-green-500' },
-    { subject: 'Biology', topic: 'Genetics', duration: '2h 45m', color: 'bg-purple-500' }
-  ];
-
-  const weakAreas = [
-    { topic: 'Thermodynamics', subject: 'Physics', accuracy: 42 },
-    { topic: 'Organic Reactions', subject: 'Chemistry', accuracy: 58 },
-    { topic: 'Genetics & Evolution', subject: 'Biology', accuracy: 65 }
-  ];
-
-  const strongAreas = [
-    { topic: 'Mechanics', subject: 'Physics', accuracy: 89 },
-    { topic: 'Algebra', subject: 'Mathematics', accuracy: 92 },
-    { topic: 'Inorganic Chemistry', subject: 'Chemistry', accuracy: 85 }
-  ];
-
-  const moodOptions = [
-    { mood: MoodType.Motivated, emoji: '😊', label: 'Motivated', theme: 'bg-gradient-to-r from-green-400 to-blue-500' },
-    { mood: MoodType.Stressed, emoji: '😰', label: 'Stressed', theme: 'bg-gradient-to-r from-red-400 to-orange-500' },
-    { mood: MoodType.Confident, emoji: '😎', label: 'Confident', theme: 'bg-gradient-to-r from-purple-400 to-pink-500' },
-    { mood: MoodType.Tired, emoji: '😴', label: 'Tired', theme: 'bg-gradient-to-r from-gray-400 to-gray-600' },
-    { mood: MoodType.Excited, emoji: '🚀', label: 'Excited', theme: 'bg-gradient-to-r from-yellow-400 to-orange-500' }
-  ];
-
-  const advancedTechniques = [
-    { title: 'Interactive Visual Diagrams', description: 'Dynamic diagrams & pattern recognition', icon: <BarChart3 className="h-5 w-5" /> },
-    { title: '3D Models & Simulations', description: 'Live interactive molecular models', icon: <Brain className="h-5 w-5" /> },
-    { title: 'Video Explanations', description: 'Step-by-step visual tutorials', icon: <Play className="h-5 w-5" /> },
-    { title: 'Audio Explanations', description: 'Detailed narrated content', icon: <Zap className="h-5 w-5" /> },
-    { title: 'Spaced Repetition', description: 'AI-powered adaptive review system', icon: <Clock className="h-5 w-5" /> },
-    { title: 'Formula Mastery', description: 'Interactive numerical problem solving', icon: <Target className="h-5 w-5" /> }
-  ];
-
-  const handleMoodChange = (mood: MoodType) => {
-    setSelectedMood(mood);
-    if (onMoodChange) onMoodChange(mood);
+  // Key dashboard stats based on user's subscription and exam
+  const examInfo = {
+    name: "NEET 2026",
+    daysLeft: 185,
+    learningStyle: "Visual",
+    profileType: "Moderate"
   };
 
-  const getPlanDetails = () => {
-    if (!userProfile.subscription) return { name: 'Free Plan', expiryDate: null };
-    
-    if (typeof userProfile.subscription === 'string') {
-      return { name: userProfile.subscription.toUpperCase() + ' Plan', expiryDate: null };
-    }
+  // Mood-based study plan adjustment
+  const getMoodBasedStudyPlan = (mood: MoodType) => {
+    const basePlan = {
+      physics: { duration: '2h 30m', tasks: 4 },
+      chemistry: { duration: '2h 15m', tasks: 3 },
+      biology: { duration: '2h 45m', tasks: 5 }
+    };
+
+    const moodAdjustments = {
+      [MoodType.MOTIVATED]: { multiplier: 1.2, extraTasks: 2 },
+      [MoodType.STRESSED]: { multiplier: 0.8, extraTasks: -1 },
+      [MoodType.TIRED]: { multiplier: 0.7, extraTasks: -2 },
+      [MoodType.FOCUSED]: { multiplier: 1.1, extraTasks: 1 },
+      [MoodType.ANXIOUS]: { multiplier: 0.9, extraTasks: 0 },
+      [MoodType.HAPPY]: { multiplier: 1.0, extraTasks: 1 },
+      [MoodType.CONFUSED]: { multiplier: 0.8, extraTasks: -1 },
+      [MoodType.OVERWHELMED]: { multiplier: 0.6, extraTasks: -2 }
+    };
+
+    const adjustment = moodAdjustments[mood] || { multiplier: 1.0, extraTasks: 0 };
     
     return {
-      name: (userProfile.subscription.planType || 'Free').toUpperCase() + ' Plan',
-      expiryDate: userProfile.subscription.expiryDate
+      physics: { 
+        duration: Math.round(150 * adjustment.multiplier) + 'm', 
+        tasks: Math.max(1, basePlan.physics.tasks + adjustment.extraTasks)
+      },
+      chemistry: { 
+        duration: Math.round(135 * adjustment.multiplier) + 'm', 
+        tasks: Math.max(1, basePlan.chemistry.tasks + adjustment.extraTasks)
+      },
+      biology: { 
+        duration: Math.round(165 * adjustment.multiplier) + 'm', 
+        tasks: Math.max(1, basePlan.biology.tasks + adjustment.extraTasks)
+      }
     };
   };
 
-  const planDetails = getPlanDetails();
+  const handleMoodSelect = (mood: MoodType) => {
+    setSelectedMood(mood);
+    onMoodChange?.(mood);
+    setShowMoodDialog(false);
+    
+    // Apply theme changes based on mood
+    const themes = {
+      [MoodType.MOTIVATED]: 'theme-energetic',
+      [MoodType.STRESSED]: 'theme-calm',
+      [MoodType.TIRED]: 'theme-gentle',
+      [MoodType.FOCUSED]: 'theme-sharp',
+      [MoodType.ANXIOUS]: 'theme-soothing',
+      [MoodType.HAPPY]: 'theme-bright',
+      [MoodType.CONFUSED]: 'theme-clear',
+      [MoodType.OVERWHELMED]: 'theme-minimal'
+    };
+    
+    document.body.className = themes[mood] || '';
+  };
+
+  const studyPlan = getMoodBasedStudyPlan(selectedMood);
 
   return (
-    <div className="space-y-6">
-      {/* Top Section - Surrounding Influences Meter */}
-      <SurroundingInfluencesMeter />
+    <div className="space-y-6 p-6">
+      {/* Top Key Stats Bar */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Goal</div>
+              <div className="font-bold text-blue-600">{examInfo.name}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Days Left</div>
+              <div className="font-bold text-red-600">{examInfo.daysLeft}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Pace</div>
+              <div className="font-bold text-green-600">{examInfo.profileType}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Learning Style</div>
+              <div className="font-bold text-purple-600">{examInfo.learningStyle}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Current Mood</div>
+              <div className="font-bold text-orange-600 flex items-center gap-1">
+                😰 {selectedMood}
+              </div>
+            </div>
+          </div>
+          <Dialog open={showMoodDialog} onOpenChange={setShowMoodDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                Update Mood
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>How are you feeling today?</DialogTitle>
+              </DialogHeader>
+              <MoodSelector 
+                currentMood={selectedMood}
+                onMoodSelect={handleMoodSelect}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
 
-      {/* User Profile Header with Subscription Info */}
-      <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-16 w-16 ring-4 ring-white shadow-lg">
-                <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
-                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-lg">
-                  {userProfile.name?.split(' ').map(n => n[0]).join('') || 'U'}
-                </AvatarFallback>
+      {/* Header Section with User Info and Key Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* User Profile Card */}
+        <Card className="lg:col-span-1">
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={userProfile.avatar || userProfile.photoURL} />
+                <AvatarFallback>{userProfile.name?.split(' ').map(n => n[0]).join('') || 'AS'}</AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold">Good evening, {userProfile.name}! 🚀</h1>
-                <p className="text-gray-600 dark:text-gray-300">Ready to conquer your goals today?</p>
-                <div className="flex items-center mt-2 space-x-4">
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                    NEET 2026
-                  </Badge>
-                  <span className="text-sm text-gray-500">{daysToExam} days left</span>
-                  <Badge className="bg-green-100 text-green-800">
-                    {planDetails.name}
-                  </Badge>
+                <h3 className="font-semibold">{userProfile.name || 'Amit Singh'}</h3>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="outline">{examInfo.name}</Badge>
+                  <Badge variant="secondary">{examInfo.daysLeft} days</Badge>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline">{examInfo.learningStyle}</Badge>
+                  <Badge variant="outline">{examInfo.profileType}</Badge>
                 </div>
               </div>
-            </div>
-            <Button 
-              onClick={() => navigate('/dashboard/student/subscription')}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-            >
-              Upgrade Plan
-            </Button>
-          </div>
-          {planDetails.expiryDate && (
-            <div className="mt-4 text-sm text-gray-600">
-              Plan expires: {new Date(planDetails.expiryDate).toLocaleDateString()}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Exam Readiness Score */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Target className="h-6 w-6 mr-2 text-blue-500" />
-            Exam Readiness Score - NEET 2026
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{examReadinessScore}%</div>
-              <p className="text-sm text-gray-600">Overall Readiness</p>
-            </div>
-            <div className="space-y-3">
-              {subjectProgress.map((subject, index) => (
-                <div key={index}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium">{subject.name} Progress</span>
-                    <span className="text-sm font-bold">{subject.progress}%</span>
-                  </div>
-                  <Progress value={subject.progress} className="h-2" />
-                </div>
-              ))}
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">75%</div>
-              <p className="text-sm text-gray-600">Concept Mastery</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{daysToExam}</div>
-              <p className="text-sm text-gray-600">Days to Exam</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Today's Priority & Study Plan */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <AlertCircle className="h-6 w-6 mr-2 text-red-500" />
-              Today's Top Priority
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200">
-              <h3 className="font-bold text-lg">Physics - Thermodynamics</h3>
-              <p className="text-red-600 mb-4">Accuracy: 42% - Needs immediate attention for NEET</p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Badge variant="outline">📖 Interactive 3D Models</Badge>
-                <Badge variant="outline">🔁 Visual Diagrams</Badge>
-                <Badge variant="outline">📝 NEET Practice Questions</Badge>
-              </div>
-              <Button className="w-full bg-red-500 hover:bg-red-600">
-                Enter Focus Mode
-              </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg">
+        {/* Exam Readiness Score - Enhanced */}
+        <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar className="h-6 w-6 mr-2 text-blue-500" />
-              Today's NEET Study Plan
-            </CardTitle>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-xl">Exam Readiness Score - {examInfo.name}</CardTitle>
+                <p className="text-sm text-muted-foreground">+2% this week</p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/subscription')}
+                className="text-blue-600"
+              >
+                {userProfile.subscription?.planType || 'Free'} Plan
+                {userProfile.subscription?.expiryDate && (
+                  <span className="ml-1 text-xs">
+                    (expires {new Date(userProfile.subscription.expiryDate).toLocaleDateString()})
+                  </span>
+                )}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {todaysPlan.map((plan, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${plan.color}`}></div>
-                    <div>
-                      <p className="font-medium">{plan.subject}</p>
-                      <p className="text-sm text-gray-600">{plan.topic}</p>
-                    </div>
-                  </div>
-                  <span className="font-medium">{plan.duration}</span>
-                </div>
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600">72%</div>
+                <div className="text-sm font-medium">Overall Readiness</div>
+                <Progress value={72} className="mt-2" />
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">75%</div>
+                <div className="text-sm">Concept Mastery</div>
+                <Progress value={75} className="mt-2" />
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">68%</div>
+                <div className="text-sm">Recall Accuracy</div>
+                <Progress value={68} className="mt-2" />
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">82%</div>
+                <div className="text-sm">Predicted Score</div>
+                <Progress value={82} className="mt-2" />
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">78%</div>
+                <div className="text-sm">Average Exam</div>
+                <Progress value={78} className="mt-2" />
+              </div>
             </div>
-            <Button variant="outline" className="w-full mt-4">
-              📅 View NEET Study Schedule
-            </Button>
+            
+            <div className="mt-6 h-32">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={examReadinessData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="week" />
+                  <YAxis domain={[60, 80]} />
+                  <Tooltip />
+                  <Line 
+                    type="monotone" 
+                    dataKey="score" 
+                    stroke="#3b82f6" 
+                    strokeWidth={2}
+                    dot={{ fill: '#3b82f6' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Mood-Based Learning */}
-      <Card className="border-0 shadow-lg">
+      {/* Personalized Study Plan Based on Mood */}
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Heart className="h-6 w-6 mr-2 text-pink-500" />
-            Mood-Based Learning
-          </CardTitle>
+          <CardTitle className="text-xl">Today's Study Plan</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Optimized for a {selectedMood} mood
+          </p>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600 mb-4">How are you feeling today? Log your mood to get personalized study recommendations</p>
-          <div className="grid grid-cols-5 gap-3 mb-4">
-            {moodOptions.map(({ mood, emoji, label, theme }) => (
-              <Button
-                key={mood}
-                variant={selectedMood === mood ? "default" : "outline"}
-                className={`h-20 flex-col space-y-2 ${selectedMood === mood ? theme : ''}`}
-                onClick={() => handleMoodChange(mood)}
-              >
-                <span className="text-2xl">{emoji}</span>
-                <span className="text-xs">{label}</span>
-              </Button>
-            ))}
-          </div>
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              Based on your {selectedMood} mood, we recommend {selectedMood === MoodType.Stressed ? 'shorter study sessions with breaks' : 'intensive focus sessions'}.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Physics */}
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium flex items-center gap-1">
+                <Zap className="h-4 w-4 text-red-500" /> Physics
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {studyPlan.physics.duration} | {studyPlan.physics.tasks} tasks
+              </p>
+              <Button variant="outline" className="w-full mt-2">Start Physics</Button>
+            </div>
 
-      {/* AI Coach Suggestions */}
-      <Card className="border-0 shadow-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Brain className="h-6 w-6 mr-2 text-purple-500" />
-            NEET Specific AI Tutor
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-purple-200">
-            <div className="flex items-start space-x-3">
-              <div className="bg-purple-100 dark:bg-purple-900/40 p-2 rounded-full">
-                <Sparkles className="h-5 w-5 text-purple-600" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-medium text-purple-800 dark:text-purple-300">AI Coach Suggestion</h4>
-                <p className="text-gray-700 dark:text-gray-300 mt-1">
-                  Your focus drops after 20 mins in Physics. Try breaking thermodynamics into 15-minute focused sessions with 5-minute breaks.
-                </p>
-                <Button size="sm" className="mt-3 bg-purple-500 hover:bg-purple-600">
-                  <Timer className="h-4 w-4 mr-2" />
-                  Start Break Timer
-                </Button>
-              </div>
+            {/* Chemistry */}
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium flex items-center gap-1">
+                <Brain className="h-4 w-4 text-green-500" /> Chemistry
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {studyPlan.chemistry.duration} | {studyPlan.chemistry.tasks} tasks
+              </p>
+              <Button variant="outline" className="w-full mt-2">Start Chemistry</Button>
+            </div>
+
+            {/* Biology */}
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium flex items-center gap-1">
+                <BookOpen className="h-4 w-4 text-blue-500" /> Biology
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {studyPlan.biology.duration} | {studyPlan.biology.tasks} tasks
+              </p>
+              <Button variant="outline" className="w-full mt-2">Start Biology</Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Daily Smart Suggestions */}
-      <Card className="border-0 shadow-lg">
+      {/* Quick Actions and Resources */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Practice Exams */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <PlayCircle className="h-5 w-5 text-blue-500" />
+              Practice Exams
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Take a practice exam to test your knowledge and identify areas for improvement.
+            </p>
+            <Button variant="secondary" className="w-full">Start Practice Exam</Button>
+          </CardContent>
+        </Card>
+
+        {/* Flashcard Review */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-500" />
+              Flashcard Review
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Review key concepts and formulas with flashcards to reinforce your understanding.
+            </p>
+            <Button variant="secondary" className="w-full">Review Flashcards</Button>
+          </CardContent>
+        </Card>
+
+        {/* Community Forum */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-green-500" />
+              Community Forum
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Connect with other students, ask questions, and share your knowledge.
+            </p>
+            <Button variant="secondary" className="w-full">Visit Forum</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Goal Setting and Progress Tracking */}
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Zap className="h-6 w-6 mr-2 text-yellow-500" />
-            Daily Smart Suggestions
+          <CardTitle className="text-xl flex items-center gap-2">
+            <Target className="h-5 w-5 text-purple-500" />
+            Goal Setting and Progress Tracking
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200">
-              <div className="flex items-center mb-2">
-                <span className="text-2xl mr-2">🍅</span>
-                <h4 className="font-medium">Focus Improvement</h4>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                Try the Pomodoro Technique: 25 minutes focused study, 5-minute break
-              </p>
-              <Button size="sm" variant="outline" className="w-full">
-                Start Pomodoro Session
-              </Button>
+            <div>
+              <h4 className="font-medium">Current Goal</h4>
+              <p className="text-sm text-muted-foreground">Achieve a score of 650+ in NEET 2024</p>
             </div>
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200">
-              <div className="flex items-center mb-2">
-                <Target className="h-5 w-5 mr-2 text-green-600" />
-                <h4 className="font-medium">Accuracy Boost</h4>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                Practice 10 thermodynamics problems to improve your 42% accuracy
-              </p>
-              <Button size="sm" variant="outline" className="w-full">
-                Start Practice
-              </Button>
+            <div>
+              <h4 className="font-medium">Progress</h4>
+              <p className="text-sm text-muted-foreground">72% complete</p>
+              <Progress value={72} className="mt-2" />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Advanced Concept Mastery Techniques */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Star className="h-6 w-6 mr-2 text-indigo-500" />
-            Advanced Concept Mastery Techniques for NEET 2026 - Visual Learning
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {advancedTechniques.map((technique, index) => (
-              <Card key={index} className="border-0 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
-                <CardContent className="p-4">
-                  <div className="flex items-center mb-2">
-                    <div className="bg-indigo-100 dark:bg-indigo-900/40 p-2 rounded-lg mr-3">
-                      {technique.icon}
-                    </div>
-                    <h4 className="font-medium text-sm">{technique.title}</h4>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">{technique.description}</p>
-                  <Button size="sm" variant="outline" className="w-full">
-                    Start Session
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Performance Highlights */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-red-600">Weak Areas - Improve Now</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {weakAreas.map((area, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <div>
-                    <p className="font-medium">{area.topic}</p>
-                    <p className="text-sm text-gray-600">{area.subject}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-red-600">{area.accuracy}%</p>
-                    <Button size="sm" variant="outline" className="mt-1">
-                      Improve Now
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-green-600">Strong Areas - Advance Practice</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {strongAreas.map((area, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div>
-                    <p className="font-medium">{area.topic}</p>
-                    <p className="text-sm text-gray-600">{area.subject}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">{area.accuracy}%</p>
-                    <Button size="sm" variant="outline" className="mt-1">
-                      Advance
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Progress & Motivation */}
-      <Card className="border-0 shadow-lg bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Trophy className="h-6 w-6 mr-2 text-yellow-500" />
-            Progress & Motivation
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-2xl font-bold text-orange-500 flex items-center justify-center">
-                <Flame className="h-6 w-6 mr-1" />
-                {studyStreak}
-              </div>
-              <p className="text-sm text-gray-600">Day Streak</p>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-blue-500">{studyHours}h</div>
-              <p className="text-sm text-gray-600">Study Hours</p>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-500">{testsCompleted}</div>
-              <p className="text-sm text-gray-600">Tests Done</p>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-500">{examReadinessScore}%</div>
-              <p className="text-sm text-gray-600">Exam Ready</p>
-            </div>
-          </div>
-          
-          <div className="mt-6">
-            <h4 className="font-medium mb-3">Recent Achievements</h4>
-            <div className="flex flex-wrap gap-2">
-              <Badge className="bg-yellow-100 text-yellow-800">🏆 Week Warrior</Badge>
-              <Badge className="bg-blue-100 text-blue-800">📚 Study Streak</Badge>
-              <Badge className="bg-green-100 text-green-800">🎯 Accuracy Boost</Badge>
-              <Badge className="bg-purple-100 text-purple-800">⚡ Speed Master</Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Surrounding Influences Section at Bottom */}
+      <SurroundingInfluencesSection 
+        influenceMeterCollapsed={influenceMeterCollapsed}
+        setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+      />
     </div>
   );
 };
