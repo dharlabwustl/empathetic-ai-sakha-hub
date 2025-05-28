@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   BookOpen, 
   Plus, 
@@ -15,7 +15,11 @@ import {
   Clock,
   Target,
   Star,
-  TrendingUp
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  Brain,
+  Zap
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -24,6 +28,166 @@ const FlashcardsPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [expandedSubjects, setExpandedSubjects] = useState<string[]>([]);
+
+  // Enhanced subject data with topic breakdown and weightage
+  const subjectData = [
+    {
+      subject: 'Physics',
+      totalSets: 12,
+      masteredSets: 8,
+      inProgressSets: 3,
+      newSets: 1,
+      accuracy: 87,
+      studyTime: '32h 45m',
+      color: 'bg-blue-500',
+      weightage: 25,
+      topics: [
+        { 
+          name: 'Mechanics', 
+          sets: 4, 
+          mastered: 3, 
+          accuracy: 92,
+          weightage: 8,
+          priority: 'high',
+          subtopics: [
+            { name: 'Newton\'s Laws', accuracy: 95, weightage: 3, difficulty: 'medium' },
+            { name: 'Work & Energy', accuracy: 88, weightage: 3, difficulty: 'hard' },
+            { name: 'Momentum', accuracy: 92, weightage: 2, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Thermodynamics', 
+          sets: 3, 
+          mastered: 2, 
+          accuracy: 82,
+          weightage: 6,
+          priority: 'medium',
+          subtopics: [
+            { name: 'Laws of Thermodynamics', accuracy: 80, weightage: 4, difficulty: 'hard' },
+            { name: 'Heat Engines', accuracy: 84, weightage: 2, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Electromagnetism', 
+          sets: 5, 
+          mastered: 3, 
+          accuracy: 79,
+          weightage: 7,
+          priority: 'high',
+          subtopics: [
+            { name: 'Electric Field', accuracy: 85, weightage: 3, difficulty: 'medium' },
+            { name: 'Magnetic Field', accuracy: 72, weightage: 2, difficulty: 'hard' },
+            { name: 'EM Induction', accuracy: 80, weightage: 2, difficulty: 'hard' }
+          ]
+        }
+      ]
+    },
+    {
+      subject: 'Chemistry',
+      totalSets: 15,
+      masteredSets: 11,
+      inProgressSets: 3,
+      newSets: 1,
+      accuracy: 91,
+      studyTime: '41h 20m',
+      color: 'bg-green-500',
+      weightage: 25,
+      topics: [
+        { 
+          name: 'Organic Chemistry', 
+          sets: 6, 
+          mastered: 5, 
+          accuracy: 89,
+          weightage: 10,
+          priority: 'high',
+          subtopics: [
+            { name: 'Hydrocarbons', accuracy: 92, weightage: 4, difficulty: 'medium' },
+            { name: 'Functional Groups', accuracy: 87, weightage: 3, difficulty: 'hard' },
+            { name: 'Biomolecules', accuracy: 88, weightage: 3, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Inorganic Chemistry', 
+          sets: 5, 
+          mastered: 3, 
+          accuracy: 85,
+          weightage: 8,
+          priority: 'medium',
+          subtopics: [
+            { name: 'Periodic Table', accuracy: 95, weightage: 3, difficulty: 'easy' },
+            { name: 'Chemical Bonding', accuracy: 82, weightage: 3, difficulty: 'hard' },
+            { name: 'Coordination Compounds', accuracy: 78, weightage: 2, difficulty: 'hard' }
+          ]
+        },
+        { 
+          name: 'Physical Chemistry', 
+          sets: 4, 
+          mastered: 3, 
+          accuracy: 93,
+          weightage: 7,
+          priority: 'high',
+          subtopics: [
+            { name: 'Chemical Kinetics', accuracy: 94, weightage: 3, difficulty: 'hard' },
+            { name: 'Equilibrium', accuracy: 91, weightage: 2, difficulty: 'medium' },
+            { name: 'Electrochemistry', accuracy: 95, weightage: 2, difficulty: 'hard' }
+          ]
+        }
+      ]
+    },
+    {
+      subject: 'Biology',
+      totalSets: 18,
+      masteredSets: 14,
+      inProgressSets: 3,
+      newSets: 1,
+      accuracy: 94,
+      studyTime: '48h 15m',
+      color: 'bg-purple-500',
+      weightage: 50,
+      topics: [
+        { 
+          name: 'Cell Biology', 
+          sets: 6, 
+          mastered: 6, 
+          accuracy: 96,
+          weightage: 15,
+          priority: 'high',
+          subtopics: [
+            { name: 'Cell Structure', accuracy: 98, weightage: 6, difficulty: 'easy' },
+            { name: 'Cell Division', accuracy: 94, weightage: 5, difficulty: 'medium' },
+            { name: 'Cell Cycle', accuracy: 96, weightage: 4, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Genetics', 
+          sets: 7, 
+          mastered: 5, 
+          accuracy: 88,
+          weightage: 18,
+          priority: 'high',
+          subtopics: [
+            { name: 'Mendel\'s Laws', accuracy: 92, weightage: 6, difficulty: 'medium' },
+            { name: 'Molecular Genetics', accuracy: 85, weightage: 7, difficulty: 'hard' },
+            { name: 'Biotechnology', accuracy: 87, weightage: 5, difficulty: 'hard' }
+          ]
+        },
+        { 
+          name: 'Ecology', 
+          sets: 5, 
+          mastered: 3, 
+          accuracy: 90,
+          weightage: 17,
+          priority: 'medium',
+          subtopics: [
+            { name: 'Ecosystem', accuracy: 93, weightage: 8, difficulty: 'medium' },
+            { name: 'Biodiversity', accuracy: 89, weightage: 5, difficulty: 'easy' },
+            { name: 'Environmental Issues', accuracy: 88, weightage: 4, difficulty: 'medium' }
+          ]
+        }
+      ]
+    }
+  ];
 
   const flashcardSets = [
     {
@@ -105,8 +269,25 @@ const FlashcardsPage = () => {
     return colors[subject as keyof typeof colors] || 'bg-gray-50 text-gray-700 border-gray-200';
   };
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   const handleStudySet = (setId: string) => {
     navigate(`/dashboard/student/flashcards/${setId}/interactive`);
+  };
+
+  const toggleSubjectExpansion = (subject: string) => {
+    setExpandedSubjects(prev => 
+      prev.includes(subject) 
+        ? prev.filter(s => s !== subject)
+        : [...prev, subject]
+    );
   };
 
   const filteredSets = flashcardSets.filter(set => {
@@ -146,11 +327,138 @@ const FlashcardsPage = () => {
           </div>
         </motion.div>
 
-        {/* Stats Overview */}
+        {/* Subject Overview with Topic Breakdown */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        >
+          {subjectData.map((subject) => (
+            <Card key={subject.subject} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold">{subject.subject}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                      {subject.weightage}% weightage
+                    </Badge>
+                    <div className={`w-4 h-4 rounded-full ${subject.color}`}></div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Progress Stats */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-2 bg-green-50 rounded-lg text-center border border-green-200">
+                    <p className="text-lg font-bold text-green-700">{subject.masteredSets}</p>
+                    <p className="text-xs text-green-600 font-medium">Mastered</p>
+                  </div>
+                  <div className="p-2 bg-yellow-50 rounded-lg text-center border border-yellow-200">
+                    <p className="text-lg font-bold text-yellow-700">{subject.inProgressSets}</p>
+                    <p className="text-xs text-yellow-600 font-medium">In Progress</p>
+                  </div>
+                  <div className="p-2 bg-blue-50 rounded-lg text-center border border-blue-200">
+                    <p className="text-lg font-bold text-blue-700">{subject.newSets}</p>
+                    <p className="text-xs text-blue-600 font-medium">New</p>
+                  </div>
+                </div>
+
+                {/* Weightage Analysis */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                      <BarChart3 className="h-4 w-4" />
+                      Weightage Distribution
+                    </h4>
+                  </div>
+                  <div className="space-y-2">
+                    {subject.topics.slice(0, 2).map((topic) => (
+                      <div key={topic.name} className="flex justify-between items-center">
+                        <span className="text-xs text-gray-600">{topic.name}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className={`h-1.5 rounded-full ${subject.color}`}
+                              style={{ width: `${(topic.weightage / subject.weightage) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-xs font-medium">{topic.weightage}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Topic Breakdown */}
+                <Collapsible 
+                  open={expandedSubjects.includes(subject.subject)} 
+                  onOpenChange={() => toggleSubjectExpansion(subject.subject)}
+                >
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-full justify-between p-2">
+                      <span className="text-sm font-medium flex items-center gap-1">
+                        <Target className="h-4 w-4" />
+                        Topic Breakdown
+                      </span>
+                      {expandedSubjects.includes(subject.subject) ? 
+                        <ChevronUp className="h-4 w-4" /> : 
+                        <ChevronDown className="h-4 w-4" />
+                      }
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-3 mt-2">
+                    {subject.topics.map((topic) => (
+                      <div key={topic.name} className="border rounded-lg p-3 bg-gray-50">
+                        <div className="flex justify-between items-center mb-2">
+                          <h5 className="font-medium text-sm">{topic.name}</h5>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline" className={getPriorityColor(topic.priority)} size="sm">
+                              {topic.priority}
+                            </Badge>
+                            <Badge variant="outline" size="sm">
+                              {topic.weightage}%
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-xs mb-2">
+                          <span>Sets: {topic.sets} | Mastered: {topic.mastered}</span>
+                          <span>Accuracy: {topic.accuracy}%</span>
+                        </div>
+                        <Progress value={topic.accuracy} className="h-2 mb-2" />
+                        <div className="space-y-1">
+                          {topic.subtopics.map((subtopic, index) => (
+                            <div key={index} className="flex justify-between items-center text-xs">
+                              <span className="text-gray-600">{subtopic.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-1.5 py-0.5 rounded text-xs ${getDifficultyColor(subtopic.difficulty)}`}>
+                                  {subtopic.difficulty}
+                                </span>
+                                <span className="font-medium">{subtopic.accuracy}%</span>
+                                <span className="text-gray-500">({subtopic.weightage}%)</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+
+                <Button className="w-full bg-gradient-to-r from-violet-600 to-blue-600" size="sm">
+                  <Play className="mr-2 h-4 w-4" />
+                  Study {subject.subject}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </motion.div>
+
+        {/* Stats Overview */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
           className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
         >
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
@@ -196,7 +504,7 @@ const FlashcardsPage = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3 }}
           className="flex flex-col md:flex-row gap-4"
         >
           <div className="relative flex-1">
@@ -228,7 +536,7 @@ const FlashcardsPage = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {filteredSets.map((set, index) => (

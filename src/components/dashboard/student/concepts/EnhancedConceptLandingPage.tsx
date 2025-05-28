@@ -1,16 +1,17 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Clock, Target, TrendingUp, Play, ChevronRight, Brain, Star } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { BookOpen, Clock, Target, TrendingUp, Play, ChevronRight, Brain, Star, ChevronDown, ChevronUp, BarChart3, Zap } from 'lucide-react';
 
 const EnhancedConceptLandingPage = () => {
   const navigate = useNavigate();
+  const [expandedSubjects, setExpandedSubjects] = useState<string[]>([]);
 
-  // Enhanced NEET subject data with more detailed metrics
+  // Enhanced NEET subject data with topic breakdown and weightage
   const subjectProgress = [
     {
       subject: 'Physics',
@@ -22,10 +23,43 @@ const EnhancedConceptLandingPage = () => {
       efficiency: 82,
       improvement: '+18%',
       color: 'bg-blue-500',
+      weightage: 25,
       chapters: [
-        { name: 'Mechanics', progress: 90, concepts: 25 },
-        { name: 'Thermodynamics', progress: 75, concepts: 18 },
-        { name: 'Electromagnetism', progress: 65, concepts: 22 }
+        { 
+          name: 'Mechanics', 
+          progress: 90, 
+          concepts: 25,
+          weightage: 8,
+          priority: 'high',
+          subtopics: [
+            { name: 'Newton\'s Laws', progress: 95, weightage: 3, difficulty: 'medium' },
+            { name: 'Work & Energy', progress: 88, weightage: 3, difficulty: 'hard' },
+            { name: 'Momentum', progress: 92, weightage: 2, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Thermodynamics', 
+          progress: 75, 
+          concepts: 18,
+          weightage: 6,
+          priority: 'medium',
+          subtopics: [
+            { name: 'Laws of Thermodynamics', progress: 80, weightage: 4, difficulty: 'hard' },
+            { name: 'Heat Engines', progress: 70, weightage: 2, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Electromagnetism', 
+          progress: 65, 
+          concepts: 22,
+          weightage: 7,
+          priority: 'high',
+          subtopics: [
+            { name: 'Electric Field', progress: 70, weightage: 3, difficulty: 'medium' },
+            { name: 'Magnetic Field', progress: 60, weightage: 2, difficulty: 'hard' },
+            { name: 'Electromagnetic Induction', progress: 65, weightage: 2, difficulty: 'hard' }
+          ]
+        }
       ]
     },
     {
@@ -38,10 +72,44 @@ const EnhancedConceptLandingPage = () => {
       efficiency: 88,
       improvement: '+22%',
       color: 'bg-green-500',
+      weightage: 25,
       chapters: [
-        { name: 'Organic Chemistry', progress: 85, concepts: 45 },
-        { name: 'Inorganic Chemistry', progress: 70, concepts: 35 },
-        { name: 'Physical Chemistry', progress: 80, concepts: 30 }
+        { 
+          name: 'Organic Chemistry', 
+          progress: 85, 
+          concepts: 45,
+          weightage: 10,
+          priority: 'high',
+          subtopics: [
+            { name: 'Hydrocarbons', progress: 90, weightage: 4, difficulty: 'medium' },
+            { name: 'Functional Groups', progress: 82, weightage: 3, difficulty: 'hard' },
+            { name: 'Biomolecules', progress: 88, weightage: 3, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Inorganic Chemistry', 
+          progress: 70, 
+          concepts: 35,
+          weightage: 8,
+          priority: 'medium',
+          subtopics: [
+            { name: 'Periodic Table', progress: 95, weightage: 3, difficulty: 'easy' },
+            { name: 'Chemical Bonding', progress: 75, weightage: 3, difficulty: 'hard' },
+            { name: 'Coordination Compounds', progress: 60, weightage: 2, difficulty: 'hard' }
+          ]
+        },
+        { 
+          name: 'Physical Chemistry', 
+          progress: 80, 
+          concepts: 30,
+          weightage: 7,
+          priority: 'high',
+          subtopics: [
+            { name: 'Chemical Kinetics', progress: 85, weightage: 3, difficulty: 'hard' },
+            { name: 'Equilibrium', progress: 78, weightage: 2, difficulty: 'medium' },
+            { name: 'Electrochemistry', progress: 82, weightage: 2, difficulty: 'hard' }
+          ]
+        }
       ]
     },
     {
@@ -54,10 +122,44 @@ const EnhancedConceptLandingPage = () => {
       efficiency: 79,
       improvement: '+15%',
       color: 'bg-purple-500',
+      weightage: 50,
       chapters: [
-        { name: 'Cell Biology', progress: 95, concepts: 30 },
-        { name: 'Genetics', progress: 70, concepts: 25 },
-        { name: 'Ecology', progress: 60, concepts: 20 }
+        { 
+          name: 'Cell Biology', 
+          progress: 95, 
+          concepts: 30,
+          weightage: 15,
+          priority: 'high',
+          subtopics: [
+            { name: 'Cell Structure', progress: 98, weightage: 6, difficulty: 'easy' },
+            { name: 'Cell Division', progress: 92, weightage: 5, difficulty: 'medium' },
+            { name: 'Cell Cycle', progress: 95, weightage: 4, difficulty: 'medium' }
+          ]
+        },
+        { 
+          name: 'Genetics', 
+          progress: 70, 
+          concepts: 25,
+          weightage: 18,
+          priority: 'high',
+          subtopics: [
+            { name: 'Mendel\'s Laws', progress: 85, weightage: 6, difficulty: 'medium' },
+            { name: 'Molecular Genetics', progress: 65, weightage: 7, difficulty: 'hard' },
+            { name: 'Biotechnology', progress: 60, weightage: 5, difficulty: 'hard' }
+          ]
+        },
+        { 
+          name: 'Ecology', 
+          progress: 60, 
+          concepts: 20,
+          weightage: 17,
+          priority: 'medium',
+          subtopics: [
+            { name: 'Ecosystem', progress: 70, weightage: 8, difficulty: 'medium' },
+            { name: 'Biodiversity', progress: 55, weightage: 5, difficulty: 'easy' },
+            { name: 'Environmental Issues', progress: 65, weightage: 4, difficulty: 'medium' }
+          ]
+        }
       ]
     }
   ];
@@ -130,6 +232,23 @@ const EnhancedConceptLandingPage = () => {
     }
   };
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const toggleSubjectExpansion = (subject: string) => {
+    setExpandedSubjects(prev => 
+      prev.includes(subject) 
+        ? prev.filter(s => s !== subject)
+        : [...prev, subject]
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -144,14 +263,19 @@ const EnhancedConceptLandingPage = () => {
         </Button>
       </div>
 
-      {/* Enhanced NEET Subject Overview */}
+      {/* Enhanced NEET Subject Overview with Topic Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {subjectProgress.map((subject) => (
           <Card key={subject.subject} className="border-2 hover:shadow-lg transition-all duration-200">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-bold">{subject.subject}</CardTitle>
-                <div className={`w-4 h-4 rounded-full ${subject.color}`}></div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                    {subject.weightage}% weightage
+                  </Badge>
+                  <div className={`w-4 h-4 rounded-full ${subject.color}`}></div>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -180,19 +304,82 @@ const EnhancedConceptLandingPage = () => {
                 </div>
               </div>
 
-              {/* Chapter Progress */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-gray-700">Chapter Progress</h4>
-                {subject.chapters.slice(0, 2).map((chapter) => (
-                  <div key={chapter.name} className="flex justify-between items-center">
-                    <span className="text-xs text-gray-600">{chapter.name}</span>
-                    <div className="flex items-center gap-2">
-                      <Progress value={chapter.progress} className="h-1 w-16" />
-                      <span className="text-xs font-medium">{chapter.progress}%</span>
+              {/* Weightage Analysis */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    <BarChart3 className="h-4 w-4" />
+                    Weightage Distribution
+                  </h4>
+                </div>
+                <div className="space-y-2">
+                  {subject.chapters.slice(0, 2).map((chapter) => (
+                    <div key={chapter.name} className="flex justify-between items-center">
+                      <span className="text-xs text-gray-600">{chapter.name}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                          <div 
+                            className={`h-1.5 rounded-full ${subject.color}`}
+                            style={{ width: `${(chapter.weightage / subject.weightage) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-medium">{chapter.weightage}%</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+
+              {/* Topic-wise Breakdown */}
+              <Collapsible 
+                open={expandedSubjects.includes(subject.subject)} 
+                onOpenChange={() => toggleSubjectExpansion(subject.subject)}
+              >
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="w-full justify-between p-2">
+                    <span className="text-sm font-medium flex items-center gap-1">
+                      <Target className="h-4 w-4" />
+                      Topic Breakdown
+                    </span>
+                    {expandedSubjects.includes(subject.subject) ? 
+                      <ChevronUp className="h-4 w-4" /> : 
+                      <ChevronDown className="h-4 w-4" />
+                    }
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-3 mt-2">
+                  {subject.chapters.map((chapter) => (
+                    <div key={chapter.name} className="border rounded-lg p-3 bg-gray-50">
+                      <div className="flex justify-between items-center mb-2">
+                        <h5 className="font-medium text-sm">{chapter.name}</h5>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="outline" className={getPriorityColor(chapter.priority)} size="sm">
+                            {chapter.priority}
+                          </Badge>
+                          <Badge variant="outline" size="sm">
+                            {chapter.weightage}%
+                          </Badge>
+                        </div>
+                      </div>
+                      <Progress value={chapter.progress} className="h-2 mb-2" />
+                      <div className="space-y-1">
+                        {chapter.subtopics.map((subtopic, index) => (
+                          <div key={index} className="flex justify-between items-center text-xs">
+                            <span className="text-gray-600">{subtopic.name}</span>
+                            <div className="flex items-center gap-2">
+                              <span className={`px-1.5 py-0.5 rounded text-xs ${getDifficultyColor(subtopic.difficulty)}`}>
+                                {subtopic.difficulty}
+                              </span>
+                              <span className="font-medium">{subtopic.progress}%</span>
+                              <span className="text-gray-500">({subtopic.weightage}%)</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Performance Metrics */}
               <div className="grid grid-cols-2 gap-2 pt-2 border-t">
