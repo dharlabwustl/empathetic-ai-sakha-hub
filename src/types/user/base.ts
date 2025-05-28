@@ -1,85 +1,90 @@
 
-export enum MoodType {
-  MOTIVATED = 'motivated',
-  FOCUSED = 'focused',
-  STRESSED = 'stressed',
-  CONFIDENT = 'confident',
-  OVERWHELMED = 'overwhelmed',
-  EXCITED = 'excited',
-  TIRED = 'tired',
-  ANXIOUS = 'anxious',
-  HAPPY = 'happy',
-  CALM = 'calm',
-  CONFUSED = 'confused',
-  NEUTRAL = 'neutral',
-  OKAY = 'okay',
-  SAD = 'sad',
-  CURIOUS = 'curious'
-}
-
-export enum UserGoal {
-  NEET = 'NEET',
-  JEE = 'JEE',
-  UPSC = 'UPSC',
-  CAT = 'CAT',
-  GATE = 'GATE'
-}
-
 export enum UserRole {
   STUDENT = 'student',
   ADMIN = 'admin',
-  TUTOR = 'tutor'
+  TEACHER = 'teacher'
+}
+
+export enum MoodType {
+  EXCITED = 'excited',
+  MOTIVATED = 'motivated', 
+  FOCUSED = 'focused',
+  STRESSED = 'stressed',
+  OVERWHELMED = 'overwhelmed',
+  CONFIDENT = 'confident',
+  ANXIOUS = 'anxious',
+  TIRED = 'tired',
+  HAPPY = 'happy',
+  FRUSTRATED = 'frustrated'
 }
 
 export enum LearningStyle {
   VISUAL = 'visual',
-  AUDITORY = 'auditory',
+  AUDITORY = 'auditory', 
   KINESTHETIC = 'kinesthetic',
-  READING_WRITING = 'reading_writing'
+  READING = 'reading'
 }
 
 export enum StudyStyle {
   INTENSIVE = 'intensive',
   GRADUAL = 'gradual',
-  SPACED = 'spaced',
-  CRAMMING = 'cramming'
+  MIXED = 'mixed'
 }
 
-export enum SubscriptionType {
-  FREE = 'free',
-  PREMIUM = 'premium',
-  PRO = 'pro'
+export enum PerformanceLevel {
+  BEGINNER = 'beginner',
+  INTERMEDIATE = 'intermediate',
+  ADVANCED = 'advanced'
 }
 
 export interface UserProfileBase {
   id: string;
-  name: string;
+  name?: string;
   firstName?: string;
+  lastName?: string;
   email: string;
+  role: UserRole;
   avatar?: string;
   photoURL?: string;
-  role?: UserRole;
-  goals?: Array<{ title: string; id: string; targetDate?: string }>;
   loginCount?: number;
-  examGoal?: UserGoal;
+  lastLoginAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  
+  // Academic information
+  examGoal?: string;
   examDate?: string;
   learningStyle?: LearningStyle;
   studyStyle?: StudyStyle;
-  currentMood?: MoodType;
+  performanceLevel?: PerformanceLevel;
   weakSubjects?: string[];
   strongSubjects?: string[];
-  performanceLevel?: 'beginner' | 'intermediate' | 'advanced';
-  subscription?: SubscriptionType | { planType: string; expiryDate?: string };
+  
+  // Study tracking
   studyStreak?: number;
-  examPreparation?: string;
-  personalityType?: string;
-  studyPreferences?: {
-    pace: string;
-    hoursPerDay: number;
-    preferredTimeStart: string;
-    preferredTimeEnd: string;
-  };
+  totalStudyHours?: number;
+  currentMood?: MoodType;
   mood?: MoodType;
+  
+  // Study preferences
+  studyPreferences?: {
+    pace?: string;
+    hoursPerDay?: number;
+    preferredTimeStart?: string;
+    preferredTimeEnd?: string;
+  };
+  
+  // Goals and subscription
+  goals?: Array<{ title: string; description?: string }>;
+  subscription?: any;
+  
+  // Onboarding and personalization
+  onboardingComplete?: boolean;
+  personalityType?: string;
+  examPreparation?: string;
 }
 
 export type UserProfileType = UserProfileBase;
+
+// Legacy alias for backward compatibility
+export const UserProfileType = UserProfileBase;

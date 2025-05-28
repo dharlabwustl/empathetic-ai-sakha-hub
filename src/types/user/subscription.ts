@@ -100,3 +100,13 @@ export const standardSubscriptionPlans: SubscriptionPlan[] = [
     buttonText: 'Upgrade Now'
   }
 ];
+
+// Group plans by type for admin interface
+export const groupedSubscriptionPlans = {
+  individual: standardSubscriptionPlans.filter(plan => 
+    !plan.id.includes('group') && !plan.id.includes('enterprise')
+  ),
+  group: standardSubscriptionPlans.filter(plan => 
+    plan.id.includes('group') || plan.id.includes('enterprise')
+  )
+};

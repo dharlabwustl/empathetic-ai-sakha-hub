@@ -9,7 +9,7 @@ export interface StudyPlanSubject {
   difficulty?: 'easy' | 'medium' | 'hard';
   topics?: string[];
   color?: string;
-  proficiency?: number;
+  proficiency?: number | string;
   hoursPerWeek?: number;
 }
 
@@ -28,7 +28,7 @@ export interface StudyPlan {
   examGoal?: string;
   status?: 'active' | 'completed' | 'paused';
   progressPercent?: number;
-  progressPercentage?: number; // Added for compatibility
+  progressPercentage?: number;
   daysLeft?: number;
   studyHoursPerDay?: number;
   weeklyHours?: number;
