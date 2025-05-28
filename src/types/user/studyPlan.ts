@@ -7,15 +7,6 @@ export interface StudyPlanTopic {
   completed: boolean;
   status: 'completed' | 'in-progress' | 'pending' | 'skipped';
   priority: 'high' | 'medium' | 'low';
-  weightage: number; // Exam weightage percentage
-  subtopics?: {
-    id: string;
-    name: string;
-    completed: boolean;
-    weightage: number;
-  }[];
-  estimatedHours?: number;
-  lastStudied?: string;
 }
 
 export interface StudyPlanSubject {
@@ -29,8 +20,6 @@ export interface StudyPlanSubject {
   status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
   topics?: StudyPlanTopic[];
-  totalWeightage?: number; // Total exam weightage for this subject
-  completedWeightage?: number; // Completed weightage coverage
 }
 
 export interface StudyPlan {
