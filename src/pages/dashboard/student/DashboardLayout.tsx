@@ -68,7 +68,7 @@ const DashboardLayout = ({
   upcomingEvents = []
 }: DashboardLayoutProps) => {
   const isMobile = useIsMobile();
-  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(false);
   const features = getFeatures();
   const navigate = useNavigate();
   
@@ -101,12 +101,6 @@ const DashboardLayout = ({
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <div className="flex min-h-screen">
         <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
-          {/* Surrounding Influences Section */}
-          <SurroundingInfluencesSection 
-            influenceMeterCollapsed={influenceMeterCollapsed}
-            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-          />
-          
           {isMobile && (
             <div className="mb-6">
               <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
