@@ -7,16 +7,28 @@ interface EnhancedVoiceCircleProps {
   isListening?: boolean;
   size?: number;
   className?: string;
+  onClick?: () => void;
 }
 
 export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   isSpeaking,
   isListening = false,
   size = 56,
-  className = ""
+  className = "",
+  onClick
 }) => {
+  const handleClick = () => {
+    // Stop voice assistant when microphone is clicked
+    window.dispatchEvent(new Event('microphone-clicked'));
+    if (onClick) onClick();
+  };
+
   return (
-    <div className={`relative ${className}`} style={{ width: size, height: size }}>
+    <div 
+      className={`relative cursor-pointer ${className}`} 
+      style={{ width: size, height: size }}
+      onClick={handleClick}
+    >
       {/* Outer vibrant pulse ring */}
       {isSpeaking && (
         <motion.div
@@ -149,7 +161,8 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
   isSpeaking,
   isListening,
-  className = ""
+  className = "",
+  onClick
 }) => {
   return (
     <motion.div
@@ -178,6 +191,7 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
         isListening={isListening}
         size={56}
         className="relative z-10"
+        onClick={onClick}
       />
     </motion.div>
   );
