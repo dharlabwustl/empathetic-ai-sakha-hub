@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -5,16 +6,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Brain, CheckCircle, Calendar, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 
 const PostSignupWelcome = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
-  
-  // Get user name for personalized greeting
-  const userData = localStorage.getItem('userData');
-  const userName = userData ? JSON.parse(userData).name : 'Student';
   
   const handleNext = () => {
     if (step < 3) {
@@ -22,7 +18,6 @@ const PostSignupWelcome = () => {
     } else {
       // Complete the welcome flow and redirect to the dashboard with tour flag
       localStorage.setItem("showWelcomeTour", "true");
-      localStorage.setItem("completedWelcome", "true");
       navigate("/dashboard/student?tour=true");
       toast({
         title: "Welcome to PREPZR!",
@@ -165,12 +160,6 @@ const PostSignupWelcome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex flex-col items-center justify-center p-4">
-      {/* PREPZR Voice Assistant - Welcome Context */}
-      <PrepzrVoiceAssistant 
-        context="welcome"
-        userName={userName}
-      />
-      
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
           <img src="/assets/logo.svg" alt="PREPZR Logo" className="h-16" />

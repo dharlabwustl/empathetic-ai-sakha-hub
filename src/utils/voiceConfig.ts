@@ -13,18 +13,17 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
   
   const voices = window.speechSynthesis.getVoices();
   
-  // Priority order for female voices (confident, warm female voice)
+  // Priority order for female voices
   const femaleVoicePreferences = [
     'Google US English Female',
-    'Microsoft Zira Desktop',
-    'Microsoft Hazel Desktop',
+    'Microsoft Zira',
+    'Microsoft Hazel',
     'Samantha',
     'Karen',
     'Moira',
     'Tessa',
     'Victoria',
     'Fiona',
-    'Alex (Female)',
     'female',
     'woman'
   ];
@@ -37,15 +36,12 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
     if (voice) return voice;
   }
   
-  // Then try to find voices that are clearly female
+  // Then try to find voices that don't contain "male" and are English
   const englishFemaleVoices = voices.filter(voice => 
     voice.lang.includes('en') && 
     !voice.name.toLowerCase().includes('male') &&
     (voice.name.toLowerCase().includes('female') || 
      voice.name.toLowerCase().includes('woman') ||
-     voice.name.toLowerCase().includes('zira') ||
-     voice.name.toLowerCase().includes('hazel') ||
-     voice.name.toLowerCase().includes('cortana') ||
      !voice.name.toLowerCase().includes('man'))
   );
   
@@ -61,9 +57,9 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
 export const getDefaultVoiceConfig = (): VoiceConfig => {
   return {
     voice: getPreferredFemaleVoice(),
-    rate: 0.95, // Slightly slower for clarity
-    pitch: 1.1, // Slightly higher for female voice
-    volume: 0.8, // Comfortable volume
+    rate: 0.95,
+    pitch: 1.1,
+    volume: 0.8,
     language: 'en-US'
   };
 };
@@ -73,15 +69,8 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
-  
-  // Ensure consistent pronunciation of PREPZR as "PREP ZER" throughout the app
-  const processedText = text
-    .replace(/PREPZR/gi, 'Prep Zer')
-    .replace(/Sakha AI/gi, 'Prep Zer AI')
-    .replace(/PrepZR/gi, 'Prep Zer')
-    .replace(/Prepzr/gi, 'Prep Zer');
-  
-  utterance.text = processedText;
+  // Ensure consistent pronunciation of PREPZR as "PREP-ZER"
+  utterance.text = text.replace(/PREPZR/gi, 'PREP-ZER').replace(/Sakha AI/gi, 'PREP-ZER AI');
   utterance.lang = finalConfig.language;
   utterance.rate = finalConfig.rate;
   utterance.pitch = finalConfig.pitch;
@@ -102,7 +91,7 @@ export const speakWithFemaleVoice = (
 ): void => {
   if (!('speechSynthesis' in window)) return;
   
-  // Cancel any ongoing speech to prevent overlap
+  // Cancel any ongoing speech
   window.speechSynthesis.cancel();
   
   const utterance = createFemaleUtterance(text, config);
@@ -115,57 +104,5 @@ export const speakWithFemaleVoice = (
     utterance.onend = onEnd;
   }
   
-  utterance.onerror = (event) => {
-    console.error('Speech synthesis error:', event);
-  };
-  
   window.speechSynthesis.speak(utterance);
-};
-
-// Helper function to check if voice is available
-export const isVoiceAvailable = (): boolean => {
-  return 'speechSynthesis' in window && window.speechSynthesis.getVoices().length > 0;
-};
-
-// Helper function to wait for voices to load
-export const waitForVoices = (): Promise<SpeechSynthesisVoice[]> => {
-  return new Promise((resolve) => {
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      resolve(voices);
-    } else {
-      window.speechSynthesis.onvoiceschanged = () => {
-        resolve(window.speechSynthesis.getVoices());
-      };
-    }
-  });
-};
-
-// Message tracking to prevent repetition
-const spokenMessages = new Map<string, number>();
-
-export const canSpeakMessage = (message: string, cooldownMs: number = 30000): boolean => {
-  const messageKey = message.toLowerCase().trim();
-  const now = Date.now();
-  const lastSpoken = spokenMessages.get(messageKey);
-  
-  if (lastSpoken && (now - lastSpoken) < cooldownMs) {
-    return false;
-  }
-  
-  spokenMessages.set(messageKey, now);
-  return true;
-};
-
-export const speakWithIntelligentBreaks = (
-  message: string,
-  config?: Partial<VoiceConfig>,
-  cooldownMs: number = 30000
-): void => {
-  if (!canSpeakMessage(message, cooldownMs)) {
-    console.log('🔇 Voice: Message recently spoken, skipping to prevent repetition');
-    return;
-  }
-  
-  speakWithFemaleVoice(message, config);
 };

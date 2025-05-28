@@ -20,7 +20,6 @@ import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
 import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import ComprehensivePrepzrVoiceAssistant from '@/components/voice/ComprehensivePrepzrVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -59,12 +58,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
       <Header />
-      
-      {/* Comprehensive PREPZR Voice Assistant - Home Page Context */}
-      <ComprehensivePrepzrVoiceAssistant 
-        context="homepage"
-        onCommand={handleSpeechCommand}
-      />
       
       <main>
         {/* Enhanced 3D hero section with voice interaction */}

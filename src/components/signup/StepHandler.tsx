@@ -1,11 +1,10 @@
 
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
 import { MoodType } from "@/types/user/base";
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
-import { SubscriptionType } from "@/types/subscription";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -23,12 +22,8 @@ const StepHandler = ({
   setStep 
 }: StepHandlerProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-
-  // Check if this is a trial signup
-  const isTrialSignup = new URLSearchParams(location.search).get('trial') === 'true';
 
   const handleRoleSelect = (role: UserRole) => {
     setOnboardingData({ ...onboardingData, role });
@@ -48,25 +43,6 @@ const StepHandler = ({
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
       
-      // Calculate trial dates if this is a trial signup
-      const now = new Date();
-      const trialEndDate = new Date(now);
-      trialEndDate.setDate(trialEndDate.getDate() + 7);
-      
-      const subscriptionInfo = isTrialSignup ? {
-        planType: SubscriptionType.TRIAL,
-        startDate: now.toISOString(),
-        expiryDate: trialEndDate.toISOString(),
-        trialInfo: {
-          startDate: now.toISOString(),
-          endDate: trialEndDate.toISOString(),
-          daysRemaining: 7,
-          isActive: true
-        }
-      } : {
-        planType: SubscriptionType.FREE
-      };
-      
       // Create a user object with the collected data
       const userData = {
         id: `user_${Date.now()}`,
@@ -74,7 +50,6 @@ const StepHandler = ({
         email: `${cleanMobile}@prepzr.com`, // Use consistent email format based on mobile
         phoneNumber: cleanMobile,
         role: UserRole.Student,
-        subscription: subscriptionInfo,
         ...onboardingData,
         completedOnboarding: true,
         isNewUser: true,
@@ -99,10 +74,8 @@ const StepHandler = ({
       window.dispatchEvent(new Event('auth-state-changed'));
       
       toast({
-        title: isTrialSignup ? "7-Day Free Trial Started!" : "Welcome to PREPZR!",
-        description: isTrialSignup 
-          ? "Your free trial is now active. Explore all premium features!"
-          : "Let's start your learning journey.",
+        title: "Welcome to Prepzr!",
+        description: "Let's start your learning journey.",
       });
       
       // Navigate directly to welcome-flow, skipping login
@@ -129,8 +102,9 @@ const StepHandler = ({
         Object.entries(data).forEach(([key, value]) => {
           userMessage += `${key}: ${value.trim()}, `;
         });
-        userMessage = userMessage.slice(0, -2);
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
+        // Clean the data by trimming all string values
         const cleanData: Record<string, string> = {};
         Object.entries(data).forEach(([key, value]) => {
           cleanData[key] = value.trim();
@@ -177,20 +151,23 @@ const StepHandler = ({
         const cleanedHabits: Record<string, string> = {};
         
         Object.entries(habits).forEach(([key, value]) => {
+          // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
           cleanedHabits[key] = value.trim();
         });
         
+        // Create a readable message for chat from the habits
         let userMessage = "";
         Object.entries(cleanedHabits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
-        userMessage = userMessage.slice(0, -2);
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
         setOnboardingData({ ...onboardingData, ...cleanedHabits });
         
+        // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
           ? getSubjectsForGoal(onboardingData.goal)
           : [];
@@ -212,9 +189,7 @@ const StepHandler = ({
         setMessages([
           ...messages,
           { content: interests, isBot: false },
-          { content: isTrialSignup 
-            ? "Your 7-day free trial dashboard is ready. Please complete signup to access all premium features." 
-            : "Your personalized PREPZR dashboard is ready. Please sign up to access it.", isBot: true }
+          { content: "Your personalized Prepzr dashboard is ready. Please sign up to access it.", isBot: true }
         ]);
         setStep("signup");
       },
