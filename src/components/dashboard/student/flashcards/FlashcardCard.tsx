@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Clock, Star, Target, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
+import { BookOpen, Clock, Star, Target, Calendar, CheckCircle, AlertCircle, Timer, Zap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -71,19 +72,14 @@ export default function FlashcardCard({
     }
   };
 
-  // FIXED: Ensure ALL navigation goes to INTERACTIVE (not practice)
   const handleStudyNow = () => {
-    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
-    console.log('🚨🚨🚨 FLASHCARD CARD - STUDY NOW CLICKED:', targetRoute);
-    console.log('🚨🚨🚨 Current location before navigation:', window.location.href);
+    const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
     navigate(targetRoute);
-    console.log('🚨🚨🚨 Navigate called from FlashcardCard');
   };
 
   const handleQuickReview = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
-    console.log('🚨🚨🚨 FLASHCARD CARD - QUICK REVIEW CLICKED:', targetRoute);
+    const targetRoute = `/dashboard/student/flashcards/${id}/interactive`;
     navigate(targetRoute);
   };
 
@@ -92,79 +88,72 @@ export default function FlashcardCard({
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className={`overflow-hidden border-l-4 ${getBorderColorClass(difficulty)} shadow-sm hover:shadow-md transition-shadow`}>
-        <div className="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-950 dark:to-blue-950 p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className={`${subjectColors[subject as keyof typeof subjectColors] || 'bg-gray-50 text-gray-700'} text-xs font-semibold`}>
-                  {subject}
-                </Badge>
+      <Card className={`aspect-square flex flex-col overflow-hidden border-l-4 ${getBorderColorClass(difficulty)} shadow-sm hover:shadow-md transition-shadow cursor-pointer`} onClick={handleStudyNow}>
+        <div className="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-950 dark:to-blue-950 p-3 flex-shrink-0">
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex flex-col gap-1">
+              <Badge variant="outline" className={`${subjectColors[subject as keyof typeof subjectColors] || 'bg-gray-50 text-gray-700'} text-xs font-semibold w-fit`}>
+                {subject}
+              </Badge>
+              <div className="flex gap-1">
                 <Badge variant="outline" className={`${difficultyColors[difficulty]} text-xs font-semibold`}>
                   {difficulty}
                 </Badge>
-                <Badge variant="outline" className={`${statusConfig[status].color} text-xs font-medium flex items-center gap-1`}>
-                  <StatusIcon className="h-3 w-3" />
-                  {status.replace('-', ' ')}
+                <Badge variant="outline" className="text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 flex items-center gap-1">
+                  <Timer className="h-3 w-3" />
+                  {estimatedTime}m
                 </Badge>
               </div>
-              <h3 className="text-lg font-semibold">{title}</h3>
             </div>
-            <Star className="h-5 w-5 text-amber-500" />
+            <Star className="h-4 w-4 text-amber-500" />
           </div>
+          <h3 className="text-sm font-semibold line-clamp-2 leading-tight">{title}</h3>
         </div>
 
-        <CardContent className="pt-4">
-          <div className="space-y-4">
-            {/* Progress Section */}
-            <div>
-              <div className="flex items-center justify-between text-sm mb-2">
+        <CardContent className="pt-3 pb-2 flex-grow text-xs">
+          <div className="space-y-3">
+            <Badge variant="outline" className={`${statusConfig[status].color} text-xs font-medium flex items-center gap-1 w-fit`}>
+              <StatusIcon className="h-3 w-3" />
+              {status.replace('-', ' ')}
+            </Badge>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Progress</span>
-                <span className="font-bold text-blue-600">{completedCards}/{totalCards} cards</span>
+                <span className="font-bold text-blue-600">{completedCards}/{totalCards}</span>
               </div>
-              <Progress value={progressPercentage} className="h-2 mb-2" />
+              <Progress value={progressPercentage} className="h-1.5" />
               
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Mastery</span>
                 <span className="font-bold text-green-600">{masteryPercentage.toFixed(0)}%</span>
               </div>
-              <Progress value={masteryPercentage} className="h-2" />
+              <Progress value={masteryPercentage} className="h-1.5" />
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2">
-                <div className="text-sm font-bold text-blue-700 dark:text-blue-300">{accuracy}%</div>
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-1.5">
+                <div className="text-xs font-bold text-blue-700 dark:text-blue-300">{accuracy}%</div>
                 <div className="text-xs text-blue-600 dark:text-blue-400">Accuracy</div>
               </div>
               
-              <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-2">
-                <div className="text-sm font-bold text-orange-700 dark:text-orange-300">{estimatedTime}m</div>
-                <div className="text-xs text-orange-600 dark:text-orange-400">Est. Time</div>
-              </div>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2">
-                <div className="text-sm font-bold text-purple-700 dark:text-purple-300">{daysToGo}</div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-md p-1.5">
+                <div className="text-xs font-bold text-purple-700 dark:text-purple-300">{daysToGo}</div>
                 <div className="text-xs text-purple-600 dark:text-purple-400">Days Left</div>
               </div>
             </div>
 
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Last reviewed: {lastReviewed}
+              Last: {lastReviewed}
             </div>
           </div>
         </CardContent>
 
-        <CardFooter className="bg-gray-50 dark:bg-gray-900/50">
-          <div className="w-full flex items-center justify-between gap-2">
-            <Button variant="ghost" size="sm" onClick={handleQuickReview}>
-              Quick Review
-            </Button>
-            {/* FIXED: BUTTON MUST GO TO INTERACTIVE, NOT PRACTICE */}
-            <Button onClick={handleStudyNow} className="flex-1">
-              Study Now
-            </Button>
-          </div>
+        <CardFooter className="bg-gray-50 dark:bg-gray-900/50 p-3 flex-shrink-0">
+          <Button onClick={handleStudyNow} className="w-full text-xs" size="sm">
+            <Zap className="h-3 w-3 mr-1" />
+            Study Cards
+          </Button>
         </CardFooter>
       </Card>
     </motion.div>
