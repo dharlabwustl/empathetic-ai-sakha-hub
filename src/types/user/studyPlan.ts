@@ -34,6 +34,7 @@ export interface StudyPlan {
   learningPace?: string;
   createdAt: string;
   updatedAt: string;
+  preferredStudyTime?: string;
 }
 
 export interface NewStudyPlan extends StudyPlan {

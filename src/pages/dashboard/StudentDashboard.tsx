@@ -26,7 +26,6 @@ const StudentDashboard = () => {
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [dashboardPreferences, setDashboardPreferences] = useState<any>(null);
-  const [useAdaptiveLayout, setUseAdaptiveLayout] = useState(true);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,28 +58,33 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Load profile image and dashboard preferences
+  // Load profile image and enhanced dashboard preferences
   useEffect(() => {
     const savedImage = localStorage.getItem('user_profile_image');
     if (savedImage) {
       setProfileImage(savedImage);
     }
 
-    // Load dashboard preferences for adaptive layout
+    // Enhanced dashboard preferences for adaptive layout
     const savedPreferences = localStorage.getItem('dashboardPreferences');
     const isPersonalized = new URLSearchParams(location.search).get('personalized') === 'true';
     
     try {
       const preferences = savedPreferences ? JSON.parse(savedPreferences) : {
         examGoal: userProfile?.examGoal || 'NEET',
-        learningStyle: 'visual',
-        studyStyle: 'gradual',
-        weakSubjects: ['Physics', 'Organic Chemistry'],
-        strongSubjects: ['Biology'],
-        confidenceLevel: 'intermediate'
+        learningStyle: userProfile?.learningStyle || 'visual',
+        studyStyle: userProfile?.studyStyle || 'gradual',
+        weakSubjects: userProfile?.weakSubjects || ['Physics', 'Organic Chemistry'],
+        strongSubjects: userProfile?.strongSubjects || ['Biology'],
+        performanceLevel: userProfile?.performanceLevel || 'intermediate',
+        studyPreferences: userProfile?.studyPreferences || {
+          pace: "Moderate",
+          hoursPerDay: 4,
+          preferredTimeStart: "18:00",
+          preferredTimeEnd: "22:00"
+        }
       };
       setDashboardPreferences(preferences);
-      setUseAdaptiveLayout(true);
     } catch (error) {
       console.error('Error loading dashboard preferences:', error);
       setDashboardPreferences({
@@ -89,7 +93,7 @@ const StudentDashboard = () => {
         studyStyle: 'gradual',
         weakSubjects: ['Physics', 'Organic Chemistry'],
         strongSubjects: ['Biology'],
-        confidenceLevel: 'intermediate'
+        performanceLevel: 'intermediate'
       });
     }
   }, [location, userProfile]);
@@ -150,7 +154,7 @@ const StudentDashboard = () => {
     setCurrentMood(mood);
     storeMoodInLocalStorage(mood);
     
-    // Update dashboard preferences to trigger re-render
+    // Update dashboard preferences to trigger adaptive layout re-render
     setDashboardPreferences(prev => ({
       ...prev,
       currentMood: mood
@@ -208,28 +212,46 @@ const StudentDashboard = () => {
     );
   }
 
+  // Enhanced user profile with all adaptive data
   const enhancedUserProfile = {
     ...userProfile,
     avatar: profileImage || userProfile.avatar || userProfile.photoURL,
     currentMood: currentMood,
-    examGoal: userProfile.examGoal || dashboardPreferences?.examGoal || 'NEET'
+    examGoal: userProfile.examGoal || dashboardPreferences?.examGoal || 'NEET',
+    learningStyle: userProfile.learningStyle || dashboardPreferences?.learningStyle || 'visual',
+    studyStyle: userProfile.studyStyle || dashboardPreferences?.studyStyle || 'gradual',
+    weakSubjects: userProfile.weakSubjects || dashboardPreferences?.weakSubjects || ['Physics', 'Organic Chemistry'],
+    strongSubjects: userProfile.strongSubjects || dashboardPreferences?.strongSubjects || ['Biology'],
+    performanceLevel: userProfile.performanceLevel || dashboardPreferences?.performanceLevel || 'intermediate',
+    studyStreak: userProfile.studyStreak || 5,
+    // Set exam date if not present
+    examDate: userProfile.examDate || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 6 months from now
   };
 
   const getTabContent = () => {
     if (activeTab === "overview") {
-      const content = <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
-      
-      // Always wrap in adaptive layout for enhanced experience
+      // Always use the adaptive dashboard layout for enhanced experience
       return (
         <AdaptiveDashboardLayout 
           userProfile={enhancedUserProfile} 
           preferences={dashboardPreferences}
         >
-          {content}
+          <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />
         </AdaptiveDashboardLayout>
       );
     }
-    return null;
+    return (
+      <AdaptiveDashboardLayout 
+        userProfile={enhancedUserProfile} 
+        preferences={dashboardPreferences}
+      >
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">
+            This section is under development.
+          </p>
+        </div>
+      </AdaptiveDashboardLayout>
+    );
   };
 
   return (
