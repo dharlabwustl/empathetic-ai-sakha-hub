@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -200,14 +201,15 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Ultra-fast Speech Recognition for Dashboard */}
+      {/* Ultra-fast Speech Recognition for Dashboard with manual activation */}
       <UltraFastSpeechRecognition
         onCommand={handleSpeechCommand}
         onListeningChange={setIsListening}
         onStopSpeaking={handleStopSpeaking}
         language="en-US"
-        continuous={true}
+        continuous={false}
         enabled={true}
+        manualActivation={true}
       />
       
       {/* Intelligent Dashboard Voice Assistant */}
@@ -220,7 +222,7 @@ const StudentDashboard = () => {
         isMicrophoneActive={isListening}
       />
 
-      {/* Enhanced floating voice assistant button with dynamic AI label */}
+      {/* Enhanced floating voice assistant button with microphone functionality */}
       <div className="fixed bottom-6 right-6 z-40">
         <FloatingVoiceButton 
           isSpeaking={isSpeaking}

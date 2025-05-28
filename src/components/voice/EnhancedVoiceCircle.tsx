@@ -1,19 +1,22 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Mic, MicOff } from 'lucide-react';
 
 interface EnhancedVoiceCircleProps {
   isSpeaking: boolean;
   isListening?: boolean;
   size?: number;
   className?: string;
+  onClick?: () => void;
 }
 
 export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   isSpeaking,
   isListening = false,
   size = 56,
-  className = ""
+  className = "",
+  onClick
 }) => {
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
@@ -72,7 +75,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
       
       {/* Main AI circle with dynamic animations */}
       <motion.div
-        className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
+        className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-lg flex items-center justify-center cursor-pointer ${
           isSpeaking 
             ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600' 
             : isListening
@@ -91,21 +94,40 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
             ease: "easeInOut"
           }
         }}
+        onClick={onClick}
+        whileTap={{ scale: 0.95 }}
       >
-        <motion.span 
-          className="text-white font-bold text-lg select-none"
-          animate={isSpeaking ? {
-            scale: [1, 1.1, 1, 1.05, 1],
-            color: ['#ffffff', '#fbbf24', '#ffffff', '#34d399', '#ffffff']
-          } : {}}
-          transition={{
-            duration: 1.5,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          }}
-        >
-          AI
-        </motion.span>
+        {/* Microphone icon or AI label */}
+        {onClick ? (
+          <motion.div
+            animate={isListening ? {
+              scale: [1, 1.1, 1],
+              color: ['#ffffff', '#34d399', '#ffffff']
+            } : {}}
+            transition={{
+              duration: 1,
+              repeat: isListening ? Infinity : 0,
+              ease: "easeInOut"
+            }}
+          >
+            {isListening ? <MicOff className="h-6 w-6 text-white" /> : <Mic className="h-6 w-6 text-white" />}
+          </motion.div>
+        ) : (
+          <motion.span 
+            className="text-white font-bold text-lg select-none"
+            animate={isSpeaking ? {
+              scale: [1, 1.1, 1, 1.05, 1],
+              color: ['#ffffff', '#fbbf24', '#ffffff', '#34d399', '#ffffff']
+            } : {}}
+            transition={{
+              duration: 1.5,
+              repeat: isSpeaking ? Infinity : 0,
+              ease: "easeInOut"
+            }}
+          >
+            AI
+          </motion.span>
+        )}
       </motion.div>
       
       {/* Sound waves animation - only when speaking */}
@@ -140,8 +162,39 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
   isSpeaking,
   isListening,
-  className = ""
+  className = "",
+  onClick
 }) => {
+  const clickedRef = useRef(false);
+
+  const handleClick = () => {
+    // Trigger microphone clicked event
+    window.dispatchEvent(new Event('microphone-clicked'));
+    
+    // Stop any ongoing speech immediately
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    
+    clickedRef.current = true;
+    
+    // Start or stop listening
+    if (isListening) {
+      window.dispatchEvent(new Event('stop-voice-recognition'));
+    } else {
+      window.dispatchEvent(new Event('start-voice-recognition'));
+    }
+    
+    if (onClick) {
+      onClick();
+    }
+    
+    // Reset clicked state after 10 seconds
+    setTimeout(() => {
+      clickedRef.current = false;
+    }, 10000);
+  };
+
   return (
     <motion.div
       className={`relative ${className}`}
@@ -169,6 +222,7 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
         isListening={isListening}
         size={56}
         className="relative z-10"
+        onClick={handleClick}
       />
     </motion.div>
   );

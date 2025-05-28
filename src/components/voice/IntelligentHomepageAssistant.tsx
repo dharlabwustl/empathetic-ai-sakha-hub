@@ -17,6 +17,7 @@ const IntelligentHomepageAssistant: React.FC<IntelligentHomepageAssistantProps> 
   const [hasGreeted, setHasGreeted] = useState(false);
   const [lastMessageTime, setLastMessageTime] = useState<number>(0);
   const [messageIndex, setMessageIndex] = useState(0);
+  const [userClickedMic, setUserClickedMic] = useState(false);
   const location = useLocation();
   const timeoutRef = useRef<number | null>(null);
   const spokenMessagesRef = useRef<Set<string>>(new Set());
@@ -45,8 +46,8 @@ const IntelligentHomepageAssistant: React.FC<IntelligentHomepageAssistantProps> 
     const messageKey = text.toLowerCase().trim();
     const now = Date.now();
     
-    // Prevent repetition within 60 seconds unless priority
-    if (!priority && spokenMessagesRef.current.has(messageKey)) {
+    // Don't repeat messages unless it's priority or user specifically clicked microphone
+    if (!priority && !userClickedMic && spokenMessagesRef.current.has(messageKey)) {
       console.log('🔇 Preventing message repetition:', text);
       return;
     }
@@ -86,8 +87,8 @@ const IntelligentHomepageAssistant: React.FC<IntelligentHomepageAssistantProps> 
     timeoutRef.current = window.setTimeout(() => {
       const now = Date.now();
       
-      // Only speak if 30 seconds have passed since last message and mic is not active
-      if (now - lastMessageTime >= 30000 && !isMicrophoneActive && shouldBeActive) {
+      // Only speak if 30 seconds have passed, mic is not active, user hasn't clicked mic, and should be active
+      if (now - lastMessageTime >= 30000 && !isMicrophoneActive && !userClickedMic && shouldBeActive) {
         const nextMessage = educationalMessages[messageIndex % educationalMessages.length];
         speak(nextMessage);
         setMessageIndex(prev => prev + 1);
@@ -105,12 +106,42 @@ const IntelligentHomepageAssistant: React.FC<IntelligentHomepageAssistantProps> 
       console.log('🔇 Microphone activated, stopping homepage assistant speech');
       window.speechSynthesis.cancel();
       onSpeakingChange?.(false);
+      setUserClickedMic(true);
+      
+      // Reset the clicked state after 10 seconds of inactivity
+      setTimeout(() => {
+        if (!isMicrophoneActive) {
+          setUserClickedMic(false);
+        }
+      }, 10000);
     }
   }, [isMicrophoneActive, onSpeakingChange]);
 
+  // Listen for manual microphone activation
+  useEffect(() => {
+    const handleMicClick = () => {
+      setUserClickedMic(true);
+      // Stop speaking immediately
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        onSpeakingChange?.(false);
+      }
+      
+      // Reset after 15 seconds
+      setTimeout(() => {
+        setUserClickedMic(false);
+      }, 15000);
+    };
+
+    window.addEventListener('microphone-clicked', handleMicClick);
+    return () => {
+      window.removeEventListener('microphone-clicked', handleMicClick);
+    };
+  }, [onSpeakingChange]);
+
   // Initial greeting and message scheduling
   useEffect(() => {
-    if (shouldBeActive && !hasGreeted && !isMicrophoneActive) {
+    if (shouldBeActive && !hasGreeted && !isMicrophoneActive && !userClickedMic) {
       setTimeout(() => {
         speak(welcomeMessage, true);
         setHasGreeted(true);
@@ -121,6 +152,7 @@ const IntelligentHomepageAssistant: React.FC<IntelligentHomepageAssistantProps> 
     if (!shouldBeActive) {
       setHasGreeted(false);
       setMessageIndex(0);
+      setUserClickedMic(false);
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -131,7 +163,7 @@ const IntelligentHomepageAssistant: React.FC<IntelligentHomepageAssistantProps> 
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [shouldBeActive, hasGreeted, isMicrophoneActive]);
+  }, [shouldBeActive, hasGreeted, isMicrophoneActive, userClickedMic]);
 
   // Handle page navigation
   useEffect(() => {
@@ -147,6 +179,7 @@ const IntelligentHomepageAssistant: React.FC<IntelligentHomepageAssistantProps> 
     if (!shouldBeActive) {
       setHasGreeted(false);
       setMessageIndex(0);
+      setUserClickedMic(false);
       spokenMessagesRef.current.clear();
     }
   }, [location.pathname]);

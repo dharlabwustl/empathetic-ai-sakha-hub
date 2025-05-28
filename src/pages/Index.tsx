@@ -118,14 +118,15 @@ const Index = () => {
         
         <Footer />
         
-        {/* Ultra-fast Speech Recognition */}
+        {/* Ultra-fast Speech Recognition with manual activation */}
         <UltraFastSpeechRecognition
           onCommand={handleSpeechCommand}
           onListeningChange={setIsListening}
           onStopSpeaking={handleStopSpeaking}
           language="en-US"
-          continuous={true}
+          continuous={false}
           enabled={true}
+          manualActivation={true}
         />
         
         {/* Intelligent Homepage Voice Assistant */}
@@ -135,7 +136,7 @@ const Index = () => {
           isMicrophoneActive={isListening}
         />
 
-        {/* Enhanced Floating Voice Button with AI label */}
+        {/* Enhanced Floating Voice Button with microphone functionality */}
         <div className="fixed bottom-6 right-6 z-40">
           <FloatingVoiceButton 
             isSpeaking={isSpeaking}

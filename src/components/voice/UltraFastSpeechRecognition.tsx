@@ -10,6 +10,7 @@ interface UltraFastSpeechRecognitionProps {
   language?: string;
   continuous?: boolean;
   enabled?: boolean;
+  manualActivation?: boolean;
 }
 
 const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
@@ -18,7 +19,8 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
   onStopSpeaking,
   language = 'en-US',
   continuous = true,
-  enabled = true
+  enabled = true,
+  manualActivation = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -115,8 +117,8 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
       onListeningChange?.(false);
       console.log('🎤 Speech recognition ended');
       
-      // Auto-restart for continuous listening
-      if (continuous && enabled) {
+      // Only auto-restart if continuous mode and not manual activation
+      if (continuous && enabled && !manualActivation) {
         setTimeout(() => {
           try {
             recognition.start();
@@ -132,8 +134,8 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
       setIsListening(false);
       onListeningChange?.(false);
       
-      // Restart on error
-      if (continuous && enabled && event.error !== 'aborted') {
+      // Restart on error only if not manual activation
+      if (continuous && enabled && event.error !== 'aborted' && !manualActivation) {
         setTimeout(() => {
           try {
             recognition.start();
@@ -173,7 +175,6 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
     const command = transcript.toLowerCase().trim();
     
     // Prevent processing the same command repeatedly with debouncing
-    const commandKey = `${command}-${Date.now()}`;
     if (processedCommandsRef.current.has(command) || command.length < 2) {
       return;
     }
@@ -231,6 +232,11 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
       return;
     }
     
+    // Stop any ongoing speech before starting to listen
+    if (onStopSpeaking) {
+      onStopSpeaking();
+    }
+    
     try {
       recognitionRef.current.start();
     } catch (error) {
@@ -248,8 +254,8 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
     if (enabled) {
       initSpeechRecognition();
       
-      // Start listening immediately if continuous mode
-      if (continuous) {
+      // Only start listening automatically if not manual activation and continuous mode
+      if (continuous && !manualActivation) {
         setTimeout(startListening, 1000);
       }
     }
@@ -259,11 +265,11 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
         recognitionRef.current.abort();
       }
     };
-  }, [language, continuous, enabled]);
+  }, [language, continuous, enabled, manualActivation]);
 
-  // Restart recognition when page changes
+  // Restart recognition when page changes (only for continuous mode)
   useEffect(() => {
-    if (recognitionRef.current && continuous && enabled) {
+    if (recognitionRef.current && continuous && enabled && !manualActivation) {
       recognitionRef.current.abort();
       setTimeout(() => {
         initSpeechRecognition();
@@ -285,6 +291,15 @@ const UltraFastSpeechRecognition: React.FC<UltraFastSpeechRecognitionProps> = ({
       window.removeEventListener('stop-voice-recognition', handleStopListening);
     };
   }, []);
+
+  // Expose manual control methods
+  useEffect(() => {
+    (window as any).speechRecognitionControl = {
+      start: startListening,
+      stop: stopListening,
+      isListening
+    };
+  }, [isListening]);
 
   return null;
 };
