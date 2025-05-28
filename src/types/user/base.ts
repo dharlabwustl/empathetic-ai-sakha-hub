@@ -7,7 +7,14 @@ export enum MoodType {
   OVERWHELMED = 'overwhelmed',
   EXCITED = 'excited',
   TIRED = 'tired',
-  ANXIOUS = 'anxious'
+  ANXIOUS = 'anxious',
+  HAPPY = 'happy',
+  CALM = 'calm',
+  CONFUSED = 'confused',
+  NEUTRAL = 'neutral',
+  OKAY = 'okay',
+  SAD = 'sad',
+  CURIOUS = 'curious'
 }
 
 export enum UserGoal {
@@ -16,6 +23,12 @@ export enum UserGoal {
   UPSC = 'UPSC',
   CAT = 'CAT',
   GATE = 'GATE'
+}
+
+export enum UserRole {
+  STUDENT = 'student',
+  ADMIN = 'admin',
+  TUTOR = 'tutor'
 }
 
 export enum LearningStyle {
@@ -32,6 +45,12 @@ export enum StudyStyle {
   CRAMMING = 'cramming'
 }
 
+export enum SubscriptionType {
+  FREE = 'free',
+  PREMIUM = 'premium',
+  PRO = 'pro'
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
@@ -39,7 +58,8 @@ export interface UserProfileBase {
   email: string;
   avatar?: string;
   photoURL?: string;
-  goals?: Array<{ title: string; id: string }>;
+  role?: UserRole;
+  goals?: Array<{ title: string; id: string; targetDate?: string }>;
   loginCount?: number;
   examGoal?: UserGoal;
   examDate?: string;
@@ -49,7 +69,17 @@ export interface UserProfileBase {
   weakSubjects?: string[];
   strongSubjects?: string[];
   performanceLevel?: 'beginner' | 'intermediate' | 'advanced';
-  subscription?: any;
+  subscription?: SubscriptionType | { planType: string; expiryDate?: string };
+  studyStreak?: number;
+  examPreparation?: string;
+  personalityType?: string;
+  studyPreferences?: {
+    pace: string;
+    hoursPerDay: number;
+    preferredTimeStart: string;
+    preferredTimeEnd: string;
+  };
+  mood?: MoodType;
 }
 
 export type UserProfileType = UserProfileBase;

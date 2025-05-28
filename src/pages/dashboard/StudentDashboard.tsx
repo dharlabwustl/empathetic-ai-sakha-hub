@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -25,7 +26,7 @@ const StudentDashboard = () => {
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [dashboardPreferences, setDashboardPreferences] = useState<any>(null);
-  const [useAdaptiveLayout, setUseAdaptiveLayout] = useState(true); // Always use adaptive layout
+  const [useAdaptiveLayout, setUseAdaptiveLayout] = useState(true);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const StudentDashboard = () => {
       setProfileImage(savedImage);
     }
 
-    // Always load dashboard preferences for adaptive layout
+    // Load dashboard preferences for adaptive layout
     const savedPreferences = localStorage.getItem('dashboardPreferences');
     const isPersonalized = new URLSearchParams(location.search).get('personalized') === 'true';
     
@@ -82,7 +83,6 @@ const StudentDashboard = () => {
       setUseAdaptiveLayout(true);
     } catch (error) {
       console.error('Error loading dashboard preferences:', error);
-      // Set default preferences
       setDashboardPreferences({
         examGoal: userProfile?.examGoal || 'NEET',
         learningStyle: 'visual',
@@ -219,7 +219,7 @@ const StudentDashboard = () => {
     if (activeTab === "overview") {
       const content = <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
       
-      // Always wrap in adaptive layout
+      // Always wrap in adaptive layout for enhanced experience
       return (
         <AdaptiveDashboardLayout 
           userProfile={enhancedUserProfile} 

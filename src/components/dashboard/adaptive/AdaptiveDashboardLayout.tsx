@@ -1,27 +1,16 @@
 
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { MoodType, LearningStyle, StudyStyle, UserGoal } from '@/types/user/base';
+import React from 'react';
+import { UserProfileBase, MoodType, UserGoal, LearningStyle, StudyStyle } from '@/types/user/base';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Clock, Target, TrendingUp, Book, Brain, Zap, AlertTriangle, Trophy, Calendar } from 'lucide-react';
+import { Clock, Target, BookOpen, Brain, TrendingUp, Calendar, Zap, Users } from 'lucide-react';
 
 interface AdaptiveDashboardLayoutProps {
-  userProfile: any;
-  preferences: any;
+  userProfile: UserProfileBase;
+  preferences?: any;
   children?: React.ReactNode;
-}
-
-interface AdaptiveWidget {
-  id: string;
-  title: string;
-  content: React.ReactNode;
-  priority: number;
-  size: 'small' | 'medium' | 'large';
-  position: { row: number; col: number };
-  theme: string;
-  examGoalRelevance: number;
 }
 
 const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
@@ -29,385 +18,261 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
   preferences,
   children
 }) => {
-  const adaptiveConfig = useMemo(() => {
-    const examGoal = userProfile?.examGoal || preferences?.examGoal || 'NEET';
-    const learningStyle = userProfile?.learningStyle || preferences?.learningStyle || 'visual';
-    const studyStyle = userProfile?.studyStyle || preferences?.studyStyle || 'gradual';
-    const currentMood = userProfile?.currentMood || preferences?.currentMood || MoodType.MOTIVATED;
-    const performanceLevel = userProfile?.performanceLevel || preferences?.confidenceLevel || 'intermediate';
+  // Get exam proximity in days
+  const getExamProximity = () => {
+    if (!userProfile.examDate) return null;
+    const examDate = new Date(userProfile.examDate);
+    const today = new Date();
+    const diffTime = examDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const daysToExam = getExamProximity();
+
+  // Get adaptive theme based on mood and exam proximity
+  const getAdaptiveTheme = () => {
+    const mood = userProfile.currentMood || userProfile.mood;
+    const isExamNear = daysToExam && daysToExam < 30;
     
-    // Calculate exam proximity
-    const examDate = new Date(userProfile?.examDate || preferences?.examDate || '2024-06-15');
-    const daysUntilExam = Math.ceil((examDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-    const isExamNear = daysUntilExam <= 30;
-    const isCriticalTime = daysUntilExam <= 7;
-    
-    // Time-based context
-    const currentHour = new Date().getHours();
-    const isStudyTime = (
-      (preferences?.preferredStudyTime === 'morning' && currentHour >= 6 && currentHour < 10) ||
-      (preferences?.preferredStudyTime === 'afternoon' && currentHour >= 14 && currentHour < 18) ||
-      (preferences?.preferredStudyTime === 'evening' && currentHour >= 18 && currentHour < 22) ||
-      (preferences?.preferredStudyTime === 'night' && (currentHour >= 22 || currentHour < 2))
-    );
-
-    return {
-      examGoal,
-      learningStyle,
-      studyStyle,
-      currentMood,
-      performanceLevel,
-      daysUntilExam,
-      isExamNear,
-      isCriticalTime,
-      isStudyTime,
-      weakSubjects: preferences?.weakSubjects || [],
-      strongSubjects: preferences?.strongSubjects || []
-    };
-  }, [userProfile, preferences]);
-
-  const adaptiveWidgets = useMemo(() => {
-    const widgets: AdaptiveWidget[] = [];
-    const { examGoal, learningStyle, currentMood, performanceLevel, daysUntilExam, isExamNear, isCriticalTime, isStudyTime, weakSubjects } = adaptiveConfig;
-
-    // 1. Exam Goal Specific Widget
-    const examGoalContent = {
-      'NEET': {
-        subjects: ['Physics', 'Chemistry', 'Biology'],
-        focusAreas: ['NCERT Mastery', 'Previous Year Questions', 'Mock Tests'],
-        urgencyLevel: isExamNear ? 'high' : 'medium'
-      },
-      'JEE': {
-        subjects: ['Physics', 'Chemistry', 'Mathematics'],
-        focusAreas: ['Problem Solving', 'Concept Clarity', 'Speed & Accuracy'],
-        urgencyLevel: isExamNear ? 'high' : 'medium'
-      },
-      'UPSC': {
-        subjects: ['General Studies', 'Optional Subject', 'Current Affairs'],
-        focusAreas: ['Answer Writing', 'Revision', 'Test Series'],
-        urgencyLevel: 'medium'
-      }
-    };
-
-    const currentExamContent = examGoalContent[examGoal as keyof typeof examGoalContent] || examGoalContent['NEET'];
-
-    widgets.push({
-      id: 'exam-goal-focus',
-      title: `${examGoal} Preparation Hub`,
-      content: (
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Target className="h-5 w-5 text-blue-600" />
-            <span className="font-semibold">{examGoal} Strategy</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {currentExamContent.subjects.map((subject) => (
-              <button key={subject} className={`p-2 rounded text-sm font-medium ${
-                weakSubjects.includes(subject) 
-                  ? 'bg-red-100 text-red-800 border border-red-200' 
-                  : 'bg-blue-100 text-blue-800 border border-blue-200'
-              }`}>
-                {subject}
-              </button>
-            ))}
-          </div>
-          <div className="mt-3">
-            <p className="text-xs text-gray-600 mb-2">Priority Focus Areas:</p>
-            {currentExamContent.focusAreas.map((area, index) => (
-              <Badge key={index} variant="outline" className="mr-1 mb-1 text-xs">
-                {area}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      ),
-      priority: 10,
-      size: 'large',
-      position: { row: 0, col: 0 },
-      theme: isCriticalTime ? 'critical' : isExamNear ? 'urgent' : 'focused',
-      examGoalRelevance: 10
-    });
-
-    // 2. Exam Proximity Urgency Widget
     if (isExamNear) {
+      return 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-200';
+    }
+    
+    switch (mood) {
+      case MoodType.STRESSED:
+      case MoodType.ANXIOUS:
+        return 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200';
+      case MoodType.MOTIVATED:
+      case MoodType.EXCITED:
+        return 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200';
+      case MoodType.TIRED:
+      case MoodType.OVERWHELMED:
+        return 'bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200';
+      default:
+        return 'bg-gradient-to-br from-sky-50 to-blue-50 border-sky-200';
+    }
+  };
+
+  // Get personalized widgets based on exam goal and learning style
+  const getPersonalizedWidgets = () => {
+    const examGoal = userProfile.examGoal || preferences?.examGoal;
+    const learningStyle = userProfile.learningStyle || preferences?.learningStyle;
+    const weakSubjects = userProfile.weakSubjects || preferences?.weakSubjects || [];
+    
+    const widgets = [];
+
+    // Exam-specific widgets
+    if (examGoal === UserGoal.NEET) {
       widgets.push({
-        id: 'exam-countdown',
-        title: isCriticalTime ? '🚨 Final Sprint Mode' : 'Exam Approaching',
+        title: 'NEET Focus Areas',
+        icon: <Target className="h-5 w-5" />,
         content: (
-          <div className="space-y-3">
-            <div className="text-center">
-              <div className={`text-3xl font-bold ${isCriticalTime ? 'text-red-600' : 'text-orange-600'}`}>
-                {daysUntilExam}
-              </div>
-              <div className="text-sm text-gray-600">days remaining</div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Biology</span>
+              <span className="font-semibold">45%</span>
             </div>
-            <Progress value={Math.max(0, 100 - (daysUntilExam / 365 * 100))} className="h-2" />
-            <button className={`w-full px-4 py-2 text-white rounded transition-colors ${
-              isCriticalTime ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-600 hover:bg-orange-700'
-            }`}>
-              {isCriticalTime ? 'Emergency Revision' : 'Intensive Review'}
-            </button>
+            <div className="flex justify-between text-sm">
+              <span>Chemistry</span>
+              <span className="font-semibold">35%</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Physics</span>
+              <span className="font-semibold">20%</span>
+            </div>
           </div>
-        ),
-        priority: isCriticalTime ? 10 : 8,
-        size: 'medium',
-        position: { row: 0, col: 1 },
-        theme: isCriticalTime ? 'critical' : 'urgent',
-        examGoalRelevance: 9
+        )
+      });
+    } else if (examGoal === UserGoal.JEE) {
+      widgets.push({
+        title: 'JEE Preparation Track',
+        icon: <Zap className="h-5 w-5" />,
+        content: (
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Mathematics</span>
+              <span className="font-semibold">40%</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Physics</span>
+              <span className="font-semibold">35%</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Chemistry</span>
+              <span className="font-semibold">25%</span>
+            </div>
+          </div>
+        )
       });
     }
 
-    // 3. Learning Style Optimized Widget
-    const learningStyleContent = {
-      [LearningStyle.VISUAL]: {
-        title: 'Visual Learning Tools',
-        tools: ['Mind Maps', 'Diagrams', 'Flashcards', 'Charts'],
-        colors: ['purple', 'blue', 'green', 'orange']
-      },
-      [LearningStyle.AUDITORY]: {
-        title: 'Audio Learning Resources',
-        tools: ['Lectures', 'Discussions', 'Audio Notes', 'Podcasts'],
-        colors: ['blue', 'teal', 'cyan', 'indigo']
-      },
-      [LearningStyle.KINESTHETIC]: {
-        title: 'Interactive Learning',
-        tools: ['Simulations', 'Experiments', 'Practice Tests', 'Models'],
-        colors: ['green', 'emerald', 'lime', 'teal']
-      }
-    };
-
-    const styleContent = learningStyleContent[learningStyle as LearningStyle] || learningStyleContent[LearningStyle.VISUAL];
-
-    widgets.push({
-      id: 'learning-style',
-      title: styleContent.title,
-      content: (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2">
-            {styleContent.tools.map((tool, index) => (
-              <button key={tool} className={`p-3 bg-${styleContent.colors[index]}-100 rounded text-${styleContent.colors[index]}-800 text-sm font-medium hover:bg-${styleContent.colors[index]}-200 transition-colors`}>
-                {tool}
-              </button>
-            ))}
-          </div>
-        </div>
-      ),
-      priority: 7,
-      size: 'medium',
-      position: { row: 1, col: 0 },
-      theme: 'learning-optimized',
-      examGoalRelevance: 6
-    });
-
-    // 4. Mood-Based Motivation Widget
-    const moodContent = {
-      [MoodType.STRESSED]: {
-        title: 'Stress Relief Zone',
-        action: 'Take a Break',
-        color: 'blue',
-        icon: '🌊',
-        suggestion: 'Try breathing exercises or light meditation'
-      },
-      [MoodType.MOTIVATED]: {
-        title: 'Momentum Building',
-        action: 'Keep Going!',
-        color: 'green',
-        icon: '🚀',
-        suggestion: 'Perfect time for challenging problems'
-      },
-      [MoodType.FOCUSED]: {
-        title: 'Deep Work Mode',
-        action: 'Study Session',
-        color: 'purple',
-        icon: '🎯',
-        suggestion: 'Tackle your most difficult topics now'
-      },
-      [MoodType.OVERWHELMED]: {
-        title: 'Simplify & Organize',
-        action: 'Break It Down',
-        color: 'orange',
-        icon: '📋',
-        suggestion: 'Focus on one small task at a time'
-      }
-    };
-
-    const moodConfig = moodContent[currentMood] || moodContent[MoodType.MOTIVATED];
-
-    widgets.push({
-      id: 'mood-based',
-      title: `${moodConfig.icon} ${moodConfig.title}`,
-      content: (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">{moodConfig.suggestion}</p>
-          <button className={`w-full px-4 py-2 bg-${moodConfig.color}-600 text-white rounded hover:bg-${moodConfig.color}-700 transition-colors`}>
-            {moodConfig.action}
-          </button>
-        </div>
-      ),
-      priority: performanceLevel === 'beginner' ? 8 : 5,
-      size: 'small',
-      position: { row: 1, col: 1 },
-      theme: `mood-${currentMood}`,
-      examGoalRelevance: 4
-    });
-
-    // 5. Performance-Based Widget
-    const performanceWidget = {
-      'beginner': {
-        title: 'Foundation Building',
-        focus: 'Basic concepts and confidence building',
-        nextStep: 'Start with fundamentals',
-        priority: 9
-      },
-      'intermediate': {
-        title: 'Skill Enhancement',
-        focus: 'Practice and application',
-        nextStep: 'Solve practice problems',
-        priority: 6
-      },
-      'advanced': {
-        title: 'Mastery Mode',
-        focus: 'Advanced problems and speed',
-        nextStep: 'Challenge yourself',
-        priority: 7
-      }
-    };
-
-    const perfConfig = performanceWidget[performanceLevel as keyof typeof performanceWidget];
-
-    widgets.push({
-      id: 'performance-based',
-      title: perfConfig.title,
-      content: (
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Trophy className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm font-medium">{perfConfig.focus}</span>
-          </div>
-          <button className="w-full px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition-colors">
-            {perfConfig.nextStep}
-          </button>
-        </div>
-      ),
-      priority: perfConfig.priority,
-      size: 'small',
-      position: { row: 2, col: 0 },
-      theme: 'performance',
-      examGoalRelevance: 7
-    });
-
-    // 6. Time-Context Widget
-    widgets.push({
-      id: 'time-context',
-      title: isStudyTime ? '⏰ Peak Focus Time!' : 'Study Schedule',
-      content: (
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-blue-500" />
-            <span className={isStudyTime ? 'text-green-600 font-medium' : 'text-gray-600'}>
-              {isStudyTime ? 'Optimal focus window active' : 'Next study session in 2 hours'}
-            </span>
-          </div>
-          {isStudyTime && (
-            <button className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-              Start Focus Session
-            </button>
-          )}
-        </div>
-      ),
-      priority: isStudyTime ? 8 : 3,
-      size: 'small',
-      position: { row: 2, col: 1 },
-      theme: isStudyTime ? 'active' : 'neutral',
-      examGoalRelevance: 5
-    });
-
-    return widgets.sort((a, b) => b.priority - a.priority);
-  }, [adaptiveConfig]);
-
-  const getLayoutClass = () => {
-    const { learningStyle, studyStyle } = adaptiveConfig;
-    
+    // Learning style specific widgets
     if (learningStyle === LearningStyle.VISUAL) {
-      return 'grid-cols-1 md:grid-cols-3 lg:grid-cols-4'; // Visual masonry
+      widgets.push({
+        title: 'Visual Learning Hub',
+        icon: <Brain className="h-5 w-5" />,
+        content: (
+          <div className="space-y-2">
+            <Button variant="outline" size="sm" className="w-full">
+              📊 Interactive Diagrams
+            </Button>
+            <Button variant="outline" size="sm" className="w-full">
+              🎥 Video Concepts
+            </Button>
+            <Button variant="outline" size="sm" className="w-full">
+              🗺️ Mind Maps
+            </Button>
+          </div>
+        )
+      });
     } else if (learningStyle === LearningStyle.AUDITORY) {
-      return 'grid-cols-1 md:grid-cols-2'; // Linear for audio learners
-    } else if (learningStyle === LearningStyle.KINESTHETIC) {
-      return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'; // Interactive grid
+      widgets.push({
+        title: 'Audio Learning Center',
+        icon: <Users className="h-5 w-5" />,
+        content: (
+          <div className="space-y-2">
+            <Button variant="outline" size="sm" className="w-full">
+              🎧 Audio Lectures
+            </Button>
+            <Button variant="outline" size="sm" className="w-full">
+              💬 Discussion Groups
+            </Button>
+            <Button variant="outline" size="sm" className="w-full">
+              🔊 Voice Notes
+            </Button>
+          </div>
+        )
+      });
     }
-    return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+
+    // Weak subjects priority widget
+    if (weakSubjects.length > 0) {
+      widgets.push({
+        title: 'Priority Focus Areas',
+        icon: <TrendingUp className="h-5 w-5" />,
+        content: (
+          <div className="space-y-2">
+            {weakSubjects.slice(0, 3).map((subject, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <span className="text-sm">{subject}</span>
+                <Badge variant="destructive" className="text-xs">
+                  Needs Work
+                </Badge>
+              </div>
+            ))}
+            <Button size="sm" className="w-full mt-2">
+              Start Practice Session
+            </Button>
+          </div>
+        )
+      });
+    }
+
+    // Time-based widgets
+    if (daysToExam) {
+      widgets.push({
+        title: 'Exam Countdown',
+        icon: <Calendar className="h-5 w-5" />,
+        content: (
+          <div className="text-center space-y-2">
+            <div className="text-2xl font-bold text-orange-600">
+              {daysToExam}
+            </div>
+            <div className="text-sm text-gray-600">days to {examGoal}</div>
+            <Progress value={Math.max(0, 100 - (daysToExam / 365) * 100)} className="w-full" />
+            <div className="text-xs text-gray-500">
+              {daysToExam < 30 ? 'Intensive mode recommended' : 'Steady progress mode'}
+            </div>
+          </div>
+        )
+      });
+    }
+
+    return widgets;
   };
 
-  const getWidgetSizeClass = (size: string) => {
-    switch (size) {
-      case 'small': return 'min-h-[150px]';
-      case 'medium': return 'min-h-[250px]';
-      case 'large': return 'min-h-[350px] md:col-span-2';
-      default: return 'min-h-[200px]';
-    }
-  };
-
-  const getThemeClass = (theme: string) => {
-    switch (theme) {
-      case 'critical': return 'border-red-300 bg-red-50/80 shadow-red-100';
-      case 'urgent': return 'border-orange-200 bg-orange-50/50';
-      case 'focused': return 'border-blue-200 bg-blue-50/50';
-      case 'learning-optimized': return 'border-purple-200 bg-purple-50/50';
-      case 'performance': return 'border-yellow-200 bg-yellow-50/50';
-      case 'active': return 'border-green-200 bg-green-50/50';
-      case 'motivational': return 'border-emerald-200 bg-emerald-50/50';
-      default: return 'border-gray-200 bg-white';
-    }
-  };
+  const widgets = getPersonalizedWidgets();
+  const themeClass = getAdaptiveTheme();
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`min-h-screen p-6 ${themeClass}`}>
       {/* Adaptive Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <h2 className="text-2xl font-bold">
-          {adaptiveConfig.examGoal} Preparation Dashboard
-        </h2>
-        <p className="text-gray-600 mt-2">
-          Personalized for {userProfile.name} • {adaptiveConfig.performanceLevel} level • {adaptiveConfig.daysUntilExam} days to exam
-        </p>
-      </motion.div>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Your Personalized {userProfile.examGoal || 'Study'} Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Adapted for {userProfile.learningStyle || 'your'} learning style
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {userProfile.currentMood && (
+              <Badge variant="outline" className="capitalize">
+                {userProfile.currentMood}
+              </Badge>
+            )}
+            {userProfile.examGoal && (
+              <Badge variant="default">
+                {userProfile.examGoal} Prep
+              </Badge>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Adaptive Widget Grid */}
-      <div className={`grid gap-6 ${getLayoutClass()}`}>
-        {adaptiveWidgets.map((widget, index) => (
-          <motion.div
-            key={widget.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.1 }}
-            className={getWidgetSizeClass(widget.size)}
-          >
-            <Card className={`h-full ${getThemeClass(widget.theme)}`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">{widget.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {widget.content}
-              </CardContent>
-            </Card>
-          </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {widgets.map((widget, index) => (
+          <Card key={index} className="border-2 hover:shadow-lg transition-all duration-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                {widget.icon}
+                {widget.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {widget.content}
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Original Children Content */}
-      {children && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          {children}
-        </motion.div>
-      )}
+      {/* Performance-based Priority Section */}
+      <Card className="mb-6 border-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            Today's Adaptive Plan
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <Clock className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+              <h3 className="font-semibold">Morning Focus</h3>
+              <p className="text-sm text-gray-600">High concentration subjects</p>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <Target className="h-8 w-8 mx-auto mb-2 text-green-600" />
+              <h3 className="font-semibold">Afternoon Practice</h3>
+              <p className="text-sm text-gray-600">Problem solving & tests</p>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+              <h3 className="font-semibold">Evening Review</h3>
+              <p className="text-sm text-gray-600">Revision & weak areas</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Original Dashboard Content */}
+      <div className="space-y-6">
+        {children}
+      </div>
     </div>
   );
 };
