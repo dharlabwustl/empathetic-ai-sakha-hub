@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import PaymentFlow from '@/components/subscription/PaymentFlow';
 import { SubscriptionPlan } from '@/types/user/subscription';
-import { Heart, Check } from 'lucide-react';
+import { Heart, Check, Clock, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const SubscriptionPage: React.FC = () => {
@@ -23,6 +23,20 @@ const SubscriptionPage: React.FC = () => {
   
   // Get the current plan type from user profile
   const currentPlanId = user?.subscription?.planType?.toString() || 'free';
+  const isTrialUser = user?.subscription?.isTrial || user?.subscription?.planType === 'trial';
+  const trialEndDate = user?.subscription?.expiryDate || user?.subscription?.endDate;
+  
+  // Calculate remaining trial days
+  const getRemainingTrialDays = () => {
+    if (!isTrialUser || !trialEndDate) return 0;
+    const endDate = new Date(trialEndDate);
+    const now = new Date();
+    const diffTime = endDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
+
+  const remainingTrialDays = getRemainingTrialDays();
   
   const handleSelectPlan = (plan: SubscriptionPlan, isGroupPlan: boolean) => {
     console.log('Plan selected:', plan.name, isGroupPlan ? '(Group)' : '(Individual)');
@@ -56,6 +70,7 @@ const SubscriptionPage: React.FC = () => {
           expiryDate: new Date(new Date().setMonth(new Date().getMonth() + (plan.id.includes('annual') ? 12 : 1))).toISOString(),
           status: 'active',
           autoRenew: true,
+          isTrial: false,
         }
       });
     }
@@ -107,6 +122,43 @@ const SubscriptionPage: React.FC = () => {
             </Button>
           </div>
 
+          {/* Trial Status Card */}
+          {isTrialUser && (
+            <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-green-100 dark:bg-green-900/40 p-3 rounded-full">
+                      <Clock className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-green-700 dark:text-green-300">
+                        🎉 Free Trial Active
+                      </h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          <span className="font-semibold">{remainingTrialDays} days remaining</span>
+                          {trialEndDate && (
+                            <span className="ml-2">
+                              (Expires: {new Date(trialEndDate).toLocaleDateString()})
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        You have full access to all premium features. Upgrade anytime to continue after trial.
+                      </p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                    Trial Active
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* UN Sustainability Card */}
           <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 dark:border-blue-800/30">
             <CardContent className="flex items-center gap-4 p-4">
@@ -123,29 +175,31 @@ const SubscriptionPage: React.FC = () => {
             </CardContent>
           </Card>
           
-          {/* 7 Days Free Trial Banner */}
-          <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
-            <CardContent className="p-4">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                  <h3 className="text-xl font-bold text-green-600 dark:text-green-400">🎉 Try Premium Free for 7 Days</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                    Experience all premium features with no commitment. Cancel anytime.
-                  </p>
+          {/* 7 Days Free Trial Banner - Only show if not already on trial */}
+          {!isTrialUser && (
+            <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800/30">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-green-600 dark:text-green-400">🎉 Try Premium Free for 7 Days</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      Experience all premium features with no commitment. Cancel anytime.
+                    </p>
+                  </div>
+                  <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                          onClick={() => handleSelectPlan({
+                            id: 'trial',
+                            name: 'Premium Trial',
+                            price: 0,
+                            features: ['7-day full access to premium features', 'No payment required', 'Cancel anytime'],
+                            type: 'trial'
+                          }, false)}>
+                    Start Free Trial
+                  </Button>
                 </div>
-                <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                        onClick={() => handleSelectPlan({
-                          id: 'trial',
-                          name: 'Premium Trial',
-                          price: 0,
-                          features: ['7-day full access to premium features', 'No payment required', 'Cancel anytime'],
-                          type: 'trial'
-                        }, false)}>
-                  Start Free Trial
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
           
           <SubscriptionPlans
             currentPlanId={currentPlanId}
