@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +17,8 @@ import { MoodSelector } from '../student/MoodSelector';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import NEETStrategyCard from '@/components/dashboard/student/NEETStrategyCard';
+import SubjectBreakdownSection from '@/components/dashboard/student/SubjectBreakdownSection';
 
 interface ComprehensiveAdaptiveDashboardProps {
   userProfile: UserProfileBase;
@@ -122,7 +123,7 @@ const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardPro
   ];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6 mood-${selectedMood.toLowerCase()}`}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950">
       {/* Top Stats Bar */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -167,9 +168,10 @@ const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardPro
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Main Dashboard Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
         {/* Left Column - Main Content */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-8 space-y-6">
           {/* User Profile & Subscription Card */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -550,7 +552,10 @@ const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardPro
         </div>
 
         {/* Right Column - AI Assistant & Tools */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-4 space-y-6">
+          {/* NEET Strategy Card */}
+          <NEETStrategyCard />
+          
           {/* AI Coach Suggestions */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -670,6 +675,11 @@ const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardPro
             </Card>
           </motion.div>
         </div>
+      </div>
+
+      {/* Subject-Wise Breakdown Section - Bottom of page */}
+      <div className="mb-8">
+        <SubjectBreakdownSection />
       </div>
 
       {/* Mood Selection Dialog */}

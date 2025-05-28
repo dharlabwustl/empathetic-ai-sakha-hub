@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
@@ -99,11 +98,11 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
   const planDetails = getPlanDetails();
   
   const handleUpgradeClick = () => {
-    navigate('/dashboard/student/subscription');
+    window.open('https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/subscription', '_blank');
   };
   
   const handleManageClick = () => {
-    navigate('/dashboard/student/subscription');
+    window.open('https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/subscription', '_blank');
   };
   
   if (hasExpired && isActive) {
