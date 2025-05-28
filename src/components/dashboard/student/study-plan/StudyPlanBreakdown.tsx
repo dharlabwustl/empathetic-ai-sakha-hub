@@ -6,8 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
-import { Subject, StudyPlanSubject } from '@/types/user/studyPlan';
+import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight, BarChart3, Target, Brain } from 'lucide-react';
+import { StudyPlanSubject } from '@/types/user/studyPlan';
+import TopicBreakdown from './TopicBreakdown';
+import WeightageAnalysis from './WeightageAnalysis';
+import DailySmartSuggestions from './DailySmartSuggestions';
 
 interface StudyPlanBreakdownProps {
   subjects: StudyPlanSubject[];
@@ -22,8 +25,6 @@ interface TimeAllocationProps {
 }
 
 const TimeAllocation: React.FC<TimeAllocationProps> = ({ subjects, weeklyHours = 35 }) => {
-  // Calculate percentages and hours per subject based on priority
-  const totalSubjects = subjects.length;
   const totalHours = weeklyHours || 35;
   
   return (
@@ -182,7 +183,6 @@ const Timeline: React.FC<TimelineProps> = ({ examDate = '2023-12-15', examName =
   const daysUntilExam = Math.ceil((exam.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   const weeksUntilExam = Math.ceil(daysUntilExam / 7);
   
-  // Generate milestones (simplified approach)
   const milestones = [
     { 
       title: "Complete Core Physics Topics", 
@@ -282,12 +282,40 @@ export const StudyPlanBreakdown: React.FC<StudyPlanBreakdownProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="time-allocation" className="w-full">
-        <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
-          <TabsTrigger value="topics">Topics Breakdown</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+      {/* AI-Powered Daily Suggestions */}
+      <DailySmartSuggestions />
+      
+      <Tabs defaultValue="detailed-topics" className="w-full">
+        <TabsList className="grid grid-cols-5">
+          <TabsTrigger value="detailed-topics" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Detailed Topics
+          </TabsTrigger>
+          <TabsTrigger value="weightage" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Weightage Analysis
+          </TabsTrigger>
+          <TabsTrigger value="time-allocation" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Time Allocation
+          </TabsTrigger>
+          <TabsTrigger value="topics" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            Topics Overview
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Timeline
+          </TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="detailed-topics" className="mt-4">
+          <TopicBreakdown subjects={subjects} />
+        </TabsContent>
+        
+        <TabsContent value="weightage" className="mt-4">
+          <WeightageAnalysis subjects={subjects} />
+        </TabsContent>
         
         <TabsContent value="time-allocation" className="mt-4">
           <TimeAllocation subjects={subjects} weeklyHours={weeklyHours} />
