@@ -1,24 +1,35 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Calendar, Clock, Target, TrendingUp, Award, BookOpen, Brain, 
-  Zap, Users, Heart, MessageCircle, ChevronRight, Play, 
-  Bell, Star, CheckCircle, AlertCircle, User, Crown, ExternalLink,
-  Settings, Bot, Volume2, VolumeX, Mic, MicOff
-} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  BookOpen, 
+  Target, 
+  Clock, 
+  TrendingUp, 
+  Star,
+  Zap,
+  ArrowRight,
+  ChevronRight,
+  Brain,
+  Award,
+  Calendar,
+  CheckCircle,
+  AlertTriangle,
+  Coffee,
+  Moon,
+  Sun,
+  Sunrise,
+  Sunset
+} from 'lucide-react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
-import { MoodSelector } from '../student/MoodSelector';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
-import NEETStrategyCard from '@/components/dashboard/student/NEETStrategyCard';
-import SubjectBreakdownSection from '@/components/dashboard/student/SubjectBreakdownSection';
+import NEETStrategyCard from '../student/NEETStrategyCard';
+import SmartSuggestionsCenter from '../student/dashboard-sections/SmartSuggestionsCenter';
 
 interface ComprehensiveAdaptiveDashboardProps {
   userProfile: UserProfileBase;
@@ -30,757 +41,440 @@ interface ComprehensiveAdaptiveDashboardProps {
 const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardProps> = ({
   userProfile,
   kpis,
-  currentMood = MoodType.NEUTRAL,
+  currentMood,
   onMoodChange
 }) => {
-  const navigate = useNavigate();
-  const [showMoodSelector, setShowMoodSelector] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType>(currentMood);
-  const [aiChatOpen, setAiChatOpen] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const [chatMessage, setChatMessage] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Mock exam data - this would adapt based on user's exam selection
-  const examData = {
-    name: "NEET 2026",
-    daysLeft: 185,
-    studyPace: "Moderate",
-    learnerStyle: "Visual",
-    mood: selectedMood
-  };
+  // Update time every minute for dynamic suggestions
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
 
-  // Mock subscription data
-  const subscriptionData = {
-    plan: "Premium",
-    expiryDate: "2025-12-31",
-    isActive: true
-  };
+    return () => clearInterval(timer);
+  }, []);
 
-  const handleMoodChange = (mood: MoodType) => {
-    setSelectedMood(mood);
-    onMoodChange?.(mood);
-    setShowMoodSelector(false);
+  const getTimeBasedSuggestions = () => {
+    const hour = currentTime.getHours();
     
-    // Apply mood-based theme changes
-    const body = document.body;
-    body.className = body.className.replace(/mood-\w+/g, '');
-    body.classList.add(`mood-${mood.toLowerCase()}`);
-  };
-
-  const handleAiChat = (message: string) => {
-    if (audioEnabled && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(message);
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
+    if (hour >= 5 && hour < 12) {
+      return {
+        period: "Morning",
+        icon: <Sunrise className="h-5 w-5 text-orange-500" />,
+        suggestions: [
+          "Start with difficult concepts - your brain is fresh! 🧠",
+          "Review yesterday's flashcards for retention",
+          "Set 3 clear goals for today's study session"
+        ],
+        color: "from-orange-50 to-yellow-50",
+        borderColor: "border-orange-200"
+      };
+    } else if (hour >= 12 && hour < 17) {
+      return {
+        period: "Afternoon",
+        icon: <Sun className="h-5 w-5 text-yellow-500" />,
+        suggestions: [
+          "Perfect time for practice tests and problem solving",
+          "Take short breaks every 45 minutes",
+          "Focus on weak areas identified this morning"
+        ],
+        color: "from-yellow-50 to-amber-50",
+        borderColor: "border-yellow-200"
+      };
+    } else if (hour >= 17 && hour < 21) {
+      return {
+        period: "Evening",
+        icon: <Sunset className="h-5 w-5 text-purple-500" />,
+        suggestions: [
+          "Review today's learning with flashcards",
+          "Plan tomorrow's study schedule",
+          "Light revision of easy topics"
+        ],
+        color: "from-purple-50 to-pink-50",
+        borderColor: "border-purple-200"
+      };
+    } else {
+      return {
+        period: "Night",
+        icon: <Moon className="h-5 w-5 text-blue-500" />,
+        suggestions: [
+          "Light reading or concept revision only",
+          "Prepare materials for tomorrow",
+          "Consider getting good rest for better retention"
+        ],
+        color: "from-blue-50 to-indigo-50",
+        borderColor: "border-blue-200"
+      };
     }
   };
 
-  const dailySmartSuggestions = {
-    morning: {
-      title: "Morning Focus",
-      suggestions: [
-        "Review yesterday's physics concepts for 15 minutes",
-        "Complete 5 organic chemistry questions",
-        "Practice meditation for better concentration"
-      ]
-    },
-    afternoon: {
-      title: "Peak Performance",
-      suggestions: [
-        "Tackle challenging calculus problems",
-        "Group study session with peers",
-        "Take practice test for weak subjects"
-      ]
-    },
-    evening: {
-      title: "Active Recall",
-      suggestions: [
-        "Create mind maps for biology topics",
-        "Review flashcards for chemistry formulas",
-        "Solve previous year NEET questions"
-      ]
-    },
-    night: {
-      title: "Consolidation",
-      suggestions: [
-        "Light revision of today's topics",
-        "Plan tomorrow's study schedule",
-        "Relaxation techniques for better sleep"
-      ]
-    }
+  const timeBasedData = getTimeBasedSuggestions();
+
+  // Mock performance data
+  const performance = {
+    accuracy: 78,
+    quizScores: 85,
+    conceptProgress: 72,
+    streak: 7
   };
 
-  const weakAreas = [
-    { subject: "Organic Chemistry", concept: "Alcohols and Ethers", improvement: 15 },
-    { subject: "Physics", concept: "Thermodynamics", improvement: 12 },
-    { subject: "Biology", concept: "Genetics", improvement: 18 }
-  ];
-
-  const strongAreas = [
-    { subject: "Inorganic Chemistry", concept: "Periodic Table", mastery: 92 },
-    { subject: "Physics", concept: "Mechanics", mastery: 88 },
-    { subject: "Biology", concept: "Cell Biology", mastery: 95 }
+  // Subject breakdown data
+  const subjectData = [
+    { subject: "Physics", completed: 15, total: 25, color: "bg-blue-500", percentage: 60 },
+    { subject: "Chemistry", completed: 18, total: 22, color: "bg-purple-500", percentage: 82 },
+    { subject: "Biology", completed: 12, total: 20, color: "bg-green-500", percentage: 60 }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950">
-      {/* Top Stats Bar */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-blue-200 p-4 mb-6 shadow-lg"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-blue-600" />
-              <span className="font-semibold">Exam: {examData.name}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-orange-600" />
-              <span>Days Left: <strong>{examData.daysLeft}</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-green-600" />
-              <span>Pace: {examData.studyPace}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-purple-600" />
-              <span>Style: {examData.learnerStyle}</span>
-            </div>
-            <button 
-              onClick={() => setShowMoodSelector(true)}
-              className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-100 hover:bg-yellow-200 transition-colors"
-            >
-              <Heart className="h-4 w-4 text-red-500" />
-              <span>Mood: {selectedMood}</span>
-            </button>
-          </div>
-          <Button 
-            onClick={() => navigate('/dashboard/student/academic')}
-            variant="outline" 
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Settings className="h-4 w-4" />
-            Switch Exam / New Plan
-          </Button>
+    <div className="space-y-6 p-6">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Welcome back, {userProfile.name}! 🌟
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
+            Let's make today count towards your NEET 2026 goal
+          </p>
         </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="bg-gradient-to-r from-violet-50 to-purple-50 border-violet-200">
+            Day {performance.streak} streak 🔥
+          </Badge>
+        </div>
+      </div>
+
+      {/* Top Priority Section with Premium Animation */}
+      <motion.div
+        className="relative"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        {/* Animated Border */}
+        <div className="absolute inset-0 rounded-lg">
+          <div className="absolute inset-0 rounded-lg border-2 border-gradient-to-r from-violet-500 via-purple-500 to-pink-500 animate-pulse opacity-60"></div>
+          <div className="absolute inset-0 rounded-lg border-2 border-dashed border-violet-400 animate-pulse" style={{ animationDelay: '0.5s', animationDuration: '2s' }}></div>
+        </div>
+        
+        {/* Blinking Arrow */}
+        <motion.div
+          className="absolute -left-8 top-1/2 transform -translate-y-1/2"
+          animate={{ 
+            x: [0, 10, 0],
+            opacity: [0.5, 1, 0.5]
+          }}
+          transition={{ 
+            duration: 1.5, 
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <ArrowRight className="h-6 w-6 text-violet-500" />
+        </motion.div>
+
+        <Card className="bg-gradient-to-r from-violet-50 to-purple-50 border-violet-200 relative z-10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl flex items-center gap-3">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="p-2 bg-violet-100 rounded-full"
+              >
+                <Target className="h-6 w-6 text-violet-600" />
+              </motion.div>
+              <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent font-bold">
+                Today's Top Priority
+              </span>
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                <Badge className="bg-red-500 text-white animate-pulse">URGENT</Badge>
+              </motion.div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white/80 p-4 rounded-lg border border-violet-200">
+                <h3 className="font-semibold text-violet-800 mb-2">Focus Area</h3>
+                <p className="text-sm text-gray-700">Organic Chemistry - Reaction Mechanisms</p>
+                <div className="mt-2">
+                  <Progress value={65} className="h-2" />
+                  <p className="text-xs text-gray-600 mt-1">65% complete</p>
+                </div>
+              </div>
+              <div className="bg-white/80 p-4 rounded-lg border border-violet-200">
+                <h3 className="font-semibold text-violet-800 mb-2">Practice Target</h3>
+                <p className="text-sm text-gray-700">50 MCQs + 2 Mock Tests</p>
+                <div className="mt-2">
+                  <Progress value={30} className="h-2" />
+                  <p className="text-xs text-gray-600 mt-1">15/50 MCQs done</p>
+                </div>
+              </div>
+              <div className="bg-white/80 p-4 rounded-lg border border-violet-200">
+                <h3 className="font-semibold text-violet-800 mb-2">Time Goal</h3>
+                <p className="text-sm text-gray-700">4 hours focused study</p>
+                <div className="mt-2">
+                  <Progress value={45} className="h-2" />
+                  <p className="text-xs text-gray-600 mt-1">1.8/4 hours completed</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
-      {/* Main Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Column - Main Content */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* User Profile & Subscription Card */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* NEET Study Plan Section with Premium Animation */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
+            className="relative"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Card className="premium-card">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                      {userProfile.avatar ? (
-                        <img 
-                          src={userProfile.avatar} 
-                          alt={userProfile.name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <User className="h-8 w-8 text-white" />
-                      )}
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold">{userProfile.name}</h2>
-                      <p className="text-gray-600">NEET 2026 Aspirant</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Crown className="h-5 w-5 text-yellow-500" />
-                      <span className="font-semibold">{subscriptionData.plan} Plan</span>
-                    </div>
-                    <p className="text-sm text-gray-600">Expires: {subscriptionData.expiryDate}</p>
-                    <Button 
-                      onClick={() => navigate('/subscription')}
-                      size="sm" 
-                      className="mt-2"
-                    >
-                      Upgrade Plan
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+            {/* Animated Border */}
+            <div className="absolute inset-0 rounded-lg">
+              <div className="absolute inset-0 rounded-lg border-2 border-gradient-to-r from-orange-500 via-red-500 to-pink-500 animate-pulse opacity-60"></div>
+              <div className="absolute inset-0 rounded-lg border-2 border-dotted border-orange-400" style={{ animationDelay: '1s', animation: 'pulse 2s infinite' }}></div>
+            </div>
+            
+            {/* Blinking Arrow */}
+            <motion.div
+              className="absolute -left-8 top-1/2 transform -translate-y-1/2"
+              animate={{ 
+                x: [0, 10, 0],
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{ 
+                duration: 1.8, 
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.3
+              }}
+            >
+              <ChevronRight className="h-6 w-6 text-orange-500" />
+            </motion.div>
 
-          {/* Exam Readiness Score */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-6 w-6 text-blue-600" />
-                  Exam Readiness Score - NEET 2026
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-3xl font-bold text-blue-600">78%</div>
-                    <div className="text-sm text-gray-600">Overall Readiness</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">720</div>
-                    <div className="text-sm text-gray-600">Predicted Score</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <div className="text-2xl font-bold text-purple-600">85%</div>
-                    <div className="text-sm text-gray-600">Recall Mastery</div>
-                  </div>
-                  <div className="text-center p-4 bg-orange-50 rounded-lg">
-                    <div className="text-2xl font-bold text-orange-600">682</div>
-                    <div className="text-sm text-gray-600">Avg Exam Score</div>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span>Physics</span>
-                    <div className="flex items-center gap-2">
-                      <Progress value={72} className="w-24" />
-                      <span className="text-sm">72%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Chemistry</span>
-                    <div className="flex items-center gap-2">
-                      <Progress value={84} className="w-24" />
-                      <span className="text-sm">84%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Biology</span>
-                    <div className="flex items-center gap-2">
-                      <Progress value={78} className="w-24" />
-                      <span className="text-sm">78%</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Today's Top Priority */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-6 w-6 text-yellow-500" />
-                  Today's Top Priority
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
-                    <div>
-                      <div className="font-semibold">Organic Chemistry - Alcohols & Ethers</div>
-                      <div className="text-sm text-gray-600">Complete concept understanding and practice</div>
-                    </div>
-                    <Button 
-                      onClick={() => navigate('/dashboard/student/concepts/alcohols-ethers')}
-                      size="sm"
-                    >
-                      Start Now
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-                    <div>
-                      <div className="font-semibold">Physics - Thermodynamics Laws</div>
-                      <div className="text-sm text-gray-600">Review and solve practice problems</div>
-                    </div>
-                    <Button 
-                      onClick={() => navigate('/dashboard/student/concepts/thermodynamics')}
-                      variant="outline" 
-                      size="sm"
-                    >
-                      Review
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Today's NEET Study Plan */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-6 w-6 text-blue-600" />
-                  Today's NEET Study Plan
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold">Morning Session (9:00 AM - 12:00 PM)</div>
-                      <div className="text-sm text-gray-600">Physics - Mechanics & Thermodynamics</div>
-                    </div>
-                    <Badge variant="secondary">3 hours</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold">Afternoon Session (2:00 PM - 5:00 PM)</div>
-                      <div className="text-sm text-gray-600">Chemistry - Organic Chemistry</div>
-                    </div>
-                    <Badge variant="secondary">3 hours</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold">Evening Session (7:00 PM - 9:00 PM)</div>
-                      <div className="text-sm text-gray-600">Biology - Genetics & Evolution</div>
-                    </div>
-                    <Badge variant="secondary">2 hours</Badge>
-                  </div>
-                  <Button 
-                    onClick={() => navigate('/dashboard/student/today')}
-                    className="w-full mt-4"
+            <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 relative z-10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xl flex items-center gap-3">
+                  <motion.div
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      rotate: { duration: 3, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 2, repeat: Infinity }
+                    }}
+                    className="p-2 bg-orange-100 rounded-full"
                   >
-                    View Full Plan
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Daily Smart Suggestions */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="h-6 w-6 text-yellow-500" />
-                  Daily Smart Suggestions
+                    <BookOpen className="h-6 w-6 text-orange-600" />
+                  </motion.div>
+                  <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent font-bold">
+                    Today's NEET Study Plan
+                  </span>
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.3, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <Badge className="bg-green-500 text-white">ON TRACK</Badge>
+                  </motion.div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="morning" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="morning">Morning</TabsTrigger>
-                    <TabsTrigger value="afternoon">Afternoon</TabsTrigger>
-                    <TabsTrigger value="evening">Evening</TabsTrigger>
-                    <TabsTrigger value="night">Night</TabsTrigger>
-                  </TabsList>
-                  {Object.entries(dailySmartSuggestions).map(([time, data]) => (
-                    <TabsContent key={time} value={time} className="space-y-3">
-                      <h4 className="font-semibold text-lg">{data.title}</h4>
-                      {data.suggestions.map((suggestion, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="text-sm">{suggestion}</span>
-                          <Button size="sm" variant="outline">
-                            <Play className="h-4 w-4 mr-1" />
-                            Start
-                          </Button>
-                        </div>
-                      ))}
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Advanced Concept Mastery Techniques */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-6 w-6 text-purple-600" />
-                  Advanced Concept Mastery Techniques for NEET 2026
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Visual Learning</h4>
-                    <p className="text-sm text-gray-600 mb-3">Organic Chemistry - Alcohols</p>
-                    <Button 
-                      onClick={() => navigate('/dashboard/student/concepts/alcohols-ethers')}
-                      size="sm" 
-                      variant="outline" 
-                      className="w-full"
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  {subjectData.map((subject, index) => (
+                    <motion.div
+                      key={subject.subject}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-white/90 p-4 rounded-lg border border-orange-200 hover:shadow-md transition-shadow"
                     >
-                      Explore Concept
-                    </Button>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Interactive Flashcards</h4>
-                    <p className="text-sm text-gray-600 mb-3">Physics - Thermodynamics</p>
-                    <Button 
-                      onClick={() => navigate('/dashboard/student/flashcards')}
-                      size="sm" 
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      Start Flashcards
-                    </Button>
-                  </div>
-                  <div className="p-4 bg-purple-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Formula Practice</h4>
-                    <p className="text-sm text-gray-600 mb-3">Biology - Genetics</p>
-                    <Button 
-                      onClick={() => navigate('/dashboard/student/concepts/genetics?tab=formula')}
-                      size="sm" 
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      Practice Formulas
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Weak Areas */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-6 w-6 text-red-500" />
-                  Weak Areas - Focus & Improve
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {weakAreas.map((area, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                      <div>
-                        <div className="font-semibold">{area.subject} - {area.concept}</div>
-                        <div className="text-sm text-gray-600">+{area.improvement}% improvement needed</div>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-gray-800">{subject.subject}</h3>
+                        <Badge variant="outline" className="text-xs">
+                          {subject.percentage}%
+                        </Badge>
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => navigate(`/dashboard/student/concepts/${area.concept.toLowerCase().replace(/\s+/g, '-')}`)}
-                          size="sm" 
-                          variant="outline"
-                        >
-                          Study Concept
-                        </Button>
-                        <Button 
-                          onClick={() => navigate('/dashboard/student/flashcards')}
-                          size="sm"
-                        >
-                          Practice Recall
-                        </Button>
+                      <div className="space-y-2">
+                        <Progress value={subject.percentage} className="h-2" />
+                        <p className="text-xs text-gray-600">
+                          {subject.completed}/{subject.total} concepts completed
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                
+                <div className="bg-white/80 p-4 rounded-lg border border-orange-200">
+                  <h3 className="font-semibold text-orange-800 mb-3">Today's Schedule</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span>9:00-10:30 AM: Physics - Mechanics ✓</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Clock className="h-4 w-4 text-blue-500" />
+                        <span>11:00-12:30 PM: Chemistry - Organic (Current)</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <AlertTriangle className="h-4 w-4 text-orange-500" />
+                        <span>2:00-3:30 PM: Biology - Genetics</span>
                       </div>
                     </div>
-                  ))}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <AlertTriangle className="h-4 w-4 text-orange-500" />
+                        <span>4:00-5:00 PM: Mock Test Practice</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <AlertTriangle className="h-4 w-4 text-orange-500" />
+                        <span>6:00-7:00 PM: Revision & Flashcards</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <AlertTriangle className="h-4 w-4 text-orange-500" />
+                        <span>8:00-9:00 PM: Doubt Clearing</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Strong Areas */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-6 w-6 text-green-500" />
-                  Strong Areas - Maintain Excellence
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {strongAreas.map((area, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                      <div>
-                        <div className="font-semibold">{area.subject} - {area.concept}</div>
-                        <div className="text-sm text-gray-600">{area.mastery}% mastery achieved</div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => navigate(`/dashboard/student/concepts/${area.concept.toLowerCase().replace(/\s+/g, '-')}`)}
-                          size="sm" 
-                          variant="outline"
-                        >
-                          Review
-                        </Button>
-                        <Button 
-                          onClick={() => navigate('/dashboard/student/practice-exam')}
-                          size="sm"
-                        >
-                          Take Test
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-yellow-500" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Button variant="outline" className="h-16 flex flex-col gap-1">
+                  <BookOpen className="h-5 w-5" />
+                  <span className="text-xs">Study Concepts</span>
+                </Button>
+                <Button variant="outline" className="h-16 flex flex-col gap-1">
+                  <Target className="h-5 w-5" />
+                  <span className="text-xs">Practice Test</span>
+                </Button>
+                <Button variant="outline" className="h-16 flex flex-col gap-1">
+                  <Star className="h-5 w-5" />
+                  <span className="text-xs">Flashcards</span>
+                </Button>
+                <Button variant="outline" className="h-16 flex flex-col gap-1">
+                  <TrendingUp className="h-5 w-5" />
+                  <span className="text-xs">Analytics</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Performance Overview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-500" />
+                Performance Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{performance.accuracy}%</div>
+                  <div className="text-sm text-blue-600">Accuracy</div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{performance.quizScores}</div>
+                  <div className="text-sm text-green-600">Avg Score</div>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{performance.conceptProgress}%</div>
+                  <div className="text-sm text-purple-600">Concepts</div>
+                </div>
+                <div className="text-center p-4 bg-orange-50 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">{performance.streak}</div>
+                  <div className="text-sm text-orange-600">Day Streak</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Right Column - AI Assistant & Tools */}
-        <div className="lg:col-span-4 space-y-6">
+        {/* Right Column - Sidebar */}
+        <div className="space-y-6">
           {/* NEET Strategy Card */}
           <NEETStrategyCard />
-          
-          {/* AI Coach Suggestions */}
+
+          {/* Dynamic Smart Suggestions */}
           <motion.div
+            key={timeBasedData.period}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ duration: 0.5 }}
           >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bot className="h-5 w-5 text-blue-600" />
-                  AI Coach
+            <Card className={`bg-gradient-to-br ${timeBasedData.color} ${timeBasedData.borderColor} border-2`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  {timeBasedData.icon}
+                  {timeBasedData.period} Suggestions
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm">Focus on Organic Chemistry today. Your performance has improved 15% this week!</p>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm">Schedule a biology revision session. Genetics needs attention.</p>
-                </div>
-                <Button 
-                  onClick={() => setAiChatOpen(true)}
-                  className="w-full"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Chat with AI Coach
-                </Button>
+                {timeBasedData.suggestions.map((suggestion, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-3 bg-white/80 rounded-lg border border-white/50 text-sm"
+                  >
+                    {suggestion}
+                  </motion.div>
+                ))}
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* NEET Specific AI Tutor */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                  NEET AI Tutor
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Audio Mode</span>
-                  <Button
-                    onClick={() => setAudioEnabled(!audioEnabled)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  <Button 
-                    onClick={() => handleAiChat("Let's focus on your weak areas in Organic Chemistry today")}
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full text-left justify-start"
-                  >
-                    Organic Chemistry Help
-                  </Button>
-                  <Button 
-                    onClick={() => handleAiChat("I'll help you with Physics problem-solving techniques")}
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full text-left justify-start"
-                  >
-                    Physics Problem Solving
-                  </Button>
-                  <Button 
-                    onClick={() => handleAiChat("Let's review Biology concepts for better retention")}
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full text-left justify-start"
-                  >
-                    Biology Concept Review
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          {/* Smart Suggestions Center */}
+          <SmartSuggestionsCenter performance={performance} />
 
-          {/* Enhanced Mood-Based Learning */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-red-500" />
-                  Mood-Based Learning
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="text-center">
-                  <div className="text-2xl mb-2">😤</div>
-                  <div className="font-semibold">Current: {selectedMood}</div>
-                  <div className="text-sm text-gray-600">Optimized for focus</div>
-                </div>
-                <Button 
-                  onClick={() => setShowMoodSelector(true)}
-                  variant="outline" 
-                  className="w-full"
-                >
-                  Change Mood
-                </Button>
-                <div className="text-sm text-gray-600">
-                  <div>📚 Tasks: 8 (adjusted for mood)</div>
-                  <div>⏱️ Sessions: 4 focused blocks</div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          {/* Upcoming Events */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-blue-500" />
+                Upcoming
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="font-medium text-sm">Mock Test</div>
+                <div className="text-xs text-gray-600">Tomorrow, 2:00 PM</div>
+              </div>
+              <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                <div className="font-medium text-sm">Chemistry Revision</div>
+                <div className="text-xs text-gray-600">Friday, 4:00 PM</div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
-
-      {/* Subject-Wise Breakdown Section - Bottom of page */}
-      <div className="mb-8">
-        <SubjectBreakdownSection />
-      </div>
-
-      {/* Mood Selection Dialog */}
-      <Dialog open={showMoodSelector} onOpenChange={setShowMoodSelector}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>How are you feeling today?</DialogTitle>
-          </DialogHeader>
-          <MoodSelector
-            currentMood={selectedMood}
-            onMoodSelect={handleMoodChange}
-            className="grid grid-cols-2 gap-3"
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* AI Chat Dialog */}
-      <Dialog open={aiChatOpen} onOpenChange={setAiChatOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5" />
-              NEET AI Tutor Chat
-              <Button
-                onClick={() => setAudioEnabled(!audioEnabled)}
-                variant="outline"
-                size="sm"
-                className="ml-auto"
-              >
-                {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-              </Button>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="h-64 bg-gray-50 rounded-lg p-4 overflow-y-auto">
-              <div className="space-y-3">
-                <div className="bg-blue-100 p-3 rounded-lg">
-                  <p className="text-sm">Hi! I'm your NEET AI Tutor. I can help you with Physics, Chemistry, and Biology concepts. What would you like to study today?</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Textarea
-                placeholder="Ask me about any NEET topic..."
-                value={chatMessage}
-                onChange={(e) => setChatMessage(e.target.value)}
-                className="flex-1"
-                rows={2}
-              />
-              <div className="flex flex-col gap-2">
-                <Button size="sm">
-                  Send
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Mic className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <style jsx>{`
-        .premium-card {
-          background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
-          border: 2px solid transparent;
-          background-clip: padding-box;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-          position: relative;
-        }
-        
-        .premium-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          border-radius: inherit;
-          padding: 2px;
-          background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
-          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          mask-composite: subtract;
-          z-index: -1;
-        }
-
-        .mood-stressed {
-          --primary: 239 68 68;
-          --primary-foreground: 255 255 255;
-        }
-
-        .mood-motivated {
-          --primary: 34 197 94;
-          --primary-foreground: 255 255 255;
-        }
-
-        .mood-focused {
-          --primary: 59 130 246;
-          --primary-foreground: 255 255 255;
-        }
-      `}</style>
     </div>
   );
 };
