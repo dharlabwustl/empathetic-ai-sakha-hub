@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -17,11 +18,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
-import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
+import IntelligentHomepageAssistant from '@/components/voice/IntelligentHomepageAssistant';
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
 
 const Index = () => {
@@ -35,15 +33,6 @@ const Index = () => {
   
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
-  };
-  
-  const handleNavigationCommand = (route: string) => {
-    navigate(route);
-  };
-
-  const handleSpeechCommand = (command: string) => {
-    console.log('Speech command received:', command);
-    // Commands are processed within the SpeechRecognitionButton component
   };
 
   // Listen for events
@@ -65,7 +54,7 @@ const Index = () => {
         <Header />
         
         <main>
-          {/* Enhanced 3D hero section with voice interaction */}
+          {/* Enhanced 3D hero section */}
           <HeroSection onAnalyzeClick={handleOpenExamAnalyzer} />
           
           {/* Smart Data section with animation and KPI stats */}
@@ -116,20 +105,13 @@ const Index = () => {
         
         <Footer />
         
-        {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
-        <EnhancedHomepageAssistant 
+        {/* Intelligent Homepage Voice Assistant */}
+        <IntelligentHomepageAssistant 
           language="en-US"
           onSpeakingChange={setIsSpeaking}
         />
-        
-        {/* Speech Recognition Button - positioned above voice assistant */}
-        <SpeechRecognitionButton
-          position="homepage"
-          onCommand={handleSpeechCommand}
-          className="fixed bottom-24 right-6 z-50"
-        />
 
-        {/* Enhanced Floating Voice Button with vibrant animations */}
+        {/* Enhanced Floating Voice Button */}
         <div className="fixed bottom-6 right-6 z-40">
           <FloatingVoiceButton 
             isSpeaking={isSpeaking}
