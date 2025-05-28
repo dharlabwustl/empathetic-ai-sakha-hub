@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar, PlayCircle } from "lucide-react";
 import BackButton from '@/components/dashboard/student/BackButton';
 
 const exams = [
@@ -91,15 +91,15 @@ const PracticeExamsView: React.FC = () => {
   };
   
   const handleStartExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+    navigate(`/dashboard/student/exam/${examId}/start`);
   };
   
   const handleReviewExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/review`);
+    navigate(`/dashboard/student/exam/${examId}/results`);
   };
   
   const handleContinueExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+    navigate(`/dashboard/student/exam/${examId}/start`);
   };
   
   const getDifficultyColor = (difficulty: string) => {
@@ -305,7 +305,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam, onStart, onReview, onContinue
             className="w-full bg-indigo-600 hover:bg-indigo-700" 
             onClick={() => onStart(exam.id)}
           >
-            <FileText className="mr-2 h-4 w-4" />
+            <PlayCircle className="mr-2 h-4 w-4" />
             Start Exam
           </Button>
         )}
