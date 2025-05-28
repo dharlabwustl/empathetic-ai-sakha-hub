@@ -18,16 +18,17 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
+import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
+import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
+import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
-import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
-import UltraFastSpeechRecognition from '@/components/voice/UltraFastSpeechRecognition';
-import IntelligentHomepageAssistant from '@/components/voice/IntelligentHomepageAssistant';
+import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
+import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceAnimations';
 
 const Index = () => {
   const navigate = useNavigate();
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -36,16 +37,14 @@ const Index = () => {
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
   };
-
-  const handleSpeechCommand = (command: string) => {
-    console.log('Homepage speech command received:', command);
+  
+  const handleNavigationCommand = (route: string) => {
+    navigate(route);
   };
 
-  const handleStopSpeaking = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
+  const handleSpeechCommand = (command: string) => {
+    console.log('Speech command received:', command);
+    // Commands are processed within the SpeechRecognitionButton component
   };
 
   // Listen for events
@@ -67,7 +66,7 @@ const Index = () => {
         <Header />
         
         <main>
-          {/* Enhanced 3D hero section */}
+          {/* Enhanced 3D hero section with voice interaction */}
           <HeroSection onAnalyzeClick={handleOpenExamAnalyzer} />
           
           {/* Smart Data section with animation and KPI stats */}
@@ -118,29 +117,23 @@ const Index = () => {
         
         <Footer />
         
-        {/* Ultra-fast Speech Recognition with manual activation */}
-        <UltraFastSpeechRecognition
-          onCommand={handleSpeechCommand}
-          onListeningChange={setIsListening}
-          onStopSpeaking={handleStopSpeaking}
-          language="en-US"
-          continuous={false}
-          enabled={true}
-          manualActivation={true}
-        />
-        
-        {/* Intelligent Homepage Voice Assistant */}
-        <IntelligentHomepageAssistant 
+        {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
+        <EnhancedHomepageAssistant 
           language="en-US"
           onSpeakingChange={setIsSpeaking}
-          isMicrophoneActive={isListening}
+        />
+        
+        {/* Speech Recognition Button - positioned above voice assistant */}
+        <SpeechRecognitionButton
+          position="homepage"
+          onCommand={handleSpeechCommand}
+          className="fixed bottom-24 right-6 z-50"
         />
 
-        {/* Enhanced Floating Voice Button with microphone functionality */}
+        {/* Enhanced Floating Voice Button with vibrant animations */}
         <div className="fixed bottom-6 right-6 z-40">
           <FloatingVoiceButton 
             isSpeaking={isSpeaking}
-            isListening={isListening}
             className="cursor-pointer"
           />
         </div>

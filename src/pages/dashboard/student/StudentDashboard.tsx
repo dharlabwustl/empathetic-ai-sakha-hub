@@ -7,15 +7,13 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
-import UltraFastSpeechRecognition from '@/components/voice/UltraFastSpeechRecognition';
-import IntelligentDashboardAssistant from '@/components/voice/IntelligentDashboardAssistant';
+import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
+import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
+import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -45,7 +43,7 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Force disable welcome tour completely
+  // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
 
   useEffect(() => {
@@ -71,10 +69,11 @@ const StudentDashboard = () => {
 
     // Ensure profile image is available
     if (userProfile && userProfile.avatar) {
+      // Store the profile image in localStorage for persistence across sessions
       localStorage.setItem('user_profile_image', userProfile.avatar);
     }
   }, [location, userProfile]);
-
+  
   const handleSplashComplete = () => {
     setShowSplash(false);
     sessionStorage.setItem("hasSeenSplash", "true");
@@ -114,54 +113,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleSpeechCommand = (command: string) => {
-    console.log('🎤 Dashboard speech command received:', command);
-    
-    // Enhanced command processing with immediate feedback
-    const lowerCommand = command.toLowerCase().trim();
-    
-    // Navigation commands
-    if (lowerCommand.includes('concept') || lowerCommand.includes('learn')) {
-      navigate('/dashboard/student/concepts');
-      return;
-    }
-    
-    if (lowerCommand.includes('flashcard')) {
-      navigate('/dashboard/student/flashcards');
-      return;
-    }
-    
-    if (lowerCommand.includes('practice') || lowerCommand.includes('exam') || lowerCommand.includes('test')) {
-      navigate('/dashboard/student/practice-exam');
-      return;
-    }
-    
-    if (lowerCommand.includes('profile') || lowerCommand.includes('setting')) {
-      navigate('/dashboard/student/profile');
-      return;
-    }
-    
-    // Study assistance commands
-    if (lowerCommand.includes('progress')) {
-      // Show progress feedback
-      return;
-    }
-    
-    console.log('🎤 Command processed:', command);
-  };
-
-  const handleStopSpeaking = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-  };
-
-  const handleListeningChange = (listening: boolean) => {
-    console.log('🎤 Listening state changed:', listening);
-    setIsListening(listening);
-  };
-
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -199,13 +150,14 @@ const StudentDashboard = () => {
   // Mock user progress data for voice assistant
   const userProgressData = {
     overallProgress: 68,
-    studyStreak: 5,
-    lastActivity: 'completed Physics concepts',
+    physicsProgress: 56,
+    chemistryProgress: 69,
+    biologyProgress: 72,
     examReadinessScore: 78
   };
 
-  // Check if user is first time
-  const isFirstTimeUser = !userProfile.loginCount || userProfile.loginCount <= 1;
+  const studyStreak = 5;
+  const lastActivity = 'completed Physics concepts';
 
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
@@ -237,35 +189,23 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Ultra-fast Speech Recognition for Dashboard with immediate response */}
-      <UltraFastSpeechRecognition
-        onCommand={handleSpeechCommand}
-        onListeningChange={handleListeningChange}
-        onStopSpeaking={handleStopSpeaking}
-        language="en-US"
-        continuous={false}
-        enabled={true}
-        manualActivation={true}
-      />
-      
-      {/* Intelligent Dashboard Voice Assistant */}
-      <IntelligentDashboardAssistant
+      {/* Enhanced Dashboard Voice Assistant with user progress context */}
+      <DashboardVoiceAssistant
         userName={userProfile.name}
-        language="en-US"
-        isFirstTimeUser={isFirstTimeUser}
+        language="en-IN"
+        userMood={currentMood}
         userProgress={userProgressData}
-        onSpeakingChange={setIsSpeaking}
-        isMicrophoneActive={isListening}
+        studyStreak={studyStreak}
+        lastActivity={lastActivity}
       />
 
-      {/* Enhanced floating voice assistant button with immediate response */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <FloatingVoiceButton 
-          isSpeaking={isSpeaking}
-          isListening={isListening}
-          className="cursor-pointer"
-        />
-      </div>
+      {/* Interactive Voice Assistant with enhanced navigation */}
+      <InteractiveVoiceAssistant 
+        userName={userProfile.name}
+        language="en-US"
+        onNavigationCommand={(route) => navigate(route)}
+        position="bottom-right"
+      />
     </>
   );
 };

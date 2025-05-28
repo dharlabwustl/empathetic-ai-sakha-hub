@@ -17,7 +17,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import DashboardVoiceGreeting from "@/components/voice/DashboardVoiceGreeting";
 import SignupVoiceAssistant from "@/components/voice/SignupVoiceAssistant";
 import { FloatingVoiceButton as EnhancedFloatingVoiceButton } from "@/components/voice/EnhancedVoiceAnimations";
-import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -293,7 +292,7 @@ const StudentDashboard = () => {
 
       {/* Enhanced floating voice assistant button with vibrant animations */}
       <div className="fixed bottom-6 right-6 z-40">
-        <FloatingVoiceButton 
+        <EnhancedFloatingVoiceButton 
           isSpeaking={isSpeaking}
           className="cursor-pointer"
         />
