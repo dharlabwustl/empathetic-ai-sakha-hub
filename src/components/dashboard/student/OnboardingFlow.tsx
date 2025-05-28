@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, Brain, Target, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, FileText, Calendar, Clock, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { UserProfileBase } from '@/types/user/base';
@@ -20,57 +21,137 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userProfile, goalTitle,
   
   const steps = [
     {
-      title: "Welcome to Your AI-Powered Dashboard!",
-      description: "Your personalized learning experience is ready",
-      icon: <Brain className="h-8 w-8 text-primary" />,
+      title: "Welcome to Prepzr!",
+      description: "Let's set up your personalized study plan",
       content: (
-        <div className="space-y-4 py-4">
-          <div className="text-center mb-6">
-            <PrepzrLogo width={60} className="mx-auto mb-4" />
-            <h2 className="text-xl font-bold">Welcome, {userProfile.name}!</h2>
+        <div className="space-y-6 py-4">
+          <div className="text-center mb-8">
+            <PrepzrLogo width={80} className="mx-auto mb-4" />
+            <h2 className="text-2xl font-bold">Welcome, {userProfile.name}!</h2>
             <p className="text-muted-foreground mt-2">
-              Your AI has analyzed your profile and created a personalized {goalTitle} preparation experience
+              We're excited to help you prepare for {goalTitle}
             </p>
           </div>
           
-          <div className="bg-primary/5 p-4 rounded-lg">
-            <div className="flex items-center gap-3 mb-3">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <h3 className="font-medium">What's Personalized for You:</h3>
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">Personalized Study Plan</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get a day-by-day study schedule tailored to your needs
+                </p>
+              </div>
             </div>
-            <ul className="space-y-2 text-sm">
-              <li>• Smart widgets based on your learning style</li>
-              <li>• Time-adaptive study recommendations</li>
-              <li>• Mood-responsive interface adjustments</li>
-              <li>• AI-driven content curation for {goalTitle}</li>
-            </ul>
+            
+            <div className="flex items-center">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">Concept Cards & Flashcards</h3>
+                <p className="text-sm text-muted-foreground">
+                  Master key concepts with our bite-sized learning modules
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                <Star className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">Progress Tracking</h3>
+                <p className="text-sm text-muted-foreground">
+                  Monitor your improvement and stay motivated
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )
     },
     {
-      title: "Your Dashboard Learns & Adapts",
-      description: "Experience intelligent personalization in action",
-      icon: <Target className="h-8 w-8 text-primary" />,
+      title: "Your Learning Style",
+      description: "Help us understand your preferences",
       content: (
-        <div className="space-y-4 py-4">
-          <div className="grid grid-cols-1 gap-4">
-            <div className="border rounded-lg p-3">
-              <h3 className="font-medium text-sm mb-1">Performance-Based Adaptation</h3>
-              <p className="text-xs text-muted-foreground">Dashboard prioritizes weak areas automatically</p>
+        <div className="space-y-6 py-4">
+          <div className="space-y-4">
+            <div className="bg-primary/5 p-4 rounded-lg">
+              <h3 className="font-medium mb-2">Based on your onboarding responses:</h3>
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>You're a <strong>visual-kinesthetic learner</strong></span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>Best study time: <strong>Morning to Afternoon</strong></span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>Optimal focus duration: <strong>30-45 minute sessions</strong></span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>Recommended break: <strong>10 minute breaks</strong></span>
+                </li>
+              </ul>
             </div>
-            <div className="border rounded-lg p-3">
-              <h3 className="font-medium text-sm mb-1">Time-Smart Suggestions</h3>
-              <p className="text-xs text-muted-foreground">Content changes based on your optimal study hours</p>
+            
+            <p className="text-sm text-muted-foreground">
+              Your study plan will be tailored to these preferences. You can always adjust these settings later in your profile.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Your Study Plan is Ready!",
+      description: "Let's get started with your preparation",
+      content: (
+        <div className="space-y-6 py-4">
+          <div className="text-center mb-6">
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Clock className="h-8 w-8 text-primary" />
             </div>
-            <div className="border rounded-lg p-3">
-              <h3 className="font-medium text-sm mb-1">Mood-Responsive Interface</h3>
-              <p className="text-xs text-muted-foreground">UI adapts to your emotional state for better focus</p>
-            </div>
+            <h2 className="text-xl font-bold mt-4">Your Study Plan is Ready!</h2>
+            <p className="text-muted-foreground mt-2">
+              We've created a personalized learning path for {goalTitle}
+            </p>
           </div>
           
-          <div className="text-center text-sm text-muted-foreground">
-            Ready to experience your personalized learning journey?
+          <div className="space-y-4">
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium mb-2">Today's Focus Areas:</h3>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center justify-between">
+                  <span>Physics: Newton's Laws</span>
+                  <span className="text-muted-foreground">45 min</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>Chemistry: Periodic Table</span>
+                  <span className="text-muted-foreground">30 min</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>Mathematics: Calculus</span>
+                  <span className="text-muted-foreground">40 min</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex items-center justify-between text-sm">
+              <span>Estimated study time today:</span>
+              <span className="font-medium">2 hours 15 minutes</span>
+            </div>
+            
+            <Separator />
+            
+            <p className="text-sm text-center">
+              Ready to start your learning journey?
+            </p>
           </div>
         </div>
       )
@@ -82,10 +163,12 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userProfile, goalTitle,
       setStep(step + 1);
     } else {
       setLoading(true);
+      
+      // Simulate loading and then complete onboarding
       setTimeout(() => {
         setLoading(false);
         onComplete();
-      }, 1000);
+      }, 1500);
     }
   };
   
@@ -100,11 +183,8 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userProfile, goalTitle,
         className="w-full max-w-md"
       >
         <Card className="border-0 shadow-lg">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4">
-              {steps[step].icon}
-            </div>
-            <CardTitle className="text-lg">{steps[step].title}</CardTitle>
+          <CardHeader>
+            <CardTitle>{steps[step].title}</CardTitle>
             <CardDescription>{steps[step].description}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -119,7 +199,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userProfile, goalTitle,
               {loading ? (
                 <>
                   <span className="animate-spin mr-2">⏳</span>
-                  Launching your dashboard...
+                  Setting up your dashboard...
                 </>
               ) : step < steps.length - 1 ? (
                 <>
@@ -128,7 +208,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userProfile, goalTitle,
                 </>
               ) : (
                 <>
-                  Enter Your Personalized Dashboard
+                  Go to Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
