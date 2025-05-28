@@ -1,22 +1,25 @@
-
 import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEnhancedVoiceAssistant } from '@/hooks/useEnhancedVoiceAssistant';
 
 interface HomepageVoiceAssistantProps {
   onSpeakingChange?: (isSpeaking: boolean) => void;
+  onListeningChange?: (isListening: boolean) => void;
+  onStopSpeaking?: () => void;
 }
 
 const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
-  onSpeakingChange
+  onSpeakingChange,
+  onListeningChange,
+  onStopSpeaking
 }) => {
   const navigate = useNavigate();
   
   const processHomepageCommand = useCallback((command: string, confidence: number) => {
     const lowerCommand = command.toLowerCase().trim();
     
-    // Only process if confidence is reasonable or command is clear
-    if (confidence < 0.3 && lowerCommand.length < 8) return;
+    // Process commands immediately with lower confidence threshold for faster response
+    if (confidence < 0.2 && lowerCommand.length < 6) return;
 
     // Signup and registration commands
     if (lowerCommand.includes('sign up') || lowerCommand.includes('signup') || 
@@ -104,8 +107,10 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
 
   const {
     isSpeaking,
+    isListening,
     speak,
     startListening,
+    stopSpeaking,
     isSupported
   } = useEnhancedVoiceAssistant({
     context: 'homepage',
@@ -113,12 +118,25 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     reminderInterval: 45
   });
 
-  // Notify parent component about speaking state
+  // Notify parent component about speaking and listening state
   useEffect(() => {
     if (onSpeakingChange) {
       onSpeakingChange(isSpeaking);
     }
   }, [isSpeaking, onSpeakingChange]);
+
+  useEffect(() => {
+    if (onListeningChange) {
+      onListeningChange(isListening);
+    }
+  }, [isListening, onListeningChange]);
+
+  // Expose stop speaking functionality
+  useEffect(() => {
+    if (onStopSpeaking) {
+      onStopSpeaking = stopSpeaking;
+    }
+  }, [stopSpeaking, onStopSpeaking]);
 
   // Auto-start listening when component mounts
   useEffect(() => {

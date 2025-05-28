@@ -27,6 +27,8 @@ const Index = () => {
   const navigate = useNavigate();
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [stopSpeakingHandler, setStopSpeakingHandler] = useState<(() => void) | null>(null);
   
   const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
@@ -39,6 +41,14 @@ const Index = () => {
   const handleSpeechCommand = (command: string) => {
     console.log('Speech command received:', command);
     // Commands are processed within the SpeechRecognitionButton component
+  };
+
+  const handleVoiceButtonClick = () => {
+    // Trigger immediate voice recognition
+    if (!isListening && !isSpeaking) {
+      // Start listening immediately
+      window.dispatchEvent(new CustomEvent('start-voice-recognition'));
+    }
   };
 
   // Listen for events
@@ -114,6 +124,8 @@ const Index = () => {
         {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
         <HomepageVoiceAssistant 
           onSpeakingChange={setIsSpeaking}
+          onListeningChange={setIsListening}
+          onStopSpeaking={(handler) => setStopSpeakingHandler(() => handler)}
         />
         
         {/* Speech Recognition Button - positioned above voice assistant */}
@@ -123,9 +135,12 @@ const Index = () => {
           className="fixed bottom-24 right-6 z-50"
         />
 
-        {/* Enhanced Floating Voice Button with vibrant animations */}
+        {/* Enhanced Floating Voice Button with volume waves and immediate response */}
         <FloatingVoiceButton 
           isSpeaking={isSpeaking}
+          isListening={isListening}
+          onClick={handleVoiceButtonClick}
+          onStopSpeaking={stopSpeakingHandler}
           className="cursor-pointer"
         />
       </div>

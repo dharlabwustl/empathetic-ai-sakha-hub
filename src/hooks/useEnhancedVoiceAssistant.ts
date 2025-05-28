@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -93,7 +92,7 @@ export const useEnhancedVoiceAssistant = ({
     };
   }, []);
 
-  // Initialize speech recognition with robust error handling
+  // Initialize speech recognition with immediate response capability
   const initSpeechRecognition = useCallback(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       console.warn('Speech recognition not supported');
@@ -145,7 +144,7 @@ export const useEnhancedVoiceAssistant = ({
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
           const transcript = result[0].transcript.trim();
-          const confidence = result[0].confidence;
+          const confidence = result[0].confidence || 0.8; // Default confidence if not provided
           
           if (result.isFinal) {
             finalTranscript += transcript;
@@ -154,7 +153,7 @@ export const useEnhancedVoiceAssistant = ({
             setPartialTranscript('');
             setLastInteraction(Date.now());
             
-            // Process command with partial matching
+            // Process command with immediate response
             if (onCommand && finalTranscript) {
               onCommand(finalTranscript, confidence);
             }
@@ -162,9 +161,9 @@ export const useEnhancedVoiceAssistant = ({
             interimTranscript += transcript;
             setPartialTranscript(interimTranscript);
             
-            // Intelligent partial matching for faster responses
-            if (interimTranscript.length > 3 && onCommand) {
-              const partialConfidence = Math.min(confidence * 0.7, 0.8);
+            // Immediate partial matching for faster responses (lower threshold)
+            if (interimTranscript.length > 2 && onCommand) {
+              const partialConfidence = Math.max(confidence * 0.6, 0.3); // Lower threshold for faster response
               onCommand(interimTranscript, partialConfidence);
             }
           }
@@ -217,7 +216,7 @@ export const useEnhancedVoiceAssistant = ({
     return true;
   }, [voiceConfig]);
 
-  // Start listening function
+  // Start listening function with immediate activation
   const startListening = useCallback(() => {
     if (!voiceConfig.enabled || voiceConfig.muted) return false;
 
@@ -227,13 +226,22 @@ export const useEnhancedVoiceAssistant = ({
     }
 
     try {
-      recognitionRef.current?.start();
+      // Stop any ongoing recognition first
+      if (recognitionRef.current && isListening) {
+        recognitionRef.current.stop();
+        // Small delay before starting again
+        setTimeout(() => {
+          recognitionRef.current?.start();
+        }, 100);
+      } else {
+        recognitionRef.current?.start();
+      }
       return true;
     } catch (error) {
       console.error('Error starting speech recognition:', error);
       return false;
     }
-  }, [voiceConfig.enabled, voiceConfig.muted, initSpeechRecognition]);
+  }, [voiceConfig.enabled, voiceConfig.muted, initSpeechRecognition, isListening]);
 
   // Stop listening function
   const stopListening = useCallback(() => {
@@ -258,6 +266,21 @@ export const useEnhancedVoiceAssistant = ({
       setIsSpeaking(false);
     }
   }, []);
+
+  // Listen for immediate voice activation events
+  useEffect(() => {
+    const handleStartVoiceRecognition = () => {
+      if (!isSpeaking) {
+        startListening();
+      }
+    };
+
+    window.addEventListener('start-voice-recognition', handleStartVoiceRecognition);
+    
+    return () => {
+      window.removeEventListener('start-voice-recognition', handleStartVoiceRecognition);
+    };
+  }, [startListening, isSpeaking]);
 
   // Reminder system based on context
   useEffect(() => {
