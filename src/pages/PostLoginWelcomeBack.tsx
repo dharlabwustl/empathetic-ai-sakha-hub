@@ -101,9 +101,18 @@ const PostLoginWelcomeBack = () => {
       title: "Welcome to PREPZR!",
       description: `Your personalized ${dashboardPreferences?.examGoal || 'exam'} preparation dashboard is ready!`,
     });
-    
-    // Navigate to dashboard with adaptive layout
-    navigate('/dashboard/student?personalized=true', { replace: true });
+
+    // Route to weak subject practice if available
+    if (dashboardPreferences?.weakSubjects?.length > 0) {
+      const weakSubject = dashboardPreferences.weakSubjects[0];
+      console.log('Navigating to practice for weak subject:', weakSubject);
+      
+      // Navigate to practice exam for the weak subject
+      navigate(`/dashboard/student/practice-exam?subject=${encodeURIComponent(weakSubject)}&focus=weak&firstSession=true`, { replace: true });
+    } else {
+      // Navigate to dashboard with adaptive layout
+      navigate('/dashboard/student?personalized=true&firstSession=true', { replace: true });
+    }
   };
 
   // Stop any voice announcements when component unmounts
@@ -146,7 +155,7 @@ const PostLoginWelcomeBack = () => {
         return (
           <div className="min-h-screen flex items-center justify-center">
             <div className="animate-pulse text-center">
-              <p className="text-xl">Setting up your personalized dashboard...</p>
+              <p className="text-xl">Setting up your first learning session...</p>
             </div>
           </div>
         );
@@ -172,7 +181,7 @@ const PostLoginWelcomeBack = () => {
               Take Tour
             </Button>
             <Button onClick={confirmSkipTour}>
-              Skip & Continue
+              Skip & Start Learning
             </Button>
           </DialogFooter>
         </DialogContent>

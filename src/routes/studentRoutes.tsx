@@ -74,7 +74,6 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* CRITICAL: INTERACTIVE FLASHCARD ROUTE - MUST BE EXACT MATCH - FIXED TO /1/interactive */}
       <Route path="/flashcards/1/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
