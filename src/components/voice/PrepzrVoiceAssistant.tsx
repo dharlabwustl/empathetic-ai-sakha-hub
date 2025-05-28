@@ -37,18 +37,18 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     switch (context) {
       case 'homepage':
         return {
-          greeting: `${greeting}! I'm PREPZR AI – your smart preparation partner.`,
-          introduction: "PREPZR is built for students like you to master every step of your exam journey – smarter, faster, and more confidently.",
+          greeting: `${greeting}! I'm Prep Zer AI – your smart preparation partner.`,
+          introduction: "Prep Zer is built for students like you to master every step of your exam journey – smarter, faster, and more confidently.",
           suggestions: [
-            "📚 Curious about how PREPZR compares with other platforms or coaching centers? Just ask me.",
-            "🎁 Want to explore a free trial or check your exam readiness with our smart tools? I'm here to help.",
-            "🎓 You might also want to know about scholarships available through PREPZR – I can guide you there."
+            "Curious about how Prep Zer compares with other platforms or coaching centers? Just ask me.",
+            "Want to explore a free trial or check your exam readiness with our smart tools? I'm here to help.",
+            "You might also want to know about scholarships available through Prep Zer – I can guide you there."
           ]
         };
 
       case 'signup':
         return {
-          greeting: "Sign up now to unlock your personalized exam preparation journey with PREPZR.",
+          greeting: "Sign up now to unlock your personalized exam preparation journey with Prep Zer.",
           introduction: "",
           suggestions: []
         };
@@ -56,7 +56,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       case 'welcome':
         return {
           greeting: `Welcome aboard, ${userName}! 🎉`,
-          introduction: "You've just taken the first step toward your success. PREPZR is your personal guide for focused, goal-based exam preparation. Whether it's UPSC, JEE, NEET, or more—PREPZR will walk with you at every step to keep you on track and exam-ready. Let's begin!",
+          introduction: "You've just taken the first step toward your success. Prep Zer is your personal guide for focused, goal-based exam preparation. Whether it's UPSC, JEE, NEET, or more—Prep Zer will walk with you at every step to keep you on track and exam-ready. Let's begin!",
           suggestions: []
         };
 
@@ -82,27 +82,27 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   const getDashboardSuggestions = (timeOfDay: number) => {
     if (timeOfDay < 10) {
       return [
-        "🌅 Ready to start your morning revision?",
-        "📊 Check your study streak and today's goals",
-        "☕ Let's plan your day with smart study blocks"
+        "Ready to start your morning revision?",
+        "Check your study streak and today's goals",
+        "Let's plan your day with smart study blocks"
       ];
     } else if (timeOfDay < 14) {
       return [
-        "⚡ Time for some productive practice sessions",
-        "🎯 Focus on your weak areas with targeted exercises",
-        "📈 Review your progress and adjust your plan"
+        "Time for some productive practice sessions",
+        "Focus on your weak areas with targeted exercises",
+        "Review your progress and adjust your plan"
       ];
     } else if (timeOfDay < 18) {
       return [
-        "🔄 Perfect time for concept revision",
-        "📝 Take a quick practice test",
-        "💡 Review today's learning highlights"
+        "Perfect time for concept revision",
+        "Take a quick practice test",
+        "Review today's learning highlights"
       ];
     } else {
       return [
-        "🌙 Wind down with light revision",
-        "📚 Review flashcards before tomorrow",
-        "✅ Mark today's progress and plan tomorrow"
+        "Wind down with light revision",
+        "Review flashcards before tomorrow",
+        "Mark today's progress and plan tomorrow"
       ];
     }
   };
@@ -117,12 +117,15 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     }, delay);
   };
 
-  const speakWithPause = (messages: string[], basePause: number = 6000) => {
+  const speakWithIntelligentPause = (messages: string[], basePause: number = 8000) => {
     let currentDelay = 1000;
     
     messages.forEach((message, index) => {
       speak(message, currentDelay);
-      currentDelay += message.length * 50 + basePause + (index * 2000); // Intelligent pause based on message length
+      // Intelligent pause based on message length and position
+      const messageLength = message.length;
+      const pauseMultiplier = messageLength > 100 ? 1.5 : 1.0;
+      currentDelay += messageLength * 60 + basePause * pauseMultiplier + (index * 1000);
     });
   };
 
@@ -145,57 +148,58 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     }
 
     if (fullMessages.length > 0) {
-      speakWithPause(fullMessages, 2000);
+      speakWithIntelligentPause(fullMessages, 3000);
       greetingPlayedRef.current.add(contextKey);
       setHasGreeted(true);
 
-      // Start suggestion cycle for homepage
+      // Start suggestion cycle for homepage with intelligent breaks
       if (context === 'homepage' && messages.suggestions.length > 0) {
-        startSuggestionCycle(messages.suggestions);
+        startIntelligentSuggestionCycle(messages.suggestions);
       }
     }
   };
 
-  const startSuggestionCycle = (suggestions: string[]) => {
+  const startIntelligentSuggestionCycle = (suggestions: string[]) => {
     const now = Date.now();
-    if (now - lastSuggestionTimeRef.current < 30000) return; // Prevent rapid suggestions
+    if (now - lastSuggestionTimeRef.current < 45000) return; // Prevent rapid suggestions
 
     let currentIndex = 0;
     const cycleSuggestions = () => {
       if (currentIndex < suggestions.length && !isPaused) {
-        speak(suggestions[currentIndex], 8000);
+        speak(suggestions[currentIndex], 12000);
         currentIndex++;
         lastSuggestionTimeRef.current = Date.now();
 
         if (currentIndex >= suggestions.length) {
-          // After all suggestions, pause and offer help
-          speak("Just let me know when you're ready to explore more.", 15000);
+          // After all suggestions, take intelligent break
+          speak("Just let me know when you're ready to explore more.", 20000);
           setIsPaused(true);
           
-          // Resume after longer pause
+          // Resume after extended pause
           pauseTimeoutRef.current = window.setTimeout(() => {
             setIsPaused(false);
             currentIndex = 0;
             cycleSuggestions();
-          }, 45000);
+          }, 60000); // 1 minute break
         } else {
-          setTimeout(cycleSuggestions, 12000); // Pause between suggestions
+          setTimeout(cycleSuggestions, 18000); // 18 second pause between suggestions
         }
       }
     };
 
-    setTimeout(cycleSuggestions, 5000); // Initial delay before suggestions
+    setTimeout(cycleSuggestions, 8000); // Initial delay before suggestions
   };
 
   const handleVoiceCommand = (transcript: string) => {
     const command = transcript.toLowerCase();
     
     if (command.includes('compare') || command.includes('vs') || command.includes('versus')) {
-      speak("PREPZR stands out with emotionally aware AI that adapts to your mood and learning style, unlike traditional platforms.");
+      speak("Prep Zer stands out with emotionally aware AI that adapts to your mood and learning style, unlike traditional platforms.");
     }
     else if (command.includes('free trial') || command.includes('trial')) {
       speak("Starting your 7-day free trial!");
-      navigate('/signup?trial=true');
+      localStorage.setItem('start_trial', 'true');
+      navigate('/signup');
     }
     else if (command.includes('scholarship') || command.includes('scholarships')) {
       speak("Let me show you our scholarship opportunities!");
@@ -203,7 +207,6 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     }
     else if (command.includes('exam readiness') || command.includes('readiness')) {
       speak("Let's analyze your exam readiness!");
-      // Trigger exam analyzer
       window.dispatchEvent(new Event('open-exam-analyzer'));
     }
     else if (onCommand) {
@@ -230,7 +233,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       if (context === 'homepage') {
         setTimeout(() => {
           recognition.start();
-        }, 8000);
+        }, 10000);
       }
 
       return () => {

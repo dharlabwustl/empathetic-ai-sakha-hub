@@ -43,17 +43,36 @@ const StepHandler = ({
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
       
+      // Check if trial should be activated
+      const shouldStartTrial = localStorage.getItem('start_trial') === 'true';
+      
+      // Calculate trial dates if trial should be started
+      let trialInfo = null;
+      if (shouldStartTrial) {
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setDate(startDate.getDate() + 7);
+        
+        trialInfo = {
+          isTrialActive: true,
+          trialStartDate: startDate.toISOString(),
+          trialEndDate: endDate.toISOString(),
+          trialDaysLeft: 7
+        };
+      }
+      
       // Create a user object with the collected data
       const userData = {
         id: `user_${Date.now()}`,
         name: cleanName,
-        email: `${cleanMobile}@prepzr.com`, // Use consistent email format based on mobile
+        email: `${cleanMobile}@prepzr.com`,
         phoneNumber: cleanMobile,
         role: UserRole.Student,
         ...onboardingData,
         completedOnboarding: true,
         isNewUser: true,
-        sawWelcomeTour: false
+        sawWelcomeTour: false,
+        ...(trialInfo && { trial: trialInfo })
       };
       
       console.log("Registering user:", userData);
@@ -67,6 +86,9 @@ const StepHandler = ({
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('new_user_signup', 'true');
       
+      // Clear trial flag
+      localStorage.removeItem('start_trial');
+      
       // Set flag to show study plan creation dialog after tour
       localStorage.setItem('needs_study_plan_creation', 'true');
       
@@ -74,8 +96,8 @@ const StepHandler = ({
       window.dispatchEvent(new Event('auth-state-changed'));
       
       toast({
-        title: "Welcome to Prepzr!",
-        description: "Let's start your learning journey.",
+        title: "Welcome to PREPZR!",
+        description: shouldStartTrial ? "Your 7-day free trial has started!" : "Let's start your learning journey.",
       });
       
       // Navigate directly to welcome-flow, skipping login
@@ -102,9 +124,8 @@ const StepHandler = ({
         Object.entries(data).forEach(([key, value]) => {
           userMessage += `${key}: ${value.trim()}, `;
         });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        userMessage = userMessage.slice(0, -2);
         
-        // Clean the data by trimming all string values
         const cleanData: Record<string, string> = {};
         Object.entries(data).forEach(([key, value]) => {
           cleanData[key] = value.trim();
@@ -151,23 +172,20 @@ const StepHandler = ({
         const cleanedHabits: Record<string, string> = {};
         
         Object.entries(habits).forEach(([key, value]) => {
-          // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
           cleanedHabits[key] = value.trim();
         });
         
-        // Create a readable message for chat from the habits
         let userMessage = "";
         Object.entries(cleanedHabits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        userMessage = userMessage.slice(0, -2);
         
         setOnboardingData({ ...onboardingData, ...cleanedHabits });
         
-        // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
           ? getSubjectsForGoal(onboardingData.goal)
           : [];
@@ -180,7 +198,6 @@ const StepHandler = ({
         setStep("interests");
       },
       handleInterestsSubmit: (interests: string) => {
-        // Clean and deduplicate interests
         const interestsList = Array.from(new Set(
           interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
         ));
@@ -189,7 +206,7 @@ const StepHandler = ({
         setMessages([
           ...messages,
           { content: interests, isBot: false },
-          { content: "Your personalized Prepzr dashboard is ready. Please sign up to access it.", isBot: true }
+          { content: "Your personalized PREPZR dashboard is ready. Please sign up to access it.", isBot: true }
         ]);
         setStep("signup");
       },

@@ -74,12 +74,12 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Ensure consistent pronunciation of PREPZR as "PREP-ZER" throughout the app
+  // Fixed pronunciation of PREPZR as "Prep Zer" throughout the app
   const processedText = text
-    .replace(/PREPZR/gi, 'PREP-ZER')
-    .replace(/Sakha AI/gi, 'PREP-ZER AI')
-    .replace(/PrepZR/gi, 'PREP-ZER')
-    .replace(/Prepzr/gi, 'PREP-ZER');
+    .replace(/PREPZR/gi, 'Prep Zer')
+    .replace(/Sakha AI/gi, 'Prep Zer AI')
+    .replace(/PrepZR/gi, 'Prep Zer')
+    .replace(/Prepzr/gi, 'Prep Zer');
   
   utterance.text = processedText;
   utterance.lang = finalConfig.language;
