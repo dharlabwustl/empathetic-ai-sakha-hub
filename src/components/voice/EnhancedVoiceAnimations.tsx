@@ -70,12 +70,24 @@ export const VoiceAssistantAvatar: React.FC<EnhancedVoiceAnimationsProps> = ({
         />
       )}
       
-      {/* Avatar image with subtle bounce */}
+      {/* Main AI Circle with dynamic background color */}
       <motion.div
-        className="relative z-10 w-full h-full rounded-full overflow-hidden border-2 border-white shadow-lg"
+        className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
+          isSpeaking 
+            ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500' 
+            : isListening
+            ? 'bg-gradient-to-r from-green-400 to-blue-400'
+            : 'bg-gradient-to-r from-gray-400 to-gray-600'
+        }`}
         animate={isSpeaking ? {
           y: [0, -2, 0, -1, 0],
-          scale: [1, 1.02, 1, 1.01, 1]
+          scale: [1, 1.02, 1, 1.01, 1],
+          background: [
+            'linear-gradient(to right, #8b5cf6, #ec4899, #3b82f6)',
+            'linear-gradient(to right, #ec4899, #3b82f6, #8b5cf6)',
+            'linear-gradient(to right, #3b82f6, #8b5cf6, #ec4899)',
+            'linear-gradient(to right, #8b5cf6, #ec4899, #3b82f6)'
+          ]
         } : {}}
         transition={{
           duration: 0.8,
@@ -83,11 +95,21 @@ export const VoiceAssistantAvatar: React.FC<EnhancedVoiceAnimationsProps> = ({
           ease: "easeInOut"
         }}
       >
-        <img 
-          src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-          alt="PREPZR AI" 
-          className="w-full h-full object-cover"
-        />
+        {/* AI Text */}
+        <motion.span 
+          className={`font-bold text-white ${size < 40 ? 'text-xs' : size < 60 ? 'text-sm' : 'text-base'}`}
+          animate={isSpeaking ? {
+            scale: [1, 1.1, 1, 1.05, 1],
+            color: ['#ffffff', '#f0f8ff', '#ffffff', '#e6f3ff', '#ffffff']
+          } : {}}
+          transition={{
+            duration: 1.2,
+            repeat: isSpeaking ? Infinity : 0,
+            ease: "easeInOut"
+          }}
+        >
+          AI
+        </motion.span>
       </motion.div>
       
       {/* Sound waves */}

@@ -9,7 +9,7 @@ export const createIntelligentBreak = (duration: number = 2000): Promise<void> =
   return new Promise(resolve => setTimeout(resolve, duration));
 };
 
-// Homepage voice messages with intelligent breaks
+// Homepage voice messages with intelligent breaks - shorter and more engaging
 export const homepageWelcomeMessages: VoiceMessage[] = [
   {
     text: "Welcome to PREPZR!",
@@ -17,48 +17,36 @@ export const homepageWelcomeMessages: VoiceMessage[] = [
     emphasis: true
   },
   {
-    text: "I'm your AI companion, here to guide you through the world's first emotionally aware exam preparation platform.",
-    pauseAfter: 2000
-  },
-  {
-    text: "PREPZR isn't just another study app. We use advanced AI to understand your emotions, learning patterns, and adapt in real-time.",
+    text: "I'm your AI companion for the world's first emotionally aware exam preparation platform.",
     pauseAfter: 2500
   },
   {
-    text: "Whether you're preparing for NEET, JEE, or any competitive exam, we create personalized study plans that evolve with you.",
+    text: "PREPZR uses advanced AI to understand your emotions and learning patterns, adapting in real-time.",
     pauseAfter: 2000
   },
   {
-    text: "Our smart features include adaptive flashcards, interactive concept mastery, and real-time exam readiness tracking.",
+    text: "We create personalized study plans for NEET, JEE, and other competitive exams that evolve with you.",
     pauseAfter: 2500
   },
   {
-    text: "Ready to start your free 7-day trial? Just say 'free trial' or click the signup button.",
+    text: "Ready to start your free 7-day trial? You can also test your exam readiness or explore scholarship opportunities.",
     pauseAfter: 2000
   },
   {
-    text: "Want to test your current preparation level? Try our exam readiness analyzer.",
-    pauseAfter: 2000
-  },
-  {
-    text: "Looking for scholarship opportunities? We have special tests to help you get early advantages.",
-    pauseAfter: 2500
-  },
-  {
-    text: "Your journey with PREPZR starts with smart onboarding, then dynamic daily plans that adapt to your progress.",
-    pauseAfter: 2000
-  },
-  {
-    text: "Master concepts through interactive learning, practice recall with spaced repetition, and track your exam readiness daily.",
-    pauseAfter: 1500
-  },
-  {
-    text: "I'm here to help you succeed. What would you like to explore first?",
+    text: "Your journey includes smart onboarding, dynamic daily plans, concept mastery, and exam readiness tracking.",
     pauseAfter: 0
   }
 ];
 
-// Post-signup congratulations
+// Assistance offer messages
+export const assistanceOfferMessages: VoiceMessage[] = [
+  {
+    text: "I'm here to help! You can ask me about PREPZR features, start your free trial, or test your exam readiness.",
+    pauseAfter: 0
+  }
+];
+
+// Post-signup congratulations - shorter and more focused
 export const signupCongratulationMessages = (userName: string): VoiceMessage[] => [
   {
     text: `Congratulations ${userName}! Welcome to the PREPZR family!`,
@@ -66,19 +54,15 @@ export const signupCongratulationMessages = (userName: string): VoiceMessage[] =
     emphasis: true
   },
   {
-    text: "You've just taken the most important step towards exam success.",
+    text: "You've taken the most important step towards exam success.",
     pauseAfter: 1500
   },
   {
-    text: "Your personalized learning journey begins now with smart onboarding to understand your goals and learning style.",
+    text: "Your personalized learning journey begins with smart onboarding to understand your goals.",
     pauseAfter: 2000
   },
   {
-    text: "I'll help you create dynamic study plans, track your mood and progress, and provide daily adaptive recommendations.",
-    pauseAfter: 2500
-  },
-  {
-    text: "Together, we'll master every concept, practice effective recall, and ensure you're exam-ready when it matters most.",
+    text: "I'll help you create dynamic study plans and provide daily adaptive recommendations.",
     pauseAfter: 1500
   },
   {
@@ -87,7 +71,7 @@ export const signupCongratulationMessages = (userName: string): VoiceMessage[] =
   }
 ];
 
-// First-time dashboard user guidance
+// First-time dashboard user guidance - more concise
 export const firstTimeDashboardMessages = (userName: string): VoiceMessage[] => [
   {
     text: `Welcome to your PREPZR dashboard, ${userName}!`,
@@ -103,23 +87,7 @@ export const firstTimeDashboardMessages = (userName: string): VoiceMessage[] => 
     pauseAfter: 2500
   },
   {
-    text: "The overview tab displays your progress across all subjects with smart KPIs and performance trends.",
-    pauseAfter: 2000
-  },
-  {
-    text: "Concept cards help you master individual topics with interactive learning and progress tracking.",
-    pauseAfter: 2500
-  },
-  {
-    text: "Flashcards use spaced repetition to improve your recall and memory retention.",
-    pauseAfter: 2000
-  },
-  {
-    text: "Practice exams simulate real test conditions and provide detailed performance analysis.",
-    pauseAfter: 2500
-  },
-  {
-    text: "Your study plan adapts daily based on your progress, mood, and performance patterns.",
+    text: "Explore concept cards for topic mastery, flashcards for memory retention, and practice exams for test preparation.",
     pauseAfter: 2000
   },
   {
@@ -127,40 +95,28 @@ export const firstTimeDashboardMessages = (userName: string): VoiceMessage[] => 
     pauseAfter: 1500
   },
   {
-    text: "Ready to start your first study session? I recommend beginning with the concept cards!",
+    text: "Ready to start your first study session?",
     pauseAfter: 0
   }
 ];
 
-// Returning user encouragement
-export const returningUserMessages = (userName: string): VoiceMessage[] => [
+// Returning user encouragement - brief and motivating
+export const returningUserMessages = (userName: string): VoiceMessage[] = [
   {
     text: `Great to see you back, ${userName}!`,
     pauseAfter: 1500,
     emphasis: true
   },
   {
-    text: "Your dedication to consistent learning is impressive and exactly what leads to exam success.",
+    text: "Your dedication to consistent learning is impressive and leads to exam success.",
     pauseAfter: 2000
   },
   {
-    text: "I can see the excellent progress you're making across your subjects.",
-    pauseAfter: 2000
-  },
-  {
-    text: "Your daily consistency is building the foundation for outstanding exam performance.",
-    pauseAfter: 2500
-  },
-  {
-    text: "Today's smart suggestions are ready based on your recent activity and learning patterns.",
+    text: "Today's smart suggestions are ready based on your recent progress.",
     pauseAfter: 2000
   },
   {
     text: "Remember, small daily improvements lead to remarkable results. Keep up the fantastic work!",
-    pauseAfter: 1500
-  },
-  {
-    text: "What would you like to focus on in today's study session?",
     pauseAfter: 0
   }
 ];
