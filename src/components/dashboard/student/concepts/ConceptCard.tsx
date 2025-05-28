@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, ArrowRight, Star, Clock, BrainCircuit, Tag, CheckCircle } from "lucide-react";
+import { BookOpen, ArrowRight, Star, Clock, BrainCircuit, Tag, CheckCircle, Target } from "lucide-react";
 import { motion } from 'framer-motion';
 
 interface ConceptCardProps {
@@ -22,6 +22,7 @@ interface ConceptCardProps {
   isBookmarked?: boolean;
   relatedConcepts?: string[];
   onView?: () => void;
+  examType?: string;
 }
 
 const ConceptCard: React.FC<ConceptCardProps> = ({
@@ -37,7 +38,8 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   tags = [],
   isBookmarked = false,
   relatedConcepts = [],
-  onView
+  onView,
+  examType = "NEET"
 }) => {
   const navigate = useNavigate();
   
@@ -77,9 +79,10 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     <motion.div
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      className="w-full"
     >
       <Card 
-        className="h-full flex flex-col hover:shadow-xl transition-all duration-300 overflow-hidden 
+        className="h-80 w-full flex flex-col hover:shadow-xl transition-all duration-300 overflow-hidden 
                   border border-gray-200/60 dark:border-gray-800/60 rounded-xl cursor-pointer 
                   bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-950/80"
         onClick={handleCardClick}
@@ -94,41 +97,39 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             )}
           </div>
           <CardTitle 
-            className="text-lg font-semibold mt-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-400 dark:hover:to-purple-400 transition-all duration-300"
+            className="text-base font-semibold mt-2 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-400 dark:hover:to-purple-400 transition-all duration-300 line-clamp-2"
           >
             {title}
           </CardTitle>
           <div className="flex flex-wrap gap-1.5 mt-1">
-            <Badge variant="secondary" className="font-normal rounded-md">
+            <Badge variant="secondary" className="font-normal rounded-md text-xs">
               {subject}
             </Badge>
             
-            {tags && tags.length > 0 && tags.slice(0, 2).map((tag, i) => (
-              <Badge key={i} variant="outline" className="font-normal rounded-md flex items-center gap-1 bg-gray-50 dark:bg-gray-800">
-                <Tag className="h-3 w-3" />
-                {tag}
-              </Badge>
-            ))}
+            <Badge variant="outline" className="font-normal rounded-md flex items-center gap-1 bg-purple-50 dark:bg-purple-800 text-xs">
+              <Target className="h-3 w-3" />
+              {examType}
+            </Badge>
             
             {completed && (
-              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 font-normal rounded-md flex items-center gap-1">
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 font-normal rounded-md flex items-center gap-1 text-xs">
                 <CheckCircle className="h-3 w-3" />
-                Completed
+                Done
               </Badge>
             )}
           </div>
         </CardHeader>
         
-        <CardContent className="flex-grow pt-4 pb-3">
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+        <CardContent className="flex-grow pt-3 pb-2">
+          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
             {description}
           </p>
           
-          <div className="mt-4 space-y-3">
+          <div className="space-y-3">
             <div>
               <div className="flex justify-between text-xs font-medium mb-1">
                 <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                  <Clock className="h-3.5 w-3.5" /> Study Progress
+                  <Clock className="h-3 w-3" /> Progress
                 </span>
                 <span className="text-indigo-600 dark:text-indigo-400">{progress}%</span>
               </div>
@@ -141,7 +142,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             <div>
               <div className="flex justify-between text-xs font-medium mb-1">
                 <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                  <BrainCircuit className="h-3.5 w-3.5" /> Mastery
+                  <BrainCircuit className="h-3 w-3" /> Mastery
                 </span>
                 <span className="text-indigo-600 dark:text-indigo-400">{mastery}%</span>
               </div>
@@ -154,16 +155,16 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             </div>
           </div>
           
-          <div className="flex items-center mt-4 text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5 mr-1" />
+          <div className="flex items-center mt-3 text-xs text-muted-foreground">
+            <Clock className="h-3 w-3 mr-1" />
             <span>{timeEstimate}</span>
           </div>
         </CardContent>
         
-        <CardFooter className="pt-3 border-t border-gray-100 dark:border-gray-800 p-4">
+        <CardFooter className="pt-2 border-t border-gray-100 dark:border-gray-800 p-3">
           <Button 
             variant="default" 
-            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-300 rounded-lg"
+            className="w-full flex justify-between items-center bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 transition-all duration-300 rounded-lg text-sm"
             onClick={handleStudyNowClick}
           >
             <BookOpen className="h-4 w-4" />

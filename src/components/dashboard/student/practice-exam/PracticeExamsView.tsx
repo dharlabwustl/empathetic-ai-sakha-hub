@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar, PlayCircle } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar, PlayCircle, Target, TrendingUp } from "lucide-react";
 import BackButton from '@/components/dashboard/student/BackButton';
 
 const exams = [
@@ -73,6 +73,28 @@ const exams = [
   }
 ];
 
+// Subject-specific exam cards
+const subjectExams = {
+  physics: [
+    { id: "p1", title: "Mechanics Mastery", questions: 50, time: 90, difficulty: "medium", weightage: "25%" },
+    { id: "p2", title: "Thermodynamics Deep Dive", questions: 40, time: 75, difficulty: "hard", weightage: "20%" },
+    { id: "p3", title: "Optics & Waves", questions: 45, time: 80, difficulty: "medium", weightage: "22%" },
+    { id: "p4", title: "Modern Physics", questions: 35, time: 60, difficulty: "hard", weightage: "18%" }
+  ],
+  chemistry: [
+    { id: "c1", title: "Organic Chemistry", questions: 55, time: 100, difficulty: "hard", weightage: "30%" },
+    { id: "c2", title: "Inorganic Chemistry", questions: 45, time: 85, difficulty: "medium", weightage: "25%" },
+    { id: "c3", title: "Physical Chemistry", questions: 50, time: 90, difficulty: "hard", weightage: "28%" },
+    { id: "c4", title: "Chemical Bonding", questions: 30, time: 55, difficulty: "easy", weightage: "17%" }
+  ],
+  biology: [
+    { id: "b1", title: "Human Physiology", questions: 60, time: 95, difficulty: "medium", weightage: "35%" },
+    { id: "b2", title: "Plant Biology", questions: 45, time: 75, difficulty: "medium", weightage: "25%" },
+    { id: "b3", title: "Genetics & Evolution", questions: 40, time: 70, difficulty: "hard", weightage: "22%" },
+    { id: "b4", title: "Ecology", questions: 35, time: 60, difficulty: "easy", weightage: "18%" }
+  ]
+};
+
 const PracticeExamsView: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
@@ -91,15 +113,15 @@ const PracticeExamsView: React.FC = () => {
   };
   
   const handleStartExam = (examId: string) => {
-    navigate(`/dashboard/student/exam/${examId}/start`);
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
   
   const handleReviewExam = (examId: string) => {
-    navigate(`/dashboard/student/exam/${examId}/results`);
+    navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
   
   const handleContinueExam = (examId: string) => {
-    navigate(`/dashboard/student/exam/${examId}/start`);
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
   
   const getDifficultyColor = (difficulty: string) => {
@@ -117,7 +139,6 @@ const PracticeExamsView: React.FC = () => {
 
   return (
     <div className="container py-6">
-      {/* Add Back Button */}
       <BackButton to="/dashboard/student" />
       
       <div className="flex justify-between items-center mt-4 mb-6">
@@ -135,15 +156,18 @@ const PracticeExamsView: React.FC = () => {
       </div>
       
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
-        <TabsList className="grid grid-cols-4 w-full sm:w-auto">
+        <TabsList className="grid grid-cols-7 w-full sm:w-auto">
           <TabsTrigger value="all">All Exams</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="in-progress">In Progress</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="physics">Physics</TabsTrigger>
+          <TabsTrigger value="chemistry">Chemistry</TabsTrigger>
+          <TabsTrigger value="biology">Biology</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {exams.map((exam) => (
               <ExamCard 
                 key={exam.id} 
@@ -158,7 +182,7 @@ const PracticeExamsView: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="pending" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {filterExams("pending").map((exam) => (
               <ExamCard 
                 key={exam.id} 
@@ -173,7 +197,7 @@ const PracticeExamsView: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="in-progress" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {filterExams("in-progress").map((exam) => (
               <ExamCard 
                 key={exam.id} 
@@ -188,7 +212,7 @@ const PracticeExamsView: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="completed" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {filterExams("completed").map((exam) => (
               <ExamCard 
                 key={exam.id} 
@@ -196,6 +220,49 @@ const PracticeExamsView: React.FC = () => {
                 onStart={handleStartExam}
                 onReview={handleReviewExam}
                 onContinue={handleContinueExam}
+                difficultyColorFn={getDifficultyColor}
+              />
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Subject-specific tabs with exam cards */}
+        <TabsContent value="physics" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {subjectExams.physics.map((exam) => (
+              <SubjectExamCard 
+                key={exam.id} 
+                exam={exam} 
+                subject="Physics"
+                onStart={handleStartExam}
+                difficultyColorFn={getDifficultyColor}
+              />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="chemistry" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {subjectExams.chemistry.map((exam) => (
+              <SubjectExamCard 
+                key={exam.id} 
+                exam={exam} 
+                subject="Chemistry"
+                onStart={handleStartExam}
+                difficultyColorFn={getDifficultyColor}
+              />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="biology" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {subjectExams.biology.map((exam) => (
+              <SubjectExamCard 
+                key={exam.id} 
+                exam={exam} 
+                subject="Biology"
+                onStart={handleStartExam}
                 difficultyColorFn={getDifficultyColor}
               />
             ))}
@@ -240,53 +307,50 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam, onStart, onReview, onContinue
   };
   
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg">{exam.title}</CardTitle>
-            <CardDescription className="mt-1">
-              {exam.subject} • {exam.questionsCount} Questions
-            </CardDescription>
-          </div>
+    <Card className="h-80 w-full flex flex-col">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start mb-2">
+          <CardTitle className="text-base line-clamp-2">{exam.title}</CardTitle>
           {getStatusBadge()}
         </div>
+        <CardDescription className="text-sm">
+          {exam.subject} • {exam.questionsCount} Questions
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="flex flex-wrap gap-2 mb-3">
-          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
             {exam.examType}
           </Badge>
-          <Badge variant="outline" className={difficultyColorFn(exam.difficulty)}>
+          <Badge variant="outline" className={`${difficultyColorFn(exam.difficulty)} text-xs`}>
             {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
+          </Badge>
+          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 text-xs flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {exam.timeEstimate}m
           </Badge>
         </div>
         
-        <p className="text-sm text-gray-500 mt-2">{exam.description}</p>
+        <p className="text-xs text-gray-500 mt-2 line-clamp-2">{exam.description}</p>
         
         <div className="mt-4">
-          <div className="flex justify-between text-sm mb-1">
+          <div className="flex justify-between text-xs mb-1">
             <span>Progress</span>
             <span>{exam.progress}%</span>
           </div>
           <Progress value={exam.progress} className="h-2" />
         </div>
         
-        <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
-          <Clock className="h-4 w-4" />
-          <span>{exam.timeEstimate} min</span>
-          {exam.lastAttempted && (
-            <>
-              <span className="mx-1">•</span>
-              <span>Last attempt: {new Date(exam.lastAttempted).toLocaleDateString()}</span>
-            </>
-          )}
-        </div>
+        {exam.lastAttempted && (
+          <div className="text-xs text-gray-500 mt-2">
+            Last attempt: {new Date(exam.lastAttempted).toLocaleDateString()}
+          </div>
+        )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="pt-2">
         {isCompleted ? (
           <Button 
-            className="w-full" 
+            className="w-full text-sm" 
             onClick={() => onReview(exam.id)}
           >
             <CheckCircle className="mr-2 h-4 w-4" />
@@ -294,7 +358,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam, onStart, onReview, onContinue
           </Button>
         ) : isStarted ? (
           <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700" 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-sm" 
             onClick={() => onContinue(exam.id)}
           >
             <BookOpen className="mr-2 h-4 w-4" />
@@ -302,13 +366,76 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam, onStart, onReview, onContinue
           </Button>
         ) : (
           <Button 
-            className="w-full bg-indigo-600 hover:bg-indigo-700" 
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-sm" 
             onClick={() => onStart(exam.id)}
           >
             <PlayCircle className="mr-2 h-4 w-4" />
             Start Exam
           </Button>
         )}
+      </CardFooter>
+    </Card>
+  );
+};
+
+interface SubjectExamCardProps {
+  exam: any;
+  subject: string;
+  onStart: (id: string) => void;
+  difficultyColorFn: (difficulty: string) => string;
+}
+
+const SubjectExamCard: React.FC<SubjectExamCardProps> = ({ exam, subject, onStart, difficultyColorFn }) => {
+  return (
+    <Card className="h-80 w-full flex flex-col hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start mb-2">
+          <CardTitle className="text-base line-clamp-2">{exam.title}</CardTitle>
+          <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200 text-xs">
+            {subject}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge variant="outline" className={`${difficultyColorFn(exam.difficulty)} text-xs`}>
+            {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
+          </Badge>
+          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 text-xs flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {exam.time}m
+          </Badge>
+          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 text-xs flex items-center gap-1">
+            <TrendingUp className="h-3 w-3" />
+            {exam.weightage}
+          </Badge>
+        </div>
+        
+        <div className="space-y-3 mt-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Questions</span>
+            <span className="font-semibold">{exam.questions}</span>
+          </div>
+          
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Time Limit</span>
+            <span className="font-semibold">{exam.time} min</span>
+          </div>
+          
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Exam Weightage</span>
+            <span className="font-semibold text-purple-600">{exam.weightage}</span>
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="pt-2">
+        <Button 
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-sm" 
+          onClick={() => onStart(exam.id)}
+        >
+          <PlayCircle className="mr-2 h-4 w-4" />
+          Start Test
+        </Button>
       </CardFooter>
     </Card>
   );
