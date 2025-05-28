@@ -20,32 +20,32 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 }) => {
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      {/* Outer vibrant pulse ring - only when speaking */}
+      {/* Enhanced outer vibrant pulse ring - only when speaking */}
       {isSpeaking && (
         <motion.div
           className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400"
           animate={{
-            scale: [1, 1.4, 1.2, 1.6, 1],
-            opacity: [0.6, 0.3, 0.5, 0.2, 0.6],
+            scale: [1, 1.5, 1.2, 1.7, 1],
+            opacity: [0.7, 0.3, 0.6, 0.2, 0.7],
           }}
           transition={{
-            duration: 2,
+            duration: 1.8,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
       )}
       
-      {/* Middle pulse ring - only when speaking */}
+      {/* Enhanced middle pulse ring - only when speaking */}
       {isSpeaking && (
         <motion.div
           className="absolute inset-1 rounded-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
           animate={{
-            scale: [1, 1.3, 1.1, 1.4, 1],
-            opacity: [0.5, 0.7, 0.4, 0.6, 0.5],
+            scale: [1, 1.4, 1.1, 1.5, 1],
+            opacity: [0.6, 0.8, 0.4, 0.7, 0.6],
           }}
           transition={{
-            duration: 1.5,
+            duration: 1.3,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 0.2
@@ -53,7 +53,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
         />
       )}
       
-      {/* Inner active ring - when speaking or listening */}
+      {/* Enhanced inner active ring - when speaking or listening */}
       {(isSpeaking || isListening) && (
         <motion.div
           className={`absolute inset-2 rounded-full ${
@@ -62,20 +62,20 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
               : 'bg-gradient-to-r from-green-400 to-blue-400'
           }`}
           animate={{
-            scale: isSpeaking ? [1, 1.2, 1] : [1, 1.1, 1],
-            opacity: [0.8, 0.9, 0.8],
+            scale: isSpeaking ? [1, 1.3, 1] : [1, 1.15, 1],
+            opacity: [0.9, 1, 0.9],
           }}
           transition={{
-            duration: isSpeaking ? 1 : 2,
+            duration: isSpeaking ? 0.8 : 1.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
       )}
       
-      {/* Main AI circle with dynamic animations */}
+      {/* Enhanced main AI circle with smoother animations */}
       <motion.div
-        className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-lg flex items-center justify-center cursor-pointer ${
+        className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-xl flex items-center justify-center cursor-pointer ${
           isSpeaking 
             ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600' 
             : isListening
@@ -83,44 +83,50 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
             : 'bg-gradient-to-r from-blue-500 to-purple-500'
         }`}
         animate={isSpeaking ? {
-          scale: [1, 1.05, 1, 1.02, 1]
+          scale: [1, 1.08, 1, 1.04, 1]
         } : isListening ? {
-          scale: [1, 1.03, 1]
+          scale: [1, 1.06, 1]
         } : {}}
         transition={{
           scale: {
-            duration: isSpeaking ? 0.8 : 1.5,
+            duration: isSpeaking ? 0.7 : 1.2,
             repeat: (isSpeaking || isListening) ? Infinity : 0,
             ease: "easeInOut"
           }
         }}
         onClick={onClick}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.92 }}
+        whileHover={{ scale: 1.05 }}
       >
-        {/* Microphone icon or AI label */}
+        {/* Enhanced microphone icon with smoother transitions */}
         {onClick ? (
           <motion.div
             animate={isListening ? {
-              scale: [1, 1.1, 1],
-              color: ['#ffffff', '#34d399', '#ffffff']
+              scale: [1, 1.2, 1],
+              color: ['#ffffff', '#10b981', '#ffffff']
             } : {}}
             transition={{
-              duration: 1,
+              duration: 0.8,
               repeat: isListening ? Infinity : 0,
               ease: "easeInOut"
             }}
+            className="flex items-center justify-center"
           >
-            {isListening ? <MicOff className="h-6 w-6 text-white" /> : <Mic className="h-6 w-6 text-white" />}
+            {isListening ? (
+              <MicOff className="h-6 w-6 text-white drop-shadow-lg" />
+            ) : (
+              <Mic className="h-6 w-6 text-white drop-shadow-lg" />
+            )}
           </motion.div>
         ) : (
           <motion.span 
-            className="text-white font-bold text-lg select-none"
+            className="text-white font-bold text-lg select-none drop-shadow-lg"
             animate={isSpeaking ? {
-              scale: [1, 1.1, 1, 1.05, 1],
-              color: ['#ffffff', '#fbbf24', '#ffffff', '#34d399', '#ffffff']
+              scale: [1, 1.15, 1, 1.08, 1],
+              color: ['#ffffff', '#fbbf24', '#ffffff', '#10b981', '#ffffff']
             } : {}}
             transition={{
-              duration: 1.5,
+              duration: 1.2,
               repeat: isSpeaking ? Infinity : 0,
               ease: "easeInOut"
             }}
@@ -130,25 +136,25 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
         )}
       </motion.div>
       
-      {/* Sound waves animation - only when speaking */}
+      {/* Enhanced sound waves animation with better visual feedback */}
       {isSpeaking && (
         <div className="absolute inset-0 flex items-center justify-center">
-          {[...Array(3)].map((_, i) => (
+          {[...Array(4)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-1 bg-gradient-to-t from-purple-400 to-pink-400 rounded-full"
               style={{
-                left: `${30 + i * 15}%`,
-                height: '8px'
+                left: `${25 + i * 12}%`,
+                height: '10px'
               }}
               animate={{
-                scaleY: [1, 2, 0.5, 1.5, 1],
-                opacity: [0.6, 1, 0.4, 0.8, 0.6]
+                scaleY: [1, 2.5, 0.5, 1.8, 1],
+                opacity: [0.7, 1, 0.4, 0.9, 0.7]
               }}
               transition={{
-                duration: 0.6,
+                duration: 0.5,
                 repeat: Infinity,
-                delay: i * 0.1,
+                delay: i * 0.08,
                 ease: "easeInOut"
               }}
             />
@@ -168,17 +174,17 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
   const clickedRef = useRef(false);
 
   const handleClick = () => {
-    // Trigger microphone clicked event
-    window.dispatchEvent(new Event('microphone-clicked'));
-    
-    // Stop any ongoing speech immediately
+    // Immediate feedback - stop speech instantly
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
     
+    // Trigger microphone clicked event immediately
+    window.dispatchEvent(new Event('microphone-clicked'));
+    
     clickedRef.current = true;
     
-    // Start or stop listening
+    // Enhanced voice recognition control with immediate response
     if (isListening) {
       window.dispatchEvent(new Event('stop-voice-recognition'));
     } else {
@@ -189,28 +195,33 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
       onClick();
     }
     
-    // Reset clicked state after 10 seconds
+    // Reset clicked state after shorter duration for better UX
     setTimeout(() => {
       clickedRef.current = false;
-    }, 10000);
+    }, 8000);
   };
 
   return (
     <motion.div
       className={`relative ${className}`}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 20
+      }}
     >
-      {/* Background gradient pulse */}
+      {/* Enhanced background gradient pulse with smoother animations */}
       {(isSpeaking || isListening) && (
         <motion.div
           className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.7, 0.3, 0.7],
+            scale: [1, 1.3, 1],
+            opacity: [0.8, 0.3, 0.8],
           }}
           transition={{
-            duration: 1.5,
+            duration: 1.2,
             repeat: Infinity,
             ease: "easeInOut"
           }}
