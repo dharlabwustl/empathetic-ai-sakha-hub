@@ -3,16 +3,13 @@ import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
-import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
-import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import AdaptiveDashboardLayout from "@/components/dashboard/adaptive/AdaptiveDashboardLayout";
 import { MoodType } from "@/types/user/base";
-import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
-import WelcomeDashboardPrompt from "@/components/dashboard/student/WelcomeDashboardPrompt";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import WelcomeDashboardPrompt from "@/components/dashboard/student/WelcomeDashboardPrompt";
 import UnifiedVoiceAssistant from "@/components/voice/UnifiedVoiceAssistant";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
@@ -161,36 +158,6 @@ const StudentDashboard = () => {
     }));
   };
 
-  const handleProfileImageUpdate = (imageUrl: string) => {
-    setProfileImage(imageUrl);
-    localStorage.setItem('user_profile_image', imageUrl);
-    
-    if (userProfile) {
-      userProfile.avatar = imageUrl;
-    }
-  };
-
-  // Handle tour completion with route to weak subject
-  const handleCompleteTourWrapper = () => {
-    handleCompleteTour();
-    setShowTourModal(false);
-    localStorage.setItem("hasSeenTour", "true");
-    
-    // Show learning session prompt
-    setShowWelcomePrompt(true);
-  };
-
-  const handleWelcomePromptComplete = () => {
-    setShowWelcomePrompt(false);
-    localStorage.setItem("hasSeenDashboardWelcome", "true");
-    
-    // Route to weak subject practice if available
-    if (dashboardPreferences?.weakSubjects?.length > 0) {
-      const weakSubject = dashboardPreferences.weakSubjects[0];
-      navigate(`/dashboard/student/practice-exam?subject=${encodeURIComponent(weakSubject)}&focus=weak`);
-    }
-  };
-
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -224,64 +191,26 @@ const StudentDashboard = () => {
     strongSubjects: userProfile.strongSubjects || dashboardPreferences?.strongSubjects || ['Biology'],
     performanceLevel: userProfile.performanceLevel || dashboardPreferences?.performanceLevel || 'intermediate',
     studyStreak: userProfile.studyStreak || 5,
-    // Set exam date if not present
-    examDate: userProfile.examDate || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 6 months from now
-  };
-
-  const getTabContent = () => {
-    if (activeTab === "overview") {
-      // Always use the adaptive dashboard layout for enhanced experience
-      return (
-        <AdaptiveDashboardLayout 
-          userProfile={enhancedUserProfile} 
-          preferences={dashboardPreferences}
-        >
-          <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />
-        </AdaptiveDashboardLayout>
-      );
-    }
-    return (
-      <AdaptiveDashboardLayout 
-        userProfile={enhancedUserProfile} 
-        preferences={dashboardPreferences}
-      >
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">
-            This section is under development.
-          </p>
-        </div>
-      </AdaptiveDashboardLayout>
-    );
+    examDate: userProfile.examDate || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   };
 
   return (
     <>
-      <DashboardLayout
-        userProfile={enhancedUserProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
-        activeTab={activeTab}
+      {/* Main Adaptive Dashboard Layout - This should be visible now */}
+      <AdaptiveDashboardLayout 
+        userProfile={enhancedUserProfile} 
+        preferences={dashboardPreferences}
+        onMoodChange={handleMoodChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false}
-        onTabChange={handleTabChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTour}
-        onCompleteTour={handleCompleteTourWrapper}
-        showStudyPlan={showStudyPlan}
-        onCloseStudyPlan={handleCloseStudyPlan}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
-        currentMood={currentMood}
-        onMoodChange={handleMoodChange}
-        onProfileImageUpdate={handleProfileImageUpdate}
         upcomingEvents={upcomingEvents}
-      >
-        {getTabContent()}
-      </DashboardLayout>
+      />
       
       <WelcomeTour
         open={showTourModal}
@@ -291,7 +220,11 @@ const StudentDashboard = () => {
           localStorage.setItem("hasSeenTour", "true");
           setShowWelcomePrompt(true);
         }}
-        onCompleteTour={handleCompleteTourWrapper}
+        onCompleteTour={() => {
+          setShowTourModal(false);
+          localStorage.setItem("hasSeenTour", "true");
+          setShowWelcomePrompt(true);
+        }}
         isFirstTimeUser={isFirstTimeUser}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
@@ -301,11 +234,14 @@ const StudentDashboard = () => {
       {showWelcomePrompt && (
         <WelcomeDashboardPrompt 
           userName={userProfile.name || userProfile.firstName || 'Student'}
-          onComplete={handleWelcomePromptComplete}
+          onComplete={() => {
+            setShowWelcomePrompt(false);
+            localStorage.setItem("hasSeenDashboardWelcome", "true");
+          }}
         />
       )}
 
-      {/* Unified Voice Assistant across the app */}
+      {/* Unified Voice Assistant */}
       <UnifiedVoiceAssistant
         userName={userProfile.name || userProfile.firstName || 'Student'}
         userProfile={enhancedUserProfile}
