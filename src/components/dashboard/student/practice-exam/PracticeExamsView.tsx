@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar } from "lucide-react";
-import BackButton from '@/components/dashboard/student/BackButton';
+import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ArrowRight, BookOpen, CheckCircle, Clock, FileText, Filter, Calendar, Plus, Search, Star, Target, ChevronDown, ChevronUp, TrendingUp, Brain, Lightbulb, Timer } from "lucide-react";
+import { SharedPageLayout } from '../SharedPageLayout';
+import { motion } from 'framer-motion';
 
-const exams = [
+const practiceExams = [
   {
     id: "1",
     title: "Physics Full Mock Test",
@@ -20,10 +23,19 @@ const exams = [
     difficulty: "hard",
     completed: false,
     progress: 0,
+    score: null,
     dueDate: "2023-06-15",
     lastAttempted: null,
-    description: "Complete physics mock test covering mechanics, thermodynamics, optics, and modern physics.",
-    topics: ["Mechanics", "Thermodynamics", "Optics", "Modern Physics"]
+    weightage: 33,
+    priority: "high",
+    status: "pending",
+    topics: [
+      { name: "Mechanics", weightage: 12, completed: false, priority: "high", questions: 30 },
+      { name: "Thermodynamics", weightage: 8, completed: false, priority: "high", questions: 20 },
+      { name: "Optics", weightage: 7, completed: false, priority: "medium", questions: 25 },
+      { name: "Modern Physics", weightage: 6, completed: false, priority: "medium", questions: 15 }
+    ],
+    description: "Complete physics mock test covering mechanics, thermodynamics, optics, and modern physics."
   },
   {
     id: "2",
@@ -38,8 +50,15 @@ const exams = [
     score: 78,
     dueDate: "2023-06-10",
     lastAttempted: "2023-06-09",
-    description: "Test covering organic chemistry reactions, mechanisms, and compounds.",
-    topics: ["Hydrocarbons", "Alcohols", "Carbonyl Compounds"]
+    weightage: 22,
+    priority: "medium",
+    status: "completed",
+    topics: [
+      { name: "Hydrocarbons", weightage: 8, completed: true, priority: "high", questions: 15 },
+      { name: "Alcohols", weightage: 7, completed: true, priority: "high", questions: 15 },
+      { name: "Carbonyl Compounds", weightage: 7, completed: true, priority: "medium", questions: 15 }
+    ],
+    description: "Test covering organic chemistry reactions, mechanisms, and compounds."
   },
   {
     id: "3",
@@ -51,10 +70,18 @@ const exams = [
     difficulty: "medium",
     completed: false,
     progress: 30,
+    score: null,
     dueDate: "2023-06-18",
     lastAttempted: "2023-06-08",
-    description: "Comprehensive unit test covering human physiology and plant biology.",
-    topics: ["Human Physiology", "Plant Biology", "Genetics"]
+    weightage: 25,
+    priority: "high",
+    status: "in-progress",
+    topics: [
+      { name: "Human Physiology", weightage: 10, completed: false, priority: "high", questions: 25 },
+      { name: "Plant Biology", weightage: 8, completed: true, priority: "medium", questions: 20 },
+      { name: "Genetics", weightage: 7, completed: false, priority: "high", questions: 15 }
+    ],
+    description: "Comprehensive unit test covering human physiology and plant biology."
   },
   {
     id: "4",
@@ -66,251 +93,315 @@ const exams = [
     difficulty: "hard",
     completed: false,
     progress: 0,
+    score: null,
     dueDate: "2023-06-20",
     lastAttempted: null,
-    description: "Advanced mathematics test covering calculus, algebra, and coordinate geometry.",
-    topics: ["Calculus", "Algebra", "Coordinate Geometry"]
+    weightage: 20,
+    priority: "medium",
+    status: "overdue",
+    topics: [
+      { name: "Calculus", weightage: 8, completed: false, priority: "high", questions: 25 },
+      { name: "Algebra", weightage: 6, completed: false, priority: "medium", questions: 25 },
+      { name: "Coordinate Geometry", weightage: 6, completed: false, priority: "medium", questions: 25 }
+    ],
+    description: "Advanced mathematics test covering calculus, algebra, and coordinate geometry."
   }
 ];
 
-const PracticeExamsView: React.FC = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("all");
-  
-  const filterExams = (status: string) => {
-    switch (status) {
-      case "pending":
-        return exams.filter(exam => !exam.completed && exam.progress === 0);
-      case "in-progress":
-        return exams.filter(exam => !exam.completed && exam.progress > 0 && exam.progress < 100);
-      case "completed":
-        return exams.filter(exam => exam.completed);
-      default:
-        return exams;
-    }
-  };
-  
-  const handleStartExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
-  };
-  
-  const handleReviewExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/review`);
-  };
-  
-  const handleContinueExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
-  };
-  
-  const getDifficultyColor = (difficulty: string) => {
-    switch(difficulty) {
-      case "easy":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "hard":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+const TopicBreakdownCard = ({ exam }: { exam: typeof practiceExams[0] }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="container py-6">
-      {/* Add Back Button */}
-      <BackButton to="/dashboard/student" />
-      
-      <div className="flex justify-between items-center mt-4 mb-6">
-        <h1 className="text-3xl font-bold">Practice Exams</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline">Filter</span>
-          </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            <span className="hidden sm:inline">Schedule</span>
-          </Button>
-        </div>
-      </div>
-      
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab as any} className="space-y-4">
-        <TabsList className="grid grid-cols-4 w-full sm:w-auto">
-          <TabsTrigger value="all">All Exams</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-        </TabsList>
+    <Card className="mb-4">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">{exam.title}</CardTitle>
+                <CardDescription>
+                  {exam.subject} • {exam.questionsCount} questions • {exam.weightage}% weightage
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className={`${
+                  exam.priority === 'high' ? 'bg-red-100 text-red-700' :
+                  exam.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-green-100 text-green-700'
+                }`}>
+                  {exam.priority} priority
+                </Badge>
+                {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </div>
+            </div>
+          </CardHeader>
+        </CollapsibleTrigger>
         
-        <TabsContent value="all" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {exams.map((exam) => (
-              <ExamCard 
-                key={exam.id} 
-                exam={exam} 
-                onStart={handleStartExam}
-                onReview={handleReviewExam}
-                onContinue={handleContinueExam}
-                difficultyColorFn={getDifficultyColor}
-              />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="pending" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filterExams("pending").map((exam) => (
-              <ExamCard 
-                key={exam.id} 
-                exam={exam} 
-                onStart={handleStartExam}
-                onReview={handleReviewExam}
-                onContinue={handleContinueExam}
-                difficultyColorFn={getDifficultyColor}
-              />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="in-progress" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filterExams("in-progress").map((exam) => (
-              <ExamCard 
-                key={exam.id} 
-                exam={exam} 
-                onStart={handleStartExam}
-                onReview={handleReviewExam}
-                onContinue={handleContinueExam}
-                difficultyColorFn={getDifficultyColor}
-              />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="completed" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filterExams("completed").map((exam) => (
-              <ExamCard 
-                key={exam.id} 
-                exam={exam} 
-                onStart={handleStartExam}
-                onReview={handleReviewExam}
-                onContinue={handleContinueExam}
-                difficultyColorFn={getDifficultyColor}
-              />
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+        <CollapsibleContent>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{exam.score || 0}%</div>
+                  <div className="text-sm text-blue-600">Best Score</div>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{exam.progress}%</div>
+                  <div className="text-sm text-green-600">Progress</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{exam.questionsCount}</div>
+                  <div className="text-sm text-purple-600">Questions</div>
+                </div>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">{exam.timeEstimate}m</div>
+                  <div className="text-sm text-orange-600">Duration</div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Topic Breakdown
+                </h4>
+                <div className="space-y-2">
+                  {exam.topics.map((topic, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full ${
+                          topic.priority === 'high' ? 'bg-red-500' :
+                          topic.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                        }`} />
+                        <span className="font-medium">{topic.name}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {topic.weightage}% weightage
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {topic.questions} questions
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {topic.completed ? (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <Clock className="h-4 w-4 text-gray-400" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
   );
 };
 
-interface ExamCardProps {
-  exam: typeof exams[0];
-  onStart: (id: string) => void;
-  onReview: (id: string) => void;
-  onContinue: (id: string) => void;
-  difficultyColorFn: (difficulty: string) => string;
-}
-
-const ExamCard: React.FC<ExamCardProps> = ({ exam, onStart, onReview, onContinue, difficultyColorFn }) => {
-  const isStarted = exam.progress > 0;
-  const isCompleted = exam.completed;
-  
-  const getStatusBadge = () => {
-    if (isCompleted) {
-      return <Badge className="bg-green-100 text-green-800 border-green-200">Completed</Badge>;
-    }
-    if (isStarted) {
-      return <Badge className="bg-blue-100 text-blue-800 border-blue-200">In Progress</Badge>;
-    }
-    
-    const dueDate = new Date(exam.dueDate);
-    const today = new Date();
-    const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysUntilDue <= 1) {
-      return <Badge className="bg-red-100 text-red-800 border-red-200">Due Today</Badge>;
-    }
-    if (daysUntilDue <= 3) {
-      return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Due Soon</Badge>;
-    }
-    return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Upcoming</Badge>;
-  };
-  
+const WeightageAnalysis = () => {
   return (
-    <Card className="h-full flex flex-col">
+    <Card>
       <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg">{exam.title}</CardTitle>
-            <CardDescription className="mt-1">
-              {exam.subject} • {exam.questionsCount} Questions
-            </CardDescription>
-          </div>
-          {getStatusBadge()}
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-primary" />
+          Exam Weightage Distribution
+        </CardTitle>
+        <CardDescription>Importance by subject in upcoming exams</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="flex flex-wrap gap-2 mb-3">
-          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
-            {exam.examType}
-          </Badge>
-          <Badge variant="outline" className={difficultyColorFn(exam.difficulty)}>
-            {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
-          </Badge>
-        </div>
-        
-        <p className="text-sm text-gray-500 mt-2">{exam.description}</p>
-        
-        <div className="mt-4">
-          <div className="flex justify-between text-sm mb-1">
-            <span>Progress</span>
-            <span>{exam.progress}%</span>
-          </div>
-          <Progress value={exam.progress} className="h-2" />
-        </div>
-        
-        <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
-          <Clock className="h-4 w-4" />
-          <span>{exam.timeEstimate} min</span>
-          {exam.lastAttempted && (
-            <>
-              <span className="mx-1">•</span>
-              <span>Last attempt: {new Date(exam.lastAttempted).toLocaleDateString()}</span>
-            </>
-          )}
+      <CardContent>
+        <div className="space-y-4">
+          {practiceExams.map((exam, index) => (
+            <div key={index} className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{exam.subject}</span>
+                <span className="text-sm font-medium">{exam.weightage}%</span>
+              </div>
+              <Progress value={exam.weightage} className="h-2" />
+              <div className="text-xs text-muted-foreground">
+                {exam.questionsCount} questions • {exam.timeEstimate} min • {exam.status}
+              </div>
+            </div>
+          ))}
         </div>
       </CardContent>
-      <CardFooter>
-        {isCompleted ? (
-          <Button 
-            className="w-full" 
-            onClick={() => onReview(exam.id)}
-          >
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Review Exam
-          </Button>
-        ) : isStarted ? (
-          <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700" 
-            onClick={() => onContinue(exam.id)}
-          >
-            <BookOpen className="mr-2 h-4 w-4" />
-            Continue Exam
-          </Button>
-        ) : (
-          <Button 
-            className="w-full bg-indigo-600 hover:bg-indigo-700" 
-            onClick={() => onStart(exam.id)}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Start Exam
-          </Button>
-        )}
-      </CardFooter>
     </Card>
+  );
+};
+
+const DailySmartSuggestions = () => {
+  const suggestions = [
+    {
+      icon: Brain,
+      title: "Start Physics Mock Test",
+      description: "High weightage (33%) - Focus on mechanics and thermodynamics",
+      priority: "high",
+      estimatedTime: "180 min"
+    },
+    {
+      icon: Target,
+      title: "Complete Biology Unit Test", 
+      description: "30% progress - Continue with human physiology",
+      priority: "medium",
+      estimatedTime: "90 min"
+    },
+    {
+      icon: Lightbulb,
+      title: "Review Math Concepts",
+      description: "Overdue test - Quick calculus revision recommended",
+      priority: "high",
+      estimatedTime: "45 min"
+    }
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-primary" />
+          Daily Smart Suggestions
+        </CardTitle>
+        <CardDescription>AI-powered exam recommendations</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {suggestions.map((suggestion, index) => (
+            <div key={index} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+              <div className={`p-2 rounded-lg ${
+                suggestion.priority === 'high' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+              }`}>
+                <suggestion.icon className="h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium">{suggestion.title}</h4>
+                <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="outline" className="text-xs">
+                    <Timer className="h-3 w-3 mr-1" />
+                    {suggestion.estimatedTime}
+                  </Badge>
+                  <Badge className={`text-xs ${
+                    suggestion.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {suggestion.priority} priority
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const PracticeExamsView: React.FC = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("breakdown");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  const handleStartExam = (examId: string) => {
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+  };
+
+  const filteredExams = practiceExams.filter(exam => {
+    const matchesSearch = exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         exam.subject.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === "all" || exam.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  return (
+    <SharedPageLayout
+      title="Practice Exams"
+      subtitle="Comprehensive exam preparation with detailed analytics"
+      showBackButton={true}
+      backButtonUrl="/dashboard/student"
+    >
+      <div className="space-y-6">
+        {/* Search and Filter Controls */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search practice exams..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={filterStatus === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterStatus("all")}
+            >
+              All
+            </Button>
+            <Button
+              variant={filterStatus === "pending" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterStatus("pending")}
+            >
+              Pending
+            </Button>
+            <Button
+              variant={filterStatus === "in-progress" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterStatus("in-progress")}
+            >
+              In Progress
+            </Button>
+            <Button
+              variant={filterStatus === "completed" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterStatus("completed")}
+            >
+              Completed
+            </Button>
+          </div>
+        </div>
+
+        <Tabs defaultValue="breakdown" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid grid-cols-3 w-full">
+            <TabsTrigger value="breakdown">Topic Breakdown</TabsTrigger>
+            <TabsTrigger value="weightage">Weightage Analysis</TabsTrigger>
+            <TabsTrigger value="suggestions">Smart Suggestions</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="breakdown" className="space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              {filteredExams.map((exam) => (
+                <TopicBreakdownCard key={exam.id} exam={exam} />
+              ))}
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="weightage" className="space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <WeightageAnalysis />
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="suggestions" className="space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <DailySmartSuggestions />
+            </motion.div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </SharedPageLayout>
   );
 };
 
