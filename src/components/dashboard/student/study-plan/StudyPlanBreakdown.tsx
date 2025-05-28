@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -5,11 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight, BarChart3, Target, Lightbulb } from 'lucide-react';
-import { StudyPlanSubject } from '@/types/user/studyPlan';
-import TopicBreakdownCard from './TopicBreakdownCard';
-import WeightageAnalysis from './WeightageAnalysis';
-import DailySmartSuggestions from './DailySmartSuggestions';
+import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
+import { Subject, StudyPlanSubject } from '@/types/user/studyPlan';
 
 interface StudyPlanBreakdownProps {
   subjects: StudyPlanSubject[];
@@ -68,6 +66,107 @@ const TimeAllocation: React.FC<TimeAllocationProps> = ({ subjects, weeklyHours =
           Adjust Time Allocation
         </Button>
       </CardFooter>
+    </Card>
+  );
+};
+
+interface SubjectTopicsProps {
+  subjects: StudyPlanSubject[];
+}
+
+const SubjectTopics: React.FC<SubjectTopicsProps> = ({ subjects }) => {
+  const [activeSubject, setActiveSubject] = useState<string>(subjects[0]?.id || '');
+  
+  const activeSubjectData = subjects.find(s => s.id === activeSubject);
+  
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <BookOpen className="h-5 w-5 mr-2 text-primary" />
+          Topics to Cover
+        </CardTitle>
+        <CardDescription>
+          Detailed breakdown of topics by subject
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="flex h-[500px]">
+          {/* Subject Sidebar */}
+          <div className="w-1/3 border-r">
+            <ScrollArea className="h-[500px]">
+              <div className="p-2">
+                {subjects.map((subject) => (
+                  <div
+                    key={subject.id}
+                    className={`p-3 mb-1 rounded-md cursor-pointer flex items-center ${
+                      activeSubject === subject.id ? 'bg-accent' : 'hover:bg-accent/50'
+                    }`}
+                    onClick={() => setActiveSubject(subject.id)}
+                  >
+                    <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: subject.color || '#8B5CF6' }}></div>
+                    <div>
+                      <div className="font-medium">{subject.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {subject.topics?.length || 0} topics
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+          
+          {/* Topics List */}
+          <div className="flex-1">
+            <ScrollArea className="h-[500px]">
+              {activeSubjectData?.topics && activeSubjectData.topics.length > 0 ? (
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-4">{activeSubjectData.name} Topics</h3>
+                  <div className="space-y-3">
+                    {activeSubjectData.topics.map((topic, i) => (
+                      <div key={topic.id} className="flex items-center p-2 border rounded-md">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center mr-3">
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium">{topic.name}</div>
+                          <div className="flex items-center mt-1">
+                            <Badge variant={topic.difficulty === 'easy' ? 'outline' : topic.difficulty === 'medium' ? 'secondary' : 'destructive'} className="text-xs mr-2">
+                              {topic.difficulty}
+                            </Badge>
+                            <span className={`text-xs ${
+                              topic.status === 'completed' ? 'text-green-500' :
+                              topic.status === 'in-progress' ? 'text-amber-500' :
+                              'text-muted-foreground'
+                            }`}>
+                              {topic.status || 'pending'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-2">
+                          {topic.completed ? (
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                          ) : (
+                            <Button variant="ghost" size="sm">Start</Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-muted-foreground mb-2">No topics available</div>
+                    <Button variant="outline" size="sm">Add Topics</Button>
+                  </div>
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </div>
+      </CardContent>
     </Card>
   );
 };
@@ -183,52 +282,22 @@ export const StudyPlanBreakdown: React.FC<StudyPlanBreakdownProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      {/* Daily Smart Suggestions */}
-      <DailySmartSuggestions 
-        subjects={subjects} 
-        examDate={examDate || '2023-12-15'} 
-      />
-      
-      <Tabs defaultValue="topics" className="w-full">
-        <TabsList className="grid grid-cols-4">
-          <TabsTrigger value="topics" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            Topic Breakdown
-          </TabsTrigger>
-          <TabsTrigger value="weightage" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Weightage Analysis
-          </TabsTrigger>
-          <TabsTrigger value="time-allocation" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Time Allocation
-          </TabsTrigger>
-          <TabsTrigger value="timeline" className="flex items-center gap-2">
-            <CalendarIcon className="h-4 w-4" />
-            Timeline
-          </TabsTrigger>
+      <Tabs defaultValue="time-allocation" className="w-full">
+        <TabsList className="grid grid-cols-3">
+          <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
+          <TabsTrigger value="topics">Topics Breakdown</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="topics" className="mt-6">
-          <div className="space-y-4">
-            {subjects.map((subject) => (
-              <TopicBreakdownCard key={subject.id} subject={subject} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="weightage" className="mt-6">
-          <WeightageAnalysis 
-            subjects={subjects} 
-            examName={examName || 'JEE Advanced'} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="time-allocation" className="mt-6">
+        <TabsContent value="time-allocation" className="mt-4">
           <TimeAllocation subjects={subjects} weeklyHours={weeklyHours} />
         </TabsContent>
         
-        <TabsContent value="timeline" className="mt-6">
+        <TabsContent value="topics" className="mt-4">
+          <SubjectTopics subjects={subjects} />
+        </TabsContent>
+        
+        <TabsContent value="timeline" className="mt-4">
           <Timeline examDate={examDate} examName={examName} />
         </TabsContent>
       </Tabs>
