@@ -1,11 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
-import { getDefaultVoiceConfig } from '@/utils/voiceConfig';
-import { 
-  firstTimeDashboardMessages, 
-  returningUserMessages,
-  speakMessagesWithBreaks 
-} from '@/utils/voiceMessages';
+import React, { useEffect } from 'react';
+import { useIntelligentVoiceAssistant } from '@/hooks/useIntelligentVoiceAssistant';
 
 interface DashboardVoiceGreetingProps {
   userName: string;
@@ -20,40 +15,24 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
   language = 'en-US',
   onSpeakingChange
 }) => {
-  const [hasPlayed, setHasPlayed] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-
-  const playDashboardGreeting = async () => {
-    if (hasPlayed) return;
-    
-    const voiceConfig = getDefaultVoiceConfig();
-    const messages = isFirstTimeUser 
-      ? firstTimeDashboardMessages(userName)
-      : returningUserMessages(userName);
-    
-    await speakMessagesWithBreaks(
-      messages,
-      { ...voiceConfig, language },
-      () => {
-        setIsSpeaking(true);
-        if (onSpeakingChange) onSpeakingChange(true);
-      },
-      () => {
-        setIsSpeaking(false);
-        if (onSpeakingChange) onSpeakingChange(false);
-        setHasPlayed(true);
-      }
-    );
-  };
+  const { isSpeaking, playInitialGreeting } = useIntelligentVoiceAssistant({
+    userName,
+    language,
+    onSpeakingChange,
+    inactivityTimeout: 12000 // 12 seconds for dashboard
+  });
 
   useEffect(() => {
-    if (userName && !hasPlayed) {
-      // Delay to ensure dashboard is loaded
+    if (userName && userName !== 'there') {
+      const greetingMessage = isFirstTimeUser 
+        ? `Welcome to your PREPZR dashboard, ${userName}! This is your command center for exam preparation excellence. How can I help you get started?`
+        : `Great to see you back, ${userName}! Your dedication to consistent learning is impressive. What would you like to focus on today?`;
+      
       setTimeout(() => {
-        playDashboardGreeting();
-      }, 3000);
+        playInitialGreeting(greetingMessage);
+      }, 2000);
     }
-  }, [userName, hasPlayed]);
+  }, [userName, isFirstTimeUser, playInitialGreeting]);
 
   return null;
 };
