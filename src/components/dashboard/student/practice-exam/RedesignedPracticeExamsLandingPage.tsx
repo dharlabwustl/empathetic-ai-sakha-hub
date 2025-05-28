@@ -1,446 +1,420 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
-  BookOpen, 
-  Clock, 
-  Target, 
-  TrendingUp, 
-  Award, 
-  Brain, 
-  Zap, 
-  Calendar,
-  PlayCircle,
-  ChevronRight,
+  FileText, 
+  Search, 
+  Plus, 
+  PlayCircle, 
+  BarChart3, 
+  Target,
+  Clock,
+  TrendingUp,
   Star,
-  BarChart3,
-  Timer,
-  CheckCircle2,
+  Filter,
+  CheckCircle,
   AlertCircle,
-  Trophy,
-  PieChart,
-  Activity
-} from "lucide-react";
+  Users
+} from 'lucide-react';
+import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
-const RedesignedPracticeExamsLandingPage = () => {
+const RedesignedPracticeExamsLandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
 
-  // Mock data
-  const stats = {
-    totalExams: 24,
-    completed: 18,
-    averageScore: 78,
-    timeSpent: 420, // minutes
-    streak: 7,
-    rank: 142
+  const overviewData = {
+    type: "Practice Exams" as const,
+    title: "NEET Practice Exams Overview",
+    subjects: [
+      { name: "Physics", completed: 8, total: 12, progress: 67, efficiency: 82, studyTime: 240 },
+      { name: "Chemistry", completed: 6, total: 10, progress: 60, efficiency: 75, studyTime: 180 },
+      { name: "Biology", completed: 10, total: 14, progress: 71, efficiency: 88, studyTime: 280 }
+    ],
+    totalStudyTime: 700,
+    overallProgress: 66,
+    suggestions: [
+      "Focus on Physics numerical problems in practice tests",
+      "Chemistry organic section needs more mock exam practice",
+      "Biology scores show consistent improvement - keep practicing"
+    ]
   };
 
-  const subjects = [
-    {
-      name: 'Physics',
-      exams: 8,
-      completed: 6,
-      avgScore: 82,
-      weakTopics: ['Optics', 'Modern Physics'],
-      strongTopics: ['Mechanics', 'Thermodynamics'],
-      progress: 75,
-      weightage: 35
-    },
-    {
-      name: 'Chemistry',
-      exams: 8,
-      completed: 6,
-      avgScore: 76,
-      weakTopics: ['Organic Chemistry', 'Chemical Bonding'],
-      strongTopics: ['Inorganic Chemistry'],
-      progress: 70,
-      weightage: 35
-    },
-    {
-      name: 'Biology',
-      exams: 8,
-      completed: 6,
-      avgScore: 74,
-      weakTopics: ['Genetics', 'Evolution'],
-      strongTopics: ['Human Physiology', 'Plant Biology'],
-      progress: 65,
-      weightage: 30
-    }
-  ];
-
-  const recentExams = [
+  const practiceExams = [
     {
       id: '1',
-      title: 'NEET Full Mock Test 1',
-      subject: 'All Subjects',
-      score: 85,
-      date: '2024-01-15',
+      title: "NEET Physics Mock Test #1",
+      subject: "Physics",
+      weightage: "25%",
+      questionCount: 45,
       duration: 180,
-      questions: 180,
-      status: 'completed'
+      difficulty: "Medium",
+      lastAttempted: "2 days ago",
+      bestScore: 85,
+      topic: "Mechanics & Optics",
+      examType: "NEET",
+      status: "completed",
+      attempts: 3
     },
     {
       id: '2',
-      title: 'Physics Chapter Test',
-      subject: 'Physics',
-      score: null,
-      date: '2024-01-16',
-      duration: 45,
-      questions: 45,
-      status: 'pending'
+      title: "Chemistry Full Length Test",
+      subject: "Chemistry", 
+      weightage: "25%",
+      questionCount: 45,
+      duration: 180,
+      difficulty: "Hard",
+      lastAttempted: "Never",
+      bestScore: null,
+      topic: "Organic & Inorganic",
+      examType: "NEET",
+      status: "pending",
+      attempts: 0
+    },
+    {
+      id: '3',
+      title: "Biology Comprehensive Exam",
+      subject: "Biology",
+      weightage: "50%",
+      questionCount: 90,
+      duration: 180,
+      difficulty: "Medium",
+      lastAttempted: "1 day ago",
+      bestScore: 78,
+      topic: "Botany & Zoology",
+      examType: "NEET",
+      status: "in-progress",
+      attempts: 1
+    },
+    {
+      id: '4',
+      title: "Mixed Subject Mock Test",
+      subject: "All Subjects",
+      weightage: "100%",
+      questionCount: 180,
+      duration: 180,
+      difficulty: "Hard",
+      lastAttempted: "5 days ago",
+      bestScore: 72,
+      topic: "Complete NEET Syllabus",
+      examType: "NEET",
+      status: "completed",
+      attempts: 2
     }
   ];
 
-  const aiSuggestions = [
-    {
-      type: 'weak_area',
-      title: 'Focus on Optics',
-      description: 'Your performance in optics is below average. Practice more numerical problems.',
-      priority: 'high',
-      action: 'Take Optics Practice Test'
-    },
-    {
-      type: 'time_management',
-      title: 'Improve Speed',
-      description: 'You\'re spending too much time on organic chemistry questions.',
-      priority: 'medium',
-      action: 'Practice Timed Tests'
-    },
-    {
-      type: 'strength',
-      title: 'Build on Mechanics',
-      description: 'You\'re strong in mechanics. Try advanced level questions.',
-      priority: 'low',
-      action: 'Take Advanced Test'
+  const subjects = ['all', 'Physics', 'Chemistry', 'Biology', 'All Subjects'];
+
+  const getFilteredExams = () => {
+    return practiceExams.filter(exam => {
+      const matchesSearch = exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           exam.topic.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSubject = selectedSubject === 'all' || exam.subject === selectedSubject;
+      const matchesTab = activeTab === 'all' || exam.status === activeTab;
+      return matchesSearch && matchesSubject && matchesTab;
+    });
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-700 border-green-200';
+      case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200'; 
+      case 'Hard': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
-  ];
-
-  const handleStartExam = (examId: string) => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
   };
 
-  const handleViewExams = () => {
-    navigate('/dashboard/student/practice-exam');
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'in-progress': return <PlayCircle className="h-4 w-4 text-blue-600" />;
+      case 'pending': return <AlertCircle className="h-4 w-4 text-gray-600" />;
+      default: return <AlertCircle className="h-4 w-4 text-gray-600" />;
+    }
   };
 
-  const renderOverview = () => (
-    <div className="space-y-6">
-      {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-600 font-medium">Total Exams</p>
-                <p className="text-2xl font-bold text-blue-900">{stats.totalExams}</p>
-              </div>
-              <BookOpen className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
+  const getScoreColor = (score: number | null) => {
+    if (!score) return 'text-gray-600';
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-green-600 font-medium">Completed</p>
-                <p className="text-2xl font-bold text-green-900">{stats.completed}</p>
-              </div>
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
+  const navigateToExam = (examId: string, action: 'start' | 'review') => {
+    const targetRoute = `/dashboard/student/practice-exam/${examId}/${action}`;
+    console.log(`🔥 NAVIGATION TO PRACTICE EXAM: ${targetRoute}`);
+    navigate(targetRoute);
+  };
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-purple-600 font-medium">Avg Score</p>
-                <p className="text-2xl font-bold text-purple-900">{stats.averageScore}%</p>
-              </div>
-              <Target className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
+  const getTabCounts = () => {
+    const filtered = practiceExams.filter(exam => {
+      const matchesSubject = selectedSubject === 'all' || exam.subject === selectedSubject;
+      return matchesSubject;
+    });
+    
+    return {
+      all: filtered.length,
+      pending: filtered.filter(e => e.status === 'pending').length,
+      'in-progress': filtered.filter(e => e.status === 'in-progress').length,
+      completed: filtered.filter(e => e.status === 'completed').length
+    };
+  };
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-orange-600 font-medium">Study Streak</p>
-                <p className="text-2xl font-bold text-orange-900">{stats.streak} days</p>
-              </div>
-              <Award className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* AI Suggestions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-600" />
-            Daily Smart Suggestions
-          </CardTitle>
-          <CardDescription>
-            AI-powered recommendations based on your performance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {aiSuggestions.map((suggestion, index) => (
-              <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className={`p-2 rounded-lg ${
-                  suggestion.priority === 'high' ? 'bg-red-100' :
-                  suggestion.priority === 'medium' ? 'bg-yellow-100' : 'bg-green-100'
-                }`}>
-                  {suggestion.type === 'weak_area' ? <AlertCircle className="h-4 w-4 text-red-600" /> :
-                   suggestion.type === 'time_management' ? <Timer className="h-4 w-4 text-yellow-600" /> :
-                   <Trophy className="h-4 w-4 text-green-600" />}
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">{suggestion.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{suggestion.description}</p>
-                  <Button size="sm" variant="outline" className="mt-2">
-                    {suggestion.action}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Progress Tracking */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
-            Progress Tracking
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h4 className="font-semibold">Recent Performance</h4>
-              <div className="space-y-3">
-                {recentExams.map((exam) => (
-                  <div key={exam.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">{exam.title}</p>
-                      <p className="text-sm text-gray-600">{exam.subject}</p>
-                    </div>
-                    <div className="text-right">
-                      {exam.status === 'completed' ? (
-                        <Badge variant="outline" className="bg-green-100 text-green-800">
-                          {exam.score}%
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
-                          Pending
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <h4 className="font-semibold">Study Analytics</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-blue-50 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-blue-900">{stats.timeSpent}</p>
-                  <p className="text-sm text-blue-600">Minutes Studied</p>
-                </div>
-                <div className="p-3 bg-purple-50 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-purple-900">#{stats.rank}</p>
-                  <p className="text-sm text-purple-600">Your Rank</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Ready for your next challenge?</h3>
-              <p className="text-gray-600">Take a practice exam to improve your score</p>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleViewExams} variant="outline">
-                <BookOpen className="h-4 w-4 mr-2" />
-                View All Exams
-              </Button>
-              <Button onClick={() => handleStartExam('4')} className="bg-gradient-to-r from-blue-600 to-purple-600">
-                <PlayCircle className="h-4 w-4 mr-2" />
-                Start Mock Test
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderSubjectAnalysis = (subject: typeof subjects[0]) => (
-    <Card key={subject.name} className="h-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{subject.name}</CardTitle>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700">
-            {subject.weightage}% weightage
-          </Badge>
-        </div>
-        <CardDescription>
-          {subject.completed}/{subject.exams} exams completed • Avg: {subject.avgScore}%
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <div className="flex justify-between text-sm mb-2">
-            <span>Progress</span>
-            <span>{subject.progress}%</span>
-          </div>
-          <Progress value={subject.progress} className="h-2" />
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <h5 className="font-medium text-green-700 mb-2">Strong Topics</h5>
-            <ul className="space-y-1">
-              {subject.strongTopics.map((topic) => (
-                <li key={topic} className="text-sm text-gray-600 flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-green-600" />
-                  {topic}
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          <div>
-            <h5 className="font-medium text-red-700 mb-2">Weak Topics</h5>
-            <ul className="space-y-1">
-              {subject.weakTopics.map((topic) => (
-                <li key={topic} className="text-sm text-gray-600 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3 text-red-600" />
-                  {topic}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        
-        <Button size="sm" variant="outline" className="w-full" onClick={handleViewExams}>
-          <PlayCircle className="h-4 w-4 mr-2" />
-          Practice {subject.name}
-        </Button>
-      </CardContent>
-    </Card>
-  );
+  const tabCounts = getTabCounts();
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Practice Exams
-        </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Master your preparation with AI-powered practice exams, detailed analytics, and personalized recommendations
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/50 dark:from-blue-900/10 dark:via-gray-900 dark:to-indigo-900/10">
+      <Helmet>
+        <title>Practice Exams - PREPZR</title>
+        <meta name="description" content="NEET practice exams for comprehensive assessment" />
+      </Helmet>
+
+      {/* Overview Section */}
+      <div className="p-6">
+        <OverviewSection {...overviewData} />
       </div>
 
-      {/* Navigation Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="physics" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            Physics
-          </TabsTrigger>
-          <TabsTrigger value="chemistry" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            Chemistry
-          </TabsTrigger>
-          <TabsTrigger value="biology" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            Biology
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
-          {renderOverview()}
-        </TabsContent>
-
-        <TabsContent value="physics">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {renderSubjectAnalysis(subjects[0])}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Physics Exam Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-500">Performance chart would be displayed here</p>
-                  </div>
-                </CardContent>
-              </Card>
+      <div className="container mx-auto px-4 py-6 space-y-8">
+        {/* Hero Section */}
+        <motion.div 
+          className="text-center space-y-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full">
+              <FileText className="h-8 w-8 text-white" />
             </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Practice Exams
+            </h1>
           </div>
-        </TabsContent>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Comprehensive practice tests with detailed analytics and performance tracking
+          </p>
+        </motion.div>
 
-        <TabsContent value="chemistry">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {renderSubjectAnalysis(subjects[1])}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Chemistry Exam Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-500">Performance chart would be displayed here</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-col sm:flex-row gap-4 items-center"
+        >
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input 
+              placeholder="Search practice exams..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        </TabsContent>
+          
+          <div className="flex gap-2">
+            {subjects.map((subject) => (
+              <Button
+                key={subject}
+                variant={selectedSubject === subject ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedSubject(subject)}
+                className="capitalize"
+              >
+                {subject === 'All Subjects' ? 'Mixed' : subject}
+              </Button>
+            ))}
+          </div>
+          
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Exam
+          </Button>
+        </motion.div>
 
-        <TabsContent value="biology">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {renderSubjectAnalysis(subjects[2])}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Biology Exam Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-500">Performance chart would be displayed here</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+        {/* Status Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-sm">
+              <TabsTrigger value="all" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                All ({tabCounts.all})
+              </TabsTrigger>
+              <TabsTrigger value="pending" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                Pending ({tabCounts.pending})
+              </TabsTrigger>
+              <TabsTrigger value="in-progress" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                In Progress ({tabCounts['in-progress']})
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                Completed ({tabCounts.completed})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={activeTab} className="mt-6">
+              {/* Practice Exams Grid */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              >
+                {getFilteredExams().map((exam, index) => (
+                  <motion.div
+                    key={exam.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    className="w-full"
+                  >
+                    <Card className="h-80 w-full flex flex-col hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start mb-2">
+                          <CardTitle className="text-base font-semibold line-clamp-2">
+                            {exam.title}
+                          </CardTitle>
+                          <Badge variant="outline" className={getDifficultyColor(exam.difficulty)}>
+                            {exam.difficulty}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {exam.subject}
+                          </Badge>
+                          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 text-xs">
+                            {exam.weightage}
+                          </Badge>
+                          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs flex items-center gap-1">
+                            <Target className="h-3 w-3" />
+                            {exam.examType}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs flex items-center gap-1">
+                            {getStatusIcon(exam.status)}
+                            {exam.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-1">{exam.topic}</p>
+                      </CardHeader>
+                      
+                      <CardContent className="space-y-3 flex-grow">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-600">{exam.questionCount} questions</span>
+                          <span className="text-gray-600 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {exam.duration}min
+                          </span>
+                        </div>
+                        
+                        {exam.bestScore && (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-medium">Best Score</span>
+                              <span className={`text-xs font-bold ${getScoreColor(exam.bestScore)}`}>
+                                {exam.bestScore}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full transition-all duration-300 ${
+                                  exam.bestScore >= 80 ? 'bg-green-500' :
+                                  exam.bestScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                                style={{ width: `${exam.bestScore}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500 flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            {exam.attempts} attempts
+                          </span>
+                          <span className="text-gray-500">
+                            Last: {exam.lastAttempted}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 mt-auto">
+                          {exam.status === 'completed' ? (
+                            <>
+                              <Button 
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigateToExam(exam.id, 'review')}
+                                className="text-xs"
+                              >
+                                <BarChart3 className="h-3 w-3 mr-1" />
+                                Review
+                              </Button>
+                              <Button 
+                                size="sm"
+                                onClick={() => navigateToExam(exam.id, 'start')}
+                                className="text-xs bg-blue-600 hover:bg-blue-700"
+                              >
+                                <PlayCircle className="h-3 w-3 mr-1" />
+                                Retake
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button 
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigateToExam(exam.id, 'start')}
+                                className="text-xs"
+                              >
+                                <PlayCircle className="h-3 w-3 mr-1" />
+                                {exam.status === 'in-progress' ? 'Continue' : 'Start'}
+                              </Button>
+                              <Button 
+                                size="sm"
+                                onClick={() => navigateToExam(exam.id, 'start')}
+                                className="text-xs bg-blue-600 hover:bg-blue-700"
+                              >
+                                <FileText className="h-3 w-3 mr-1" />
+                                Take Test
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* No practice exams found */}
+              {getFilteredExams().length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-12"
+                >
+                  <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No practice exams found</h3>
+                  <p className="text-gray-500 mb-4">Try adjusting your search terms or filters</p>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Exam
+                  </Button>
+                </motion.div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+      </div>
     </div>
   );
 };

@@ -1,452 +1,379 @@
 
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, 
-  Clock, 
-  Target, 
-  TrendingUp, 
-  Play, 
-  ChevronRight, 
   Brain, 
+  Search, 
+  Plus, 
+  BookOpen, 
+  Zap, 
+  Target,
+  Clock,
+  TrendingUp,
   Star,
-  Award,
-  BarChart3,
-  Lightbulb,
-  BookMarked,
-  Users,
-  Calendar,
   Filter,
-  Search
+  CheckCircle,
+  AlertCircle,
+  PlayCircle
 } from 'lucide-react';
+import OverviewSection from '@/components/dashboard/student/OverviewSection';
 
-const RedesignedConceptsLandingPage = () => {
+const RedesignedConceptsLandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeSubject, setActiveSubject] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
 
-  // Enhanced concept data with weightage analysis
-  const subjectData = {
-    physics: {
-      name: 'Physics',
-      totalConcepts: 120,
-      masteredConcepts: 85,
-      inProgressConcepts: 20,
-      newConcepts: 15,
-      studyTime: '32h 45m',
-      efficiency: 82,
-      examWeightage: 33.3,
-      improvementRate: '+18%',
-      color: 'from-blue-500 to-cyan-500',
-      topics: [
-        { name: 'Mechanics', progress: 90, weightage: 25, concepts: 25, difficulty: 'medium' },
-        { name: 'Thermodynamics', progress: 75, weightage: 20, concepts: 18, difficulty: 'hard' },
-        { name: 'Optics', progress: 65, weightage: 15, concepts: 22, difficulty: 'medium' },
-        { name: 'Modern Physics', progress: 45, weightage: 15, concepts: 15, difficulty: 'hard' },
-        { name: 'Waves', progress: 80, weightage: 15, concepts: 20, difficulty: 'medium' },
-        { name: 'Electromagnetism', progress: 55, weightage: 10, concepts: 20, difficulty: 'hard' }
-      ]
-    },
-    chemistry: {
-      name: 'Chemistry',
-      totalConcepts: 150,
-      masteredConcepts: 110,
-      inProgressConcepts: 25,
-      newConcepts: 15,
-      studyTime: '41h 20m',
-      efficiency: 88,
-      examWeightage: 33.3,
-      improvementRate: '+22%',
-      color: 'from-green-500 to-emerald-500',
-      topics: [
-        { name: 'Organic Chemistry', progress: 85, weightage: 35, concepts: 45, difficulty: 'hard' },
-        { name: 'Inorganic Chemistry', progress: 70, weightage: 30, concepts: 35, difficulty: 'medium' },
-        { name: 'Physical Chemistry', progress: 80, weightage: 25, concepts: 30, difficulty: 'hard' },
-        { name: 'Environmental Chemistry', progress: 90, weightage: 10, concepts: 15, difficulty: 'easy' }
-      ]
-    },
-    biology: {
-      name: 'Biology',
-      totalConcepts: 180,
-      masteredConcepts: 125,
-      inProgressConcepts: 35,
-      newConcepts: 20,
-      studyTime: '48h 15m',
-      efficiency: 79,
-      examWeightage: 33.4,
-      improvementRate: '+15%',
-      color: 'from-purple-500 to-pink-500',
-      topics: [
-        { name: 'Cell Biology', progress: 95, weightage: 20, concepts: 30, difficulty: 'medium' },
-        { name: 'Genetics', progress: 70, weightage: 20, concepts: 25, difficulty: 'hard' },
-        { name: 'Ecology', progress: 60, weightage: 15, concepts: 20, difficulty: 'medium' },
-        { name: 'Human Physiology', progress: 80, weightage: 25, concepts: 35, difficulty: 'medium' },
-        { name: 'Plant Biology', progress: 65, weightage: 15, concepts: 25, difficulty: 'medium' },
-        { name: 'Evolution', progress: 75, weightage: 5, concepts: 15, difficulty: 'easy' }
-      ]
-    }
+  const overviewData = {
+    type: "Concepts" as const,
+    title: "NEET Concepts Overview",
+    subjects: [
+      { name: "Physics", completed: 45, total: 60, progress: 75, efficiency: 88, studyTime: 120 },
+      { name: "Chemistry", completed: 32, total: 55, progress: 58, efficiency: 72, studyTime: 95 },
+      { name: "Biology", completed: 55, total: 70, progress: 79, efficiency: 85, studyTime: 140 }
+    ],
+    totalStudyTime: 355,
+    overallProgress: 71,
+    suggestions: [
+      "Focus on Chemistry organic reactions for better retention",
+      "Physics mechanics concepts show excellent understanding",
+      "Biology cell biology needs more practice time"
+    ]
   };
 
-  const aiSuggestions = [
+  const concepts = [
     {
-      icon: TrendingUp,
-      title: "Focus on Physics Electromagnetism",
-      description: "This topic has high exam weightage (25%) but low progress (55%). Dedicate 30 min daily.",
-      priority: "high",
-      timeEstimate: "30 min/day"
+      id: '1',
+      title: 'Newton\'s Laws of Motion',
+      description: 'Understanding the fundamental principles of motion and forces in physics',
+      subject: 'Physics',
+      difficulty: 'medium' as const,
+      completed: false,
+      progress: 65,
+      mastery: 78,
+      timeEstimate: '25 min',
+      tags: ['Mechanics', 'Forces'],
+      examType: 'NEET',
+      status: 'in-progress' as const
     },
     {
-      icon: Target,
-      title: "Review Chemistry Organic Mechanisms",
-      description: "Great progress! Schedule weekly reviews to maintain 85% mastery in this high-weightage topic.",
-      priority: "medium",
-      timeEstimate: "15 min/week"
+      id: '2',
+      title: 'Organic Chemistry Reactions',
+      description: 'Key organic reactions and their mechanisms for NEET preparation',
+      subject: 'Chemistry',
+      difficulty: 'hard' as const,
+      completed: false,
+      progress: 30,
+      mastery: 45,
+      timeEstimate: '35 min',
+      tags: ['Organic', 'Reactions'],
+      examType: 'NEET',
+      status: 'pending' as const
     },
     {
-      icon: Lightbulb,
-      title: "Biology Genetics Breakthrough",
-      description: "Consider concept mapping for complex inheritance patterns. Your efficiency can improve by 15%.",
-      priority: "medium",
-      timeEstimate: "45 min"
+      id: '3',
+      title: 'Cell Biology Fundamentals',
+      description: 'Complete understanding of cell structure and functions',
+      subject: 'Biology',
+      difficulty: 'easy' as const,
+      completed: true,
+      progress: 100,
+      mastery: 92,
+      timeEstimate: '20 min',
+      tags: ['Cell Biology', 'Structure'],
+      examType: 'NEET',
+      status: 'completed' as const
     },
     {
-      icon: BookMarked,
-      title: "Quick Win: Environmental Chemistry",
-      description: "Low weightage but easy difficulty. Complete remaining concepts for a confidence boost.",
-      priority: "low",
-      timeEstimate: "20 min"
+      id: '4',
+      title: 'Thermodynamics Principles',
+      description: 'Laws of thermodynamics and their applications',
+      subject: 'Physics',
+      difficulty: 'medium' as const,
+      completed: false,
+      progress: 80,
+      mastery: 85,
+      timeEstimate: '30 min',
+      tags: ['Thermodynamics', 'Energy'],
+      examType: 'NEET',
+      status: 'in-progress' as const
     }
   ];
 
-  const overallStats = {
-    totalConcepts: 450,
-    masteredConcepts: 320,
-    averageEfficiency: 83,
-    totalStudyTime: '122h 20m',
-    weeklyGoal: 35,
-    weeklyProgress: 28,
-    streak: 12
+  const subjects = ['all', 'Physics', 'Chemistry', 'Biology'];
+
+  const getFilteredConcepts = () => {
+    return concepts.filter(concept => {
+      const matchesSearch = concept.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           concept.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSubject = selectedSubject === 'all' || concept.subject === selectedSubject;
+      const matchesTab = activeTab === 'all' || concept.status === activeTab;
+      return matchesSearch && matchesSubject && matchesTab;
+    });
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy': return 'bg-green-100 text-green-700 border-green-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200'; 
       case 'hard': return 'bg-red-100 text-red-700 border-red-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'border-l-red-500 bg-red-50';
-      case 'medium': return 'border-l-yellow-500 bg-yellow-50';
-      case 'low': return 'border-l-green-500 bg-green-50';
-      default: return 'border-l-gray-500 bg-gray-50';
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'in-progress': return <PlayCircle className="h-4 w-4 text-blue-600" />;
+      case 'pending': return <AlertCircle className="h-4 w-4 text-gray-600" />;
+      default: return <AlertCircle className="h-4 w-4 text-gray-600" />;
     }
   };
 
+  const navigateToConcept = (conceptId: string) => {
+    const targetRoute = `/dashboard/student/concepts/${conceptId}`;
+    console.log(`🔥 NAVIGATION TO CONCEPT DETAIL: ${targetRoute}`);
+    navigate(targetRoute);
+  };
+
+  const getTabCounts = () => {
+    const filtered = concepts.filter(concept => {
+      const matchesSubject = selectedSubject === 'all' || concept.subject === selectedSubject;
+      return matchesSubject;
+    });
+    
+    return {
+      all: filtered.length,
+      pending: filtered.filter(c => c.status === 'pending').length,
+      'in-progress': filtered.filter(c => c.status === 'in-progress').length,
+      completed: filtered.filter(c => c.status === 'completed').length
+    };
+  };
+
+  const tabCounts = getTabCounts();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Premium Header */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/50 dark:from-indigo-900/10 dark:via-gray-900 dark:to-purple-900/10">
+      <Helmet>
+        <title>Concepts - PREPZR</title>
+        <meta name="description" content="NEET concepts for comprehensive understanding" />
+      </Helmet>
+
+      {/* Overview Section */}
+      <div className="p-6">
+        <OverviewSection {...overviewData} />
+      </div>
+
+      <div className="container mx-auto px-4 py-6 space-y-8">
+        {/* Hero Section */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          className="text-center space-y-4"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+          transition={{ duration: 0.6 }}
         >
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Concept Mastery Hub
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full">
+              <Brain className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Concept Mastery
             </h1>
-            <p className="text-lg text-gray-600 mt-2">AI-powered concept learning with weightage analysis</p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50">
-              <Filter className="h-4 w-4 mr-2" />
-              Advanced Filters
-            </Button>
-            <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50">
-              <Search className="h-4 w-4 mr-2" />
-              Smart Search
-            </Button>
-            <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Create Concept
-            </Button>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Deep dive into NEET concepts with interactive learning and comprehensive understanding
+          </p>
+        </motion.div>
+
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-col sm:flex-row gap-4 items-center"
+        >
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input 
+              placeholder="Search concepts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
+          
+          <div className="flex gap-2">
+            {subjects.map((subject) => (
+              <Button
+                key={subject}
+                variant={selectedSubject === subject ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedSubject(subject)}
+                className="capitalize"
+              >
+                {subject}
+              </Button>
+            ))}
+          </div>
+          
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Concept
+          </Button>
         </motion.div>
 
-        {/* Premium Overview Cards */}
-        <motion.div 
+        {/* Status Tabs */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4"
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-indigo-600">{overallStats.totalConcepts}</div>
-              <div className="text-sm text-gray-600">Total Concepts</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{overallStats.masteredConcepts}</div>
-              <div className="text-sm text-gray-600">Mastered</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-amber-600">{overallStats.averageEfficiency}%</div>
-              <div className="text-sm text-gray-600">Efficiency</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">{overallStats.totalStudyTime}</div>
-              <div className="text-sm text-gray-600">Study Time</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">{overallStats.streak}</div>
-              <div className="text-sm text-gray-600">Day Streak</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{overallStats.weeklyProgress}</div>
-              <div className="text-sm text-gray-600">Weekly Goal</div>
-              <Progress value={(overallStats.weeklyProgress / overallStats.weeklyGoal) * 100} className="h-1 mt-1" />
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-cyan-600">A+</div>
-              <div className="text-sm text-gray-600">Performance</div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* AI Suggestions Panel */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-indigo-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-indigo-800">
-                <Brain className="h-5 w-5" />
-                Daily AI Insights & Recommendations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {aiSuggestions.map((suggestion, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                    className={`p-4 bg-white rounded-lg border-l-4 shadow-sm ${getPriorityColor(suggestion.priority)}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <suggestion.icon className="h-5 w-5 text-indigo-600 mt-0.5" />
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900">{suggestion.title}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{suggestion.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline" className="text-xs">
-                            {suggestion.timeEstimate}
-                          </Badge>
-                          <Badge variant="outline" className={`text-xs ${
-                            suggestion.priority === 'high' ? 'border-red-200 text-red-700' :
-                            suggestion.priority === 'medium' ? 'border-yellow-200 text-yellow-700' :
-                            'border-green-200 text-green-700'
-                          }`}>
-                            {suggestion.priority} priority
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Subject Tabs with Topic Breakdown */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Tabs value={activeSubject} onValueChange={setActiveSubject}>
-            <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur-sm">
-              <TabsTrigger value="all">All Subjects</TabsTrigger>
-              <TabsTrigger value="physics">Physics</TabsTrigger>
-              <TabsTrigger value="chemistry">Chemistry</TabsTrigger>
-              <TabsTrigger value="biology">Biology</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-sm">
+              <TabsTrigger value="all" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+                All ({tabCounts.all})
+              </TabsTrigger>
+              <TabsTrigger value="pending" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                Pending ({tabCounts.pending})
+              </TabsTrigger>
+              <TabsTrigger value="in-progress" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                In Progress ({tabCounts['in-progress']})
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                Completed ({tabCounts.completed})
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="all" className="mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {Object.entries(subjectData).map(([key, subject]) => (
+            <TabsContent value={activeTab} className="mt-6">
+              {/* Concepts Grid */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              >
+                {getFilteredConcepts().map((concept, index) => (
                   <motion.div
-                    key={key}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.2 }}
+                    key={concept.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    className="w-full"
                   >
-                    <Card className="h-full bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-xl font-bold">{subject.name}</CardTitle>
-                          <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${subject.color}`}></div>
+                    <Card 
+                      className="h-80 w-full flex flex-col hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-indigo-500"
+                      onClick={() => navigateToConcept(concept.id)}
+                    >
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start mb-2">
+                          <CardTitle className="text-base font-semibold line-clamp-2">
+                            {concept.title}
+                          </CardTitle>
+                          <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
+                            {concept.difficulty}
+                          </Badge>
                         </div>
-                        <div className="text-sm text-gray-600">
-                          Exam Weightage: {subject.examWeightage}%
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {concept.subject}
+                          </Badge>
+                          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs flex items-center gap-1">
+                            <Target className="h-3 w-3" />
+                            {concept.examType}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs flex items-center gap-1">
+                            {getStatusIcon(concept.status)}
+                            {concept.status}
+                          </Badge>
                         </div>
+                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">{concept.description}</p>
                       </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm font-medium">
-                            <span>Overall Progress</span>
-                            <span>{Math.round((subject.masteredConcepts / subject.totalConcepts) * 100)}%</span>
-                          </div>
-                          <Progress value={(subject.masteredConcepts / subject.totalConcepts) * 100} className="h-3" />
+                      
+                      <CardContent className="space-y-3 flex-grow">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-600 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {concept.timeEstimate}
+                          </span>
+                          <span className="text-gray-600">Mastery: {concept.mastery}%</span>
                         </div>
                         
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="p-2 bg-green-50 rounded-lg text-center border border-green-200">
-                            <div className="text-lg font-bold text-green-700">{subject.masteredConcepts}</div>
-                            <div className="text-xs text-green-600">Mastered</div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-medium">Progress</span>
+                            <span className="text-xs font-bold text-indigo-600">{concept.progress}%</span>
                           </div>
-                          <div className="p-2 bg-yellow-50 rounded-lg text-center border border-yellow-200">
-                            <div className="text-lg font-bold text-yellow-700">{subject.inProgressConcepts}</div>
-                            <div className="text-xs text-yellow-600">Learning</div>
-                          </div>
-                          <div className="p-2 bg-blue-50 rounded-lg text-center border border-blue-200">
-                            <div className="text-lg font-bold text-blue-700">{subject.newConcepts}</div>
-                            <div className="text-xs text-blue-600">New</div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="h-2 rounded-full bg-indigo-500 transition-all duration-300"
+                              style={{ width: `${concept.progress}%` }}
+                            />
                           </div>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t">
-                          <div className="flex items-center gap-1 text-xs">
-                            <Clock className="h-3 w-3 text-gray-500" />
-                            <span className="text-gray-600">{subject.studyTime}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-xs">
-                            <TrendingUp className="h-3 w-3 text-green-500" />
-                            <span className="text-green-600 font-medium">{subject.improvementRate}</span>
-                          </div>
+                        
+                        <div className="flex flex-wrap gap-1">
+                          {concept.tags.map((tag, tagIndex) => (
+                            <Badge key={tagIndex} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
                         </div>
-
-                        <Button 
-                          className={`w-full bg-gradient-to-r ${subject.color} text-white hover:opacity-90`}
-                          onClick={() => setActiveSubject(key)}
-                        >
-                          <Play className="mr-2 h-4 w-4" />
-                          Study {subject.name}
-                        </Button>
+                        
+                        <div className="grid grid-cols-2 gap-2 mt-auto">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateToConcept(concept.id);
+                            }}
+                            className="text-xs"
+                          >
+                            <BookOpen className="h-3 w-3 mr-1" />
+                            Study
+                          </Button>
+                          <Button 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateToConcept(concept.id);
+                            }}
+                            className="text-xs bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            <Zap className="h-3 w-3 mr-1" />
+                            Quick
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   </motion.div>
                 ))}
-              </div>
+              </motion.div>
+
+              {/* No concepts found */}
+              {getFilteredConcepts().length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-12"
+                >
+                  <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No concepts found</h3>
+                  <p className="text-gray-500 mb-4">Try adjusting your search terms or filters</p>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Concept
+                  </Button>
+                </motion.div>
+              )}
             </TabsContent>
-
-            {Object.entries(subjectData).map(([key, subject]) => (
-              <TabsContent key={key} value={key} className="mt-6">
-                <div className="space-y-6">
-                  {/* Subject Overview */}
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${subject.color}`}></div>
-                        {subject.name} - Topic Wise Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                          <div className="text-2xl font-bold text-blue-700">{subject.efficiency}%</div>
-                          <div className="text-sm text-blue-600">Efficiency</div>
-                        </div>
-                        <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                          <div className="text-2xl font-bold text-green-700">{subject.examWeightage}%</div>
-                          <div className="text-sm text-green-600">Exam Weight</div>
-                        </div>
-                        <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-                          <div className="text-2xl font-bold text-purple-700">{subject.studyTime}</div>
-                          <div className="text-sm text-purple-600">Study Time</div>
-                        </div>
-                        <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
-                          <div className="text-2xl font-bold text-amber-700">{subject.improvementRate}</div>
-                          <div className="text-sm text-amber-600">Improvement</div>
-                        </div>
-                      </div>
-
-                      {/* Topic Breakdown */}
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Topic-wise Breakdown & Weightage</h3>
-                        <div className="grid gap-4">
-                          {subject.topics.map((topic, index) => (
-                            <motion.div
-                              key={index}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.1 * index }}
-                              className="p-4 bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow"
-                            >
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-3">
-                                  <h4 className="font-semibold text-gray-900">{topic.name}</h4>
-                                  <Badge variant="outline" className={getDifficultyColor(topic.difficulty)}>
-                                    {topic.difficulty}
-                                  </Badge>
-                                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
-                                    {topic.weightage}% weightage
-                                  </Badge>
-                                </div>
-                                <div className="text-right">
-                                  <div className="text-lg font-bold text-gray-900">{topic.progress}%</div>
-                                  <div className="text-xs text-gray-500">{topic.concepts} concepts</div>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                  <span>Progress</span>
-                                  <span>{topic.progress}%</span>
-                                </div>
-                                <Progress value={topic.progress} className="h-2" />
-                              </div>
-                              <div className="flex justify-between items-center mt-3">
-                                <div className="text-sm text-gray-600">
-                                  Priority: {topic.weightage >= 25 ? 'High' : topic.weightage >= 15 ? 'Medium' : 'Low'}
-                                </div>
-                                <Button size="sm" variant="outline" className="text-indigo-600 border-indigo-200 hover:bg-indigo-50">
-                                  <Play className="h-3 w-3 mr-1" />
-                                  Study Now
-                                </Button>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-            ))}
           </Tabs>
         </motion.div>
       </div>
