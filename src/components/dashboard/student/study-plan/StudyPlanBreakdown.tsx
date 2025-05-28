@@ -6,11 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight, Target, TrendingUp, Lightbulb } from 'lucide-react';
+import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
 import { Subject, StudyPlanSubject } from '@/types/user/studyPlan';
-import TopicBreakdownCard from './TopicBreakdownCard';
-import WeightageAnalysis from './WeightageAnalysis';
-import DailySmartSuggestions from './DailySmartSuggestions';
 
 interface StudyPlanBreakdownProps {
   subjects: StudyPlanSubject[];
@@ -25,6 +22,7 @@ interface TimeAllocationProps {
 }
 
 const TimeAllocation: React.FC<TimeAllocationProps> = ({ subjects, weeklyHours = 35 }) => {
+  // Calculate percentages and hours per subject based on priority
   const totalSubjects = subjects.length;
   const totalHours = weeklyHours || 35;
   
@@ -284,29 +282,12 @@ export const StudyPlanBreakdown: React.FC<StudyPlanBreakdownProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      {/* Daily Smart Suggestions - Always visible at top */}
-      <DailySmartSuggestions subjects={subjects} examDate={examDate || '2024-06-15'} />
-
-      <Tabs defaultValue="topic-breakdown" className="w-full">
-        <TabsList className="grid grid-cols-5">
-          <TabsTrigger value="topic-breakdown">Topic Breakdown</TabsTrigger>
-          <TabsTrigger value="weightage-analysis">Weightage Analysis</TabsTrigger>
+      <Tabs defaultValue="time-allocation" className="w-full">
+        <TabsList className="grid grid-cols-3">
           <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
-          <TabsTrigger value="topics">Topics</TabsTrigger>
+          <TabsTrigger value="topics">Topics Breakdown</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="topic-breakdown" className="mt-4">
-          <div className="space-y-6">
-            {subjects.map((subject) => (
-              <TopicBreakdownCard key={subject.id} subject={subject} />
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="weightage-analysis" className="mt-4">
-          <WeightageAnalysis subjects={subjects} />
-        </TabsContent>
         
         <TabsContent value="time-allocation" className="mt-4">
           <TimeAllocation subjects={subjects} weeklyHours={weeklyHours} />

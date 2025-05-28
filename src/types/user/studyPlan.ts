@@ -7,19 +7,6 @@ export interface StudyPlanTopic {
   completed: boolean;
   status: 'completed' | 'in-progress' | 'pending' | 'skipped';
   priority: 'high' | 'medium' | 'low';
-  weightage: number;
-  subtopics?: StudyPlanSubtopic[];
-  estimatedHours?: number;
-  masteryLevel?: number;
-}
-
-export interface StudyPlanSubtopic {
-  id: string;
-  name: string;
-  completed: boolean;
-  weightage: number;
-  difficulty: 'easy' | 'medium' | 'hard';
-  estimatedTime: number;
 }
 
 export interface StudyPlanSubject {
@@ -33,10 +20,6 @@ export interface StudyPlanSubject {
   status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
   topics?: StudyPlanTopic[];
-  totalWeightage: number;
-  completedWeightage: number;
-  examImportance: number;
-  aiSuggestions?: string[];
 }
 
 export interface StudyPlan {
