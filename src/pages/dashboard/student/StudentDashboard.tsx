@@ -11,7 +11,7 @@ import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
-import PrepzrVoiceAssistant from "@/components/voice/PrepzrVoiceAssistant";
+import ComprehensivePrepzrVoiceAssistant from "@/components/voice/ComprehensivePrepzrVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -160,28 +160,17 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Mock user progress data for voice assistant
-  const userProgressData = {
-    overallProgress: 68,
-    physicsProgress: 56,
-    chemistryProgress: 69,
-    biologyProgress: 72,
-    examReadinessScore: 78
-  };
-
-  const studyStreak = 5;
-  const lastActivityDescription = lastActivity?.description || 'completed Physics concepts';
-
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
 
-  // Determine voice context
+  // Determine voice context based on user status
   const voiceContext = isFirstTime ? 'dashboard-first' : 'dashboard-returning';
+  const lastActivityDescription = lastActivity?.description || 'exploring your study materials';
 
   return (
     <>
-      {/* PREPZR Voice Assistant - Dashboard Context */}
-      <PrepzrVoiceAssistant 
+      {/* Comprehensive PREPZR Voice Assistant - Dashboard Context */}
+      <ComprehensivePrepzrVoiceAssistant 
         context={voiceContext}
         userName={userProfile.name}
         lastActivity={lastActivityDescription}
@@ -217,8 +206,14 @@ const StudentDashboard = () => {
         userName={userProfile.name}
         language="en-IN"
         userMood={currentMood}
-        userProgress={userProgressData}
-        studyStreak={studyStreak}
+        userProgress={{
+          overallProgress: 68,
+          physicsProgress: 56,
+          chemistryProgress: 69,
+          biologyProgress: 72,
+          examReadinessScore: 78
+        }}
+        studyStreak={5}
         lastActivity={lastActivityDescription}
       />
 

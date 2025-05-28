@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -7,6 +6,7 @@ import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import SidebarLayout from './components/dashboard/SidebarLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 // Import pages and components
 import Index from '@/pages/Index';
@@ -99,14 +99,30 @@ function App() {
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
+              
+              {/* Protected auth routes - redirect if already logged in */}
+              <Route path="/signup" element={
+                <AuthGuard>
+                  <SignUp />
+                </AuthGuard>
+              } />
+              <Route path="/login" element={
+                <AuthGuard>
+                  <Login />
+                </AuthGuard>
+              } />
+              
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+              
               {/* Redirect old admin login routes to the new path */}
               <Route path="/login/admin" element={<Navigate to="/admin/login" replace />} />
-              <Route path="/register" element={<SignUp />} />
+              <Route path="/register" element={
+                <AuthGuard>
+                  <SignUp />
+                </AuthGuard>
+              } />
               
               {/* Footer pages */}
               <Route path="/about" element={<About />} />
@@ -123,8 +139,16 @@ function App() {
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
               {/* Auth-specific routes */}
-              <Route path="/auth/signup" element={<Signup />} />
-              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/auth/signup" element={
+                <AuthGuard>
+                  <Signup />
+                </AuthGuard>
+              } />
+              <Route path="/auth/login" element={
+                <AuthGuard>
+                  <LoginPage />
+                </AuthGuard>
+              } />
               <Route path="/auth/admin-login" element={<AdminLoginPage />} />
               <Route path="/auth/forgot-password" element={<ForgotPassword />} />
               

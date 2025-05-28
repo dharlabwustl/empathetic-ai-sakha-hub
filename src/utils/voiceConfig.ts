@@ -74,12 +74,12 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Ensure consistent pronunciation of PREPZR as "PREP-ZER" throughout the app
+  // Ensure consistent pronunciation of PREPZR as "PREP ZER" throughout the app
   const processedText = text
-    .replace(/PREPZR/gi, 'PREP-ZER')
-    .replace(/Sakha AI/gi, 'PREP-ZER AI')
-    .replace(/PrepZR/gi, 'PREP-ZER')
-    .replace(/Prepzr/gi, 'PREP-ZER');
+    .replace(/PREPZR/gi, 'Prep Zer')
+    .replace(/Sakha AI/gi, 'Prep Zer AI')
+    .replace(/PrepZR/gi, 'Prep Zer')
+    .replace(/Prepzr/gi, 'Prep Zer');
   
   utterance.text = processedText;
   utterance.lang = finalConfig.language;
@@ -139,4 +139,33 @@ export const waitForVoices = (): Promise<SpeechSynthesisVoice[]> => {
       };
     }
   });
+};
+
+// Message tracking to prevent repetition
+const spokenMessages = new Map<string, number>();
+
+export const canSpeakMessage = (message: string, cooldownMs: number = 30000): boolean => {
+  const messageKey = message.toLowerCase().trim();
+  const now = Date.now();
+  const lastSpoken = spokenMessages.get(messageKey);
+  
+  if (lastSpoken && (now - lastSpoken) < cooldownMs) {
+    return false;
+  }
+  
+  spokenMessages.set(messageKey, now);
+  return true;
+};
+
+export const speakWithIntelligentBreaks = (
+  message: string,
+  config?: Partial<VoiceConfig>,
+  cooldownMs: number = 30000
+): void => {
+  if (!canSpeakMessage(message, cooldownMs)) {
+    console.log('🔇 Voice: Message recently spoken, skipping to prevent repetition');
+    return;
+  }
+  
+  speakWithFemaleVoice(message, config);
 };

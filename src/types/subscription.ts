@@ -1,9 +1,17 @@
 
 export enum SubscriptionType {
   FREE = 'free',
+  TRIAL = 'trial',
   BASIC = 'basic',
   PRO = 'pro',
   PREMIUM = 'premium'
+}
+
+export interface TrialInfo {
+  startDate: string;
+  endDate: string;
+  daysRemaining: number;
+  isActive: boolean;
 }
 
 export interface CreditPack {
@@ -24,4 +32,5 @@ export interface SubscriptionPlan {
   features: string[];
   type: SubscriptionType;
   popular?: boolean;
+  trialInfo?: TrialInfo;
 }
