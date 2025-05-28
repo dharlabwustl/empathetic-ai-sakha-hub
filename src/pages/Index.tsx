@@ -17,12 +17,10 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
-import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
+import IntelligentHomepageAssistant from '@/components/voice/IntelligentHomepageAssistant';
+import UltraFastSpeechRecognition from '@/components/voice/UltraFastSpeechRecognition';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -116,17 +114,31 @@ const Index = () => {
         
         <Footer />
         
-        {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
-        <EnhancedHomepageAssistant 
+        {/* Intelligent Homepage Assistant with world-class experience */}
+        <IntelligentHomepageAssistant 
           language="en-US"
           onSpeakingChange={setIsSpeaking}
+          onMicrophoneClick={() => {
+            // Stop speaking when microphone is clicked
+            if (isSpeaking) {
+              window.speechSynthesis.cancel();
+              setIsSpeaking(false);
+            }
+          }}
         />
         
-        {/* Speech Recognition Button - positioned above voice assistant */}
-        <SpeechRecognitionButton
-          position="homepage"
+        {/* Ultra-Fast Speech Recognition */}
+        <UltraFastSpeechRecognition
+          language="en-US"
+          continuous={true}
           onCommand={handleSpeechCommand}
-          className="fixed bottom-24 right-6 z-50"
+          onMicrophoneClick={() => {
+            // Stop speaking when microphone is clicked
+            if (isSpeaking) {
+              window.speechSynthesis.cancel();
+              setIsSpeaking(false);
+            }
+          }}
         />
 
         {/* Enhanced Floating Voice Button with vibrant animations */}
@@ -134,6 +146,10 @@ const Index = () => {
           <FloatingVoiceButton 
             isSpeaking={isSpeaking}
             className="cursor-pointer"
+            onClick={() => {
+              // Dispatch microphone click event
+              document.dispatchEvent(new Event('microphone-click'));
+            }}
           />
         </div>
       </div>

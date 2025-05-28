@@ -7,13 +7,14 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
-import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
-import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
+import IntelligentDashboardAssistant from '@/components/voice/IntelligentDashboardAssistant';
+import UltraFastSpeechRecognition from '@/components/voice/UltraFastSpeechRecognition';
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
+  const [showSplash, setShowSplash] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -113,6 +114,23 @@ const StudentDashboard = () => {
     }
   };
 
+  // Check if user is first time user
+  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true' || 
+                          !userProfile?.loginCount || 
+                          userProfile.loginCount <= 1;
+
+  // Mock user progress data for voice assistant
+  const userProgressData = {
+    overallProgress: 68,
+    physicsProgress: 56,
+    chemistryProgress: 69,
+    biologyProgress: 72,
+    examReadinessScore: 78
+  };
+
+  const studyStreak = 5;
+  const lastActivityDescription = 'completed Physics concepts';
+
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -134,7 +152,6 @@ const StudentDashboard = () => {
     );
   }
 
-  // Ensure the profile has the correct image
   const enhancedUserProfile = {
     ...userProfile,
     avatar: userProfile.avatar || localStorage.getItem('user_profile_image')
@@ -147,21 +164,6 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Mock user progress data for voice assistant
-  const userProgressData = {
-    overallProgress: 68,
-    physicsProgress: 56,
-    chemistryProgress: 69,
-    biologyProgress: 72,
-    examReadinessScore: 78
-  };
-
-  const studyStreak = 5;
-  const lastActivity = 'completed Physics concepts';
-
-  // Force welcome tour to never show
-  const modifiedShowWelcomeTour = false;
-
   return (
     <>
       <DashboardLayout
@@ -172,7 +174,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={modifiedShowWelcomeTour}
+        showWelcomeTour={false}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
@@ -189,23 +191,50 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Dashboard Voice Assistant with user progress context */}
-      <DashboardVoiceAssistant
-        userName={userProfile.name}
-        language="en-IN"
+      {/* Intelligent Dashboard Assistant with context awareness */}
+      <IntelligentDashboardAssistant
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        isFirstTimeUser={isFirstTimeUser}
+        language="en-US"
         userMood={currentMood}
         userProgress={userProgressData}
         studyStreak={studyStreak}
-        lastActivity={lastActivity}
+        lastActivity={lastActivityDescription}
+        onSpeakingChange={setIsSpeaking}
+        onMicrophoneClick={() => {
+          // Stop speaking when microphone is clicked
+          if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            setIsSpeaking(false);
+          }
+        }}
       />
 
-      {/* Interactive Voice Assistant with enhanced navigation */}
-      <InteractiveVoiceAssistant 
-        userName={userProfile.name}
+      {/* Ultra-Fast Speech Recognition for Dashboard */}
+      <UltraFastSpeechRecognition
         language="en-US"
-        onNavigationCommand={(route) => navigate(route)}
-        position="bottom-right"
+        continuous={true}
+        onCommand={(command) => console.log('Dashboard command:', command)}
+        onMicrophoneClick={() => {
+          // Stop speaking when microphone is clicked
+          if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            setIsSpeaking(false);
+          }
+        }}
       />
+
+      {/* Enhanced floating voice assistant button */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <FloatingVoiceButton 
+          isSpeaking={isSpeaking}
+          className="cursor-pointer"
+          onClick={() => {
+            // Dispatch microphone click event
+            document.dispatchEvent(new Event('microphone-click'));
+          }}
+        />
+      </div>
     </>
   );
 };
