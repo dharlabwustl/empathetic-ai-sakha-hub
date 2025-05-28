@@ -90,7 +90,7 @@ const StudyPlanView = () => {
   return (
     <SharedPageLayout 
       title="Study Plan" 
-      subtitle="Your personalized exam preparation roadmap with comprehensive topic analysis"
+      subtitle="Your personalized exam preparation roadmap"
       backButtonUrl="/dashboard/student"
       showBackButton={true}
       actions={
