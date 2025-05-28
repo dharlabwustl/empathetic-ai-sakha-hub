@@ -28,6 +28,7 @@ export interface StudyPlan {
   examGoal?: string;
   status?: 'active' | 'completed' | 'paused';
   progressPercent?: number;
+  progressPercentage?: number; // Added for compatibility
   daysLeft?: number;
   studyHoursPerDay?: number;
   weeklyHours?: number;

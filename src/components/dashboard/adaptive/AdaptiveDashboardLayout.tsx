@@ -1,15 +1,16 @@
 
-import React from 'react';
-import { UserProfileBase, MoodType, UserGoal, LearningStyle } from '@/types/user/base';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Clock, Target, BookOpen, Brain, TrendingUp, Calendar, Zap, Users, AlertCircle, CheckCircle, Award, Star } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserProfileType, MoodType, LearningStyle, StudyStyle } from "@/types/user/base";
+import { Calendar, Clock, Target, TrendingUp, BookOpen, Brain, Zap, Heart, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface AdaptiveDashboardLayoutProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfileType;
   preferences?: any;
   children?: React.ReactNode;
 }
@@ -19,462 +20,368 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
   preferences,
   children
 }) => {
-  // Get exam proximity in days
-  const getExamProximity = () => {
-    if (!userProfile.examDate) return null;
+  // Calculate exam proximity and urgency
+  const examProximity = useMemo(() => {
+    if (!userProfile.examDate) return 'distant';
+    
     const examDate = new Date(userProfile.examDate);
     const today = new Date();
-    const diffTime = examDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
+    const daysUntilExam = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilExam <= 30) return 'critical';
+    if (daysUntilExam <= 90) return 'urgent';
+    if (daysUntilExam <= 180) return 'moderate';
+    return 'distant';
+  }, [userProfile.examDate]);
 
-  const daysToExam = getExamProximity();
-
-  // Enhanced adaptive theme based on mood, exam proximity, and performance
-  const getAdaptiveTheme = () => {
-    const mood = userProfile.currentMood || userProfile.mood;
-    const isExamNear = daysToExam && daysToExam < 30;
-    const performanceLevel = userProfile.performanceLevel || 'intermediate';
-    
-    if (isExamNear && daysToExam < 7) {
-      return {
-        background: 'bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 border-red-200',
-        accent: 'text-red-600',
-        cardBg: 'bg-red-50/50',
-        urgency: 'high'
-      };
-    }
-    
-    if (isExamNear) {
-      return {
-        background: 'bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 border-orange-200',
-        accent: 'text-orange-600',
-        cardBg: 'bg-orange-50/50',
-        urgency: 'medium'
-      };
-    }
-    
+  // Get mood-based theme
+  const getMoodTheme = (mood?: MoodType) => {
     switch (mood) {
-      case MoodType.STRESSED:
-      case MoodType.ANXIOUS:
-        return {
-          background: 'bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 border-blue-200',
-          accent: 'text-blue-600',
-          cardBg: 'bg-blue-50/50',
-          urgency: 'low'
-        };
       case MoodType.MOTIVATED:
-      case MoodType.EXCITED:
         return {
-          background: 'bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-green-200',
-          accent: 'text-green-600',
-          cardBg: 'bg-green-50/50',
-          urgency: 'low'
+          primary: 'bg-gradient-to-r from-green-500 to-emerald-600',
+          secondary: 'bg-green-50 border-green-200',
+          accent: 'text-green-700',
+          icon: '🚀'
         };
-      case MoodType.TIRED:
-      case MoodType.OVERWHELMED:
+      case MoodType.STRESSED:
         return {
-          background: 'bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 border-purple-200',
-          accent: 'text-purple-600',
-          cardBg: 'bg-purple-50/50',
-          urgency: 'low'
+          primary: 'bg-gradient-to-r from-red-400 to-pink-500',
+          secondary: 'bg-red-50 border-red-200',
+          accent: 'text-red-700',
+          icon: '😰'
+        };
+      case MoodType.CONFIDENT:
+        return {
+          primary: 'bg-gradient-to-r from-blue-500 to-indigo-600',
+          secondary: 'bg-blue-50 border-blue-200',
+          accent: 'text-blue-700',
+          icon: '💪'
+        };
+      case MoodType.FOCUSED:
+        return {
+          primary: 'bg-gradient-to-r from-purple-500 to-violet-600',
+          secondary: 'bg-purple-50 border-purple-200',
+          accent: 'text-purple-700',
+          icon: '🎯'
         };
       default:
         return {
-          background: 'bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 border-sky-200',
-          accent: 'text-sky-600',
-          cardBg: 'bg-sky-50/50',
-          urgency: 'low'
+          primary: 'bg-gradient-to-r from-gray-500 to-slate-600',
+          secondary: 'bg-gray-50 border-gray-200',
+          accent: 'text-gray-700',
+          icon: '😊'
         };
     }
   };
 
-  // Enhanced personalized widgets based on comprehensive user profile
-  const getPersonalizedWidgets = () => {
-    const examGoal = userProfile.examGoal || preferences?.examGoal;
-    const learningStyle = userProfile.learningStyle || preferences?.learningStyle;
-    const weakSubjects = userProfile.weakSubjects || preferences?.weakSubjects || [];
-    const strongSubjects = userProfile.strongSubjects || preferences?.strongSubjects || [];
-    const performanceLevel = userProfile.performanceLevel || 'intermediate';
-    const studyStreak = userProfile.studyStreak || 0;
-    
-    const widgets = [];
+  const moodTheme = getMoodTheme(userProfile.currentMood);
 
-    // Exam-specific focused widgets
-    if (examGoal === UserGoal.NEET) {
-      widgets.push({
-        title: 'NEET Strategy Hub',
-        icon: <Target className="h-5 w-5" />,
-        priority: 'high',
-        content: (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="p-2 bg-green-100 rounded text-center">
-                <div className="font-semibold text-green-700">Biology</div>
-                <div className="text-xs">360 marks</div>
-              </div>
-              <div className="p-2 bg-blue-100 rounded text-center">
-                <div className="font-semibold text-blue-700">Chemistry</div>
-                <div className="text-xs">180 marks</div>
-              </div>
-              <div className="p-2 bg-purple-100 rounded text-center">
-                <div className="font-semibold text-purple-700">Physics</div>
-                <div className="text-xs">180 marks</div>
-              </div>
-              <div className="p-2 bg-orange-100 rounded text-center">
-                <div className="font-semibold text-orange-700">Total</div>
-                <div className="text-xs">720 marks</div>
-              </div>
-            </div>
-            <Button className="w-full" size="sm">
-              Start NEET Practice
-            </Button>
-          </div>
-        )
-      });
-    } else if (examGoal === UserGoal.JEE) {
-      widgets.push({
-        title: 'JEE Advanced Focus',
-        icon: <Zap className="h-5 w-5" />,
-        priority: 'high',
-        content: (
-          <div className="space-y-3">
-            <div className="grid grid-cols-3 gap-2 text-sm">
-              <div className="p-2 bg-red-100 rounded text-center">
-                <div className="font-semibold text-red-700">Maths</div>
-                <div className="text-xs">Priority High</div>
-              </div>
-              <div className="p-2 bg-blue-100 rounded text-center">
-                <div className="font-semibold text-blue-700">Physics</div>
-                <div className="text-xs">Moderate</div>
-              </div>
-              <div className="p-2 bg-green-100 rounded text-center">
-                <div className="font-semibold text-green-700">Chemistry</div>
-                <div className="text-xs">Steady</div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button className="flex-1" size="sm" variant="outline">
-                Mock Test
-              </Button>
-              <Button className="flex-1" size="sm">
-                Problem Sets
-              </Button>
-            </div>
-          </div>
-        )
-      });
+  // Get exam-specific content
+  const getExamContent = (examGoal?: string) => {
+    switch (examGoal) {
+      case 'NEET':
+        return {
+          subjects: ['Physics', 'Chemistry', 'Biology'],
+          focusAreas: ['Human Physiology', 'Organic Chemistry', 'Mechanics'],
+          examFormat: 'Multiple Choice Questions (MCQs)',
+          totalQuestions: 180,
+          duration: '3 hours',
+          tips: ['Focus on NCERT textbooks', 'Practice previous year papers', 'Strengthen Biology concepts']
+        };
+      case 'JEE':
+        return {
+          subjects: ['Physics', 'Chemistry', 'Mathematics'],
+          focusAreas: ['Calculus', 'Organic Chemistry', 'Mechanics'],
+          examFormat: 'Multiple Choice + Numerical',
+          totalQuestions: 75,
+          duration: '3 hours',
+          tips: ['Master problem-solving techniques', 'Focus on application-based questions', 'Practice time management']
+        };
+      default:
+        return {
+          subjects: ['Physics', 'Chemistry', 'Mathematics'],
+          focusAreas: ['Core Concepts', 'Problem Solving', 'Time Management'],
+          examFormat: 'Mixed Format',
+          totalQuestions: 100,
+          duration: '3 hours',
+          tips: ['Practice regularly', 'Focus on weak areas', 'Maintain consistency']
+        };
     }
-
-    // Learning style adaptive widgets
-    if (learningStyle === LearningStyle.VISUAL) {
-      widgets.push({
-        title: 'Visual Learning Suite',
-        icon: <Brain className="h-5 w-5" />,
-        priority: 'medium',
-        content: (
-          <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                📊 Mind Maps
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                🎥 Video Lessons
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                📈 Progress Charts
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                🗺️ Concept Maps
-              </Button>
-            </div>
-          </div>
-        )
-      });
-    } else if (learningStyle === LearningStyle.AUDITORY) {
-      widgets.push({
-        title: 'Audio Learning Center',
-        icon: <Users className="h-5 w-5" />,
-        priority: 'medium',
-        content: (
-          <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                🎧 Podcasts
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                💬 Study Groups
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                🔊 Voice Notes
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs p-2">
-                📻 Audio Books
-              </Button>
-            </div>
-          </div>
-        )
-      });
-    }
-
-    // Performance-based priority widgets
-    if (weakSubjects.length > 0) {
-      widgets.push({
-        title: 'Improvement Radar',
-        icon: <TrendingUp className="h-5 w-5" />,
-        priority: 'high',
-        content: (
-          <div className="space-y-3">
-            {weakSubjects.slice(0, 3).map((subject, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-red-50 rounded">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                  <span className="text-sm font-medium">{subject}</span>
-                </div>
-                <Badge variant="destructive" className="text-xs">
-                  Focus
-                </Badge>
-              </div>
-            ))}
-            <Button size="sm" className="w-full bg-red-600 hover:bg-red-700">
-              Intensive Practice
-            </Button>
-          </div>
-        )
-      });
-    }
-
-    // Strong subjects showcase
-    if (strongSubjects.length > 0) {
-      widgets.push({
-        title: 'Strength Zones',
-        icon: <Award className="h-5 w-5" />,
-        priority: 'low',
-        content: (
-          <div className="space-y-2">
-            {strongSubjects.slice(0, 2).map((subject, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium">{subject}</span>
-                </div>
-                <Badge variant="secondary" className="text-xs bg-green-100">
-                  Mastered
-                </Badge>
-              </div>
-            ))}
-            <Button size="sm" variant="outline" className="w-full">
-              Advanced Practice
-            </Button>
-          </div>
-        )
-      });
-    }
-
-    // Time-based urgency widget
-    if (daysToExam) {
-      const urgencyLevel = daysToExam < 7 ? 'critical' : daysToExam < 30 ? 'high' : 'moderate';
-      widgets.push({
-        title: 'Exam Countdown',
-        icon: <Calendar className="h-5 w-5" />,
-        priority: urgencyLevel === 'critical' ? 'high' : 'medium',
-        content: (
-          <div className="text-center space-y-3">
-            <div className={`text-3xl font-bold ${urgencyLevel === 'critical' ? 'text-red-600' : urgencyLevel === 'high' ? 'text-orange-600' : 'text-blue-600'}`}>
-              {daysToExam}
-            </div>
-            <div className="text-sm text-gray-600">days to {examGoal}</div>
-            <Progress 
-              value={Math.max(0, 100 - (daysToExam / 365) * 100)} 
-              className={`w-full ${urgencyLevel === 'critical' ? 'bg-red-100' : urgencyLevel === 'high' ? 'bg-orange-100' : 'bg-blue-100'}`}
-            />
-            <div className={`text-xs px-3 py-1 rounded-full ${urgencyLevel === 'critical' ? 'bg-red-100 text-red-700' : urgencyLevel === 'high' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
-              {urgencyLevel === 'critical' ? 'Final Sprint Mode' : urgencyLevel === 'high' ? 'Intensive Mode' : 'Steady Progress'}
-            </div>
-          </div>
-        )
-      });
-    }
-
-    // Study streak motivation
-    if (studyStreak > 0) {
-      widgets.push({
-        title: 'Study Momentum',
-        icon: <Star className="h-5 w-5" />,
-        priority: 'medium',
-        content: (
-          <div className="text-center space-y-2">
-            <div className="text-2xl font-bold text-yellow-600">
-              🔥 {studyStreak}
-            </div>
-            <div className="text-sm text-gray-600">day streak</div>
-            <div className="text-xs text-yellow-700 bg-yellow-50 px-2 py-1 rounded">
-              Keep the momentum going!
-            </div>
-          </div>
-        )
-      });
-    }
-
-    // Sort widgets by priority
-    return widgets.sort((a, b) => {
-      const priorityOrder = { high: 3, medium: 2, low: 1 };
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
-    });
   };
 
-  const widgets = getPersonalizedWidgets();
-  const theme = getAdaptiveTheme();
+  const examContent = getExamContent(userProfile.examGoal);
+
+  // Get learning style resources
+  const getLearningResources = (style?: LearningStyle) => {
+    switch (style) {
+      case LearningStyle.VISUAL:
+        return {
+          resources: ['Mind Maps', 'Flowcharts', 'Video Lectures', 'Infographics'],
+          icon: '👁️',
+          color: 'blue'
+        };
+      case LearningStyle.AUDITORY:
+        return {
+          resources: ['Audio Lectures', 'Discussion Groups', 'Voice Notes', 'Podcasts'],
+          icon: '🎧',
+          color: 'green'
+        };
+      case LearningStyle.KINESTHETIC:
+        return {
+          resources: ['Hands-on Practice', 'Lab Experiments', 'Interactive Simulations', 'Physical Models'],
+          icon: '✋',
+          color: 'orange'
+        };
+      default:
+        return {
+          resources: ['Mixed Content', 'Varied Formats', 'Multiple Methods', 'Adaptive Learning'],
+          icon: '📚',
+          color: 'purple'
+        };
+    }
+  };
+
+  const learningResources = getLearningResources(userProfile.learningStyle);
+
+  // Calculate performance metrics
+  const performanceData = useMemo(() => {
+    const weakSubjects = userProfile.weakSubjects || ['Physics', 'Organic Chemistry'];
+    const strongSubjects = userProfile.strongSubjects || ['Biology'];
+    const overallProgress = 68; // Mock calculation
+    
+    return {
+      overallProgress,
+      weakSubjects,
+      strongSubjects,
+      improvementAreas: weakSubjects.slice(0, 2),
+      strengthAreas: strongSubjects.slice(0, 2)
+    };
+  }, [userProfile.weakSubjects, userProfile.strongSubjects]);
 
   return (
-    <motion.div 
-      className={`min-h-screen p-6 ${theme.background}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
-      {/* Adaptive Header with Enhanced Context */}
+    <div className={`min-h-screen transition-all duration-500 ${moodTheme.secondary}`}>
+      {/* Adaptive Header */}
       <motion.div 
-        className="mb-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
+        className={`${moodTheme.primary} text-white p-6 rounded-lg mb-6`}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className={`text-3xl font-bold ${theme.accent}`}>
-              {userProfile.examGoal ? `${userProfile.examGoal} Preparation Hub` : 'Your Study Command Center'}
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              {moodTheme.icon} {userProfile.examGoal || 'Exam'} Preparation Dashboard
             </h1>
-            <p className="text-gray-600 text-lg">
-              Optimized for {userProfile.learningStyle || 'your'} learning • {userProfile.performanceLevel || 'intermediate'} level
+            <p className="opacity-90">
+              Mood: {userProfile.currentMood || 'neutral'} • 
+              Learning Style: {userProfile.learningStyle || 'adaptive'} • 
+              Performance: {userProfile.performanceLevel || 'intermediate'}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            {userProfile.currentMood && (
-              <Badge variant="outline" className="capitalize text-sm px-3 py-1">
-                {userProfile.currentMood}
-              </Badge>
-            )}
-            {userProfile.examGoal && (
-              <Badge className={`${theme.accent} bg-opacity-10 text-sm px-3 py-1`}>
-                {userProfile.examGoal} Track
-              </Badge>
-            )}
-            {theme.urgency === 'high' && (
-              <Badge variant="destructive" className="animate-pulse">
-                Exam Mode
-              </Badge>
+          <div className="text-right">
+            {userProfile.examDate && (
+              <div className="bg-white/20 rounded-lg p-3">
+                <div className="text-sm opacity-90">Exam Date</div>
+                <div className="font-bold">{new Date(userProfile.examDate).toLocaleDateString()}</div>
+                <Badge variant={examProximity === 'critical' ? 'destructive' : 'secondary'}>
+                  {examProximity}
+                </Badge>
+              </div>
             )}
           </div>
         </div>
       </motion.div>
 
-      {/* Enhanced Adaptive Widget Grid */}
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        {widgets.map((widget, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 * index }}
-          >
-            <Card className={`border-2 hover:shadow-xl transition-all duration-300 ${theme.cardBg} ${widget.priority === 'high' ? 'ring-2 ring-opacity-50 ring-red-300' : ''}`}>
-              <CardHeader className="pb-3">
-                <CardTitle className={`flex items-center gap-2 text-lg ${theme.accent}`}>
-                  {widget.icon}
-                  {widget.title}
-                  {widget.priority === 'high' && (
-                    <Badge variant="destructive" className="text-xs ml-auto">
-                      Priority
-                    </Badge>
-                  )}
+      {/* Adaptive Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main Content Area */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Exam-Specific Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                {examContent.examFormat} Practice
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {examContent.subjects.map((subject, index) => (
+                  <Button 
+                    key={subject}
+                    variant={performanceData.weakSubjects.includes(subject) ? "destructive" : "outline"}
+                    className="h-16 flex flex-col"
+                  >
+                    <span className="font-semibold">{subject}</span>
+                    {performanceData.weakSubjects.includes(subject) && (
+                      <span className="text-xs">Needs Focus</span>
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Performance-Based Priority Areas */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Your Priority Focus Areas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="weak" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="weak">Improvement Areas</TabsTrigger>
+                  <TabsTrigger value="strong">Strength Areas</TabsTrigger>
+                </TabsList>
+                <TabsContent value="weak" className="space-y-4">
+                  {performanceData.improvementAreas.map((area, index) => (
+                    <div key={area} className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-semibold text-red-800">{area}</h4>
+                          <p className="text-sm text-red-600">Requires immediate attention</p>
+                        </div>
+                        <Button size="sm" variant="destructive">
+                          Practice Now
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </TabsContent>
+                <TabsContent value="strong" className="space-y-4">
+                  {performanceData.strengthAreas.map((area, index) => (
+                    <div key={area} className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-semibold text-green-800">{area}</h4>
+                          <p className="text-sm text-green-600">Maintain and advance</p>
+                        </div>
+                        <Button size="sm" variant="outline">
+                          Advanced Practice
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Learning Style Optimized Resources */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-2xl">{learningResources.icon}</span>
+                Optimized for {userProfile.learningStyle || 'Your'} Learning
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {learningResources.resources.map((resource, index) => (
+                  <div key={resource} className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                    <div className="font-medium">{resource}</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Original Dashboard Content */}
+          {children}
+        </div>
+
+        {/* Adaptive Sidebar */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Exam Countdown */}
+          {userProfile.examDate && (
+            <Card className={examProximity === 'critical' ? 'border-red-500' : ''}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Exam Countdown
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {widget.content}
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">
+                    {Math.ceil((new Date(userProfile.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+                  </div>
+                  <div className="text-sm text-muted-foreground">days remaining</div>
+                  <Progress value={75} className="mt-2" />
+                </div>
               </CardContent>
             </Card>
-          </motion.div>
-        ))}
-      </motion.div>
+          )}
 
-      {/* Enhanced Performance-based Priority Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
-        <Card className={`mb-6 border-2 ${theme.cardBg}`}>
-          <CardHeader>
-            <CardTitle className={`flex items-center gap-2 ${theme.accent}`}>
-              <BookOpen className="h-5 w-5" />
-              Today's Adaptive Study Plan
-              {theme.urgency === 'high' && (
-                <Badge variant="destructive" className="ml-auto">
-                  High Priority
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <motion.div 
-                className={`text-center p-4 ${theme.cardBg} rounded-lg border-2 border-blue-200`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Clock className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                <h3 className="font-semibold">Morning Power Hour</h3>
-                <p className="text-sm text-gray-600">Peak concentration subjects</p>
-                <Badge variant="outline" className="mt-2">
-                  {userProfile.weakSubjects?.[0] || 'Math'}
-                </Badge>
-              </motion.div>
-              <motion.div 
-                className={`text-center p-4 ${theme.cardBg} rounded-lg border-2 border-green-200`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Target className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                <h3 className="font-semibold">Afternoon Practice</h3>
-                <p className="text-sm text-gray-600">Problem solving & application</p>
-                <Badge variant="outline" className="mt-2">
-                  Practice Tests
-                </Badge>
-              </motion.div>
-              <motion.div 
-                className={`text-center p-4 ${theme.cardBg} rounded-lg border-2 border-purple-200`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Brain className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                <h3 className="font-semibold">Evening Review</h3>
-                <p className="text-sm text-gray-600">Consolidation & weak areas</p>
-                <Badge variant="outline" className="mt-2">
-                  {userProfile.learningStyle || 'Mixed'} Style
-                </Badge>
-              </motion.div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          {/* Study Style Recommendations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                Study Plan Adjustments
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {examContent.tips.map((tip, index) => (
+                <div key={index} className="flex items-start gap-2 text-sm">
+                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>{tip}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
-      {/* Original Dashboard Content */}
-      <motion.div 
-        className="space-y-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-      >
-        {children}
-      </motion.div>
-    </motion.div>
+          {/* Mood-Based Motivation */}
+          <Card className={moodTheme.secondary}>
+            <CardHeader>
+              <CardTitle className={`flex items-center gap-2 ${moodTheme.accent}`}>
+                <Heart className="h-5 w-5" />
+                Mood Booster
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="text-4xl mb-2">{moodTheme.icon}</div>
+                <p className="text-sm">
+                  {userProfile.currentMood === MoodType.MOTIVATED && "You're on fire! Keep up the great momentum!"}
+                  {userProfile.currentMood === MoodType.STRESSED && "Take a deep breath. Small steps lead to big victories."}
+                  {userProfile.currentMood === MoodType.CONFIDENT && "Your confidence is your strength. Channel it into practice!"}
+                  {userProfile.currentMood === MoodType.FOCUSED && "Perfect focus! This is your time to excel."}
+                  {!userProfile.currentMood && "Every expert was once a beginner. You've got this!"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Performance Overview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                Overall Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Overall Readiness</span>
+                    <span>{performanceData.overallProgress}%</span>
+                  </div>
+                  <Progress value={performanceData.overallProgress} />
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Based on your {userProfile.examGoal} preparation and recent performance
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 
