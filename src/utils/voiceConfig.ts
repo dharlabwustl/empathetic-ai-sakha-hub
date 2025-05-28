@@ -68,23 +68,18 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
   };
 };
 
-// Global tracking to prevent repetition
-let lastSpokenMessage = '';
-let lastSpokenTime = 0;
-const REPEAT_PREVENTION_TIMEOUT = 60000; // 1 minute
-
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Ensure consistent pronunciation of PREPZR as "PREP ZER" throughout the app
+  // Ensure consistent pronunciation of PREPZR as "PREP-ZER" throughout the app
   const processedText = text
-    .replace(/PREPZR/gi, 'PREP ZER')
-    .replace(/Sakha AI/gi, 'PREP ZER AI')
-    .replace(/PrepZR/gi, 'PREP ZER')
-    .replace(/Prepzr/gi, 'PREP ZER');
+    .replace(/PREPZR/gi, 'PREP-ZER')
+    .replace(/Sakha AI/gi, 'PREP-ZER AI')
+    .replace(/PrepZR/gi, 'PREP-ZER')
+    .replace(/Prepzr/gi, 'PREP-ZER');
   
   utterance.text = processedText;
   utterance.lang = finalConfig.language;
@@ -107,31 +102,13 @@ export const speakWithFemaleVoice = (
 ): void => {
   if (!('speechSynthesis' in window)) return;
   
-  // Prevent repetition - check if same message was spoken recently
-  const currentTime = Date.now();
-  const normalizedText = text.toLowerCase().trim();
-  
-  if (normalizedText === lastSpokenMessage && (currentTime - lastSpokenTime) < REPEAT_PREVENTION_TIMEOUT) {
-    console.log('🔇 Voice: Preventing repetition of message:', text);
-    return;
-  }
-  
   // Cancel any ongoing speech to prevent overlap
   window.speechSynthesis.cancel();
   
   const utterance = createFemaleUtterance(text, config);
   
   if (onStart) {
-    utterance.onstart = () => {
-      lastSpokenMessage = normalizedText;
-      lastSpokenTime = currentTime;
-      onStart();
-    };
-  } else {
-    utterance.onstart = () => {
-      lastSpokenMessage = normalizedText;
-      lastSpokenTime = currentTime;
-    };
+    utterance.onstart = onStart;
   }
   
   if (onEnd) {
