@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -42,51 +43,14 @@ const StepHandler = ({
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
       
-      // Check if this signup is from a free trial click
-      const isFreeTrial = localStorage.getItem('start_free_trial') === 'true';
-      
-      // Set up subscription details for trial users
-      let subscriptionData = {};
-      if (isFreeTrial) {
-        const trialStartDate = new Date();
-        const trialEndDate = new Date();
-        trialEndDate.setDate(trialStartDate.getDate() + 7);
-        
-        subscriptionData = {
-          subscription: {
-            planType: 'trial',
-            status: 'active',
-            startDate: trialStartDate.toISOString(),
-            expiryDate: trialEndDate.toISOString(),
-            endDate: trialEndDate.toISOString(),
-            features: [
-              'Full access to all premium features',
-              'Unlimited concept cards',
-              'Unlimited flashcards',
-              'Unlimited practice tests',
-              'AI tutor assistance',
-              'Advanced analytics',
-              'Study plan customization'
-            ],
-            isActive: true,
-            autoRenew: false,
-            isTrial: true
-          }
-        };
-        
-        // Clear the trial flag
-        localStorage.removeItem('start_free_trial');
-      }
-      
       // Create a user object with the collected data
       const userData = {
         id: `user_${Date.now()}`,
         name: cleanName,
-        email: `${cleanMobile}@prepzr.com`,
+        email: `${cleanMobile}@prepzr.com`, // Use consistent email format based on mobile
         phoneNumber: cleanMobile,
         role: UserRole.Student,
         ...onboardingData,
-        ...subscriptionData,
         completedOnboarding: true,
         isNewUser: true,
         sawWelcomeTour: false
@@ -109,17 +73,10 @@ const StepHandler = ({
       // Dispatch auth state changed event
       window.dispatchEvent(new Event('auth-state-changed'));
       
-      if (isFreeTrial) {
-        toast({
-          title: "7-Day Free Trial Started!",
-          description: "Welcome to Prepzr! Your trial includes all premium features.",
-        });
-      } else {
-        toast({
-          title: "Welcome to Prepzr!",
-          description: "Let's start your learning journey.",
-        });
-      }
+      toast({
+        title: "Welcome to Prepzr!",
+        description: "Let's start your learning journey.",
+      });
       
       // Navigate directly to welcome-flow, skipping login
       window.location.href = "/welcome-flow";

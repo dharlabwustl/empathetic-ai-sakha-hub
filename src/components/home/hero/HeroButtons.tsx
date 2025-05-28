@@ -13,8 +13,6 @@ const HeroButtons: React.FC<HeroButtonsProps> = ({ onAnalyzeClick }) => {
   const navigate = useNavigate();
   
   const handleFreeTrial = () => {
-    // Set trial flag in localStorage to be picked up during signup
-    localStorage.setItem('start_free_trial', 'true');
     navigate('/signup');
   };
 
