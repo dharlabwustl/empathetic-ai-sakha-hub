@@ -56,8 +56,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "2 days ago",
       masteryLevel: 85,
       topic: "Mechanics, Thermodynamics",
-      estimatedTime: 25,
-      examType: "NEET"
+      estimatedTime: 25
     },
     {
       id: 2,
@@ -68,8 +67,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "1 day ago",
       masteryLevel: 65,
       topic: "Reaction Mechanisms",
-      estimatedTime: 30,
-      examType: "NEET"
+      estimatedTime: 30
     },
     {
       id: 3,
@@ -80,8 +78,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "Today",
       masteryLevel: 92,
       topic: "Circulatory, Respiratory",
-      estimatedTime: 20,
-      examType: "NEET"
+      estimatedTime: 20
     },
     {
       id: 4,
@@ -92,8 +89,7 @@ const FlashcardLandingPage: React.FC = () => {
       lastReviewed: "3 days ago", 
       masteryLevel: 78,
       topic: "Ionic, Covalent Bonds",
-      estimatedTime: 18,
-      examType: "NEET"
+      estimatedTime: 18
     }
   ];
 
@@ -121,8 +117,9 @@ const FlashcardLandingPage: React.FC = () => {
     return 'text-red-600';
   };
 
-  const navigateToFlashcard = (setId: number) => {
-    const targetRoute = `/dashboard/student/flashcards/${setId}/interactive`;
+  // FIXED: Route to interactive flashcard page - MUST GO TO /1/interactive
+  const navigateToFlashcard = () => {
+    const targetRoute = `/dashboard/student/flashcards/1/interactive`;
     console.log(`🔥🔥🔥 NAVIGATION TO INTERACTIVE FLASHCARDS: ${targetRoute}`);
     navigate(targetRoute);
   };
@@ -212,12 +209,12 @@ const FlashcardLandingPage: React.FC = () => {
           </Button>
         </motion.div>
 
-        {/* Flashcard Sets Grid - Square Cards */}
+        {/* Flashcard Sets Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {filteredSets.map((set, index) => (
             <motion.div
@@ -225,49 +222,38 @@ const FlashcardLandingPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="w-full"
             >
               <Card 
-                className="h-80 w-full flex flex-col hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
+                className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-purple-500"
                 onClick={() => {
                   console.log(`🔥🔥🔥 CARD CLICKED - SET ID: ${set.id}`);
-                  navigateToFlashcard(set.id);
+                  navigateToFlashcard();
                 }}
               >
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-base font-semibold line-clamp-2">
-                      {set.title}
-                    </CardTitle>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg font-semibold line-clamp-2">
+                        {set.title}
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">{set.topic}</p>
+                    </div>
                     <Badge variant="outline" className={getDifficultyColor(set.difficulty)}>
                       {set.difficulty}
                     </Badge>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    <Badge variant="secondary" className="text-xs">
-                      {set.subject}
-                    </Badge>
-                    <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs flex items-center gap-1">
-                      <Target className="h-3 w-3" />
-                      {set.examType}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-1">{set.topic}</p>
                 </CardHeader>
                 
-                <CardContent className="space-y-3 flex-grow">
-                  <div className="flex items-center justify-between text-xs">
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">{set.cardCount} cards</span>
-                    <span className="text-gray-600 flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {set.estimatedTime}m
-                    </span>
+                    <span className="text-gray-600">~{set.estimatedTime} min</span>
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium">Mastery Level</span>
-                      <span className={`text-xs font-bold ${getMasteryColor(set.masteryLevel)}`}>
+                      <span className="text-sm font-medium">Mastery Level</span>
+                      <span className={`text-sm font-bold ${getMasteryColor(set.masteryLevel)}`}>
                         {set.masteryLevel}%
                       </span>
                     </div>
@@ -282,9 +268,14 @@ const FlashcardLandingPage: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1 text-xs text-gray-500 pt-2 border-t">
-                    <Clock className="h-3 w-3" />
-                    <span>Last: {set.lastReviewed}</span>
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Clock className="h-3 w-3" />
+                      <span>Last: {set.lastReviewed}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {set.subject}
+                    </Badge>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
@@ -294,41 +285,36 @@ const FlashcardLandingPage: React.FC = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         console.log(`🔥🔥🔥 QUICK REVIEW BUTTON CLICKED`);
-                        navigateToFlashcard(set.id);
+                        navigateToFlashcard();
                       }}
-                      className="text-xs"
                     >
-                      <Zap className="h-3 w-3 mr-1" />
-                      Quick
+                      Quick Review
                     </Button>
                     <Button 
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         console.log(`🔥🔥🔥 STUDY CARDS BUTTON CLICKED`);
-                        navigateToFlashcard(set.id);
+                        navigateToFlashcard();
                       }}
-                      className="text-xs"
                     >
-                      Study
+                      Study Cards
                     </Button>
                   </div>
-                </CardContent>
-                
-                <div className="p-3 border-t bg-gray-50 dark:bg-gray-900/50">
+                  
                   <Button 
-                    className="w-full text-sm" 
+                    className="w-full" 
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       console.log(`🔥🔥🔥 START REVIEW BUTTON CLICKED`);
-                      navigateToFlashcard(set.id);
+                      navigateToFlashcard();
                     }}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />
                     Start Review
                   </Button>
-                </div>
+                </CardContent>
               </Card>
             </motion.div>
           ))}
