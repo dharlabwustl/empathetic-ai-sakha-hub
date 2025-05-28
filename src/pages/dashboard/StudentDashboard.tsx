@@ -5,7 +5,7 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
-import AdaptiveDashboardLayout from "@/components/dashboard/adaptive/AdaptiveDashboardLayout";
+import AdaptiveDashboardController from "@/components/dashboard/adaptive/AdaptiveDashboardController";
 import { MoodType } from "@/types/user/base";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
@@ -196,8 +196,8 @@ const StudentDashboard = () => {
 
   return (
     <>
-      {/* Main Adaptive Dashboard Layout - This should be visible now */}
-      <AdaptiveDashboardLayout 
+      {/* Main Adaptive Dashboard - Completely redesigned based on exam goals and learning profile */}
+      <AdaptiveDashboardController 
         userProfile={enhancedUserProfile} 
         preferences={dashboardPreferences}
         onMoodChange={handleMoodChange}
