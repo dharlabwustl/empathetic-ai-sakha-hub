@@ -1,25 +1,25 @@
+
 // Study Plan Types
 export interface StudyPlanTopic {
   id: string;
   name: string;
   difficulty: 'easy' | 'medium' | 'hard';
   completed: boolean;
-  status: 'completed' | 'in-progress' | 'pending';
-  weightage?: number; // Percentage weightage in exam
-  subTopics?: string[]; // Sub-topics within this topic
-  estimatedHours?: number; // Estimated study hours
-  priority?: 'high' | 'medium' | 'low'; // Study priority
+  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
+  priority: 'high' | 'medium' | 'low';
 }
 
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  color: string;
+  color?: string;
   hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency: 'strong' | 'medium' | 'weak';
-  weightage?: number; // Overall subject weightage in exam
-  topics: StudyPlanTopic[];
+  proficiency: 'weak' | 'medium' | 'strong';
+  completed: boolean;
+  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
+  difficulty?: 'easy' | 'medium' | 'hard';
+  topics?: StudyPlanTopic[];
 }
 
 export interface StudyPlan {

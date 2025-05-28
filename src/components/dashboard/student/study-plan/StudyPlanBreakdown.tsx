@@ -1,160 +1,276 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { 
-  BookOpen, 
-  Clock, 
-  Target, 
-  TrendingUp, 
-  ChevronDown, 
-  ChevronRight,
-  CheckCircle,
-  Circle,
-  AlertCircle,
-  BarChart3,
-  Brain
-} from 'lucide-react';
-import { StudyPlanSubject } from '@/types/user/studyPlan';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
+import { Subject, StudyPlanSubject } from '@/types/user/studyPlan';
 
 interface StudyPlanBreakdownProps {
   subjects: StudyPlanSubject[];
-  examDate: string;
-  examName: string;
-  weeklyHours: number;
+  examDate?: string;
+  examName?: string;
+  weeklyHours?: number;
 }
 
-interface TopicDetailProps {
-  topic: any;
-  subjectColor: string;
+interface TimeAllocationProps {
+  subjects: StudyPlanSubject[];
+  weeklyHours?: number;
 }
 
-const TopicDetail: React.FC<TopicDetailProps> = ({ topic, subjectColor }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const TimeAllocation: React.FC<TimeAllocationProps> = ({ subjects, weeklyHours = 35 }) => {
+  // Calculate percentages and hours per subject based on priority
+  const totalSubjects = subjects.length;
+  const totalHours = weeklyHours || 35;
   
-  const getStatusIcon = () => {
-    switch (topic.status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'in-progress':
-        return <Circle className="h-4 w-4 text-blue-500" />;
-      default:
-        return <Circle className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
-  const getPriorityBadge = () => {
-    const priorityColors = {
-      high: 'bg-red-100 text-red-800 border-red-200',
-      medium: 'bg-amber-100 text-amber-800 border-amber-200',
-      low: 'bg-blue-100 text-blue-800 border-blue-200'
-    };
-    
-    return (
-      <Badge variant="outline" className={priorityColors[topic.priority]}>
-        {topic.priority} priority
-      </Badge>
-    );
-  };
-
   return (
-    <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-      <div className="border rounded-lg p-4 mb-3 hover:shadow-md transition-shadow">
-        <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between cursor-pointer">
-            <div className="flex items-center gap-3 flex-1">
-              {getStatusIcon()}
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium">{topic.name}</h4>
-                  {getPriorityBadge()}
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Clock className="h-5 w-5 mr-2 text-primary" />
+          Weekly Time Allocation
+        </CardTitle>
+        <CardDescription>
+          Recommended study hours per subject: {totalHours} hours total per week
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {subjects.map((subject) => (
+            <div key={subject.id} className="space-y-2">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: subject.color || '#8B5CF6' }}></div>
+                  <span className="font-medium">{subject.name}</span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                  <span className="flex items-center gap-1">
-                    <Target className="h-3 w-3" />
-                    {topic.weightage}% weightage
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {topic.estimatedHours}h estimated
-                  </span>
-                  <Badge 
-                    variant="outline" 
-                    className={
-                      topic.difficulty === 'hard' 
-                        ? 'bg-red-50 text-red-700 border-red-200'
-                        : topic.difficulty === 'medium'
-                        ? 'bg-amber-50 text-amber-700 border-amber-200'
-                        : 'bg-green-50 text-green-700 border-green-200'
-                    }
-                  >
-                    {topic.difficulty}
-                  </Badge>
-                </div>
+                <span className="text-sm font-medium">{subject.hoursPerWeek} hours per week</span>
+              </div>
+              <Progress value={(subject.hoursPerWeek / totalHours) * 100} className="h-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Recommended daily: {Math.round((subject.hoursPerWeek / 7) * 10) / 10} hrs</span>
+                <span>{Math.round((subject.hoursPerWeek / totalHours) * 100)}% of total time</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-4 h-4 rounded-full border-2"
-                style={{ 
-                  backgroundColor: topic.completed ? subjectColor : 'transparent',
-                  borderColor: subjectColor 
-                }}
-              />
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-gray-500" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-gray-500" />
-              )}
-            </div>
-          </div>
-        </CollapsibleTrigger>
-        
-        <CollapsibleContent className="mt-4">
-          <div className="space-y-3 pl-7">
-            <div>
-              <h5 className="font-medium text-sm mb-2">Sub-topics:</h5>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {topic.subTopics?.map((subTopic: string, index: number) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 rounded-full bg-gray-300" />
-                    {subTopic}
+          ))}
+        </div>
+      </CardContent>
+      <CardFooter className="flex flex-col items-start border-t pt-4">
+        <p className="text-sm text-muted-foreground mb-2">
+          Time allocation is based on subject priority, your proficiency level, and exam weightage.
+        </p>
+        <Button variant="outline" size="sm">
+          <Clock className="h-4 w-4 mr-2" />
+          Adjust Time Allocation
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
+interface SubjectTopicsProps {
+  subjects: StudyPlanSubject[];
+}
+
+const SubjectTopics: React.FC<SubjectTopicsProps> = ({ subjects }) => {
+  const [activeSubject, setActiveSubject] = useState<string>(subjects[0]?.id || '');
+  
+  const activeSubjectData = subjects.find(s => s.id === activeSubject);
+  
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <BookOpen className="h-5 w-5 mr-2 text-primary" />
+          Topics to Cover
+        </CardTitle>
+        <CardDescription>
+          Detailed breakdown of topics by subject
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="flex h-[500px]">
+          {/* Subject Sidebar */}
+          <div className="w-1/3 border-r">
+            <ScrollArea className="h-[500px]">
+              <div className="p-2">
+                {subjects.map((subject) => (
+                  <div
+                    key={subject.id}
+                    className={`p-3 mb-1 rounded-md cursor-pointer flex items-center ${
+                      activeSubject === subject.id ? 'bg-accent' : 'hover:bg-accent/50'
+                    }`}
+                    onClick={() => setActiveSubject(subject.id)}
+                  >
+                    <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: subject.color || '#8B5CF6' }}></div>
+                    <div>
+                      <div className="font-medium">{subject.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {subject.topics?.length || 0} topics
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-            
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">Weightage Impact:</span>
-                  <p className="text-gray-600">
-                    {topic.weightage >= 25 ? 'High impact on exam score' : 
-                     topic.weightage >= 15 ? 'Moderate impact on exam score' : 
-                     'Low impact on exam score'}
-                  </p>
+            </ScrollArea>
+          </div>
+          
+          {/* Topics List */}
+          <div className="flex-1">
+            <ScrollArea className="h-[500px]">
+              {activeSubjectData?.topics && activeSubjectData.topics.length > 0 ? (
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-4">{activeSubjectData.name} Topics</h3>
+                  <div className="space-y-3">
+                    {activeSubjectData.topics.map((topic, i) => (
+                      <div key={topic.id} className="flex items-center p-2 border rounded-md">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center mr-3">
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium">{topic.name}</div>
+                          <div className="flex items-center mt-1">
+                            <Badge variant={topic.difficulty === 'easy' ? 'outline' : topic.difficulty === 'medium' ? 'secondary' : 'destructive'} className="text-xs mr-2">
+                              {topic.difficulty}
+                            </Badge>
+                            <span className={`text-xs ${
+                              topic.status === 'completed' ? 'text-green-500' :
+                              topic.status === 'in-progress' ? 'text-amber-500' :
+                              'text-muted-foreground'
+                            }`}>
+                              {topic.status || 'pending'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-2">
+                          {topic.completed ? (
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                          ) : (
+                            <Button variant="ghost" size="sm">Start</Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium">Study Strategy:</span>
-                  <p className="text-gray-600">
-                    {topic.priority === 'high' && topic.difficulty === 'hard' ? 'Focus area - allocate extra time' :
-                     topic.priority === 'high' ? 'Priority topic - consistent practice' :
-                     'Regular review sufficient'}
-                  </p>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-muted-foreground mb-2">No topics available</div>
+                    <Button variant="outline" size="sm">Add Topics</Button>
+                  </div>
                 </div>
+              )}
+            </ScrollArea>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+interface TimelineProps {
+  examDate?: string;
+  examName?: string;
+}
+
+const Timeline: React.FC<TimelineProps> = ({ examDate = '2023-12-15', examName = 'JEE Advanced' }) => {
+  const today = new Date();
+  const exam = new Date(examDate);
+  const daysUntilExam = Math.ceil((exam.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const weeksUntilExam = Math.ceil(daysUntilExam / 7);
+  
+  // Generate milestones (simplified approach)
+  const milestones = [
+    { 
+      title: "Complete Core Physics Topics", 
+      date: new Date(today.getTime() + (daysUntilExam * 0.25) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      completed: false,
+      percentage: 25
+    },
+    { 
+      title: "Complete Core Chemistry Topics", 
+      date: new Date(today.getTime() + (daysUntilExam * 0.5) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      completed: false,
+      percentage: 50
+    },
+    { 
+      title: "Complete Core Maths Topics", 
+      date: new Date(today.getTime() + (daysUntilExam * 0.75) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      completed: false,
+      percentage: 75
+    },
+    { 
+      title: examName, 
+      date: examDate,
+      completed: false,
+      percentage: 100,
+      isExam: true
+    }
+  ];
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <CalendarIcon className="h-5 w-5 mr-2 text-primary" />
+          Exam Preparation Timeline
+        </CardTitle>
+        <CardDescription>
+          {daysUntilExam} days remaining until {examName}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-6">
+          <Progress value={(1 - daysUntilExam / 180) * 100} className="h-2" />
+          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+            <span>Start</span>
+            <span>Today ({Math.round((1 - daysUntilExam / 180) * 100)}%)</span>
+            <span>{examName}</span>
+          </div>
+        </div>
+        
+        <div className="space-y-6 relative before:absolute before:inset-0 before:left-4 before:h-full before:w-0.5 before:bg-border before:-z-10">
+          {milestones.map((milestone, i) => (
+            <div key={i} className="flex items-start gap-4">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                milestone.completed ? 'bg-green-100 text-green-700' : 
+                milestone.isExam ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              }`}>
+                {milestone.completed ? (
+                  <CheckCircle className="h-4 w-4" />
+                ) : (
+                  <span>{milestone.percentage}%</span>
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-baseline justify-between">
+                  <h4 className={`font-medium ${milestone.isExam ? 'text-primary' : ''}`}>{milestone.title}</h4>
+                  <span className="text-xs text-muted-foreground">{milestone.date}</span>
+                </div>
+                {milestone.isExam ? (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {weeksUntilExam} weeks to prepare for your exam
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Target completion milestone
+                  </p>
+                )}
               </div>
             </div>
-            
-            <Button size="sm" className="w-full" style={{ backgroundColor: subjectColor }}>
-              {topic.completed ? 'Review Topic' : topic.status === 'in-progress' ? 'Continue Learning' : 'Start Learning'}
-            </Button>
-          </div>
-        </CollapsibleContent>
-      </div>
-    </Collapsible>
+          ))}
+        </div>
+      </CardContent>
+      <CardFooter className="border-t pt-4">
+        <Button variant="outline" className="w-full">
+          <Calendar className="h-4 w-4 mr-2" />
+          View Detailed Timeline
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
@@ -164,198 +280,27 @@ export const StudyPlanBreakdown: React.FC<StudyPlanBreakdownProps> = ({
   examName,
   weeklyHours
 }) => {
-  const [expandedSubjects, setExpandedSubjects] = useState<Set<string>>(new Set());
-  
-  const toggleSubject = (subjectId: string) => {
-    const newExpanded = new Set(expandedSubjects);
-    if (newExpanded.has(subjectId)) {
-      newExpanded.delete(subjectId);
-    } else {
-      newExpanded.add(subjectId);
-    }
-    setExpandedSubjects(newExpanded);
-  };
-
-  const getSubjectProgress = (subject: StudyPlanSubject) => {
-    const completed = subject.topics.filter(topic => topic.completed).length;
-    return Math.round((completed / subject.topics.length) * 100);
-  };
-
-  const getWeightageProgress = (subject: StudyPlanSubject) => {
-    const completedWeightage = subject.topics
-      .filter(topic => topic.completed)
-      .reduce((acc, topic) => acc + (topic.weightage || 0), 0);
-    const totalWeightage = subject.topics.reduce((acc, topic) => acc + (topic.weightage || 0), 0);
-    return Math.round((completedWeightage / totalWeightage) * 100);
-  };
-
   return (
     <div className="space-y-6">
-      {/* Weightage Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-purple-600" />
-            Exam Weightage Distribution
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {subjects.map((subject) => (
-              <div key={subject.id} className="text-center p-4 border rounded-lg">
-                <div 
-                  className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center text-white font-bold text-lg"
-                  style={{ backgroundColor: subject.color }}
-                >
-                  {subject.weightage}%
-                </div>
-                <h4 className="font-medium">{subject.name}</h4>
-                <p className="text-sm text-gray-600">{subject.topics.length} topics</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subject-wise Breakdown */}
-      {subjects.map((subject) => {
-        const progress = getSubjectProgress(subject);
-        const weightageProgress = getWeightageProgress(subject);
-        const isExpanded = expandedSubjects.has(subject.id);
+      <Tabs defaultValue="time-allocation" className="w-full">
+        <TabsList className="grid grid-cols-3">
+          <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
+          <TabsTrigger value="topics">Topics Breakdown</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+        </TabsList>
         
-        return (
-          <Card key={subject.id} className="overflow-hidden">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: subject.color }}
-                  />
-                  <div>
-                    <CardTitle className="text-xl">{subject.name}</CardTitle>
-                    <div className="flex items-center gap-4 mt-1">
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        {subject.proficiency} proficiency
-                      </Badge>
-                      <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                        {subject.priority} priority
-                      </Badge>
-                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                        {subject.hoursPerWeek}h/week
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toggleSubject(subject.id)}
-                  className="flex items-center gap-2"
-                >
-                  {isExpanded ? (
-                    <>
-                      <ChevronDown className="h-4 w-4" />
-                      Collapse
-                    </>
-                  ) : (
-                    <>
-                      <ChevronRight className="h-4 w-4" />
-                      Expand Topics
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              {/* Progress Indicators */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Topic Progress</span>
-                    <span className="text-sm text-gray-600">{progress}%</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                  <p className="text-xs text-gray-600 mt-1">
-                    {subject.topics.filter(t => t.completed).length} of {subject.topics.length} topics completed
-                  </p>
-                </div>
-                
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Weightage Coverage</span>
-                    <span className="text-sm text-gray-600">{weightageProgress}%</span>
-                  </div>
-                  <Progress value={weightageProgress} className="h-2" />
-                  <p className="text-xs text-gray-600 mt-1">
-                    High-weightage topics mastery
-                  </p>
-                </div>
-              </div>
-
-              {/* Topic Analysis Summary */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Brain className="h-4 w-4" />
-                  Topic Analysis
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                  <div>
-                    <span className="font-medium text-red-600">High Priority:</span>
-                    <p>{subject.topics.filter(t => t.priority === 'high').length} topics</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-amber-600">Medium Priority:</span>
-                    <p>{subject.topics.filter(t => t.priority === 'medium').length} topics</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-blue-600">Low Priority:</span>
-                    <p>{subject.topics.filter(t => t.priority === 'low').length} topics</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Expanded Topic Details */}
-              {isExpanded && (
-                <div className="space-y-3">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    Topic-wise Breakdown
-                  </h4>
-                  {subject.topics.map((topic) => (
-                    <TopicDetail 
-                      key={topic.id} 
-                      topic={topic} 
-                      subjectColor={subject.color}
-                    />
-                  ))}
-                </div>
-              )}
-              
-              {/* Quick Actions */}
-              {!isExpanded && (
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    style={{ backgroundColor: subject.color }}
-                    className="text-white"
-                  >
-                    Continue {subject.name}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => toggleSubject(subject.id)}
-                  >
-                    View All Topics
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
+        <TabsContent value="time-allocation" className="mt-4">
+          <TimeAllocation subjects={subjects} weeklyHours={weeklyHours} />
+        </TabsContent>
+        
+        <TabsContent value="topics" className="mt-4">
+          <SubjectTopics subjects={subjects} />
+        </TabsContent>
+        
+        <TabsContent value="timeline" className="mt-4">
+          <Timeline examDate={examDate} examName={examName} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
