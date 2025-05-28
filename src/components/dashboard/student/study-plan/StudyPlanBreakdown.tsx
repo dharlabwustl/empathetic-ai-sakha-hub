@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -6,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
-import { Subject, StudyPlanSubject } from '@/types/user/studyPlan';
+import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight, BarChart3, Target, Lightbulb } from 'lucide-react';
+import { StudyPlanSubject } from '@/types/user/studyPlan';
+import TopicBreakdown from './TopicBreakdown';
+import WeightageAnalysis from './WeightageAnalysis';
+import DailySmartSuggestions from './DailySmartSuggestions';
 
 interface StudyPlanBreakdownProps {
   subjects: StudyPlanSubject[];
@@ -92,7 +94,6 @@ const SubjectTopics: React.FC<SubjectTopicsProps> = ({ subjects }) => {
       </CardHeader>
       <CardContent className="p-0">
         <div className="flex h-[500px]">
-          {/* Subject Sidebar */}
           <div className="w-1/3 border-r">
             <ScrollArea className="h-[500px]">
               <div className="p-2">
@@ -117,7 +118,6 @@ const SubjectTopics: React.FC<SubjectTopicsProps> = ({ subjects }) => {
             </ScrollArea>
           </div>
           
-          {/* Topics List */}
           <div className="flex-1">
             <ScrollArea className="h-[500px]">
               {activeSubjectData?.topics && activeSubjectData.topics.length > 0 ? (
@@ -282,10 +282,15 @@ export const StudyPlanBreakdown: React.FC<StudyPlanBreakdownProps> = ({
 }) => {
   return (
     <div className="space-y-6">
+      {/* Daily Smart Suggestions - Added below subject cards */}
+      <DailySmartSuggestions subjects={subjects} examDate={examDate} />
+      
       <Tabs defaultValue="time-allocation" className="w-full">
-        <TabsList className="grid grid-cols-3">
+        <TabsList className="grid grid-cols-5">
           <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
           <TabsTrigger value="topics">Topics Breakdown</TabsTrigger>
+          <TabsTrigger value="topic-analysis">Topic Analysis</TabsTrigger>
+          <TabsTrigger value="weightage">Weightage Analysis</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
         </TabsList>
         
@@ -295,6 +300,14 @@ export const StudyPlanBreakdown: React.FC<StudyPlanBreakdownProps> = ({
         
         <TabsContent value="topics" className="mt-4">
           <SubjectTopics subjects={subjects} />
+        </TabsContent>
+        
+        <TabsContent value="topic-analysis" className="mt-4">
+          <TopicBreakdown subjects={subjects} />
+        </TabsContent>
+        
+        <TabsContent value="weightage" className="mt-4">
+          <WeightageAnalysis subjects={subjects} />
         </TabsContent>
         
         <TabsContent value="timeline" className="mt-4">
