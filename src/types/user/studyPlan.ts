@@ -7,6 +7,9 @@ export interface StudyPlanTopic {
   completed: boolean;
   status: 'completed' | 'in-progress' | 'pending' | 'skipped';
   priority: 'high' | 'medium' | 'low';
+  weightage?: number;
+  estimatedTime?: number;
+  subtopics?: string[];
 }
 
 export interface StudyPlanSubject {
@@ -20,6 +23,8 @@ export interface StudyPlanSubject {
   status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
   topics?: StudyPlanTopic[];
+  examWeightage?: number;
+  progressPercentage?: number;
 }
 
 export interface StudyPlan {

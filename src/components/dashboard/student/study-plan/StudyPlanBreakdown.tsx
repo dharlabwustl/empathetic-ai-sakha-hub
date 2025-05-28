@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -6,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
-import { Subject, StudyPlanSubject } from '@/types/user/studyPlan';
+import { Calendar, BookOpen, Clock, CheckCircle, Calendar as CalendarIcon, ArrowRight, Target, PieChart, Lightbulb } from 'lucide-react';
+import { StudyPlanSubject } from '@/types/user/studyPlan';
+import TopicBreakdown from './TopicBreakdown';
+import WeightageAnalysis from './WeightageAnalysis';
+import DailySmartSuggestions from './DailySmartSuggestions';
 
 interface StudyPlanBreakdownProps {
   subjects: StudyPlanSubject[];
@@ -280,21 +282,87 @@ export const StudyPlanBreakdown: React.FC<StudyPlanBreakdownProps> = ({
   examName,
   weeklyHours
 }) => {
+  const daysLeft = examDate ? Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 120;
+
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="time-allocation" className="w-full">
-        <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
-          <TabsTrigger value="topics">Topics Breakdown</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+      {/* Daily Smart Suggestions */}
+      <DailySmartSuggestions 
+        subjects={subjects}
+        examName={examName || 'Your Exam'}
+        daysLeft={daysLeft}
+      />
+
+      <Tabs defaultValue="topics" className="w-full">
+        <TabsList className="grid grid-cols-4">
+          <TabsTrigger value="topics" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            Topics
+          </TabsTrigger>
+          <TabsTrigger value="weightage" className="flex items-center gap-2">
+            <PieChart className="h-4 w-4" />
+            Weightage
+          </TabsTrigger>
+          <TabsTrigger value="time-allocation" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Time
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Timeline
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="time-allocation" className="mt-4">
-          <TimeAllocation subjects={subjects} weeklyHours={weeklyHours} />
+        <TabsContent value="topics" className="mt-4">
+          <TopicBreakdown subjects={subjects} examName={examName || 'Your Exam'} />
+        </TabsContent>
+
+        <TabsContent value="weightage" className="mt-4">
+          <WeightageAnalysis subjects={subjects} examName={examName || 'Your Exam'} />
         </TabsContent>
         
-        <TabsContent value="topics" className="mt-4">
-          <SubjectTopics subjects={subjects} />
+        <TabsContent value="time-allocation" className="mt-4">
+          {/* Keep existing TimeAllocation component */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Clock className="h-5 w-5 mr-2 text-primary" />
+                Weekly Time Allocation
+              </CardTitle>
+              <CardDescription>
+                Recommended study hours per subject: {weeklyHours || 35} hours total per week
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {subjects.map((subject) => (
+                  <div key={subject.id} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: subject.color || '#8B5CF6' }}></div>
+                        <span className="font-medium">{subject.name}</span>
+                      </div>
+                      <span className="text-sm font-medium">{subject.hoursPerWeek} hours per week</span>
+                    </div>
+                    <Progress value={(subject.hoursPerWeek / (weeklyHours || 35)) * 100} className="h-2" />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Recommended daily: {Math.round((subject.hoursPerWeek / 7) * 10) / 10} hrs</span>
+                      <span>{Math.round((subject.hoursPerWeek / (weeklyHours || 35)) * 100)}% of total time</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col items-start border-t pt-4">
+              <p className="text-sm text-muted-foreground mb-2">
+                Time allocation is based on subject priority, your proficiency level, and exam weightage.
+              </p>
+              <Button variant="outline" size="sm">
+                <Clock className="h-4 w-4 mr-2" />
+                Adjust Time Allocation
+              </Button>
+            </CardFooter>
+          </Card>
         </TabsContent>
         
         <TabsContent value="timeline" className="mt-4">
