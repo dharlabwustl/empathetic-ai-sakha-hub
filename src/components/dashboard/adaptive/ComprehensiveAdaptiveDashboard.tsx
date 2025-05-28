@@ -1,9 +1,12 @@
+
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { UserProfileBase, MoodType } from '@/types/user/base';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Clock, 
   AlertTriangle, 
@@ -16,14 +19,20 @@ import {
   TrendingUp,
   Timer,
   Flame,
+  Star,
   Trophy,
-  Lightbulb,
-  Bell,
-  Settings,
+  ArrowRight,
+  Play,
+  CheckCircle,
+  AlertCircle,
+  Eye,
   Volume2,
-  User
+  Hand,
+  BarChart3,
+  Lightbulb,
+  Focus,
+  Coffee
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface ComprehensiveAdaptiveDashboardProps {
   userProfile: UserProfileBase;
@@ -43,50 +52,28 @@ const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardPro
   ...otherProps
 }) => {
   const [focusMode, setFocusMode] = useState(false);
+  const navigate = useNavigate();
 
-  // Proximity theme configuration
-  const proximityTheme = useMemo(() => {
-    switch (examProximity) {
-      case 'critical':
-        return {
-          primary: 'bg-red-600',
-          secondary: 'bg-red-50',
-          accent: 'text-red-700',
-          border: 'border-red-200',
-          urgency: 'CRITICAL',
-          bgGradient: 'from-red-50 via-orange-50 to-yellow-50'
-        };
-      case 'urgent':
-        return {
-          primary: 'bg-orange-600',
-          secondary: 'bg-orange-50',
-          accent: 'text-orange-700',
-          border: 'border-orange-200',
-          urgency: 'URGENT',
-          bgGradient: 'from-orange-50 via-yellow-50 to-amber-50'
-        };
-      case 'moderate':
-        return {
-          primary: 'bg-blue-600',
-          secondary: 'bg-blue-50',
-          accent: 'text-blue-700',
-          border: 'border-blue-200',
-          urgency: 'MODERATE',
-          bgGradient: 'from-blue-50 via-indigo-50 to-purple-50'
-        };
-      case 'relaxed':
-        return {
-          primary: 'bg-green-600',
-          secondary: 'bg-green-50',
-          accent: 'text-green-700',
-          border: 'border-green-200',
-          urgency: 'PLANNED',
-          bgGradient: 'from-green-50 via-emerald-50 to-teal-50'
-        };
-    }
-  }, [examProximity]);
+  // Dynamic theming based on proximity and mood
+  const adaptiveTheme = useMemo(() => {
+    const proximityColors = {
+      critical: { bg: 'from-red-50 to-red-100', accent: 'text-red-600', border: 'border-red-200' },
+      urgent: { bg: 'from-orange-50 to-orange-100', accent: 'text-orange-600', border: 'border-orange-200' },
+      moderate: { bg: 'from-blue-50 to-blue-100', accent: 'text-blue-600', border: 'border-blue-200' },
+      relaxed: { bg: 'from-green-50 to-green-100', accent: 'text-green-600', border: 'border-green-200' }
+    };
 
-  // Days left calculation
+    const moodOverlay = currentMood === MoodType.STRESSED ? 'brightness-95' : 
+                       currentMood === MoodType.EXCITED ? 'brightness-105 saturate-110' : 
+                       'brightness-100';
+
+    return {
+      ...proximityColors[examProximity],
+      overlay: moodOverlay
+    };
+  }, [examProximity, currentMood]);
+
+  // Calculate days left and greeting
   const daysLeft = useMemo(() => {
     if (!userProfile.examDate) return null;
     const examDate = new Date(userProfile.examDate);
@@ -94,342 +81,438 @@ const ComprehensiveAdaptiveDashboard: React.FC<ComprehensiveAdaptiveDashboardPro
     return Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   }, [userProfile.examDate]);
 
-  // Mood-based greeting
-  const getGreeting = () => {
-    const name = userProfile.name || userProfile.firstName || 'Student';
+  const dynamicGreeting = useMemo(() => {
     const streak = userProfile.studyStreak || 0;
+    const mood = currentMood;
     
-    if (currentMood === MoodType.EXCITED) return `🔥 Ready to conquer, ${name}!`;
-    if (currentMood === MoodType.STRESSED && streak > 0) return `💪 Keep going, ${name}! ${streak} day streak!`;
-    if (streak > 7) return `🏆 Amazing ${streak}-day streak, ${name}!`;
-    if (streak > 0) return `👋 Welcome back, ${name}! Day ${streak} strong!`;
-    return `✨ Hello ${name}, let's make today count!`;
+    if (streak >= 7) return `🔥 Amazing streak, ${userProfile.name}!`;
+    if (mood === MoodType.EXCITED) return `⚡ Energy is high, ${userProfile.name}!`;
+    if (mood === MoodType.STRESSED) return `🌟 Take it step by step, ${userProfile.name}`;
+    if (examProximity === 'critical') return `🎯 Final push time, ${userProfile.name}!`;
+    return `👋 Welcome back, ${userProfile.name}!`;
+  }, [userProfile.name, userProfile.studyStreak, currentMood, examProximity]);
+
+  // Adaptive widgets based on performance and urgency
+  const priorityWidgets = useMemo(() => {
+    const examGoal = userProfile.examGoal || 'NEET';
+    
+    // Mock weak areas - in real app, this would come from analytics
+    const weakAreas = [
+      { subject: 'Thermodynamics', accuracy: 42, action: 'concept-detail', params: { subject: 'physics', topic: 'thermodynamics' } },
+      { subject: 'Organic Chemistry', accuracy: 38, action: 'flashcard', params: { subject: 'chemistry', topic: 'organic' } },
+      { subject: 'Newton\'s Laws', accuracy: 45, action: 'practice-exam', params: { subject: 'physics', topic: 'mechanics' } }
+    ];
+
+    const countdownActions = {
+      critical: [
+        { title: 'Quick Revision Cards', icon: Brain, color: 'red', route: '/dashboard/student/flashcards' },
+        { title: 'Final Mock Tests', icon: FileText, color: 'red', route: '/dashboard/student/practice-exam' }
+      ],
+      urgent: [
+        { title: 'High Yield Concepts', icon: Target, color: 'orange', route: '/dashboard/student/concepts' },
+        { title: 'Practice Tests', icon: FileText, color: 'orange', route: '/dashboard/student/practice-exam' }
+      ],
+      moderate: [
+        { title: 'New Topic Learning', icon: BookOpen, color: 'blue', route: '/dashboard/student/concepts' },
+        { title: 'Balanced Practice', icon: Brain, color: 'blue', route: '/dashboard/student/practice-exam' }
+      ],
+      relaxed: [
+        { title: 'Explore New Concepts', icon: BookOpen, color: 'green', route: '/dashboard/student/concepts' },
+        { title: 'Build Foundation', icon: Target, color: 'green', route: '/dashboard/student/concepts' }
+      ]
+    };
+
+    return {
+      weakAreas,
+      countdownActions: countdownActions[examProximity]
+    };
+  }, [userProfile.examGoal, examProximity]);
+
+  // Learning style adaptive content
+  const styleAdaptedContent = useMemo(() => {
+    const contentMap = {
+      visual: [
+        { title: 'Concept Maps', icon: Eye, route: '/dashboard/student/concepts', params: { view: '3d' } },
+        { title: 'Mind Maps', icon: Brain, route: '/dashboard/student/concepts', params: { view: 'mindmap' } },
+        { title: 'Charts & Diagrams', icon: BarChart3, route: '/dashboard/student/concepts', params: { view: 'charts' } }
+      ],
+      auditory: [
+        { title: 'Audio Summaries', icon: Volume2, route: '/dashboard/student/concepts', params: { mode: 'audio' } },
+        { title: 'Voice Notes', icon: Volume2, route: '/dashboard/student/concepts', params: { mode: 'voice' } },
+        { title: 'Podcasts', icon: Volume2, route: '/dashboard/student/concepts', params: { mode: 'podcast' } }
+      ],
+      kinesthetic: [
+        { title: 'Interactive Flashcards', icon: Hand, route: '/dashboard/student/flashcards' },
+        { title: 'Practice Quizzes', icon: Brain, route: '/dashboard/student/practice-exam' },
+        { title: 'Formula Practice', icon: Target, route: '/dashboard/student/concepts', params: { view: 'formula' } }
+      ]
+    };
+
+    return contentMap[learningStyle] || contentMap.visual;
+  }, [learningStyle]);
+
+  // Navigation handlers
+  const handleNavigation = (route: string, params?: any) => {
+    navigate(route, { state: params });
   };
 
-  // Adaptive content based on learning style
-  const getStudyHubContent = () => {
-    switch (learningStyle) {
-      case 'visual':
-        return [
-          { title: 'Mind Maps', icon: Brain, desc: 'Visual concept connections' },
-          { title: 'Concept Charts', icon: Target, desc: 'Visual learning aids' },
-          { title: 'Diagrams', icon: FileText, desc: 'Interactive visuals' }
-        ];
-      case 'auditory':
-        return [
-          { title: 'Audio Notes', icon: Volume2, desc: 'Listen and learn' },
-          { title: 'Voice Summaries', icon: Volume2, desc: 'Spoken concepts' },
-          { title: 'Discussion', icon: Volume2, desc: 'Talk through topics' }
-        ];
-      case 'kinesthetic':
-        return [
-          { title: 'Interactive Quiz', icon: Zap, desc: 'Hands-on practice' },
-          { title: 'Flashcards', icon: Brain, desc: 'Active recall' },
-          { title: 'Simulations', icon: Target, desc: 'Virtual experiments' }
-        ];
-      default:
-        return [
-          { title: 'Reading Materials', icon: BookOpen, desc: 'Text-based learning' },
-          { title: 'Notes Review', icon: FileText, desc: 'Written summaries' },
-          { title: 'Text Analysis', icon: Brain, desc: 'Deep reading' }
-        ];
+  const handleTopPriorityClick = (area: any) => {
+    if (area.action === 'concept-detail') {
+      navigate('/dashboard/student/concepts', { state: area.params });
+    } else if (area.action === 'flashcard') {
+      navigate('/dashboard/student/flashcards', { state: area.params });
+    } else if (area.action === 'practice-exam') {
+      navigate('/dashboard/student/practice-exam', { state: area.params });
     }
   };
 
-  // Priority actions based on exam proximity
-  const getPriorityActions = () => {
-    if (daysLeft === null) return [];
-    
-    if (daysLeft <= 7) {
-      return [
-        { title: 'Last-minute Revision', urgency: 'critical', time: '2h' },
-        { title: 'Mock Test Practice', urgency: 'critical', time: '3h' },
-        { title: 'Quick Formula Review', urgency: 'high', time: '30min' }
-      ];
-    } else if (daysLeft <= 30) {
-      return [
-        { title: 'High Yield Concepts', urgency: 'high', time: '2h' },
-        { title: 'Practice Tests', urgency: 'high', time: '3h' },
-        { title: 'Weak Area Focus', urgency: 'medium', time: '1.5h' }
-      ];
-    } else {
-      return [
-        { title: 'New Topic Learning', urgency: 'medium', time: '2h' },
-        { title: 'Regular Practice', urgency: 'medium', time: '1h' },
-        { title: 'Concept Building', urgency: 'low', time: '1.5h' }
-      ];
-    }
-  };
-
-  const studyHubContent = getStudyHubContent();
-  const priorityActions = getPriorityActions();
+  // Mood selector component
+  const MoodSelector = () => (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-gray-600">Mood:</span>
+      <select 
+        value={currentMood || MoodType.NEUTRAL}
+        onChange={(e) => onMoodChange?.(e.target.value as MoodType)}
+        className="text-sm border-0 bg-transparent focus:ring-0"
+      >
+        <option value={MoodType.EXCITED}>😃 Excited</option>
+        <option value={MoodType.MOTIVATED}>💪 Motivated</option>
+        <option value={MoodType.FOCUSED}>🎯 Focused</option>
+        <option value={MoodType.STRESSED}>😰 Stressed</option>
+        <option value={MoodType.CALM}>😌 Calm</option>
+        <option value={MoodType.NEUTRAL}>😐 Neutral</option>
+      </select>
+    </div>
+  );
 
   if (focusMode) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-6">
-        {/* Keep subscription, upgrade, voice assistant, notifications on top */}
-        <div className="flex justify-between items-center mb-6">
+      <div className="min-h-screen bg-gray-50 p-4">
+        {/* Top bar with essential items */}
+        <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
           <div className="flex items-center gap-4">
             <Button onClick={() => setFocusMode(false)} variant="outline">
               Exit Focus Mode
             </Button>
-            <Badge variant="outline">Focus Session Active</Badge>
+            <Badge variant="outline">Subscription: Premium</Badge>
           </div>
-          <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            <Volume2 className="h-5 w-5" />
-            <Button size="sm">Upgrade</Button>
-            <Settings className="h-5 w-5" />
+          <div className="flex items-center gap-4">
+            <Button size="sm">🔔 Notifications</Button>
+            <Button size="sm">🎤 Voice Assistant</Button>
+            <Button size="sm">⬆️ Upgrade</Button>
           </div>
         </div>
         
         {/* Focus content */}
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6 text-center">Focus Mode: Thermodynamics</h1>
-          <div className="bg-gray-800 p-8 rounded-xl">
-            <p className="text-center text-gray-300">Distraction-free learning environment</p>
-          </div>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Focus Mode Active</h1>
+          <p className="text-gray-600 mb-8">Distraction-free learning session</p>
+          <Card className="max-w-2xl mx-auto p-8">
+            <CardContent>
+              <h2 className="text-2xl font-bold mb-4">Thermodynamics Revision</h2>
+              <p className="text-gray-600 mb-6">Your weakest area - Let's improve that 42% accuracy!</p>
+              <div className="space-y-4">
+                <Button className="w-full" size="lg" onClick={() => handleNavigation('/dashboard/student/concepts')}>
+                  Start Concept Review
+                </Button>
+                <Button className="w-full" variant="outline" size="lg" onClick={() => handleNavigation('/dashboard/student/flashcards')}>
+                  Practice Flashcards
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${proximityTheme.bgGradient} p-4 sm:p-6`}>
-      {/* 1. User Overview Strip (Top Section) */}
+    <div className={`min-h-screen bg-gradient-to-br ${adaptiveTheme.bg} ${adaptiveTheme.overlay} p-6`}>
       <motion.div 
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        transition={{ duration: 0.5 }}
+        className="max-w-7xl mx-auto space-y-8"
       >
-        <Card className="border-2 shadow-lg">
+        {/* 1. User Overview Strip */}
+        <Card className={`border-2 ${adaptiveTheme.border} bg-white/95 backdrop-blur-sm`}>
           <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-              {/* Welcome & User Info */}
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-full ${proximityTheme.secondary}`}>
-                  <User className={`h-6 w-6 ${proximityTheme.accent}`} />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold">{getGreeting()}</h1>
-                  <div className="flex items-center gap-4 mt-2">
-                    <Badge variant="outline">🎯 {userProfile.examGoal || 'NEET'}</Badge>
-                    <Badge variant="outline">📊 {learningStyle}</Badge>
-                    {currentMood && (
-                      <Badge variant="outline">😊 {currentMood}</Badge>
-                    )}
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
+              <div className="md:col-span-2">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">{dynamicGreeting}</h1>
+                <div className="flex items-center gap-4 text-sm">
+                  <Badge variant="outline">Goal: {userProfile.examGoal || 'NEET'}</Badge>
+                  <Badge variant="outline">Style: {learningStyle}</Badge>
                 </div>
               </div>
-
-              {/* Exam Countdown */}
-              <div className="text-right">
-                <Badge className={`text-lg px-4 py-2 ${proximityTheme.accent} font-bold`} variant="outline">
-                  {proximityTheme.urgency}
+              
+              <div className="text-center">
+                <div className={`text-3xl font-bold ${adaptiveTheme.accent}`}>{daysLeft || 90}</div>
+                <div className="text-sm text-gray-600">days left</div>
+                <Badge className={`mt-1 ${examProximity === 'critical' ? 'bg-red-100 text-red-700' : examProximity === 'urgent' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+                  {examProximity.toUpperCase()}
                 </Badge>
-                {daysLeft && (
-                  <p className={`text-2xl font-bold mt-2 ${proximityTheme.accent}`}>
-                    {daysLeft} days left
-                  </p>
-                )}
+              </div>
+              
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">75%</div>
+                <div className="text-sm text-gray-600">Exam Readiness</div>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <MoodSelector />
+                <div className="flex items-center gap-2 text-sm">
+                  <Flame className="h-4 w-4 text-orange-500" />
+                  <span>{userProfile.studyStreak || 5} day streak</span>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-      </motion.div>
 
-      {/* 2. Priority Zone (Main Focus Area) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6"
-      >
-        <h2 className="text-2xl font-bold mb-4">🎯 Priority Zone</h2>
+        {/* 2. Priority Zone */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           {/* Today's Top Priority */}
-          <Card className="border-l-4 border-red-500">
+          <Card className="lg:col-span-1 bg-white/95 backdrop-blur-sm border-red-200 border-2">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+              <CardTitle className="flex items-center gap-2 text-red-700">
+                <AlertTriangle className="h-5 w-5" />
                 Today's Top Priority
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="font-semibold text-red-700 mb-2">Revise Thermodynamics</p>
-              <p className="text-sm text-gray-600 mb-4">Accuracy: 42% - Needs improvement</p>
-              <Button className="w-full bg-red-600 hover:bg-red-700">
-                Start Now
-              </Button>
+            <CardContent className="space-y-4">
+              {priorityWidgets.weakAreas.slice(0, 1).map((area, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.02 }}
+                  className="p-4 bg-red-50 rounded-lg cursor-pointer"
+                  onClick={() => handleTopPriorityClick(area)}
+                >
+                  <h3 className="font-semibold text-red-800">{area.subject}</h3>
+                  <p className="text-sm text-red-600 mb-2">Accuracy: {area.accuracy}%</p>
+                  <div className="w-full bg-red-200 rounded-full h-2 mb-3">
+                    <div className="bg-red-500 h-2 rounded-full" style={{ width: `${area.accuracy}%` }}></div>
+                  </div>
+                  <Button size="sm" className="w-full bg-red-600 hover:bg-red-700">
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Improving
+                  </Button>
+                </motion.div>
+              ))}
             </CardContent>
           </Card>
 
           {/* Countdown Actions */}
-          <Card>
+          <Card className="lg:col-span-1 bg-white/95 backdrop-blur-sm">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Timer className="h-5 w-5 text-orange-600" />
+              <CardTitle className="flex items-center gap-2">
+                <Timer className="h-5 w-5" />
                 Countdown Actions
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {priorityActions.slice(0, 2).map((action, index) => (
-                <div key={index} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">{action.title}</p>
-                    <p className="text-sm text-gray-600">{action.time}</p>
+              {priorityWidgets.countdownActions.map((action, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.02 }}
+                  className={`p-3 bg-${action.color}-50 rounded-lg cursor-pointer`}
+                  onClick={() => handleNavigation(action.route)}
+                >
+                  <div className="flex items-center gap-3">
+                    <action.icon className={`h-5 w-5 text-${action.color}-600`} />
+                    <span className="font-medium">{action.title}</span>
+                    <ArrowRight className="h-4 w-4 ml-auto" />
                   </div>
-                  <Badge 
-                    variant={action.urgency === 'critical' ? 'destructive' : 'outline'}
-                    className="text-xs"
-                  >
-                    {action.urgency.toUpperCase()}
-                  </Badge>
-                </div>
+                </motion.div>
               ))}
             </CardContent>
           </Card>
 
           {/* Daily Study Plan */}
-          <Card>
+          <Card className="lg:col-span-1 bg-white/95 backdrop-blur-sm">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Calendar className="h-5 w-5 text-blue-600" />
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
                 Daily Study Plan
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Today's Progress</span>
-                    <span>6h / 8h</span>
-                  </div>
-                  <Progress value={75} className="h-2" />
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Physics</span>
+                  <span>2h</span>
                 </div>
-                <Button 
-                  onClick={() => setFocusMode(true)} 
-                  className="w-full"
-                >
-                  Enter Focus Mode
-                </Button>
+                <div className="flex justify-between text-sm">
+                  <span>Chemistry</span>
+                  <span>1.5h</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Biology</span>
+                  <span>1h</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <Coffee className="h-4 w-4" />
+                  <span>Break time included</span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </motion.div>
-
-      {/* 3. Smart Study Hub */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mb-6"
-      >
-        <h2 className="text-2xl font-bold mb-4">🧠 Smart Study Hub</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {studyHubContent.map((item, index) => (
-            <Card key={index} className="hover:shadow-lg transition-all duration-300 cursor-pointer">
-              <CardContent className="p-6 text-center">
-                <item.icon className="h-12 w-12 mx-auto mb-3 text-blue-600" />
-                <h3 className="font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-600">{item.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* 4. Performance Zone */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mb-6"
-      >
-        <h2 className="text-2xl font-bold mb-4">📊 Performance Zone</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          
-          {/* Weak Areas */}
-          <Card className="border-l-4 border-red-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-                <span className="font-semibold">Weak Areas</span>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">Thermodynamics, Optics</p>
-              <Button size="sm" className="w-full bg-red-600">
-                Improve Now
+              <Button 
+                className="w-full" 
+                onClick={() => handleNavigation('/dashboard/student/today')}
+              >
+                View Today's Plan
               </Button>
             </CardContent>
           </Card>
-
-          {/* Strong Areas */}
-          <Card className="border-l-4 border-green-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-                <span className="font-semibold">Strong Areas</span>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">Mechanics, Algebra</p>
-              <Button size="sm" className="w-full bg-green-600">
-                Advance Practice
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Streak & Motivation */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Flame className="h-5 w-5 text-orange-600" />
-                <span className="font-semibold">Study Streak</span>
-              </div>
-              <p className="text-2xl font-bold text-orange-600">{userProfile.studyStreak || 0}</p>
-              <p className="text-sm text-gray-600">days</p>
-            </CardContent>
-          </Card>
-
-          {/* Badges */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Trophy className="h-5 w-5 text-yellow-600" />
-                <span className="font-semibold">Achievements</span>
-              </div>
-              <div className="flex gap-1">
-                <Badge variant="outline">🏆</Badge>
-                <Badge variant="outline">🎯</Badge>
-                <Badge variant="outline">⚡</Badge>
-              </div>
-            </CardContent>
-          </Card>
         </div>
-      </motion.div>
 
-      {/* 5. Tips + Micro-Coach Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card>
+        {/* 3. Smart Study Hub */}
+        <Card className="bg-white/95 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-6 w-6 text-yellow-600" />
-              Daily Tips & Micro-Coach
+              <Brain className="h-6 w-6" />
+              Smart Study Hub - {learningStyle} Learner
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className={`p-4 rounded-lg ${proximityTheme.secondary} border ${proximityTheme.border}`}>
-                <h3 className="font-semibold mb-2">💡 Focus Tip</h3>
-                <p className="text-sm">Your focus drops after 25 mins - try the Pomodoro technique for better retention!</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {styleAdaptedContent.map((content, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.05 }}
+                  className="p-4 bg-gray-50 rounded-lg cursor-pointer transition-all"
+                  onClick={() => handleNavigation(content.route, content.params)}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <content.icon className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium">{content.title}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Optimized for your learning style</p>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 4. Performance Zone */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <Card className="lg:col-span-2 bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Performance Highlights
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-red-50 rounded-lg">
+                  <h4 className="font-medium text-red-700 mb-2">Weak Areas</h4>
+                  <div className="space-y-1">
+                    {priorityWidgets.weakAreas.slice(0, 2).map((area, index) => (
+                      <div key={index} className="flex justify-between text-sm">
+                        <span>{area.subject}</span>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-6 text-xs"
+                          onClick={() => handleTopPriorityClick(area)}
+                        >
+                          Improve Now
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <h4 className="font-medium text-green-700 mb-2">Strong Areas</h4>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span>Algebra</span>
+                      <Button size="sm" variant="outline" className="h-6 text-xs">
+                        Advance Practice
+                      </Button>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Biology</span>
+                      <Button size="sm" variant="outline" className="h-6 text-xs">
+                        Advance Practice
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className={`p-4 rounded-lg ${proximityTheme.secondary} border ${proximityTheme.border}`}>
-                <h3 className="font-semibold mb-2">🎯 Smart Suggestion</h3>
-                <p className="text-sm">Try audio learning for Physics - you showed 23% higher retention last week!</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="h-5 w-5" />
+                Achievements
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <Star className="h-4 w-4 text-yellow-500" />
+                <span>{userProfile.studyStreak || 5} day streak</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>15 concepts mastered</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Target className="h-4 w-4 text-blue-500" />
+                <span>8 practice tests completed</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Focus className="h-5 w-5" />
+                Focus Zone
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                className="w-full mb-3" 
+                onClick={() => setFocusMode(true)}
+              >
+                Enter Focus Mode
+              </Button>
+              <p className="text-xs text-gray-600">
+                Distraction-free learning with essential tools only
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 5. Tips + Micro-Coach Section */}
+        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700">
+              <Lightbulb className="h-5 w-5" />
+              Daily Micro-Coach
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-white/80 rounded-lg">
+                <h4 className="font-medium mb-2">💡 Today's Tip</h4>
+                <p className="text-sm text-gray-700">
+                  Try the Pomodoro technique for Physics - your focus peaks at 25-minute intervals.
+                </p>
+              </div>
+              
+              <div className="p-4 bg-white/80 rounded-lg">
+                <h4 className="font-medium mb-2">🧠 Smart Suggestion</h4>
+                <p className="text-sm text-gray-700">
+                  Audio learning for {learningStyle === 'auditory' ? 'you' : 'Chemistry'} shows 15% better retention this week.
+                </p>
               </div>
             </div>
           </CardContent>
