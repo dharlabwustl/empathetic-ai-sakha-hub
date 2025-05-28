@@ -11,6 +11,7 @@ export interface StudyPlanSubject {
   color?: string;
   proficiency?: number | string;
   hoursPerWeek?: number;
+  status?: 'pending' | 'active' | 'completed';
 }
 
 export interface Subject extends StudyPlanSubject {}
@@ -26,7 +27,7 @@ export interface StudyPlan {
   totalWeeklyHours: number;
   examDate?: string;
   examGoal?: string;
-  status?: 'active' | 'completed' | 'paused';
+  status?: 'active' | 'completed' | 'paused' | 'pending';
   progressPercent?: number;
   progressPercentage?: number;
   daysLeft?: number;

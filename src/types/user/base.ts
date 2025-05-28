@@ -15,7 +15,13 @@ export enum MoodType {
   ANXIOUS = 'anxious',
   TIRED = 'tired',
   HAPPY = 'happy',
-  FRUSTRATED = 'frustrated'
+  FRUSTRATED = 'frustrated',
+  CALM = 'calm',
+  CONFUSED = 'confused',
+  NEUTRAL = 'neutral',
+  OKAY = 'okay',
+  SAD = 'sad',
+  CURIOUS = 'curious'
 }
 
 export enum LearningStyle {
@@ -35,6 +41,13 @@ export enum PerformanceLevel {
   BEGINNER = 'beginner',
   INTERMEDIATE = 'intermediate',
   ADVANCED = 'advanced'
+}
+
+export enum SubscriptionType {
+  FREE = 'free',
+  BASIC = 'basic',
+  PRO = 'pro',
+  PREMIUM = 'premium'
 }
 
 export interface UserProfileBase {
@@ -75,8 +88,8 @@ export interface UserProfileBase {
   };
   
   // Goals and subscription
-  goals?: Array<{ title: string; description?: string }>;
-  subscription?: any;
+  goals?: Array<{ title: string; description?: string; targetDate?: string; id?: string }>;
+  subscription?: SubscriptionType | { planType: string; expiryDate?: string };
   
   // Onboarding and personalization
   onboardingComplete?: boolean;
