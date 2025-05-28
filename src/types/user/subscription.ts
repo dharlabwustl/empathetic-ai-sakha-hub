@@ -23,6 +23,20 @@ export interface SubscriptionInfo {
   endDate?: string;
 }
 
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  type: SubscriptionType | string;
+  price: number;
+  priceAnnual?: number;
+  description: string;
+  features: string[];
+  highlighted?: boolean;
+  popular?: boolean;
+  buttonText?: string;
+  maxMembers?: number;
+}
+
 export interface CreditPack {
   id: string;
   name: string;
@@ -60,5 +74,29 @@ export const creditPacks: CreditPack[] = [
     description: 'For power users',
     bestValue: false,
     isExamCredits: true
+  }
+];
+
+export const standardSubscriptionPlans: SubscriptionPlan[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    type: SubscriptionType.FREE,
+    price: 0,
+    description: 'Basic features for getting started',
+    features: ['Basic study plans', 'Limited practice tests', 'Community support'],
+    buttonText: 'Current Plan'
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    type: SubscriptionType.PREMIUM,
+    price: 499,
+    priceAnnual: 4990,
+    description: 'Full access to all features',
+    features: ['Unlimited study plans', 'All practice tests', 'AI tutor', 'Priority support'],
+    highlighted: true,
+    popular: true,
+    buttonText: 'Upgrade Now'
   }
 ];
