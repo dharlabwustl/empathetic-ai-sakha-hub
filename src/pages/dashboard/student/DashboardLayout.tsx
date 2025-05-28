@@ -3,17 +3,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
-import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
 import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
 import { UserProfileType, MoodType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import { formatTime, formatDate } from "./utils/DateTimeFormatter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
-import EnhancedDashboardHeader from "@/components/dashboard/student/EnhancedDashboardHeader";
 import SpeechRecognitionButton from "@/components/voice/SpeechRecognitionButton";
 
 interface DashboardLayoutProps {
@@ -71,9 +67,6 @@ const DashboardLayout = ({
   onProfileImageUpdate,
   upcomingEvents = []
 }: DashboardLayoutProps) => {
-  const currentTime = new Date();
-  const formattedTime = formatTime(currentTime);
-  const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const features = getFeatures();
@@ -104,71 +97,10 @@ const DashboardLayout = ({
     // Commands are processed within the SpeechRecognitionButton component
   };
 
-  const getSubscriptionDetails = () => {
-    if (!userProfile.subscription) {
-      return {
-        planType: 'free',
-        isExpired: false
-      };
-    }
-    
-    if (typeof userProfile.subscription === 'object') {
-      const isExpired = userProfile.subscription.expiryDate 
-        ? new Date(userProfile.subscription.expiryDate) < new Date()
-        : false;
-        
-      return {
-        planType: userProfile.subscription.planType || 'free',
-        expiryDate: userProfile.subscription.expiryDate,
-        isExpired
-      };
-    }
-    
-    return {
-      planType: userProfile.subscription as string,
-      isExpired: false
-    };
-  };
-  
-  const subscriptionDetails = getSubscriptionDetails();
-
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <div className="flex min-h-screen">
         <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
-          {/* Top Navigation Controls with all voice controls and features */}
-          <TopNavigationControls 
-            hideSidebar={hideSidebar}
-            onToggleSidebar={onToggleSidebar}
-            formattedDate={formattedDate}
-            formattedTime={formattedTime}
-            onOpenTour={handleOpenTour}
-            userName={userProfile.name}
-            mood={currentMood}
-            isFirstTimeUser={isFirstTimeUser}
-            onViewStudyPlan={onViewStudyPlan}
-          />
-
-          {/* Subscription Banner */}
-          <SubscriptionBanner 
-            planType={subscriptionDetails.planType}
-            expiryDate={subscriptionDetails.expiryDate}
-            isExpired={subscriptionDetails.isExpired}
-          />
-
-          {/* Enhanced Dashboard Header without theme toggle (moved to top nav) */}
-          <div className="mb-6">
-            <EnhancedDashboardHeader 
-              userProfile={userProfile}
-              formattedTime={formattedTime}
-              formattedDate={formattedDate}
-              onViewStudyPlan={onViewStudyPlan}
-              currentMood={currentMood}
-              onMoodChange={onMoodChange}
-              upcomingEvents={upcomingEvents}
-            />
-          </div>
-
           {/* Surrounding Influences Section */}
           <SurroundingInfluencesSection 
             influenceMeterCollapsed={influenceMeterCollapsed}
