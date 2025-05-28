@@ -24,21 +24,21 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
     userName,
     language,
     onSpeakingChange,
-    inactivityTimeout: 12000 // 12 seconds for dashboard
+    inactivityTimeout: 15000 // 15 seconds for dashboard
   });
 
   useEffect(() => {
     if (userName && userName !== 'there') {
       const greetingMessage = isFirstTimeUser 
-        ? `Welcome to your PREPZR dashboard, ${userName}! This is your command center for exam preparation.`
-        : `Great to see you back, ${userName}! Ready for today's learning session?`;
+        ? `Welcome to your NEET preparation dashboard, ${userName}! Your exam readiness score is looking good. Let's focus on improving those weak areas today.`
+        : `Good to see you back, ${userName}! Your current study streak is impressive. Ready to tackle today's priority concepts?`;
       
       setTimeout(() => {
         playInitialGreeting(greetingMessage);
         // Schedule help offer after greeting
         setTimeout(() => {
           scheduleHelpOffer();
-        }, 4000);
+        }, 5000);
       }, 2000);
     }
   }, [userName, isFirstTimeUser, playInitialGreeting]);
@@ -63,17 +63,17 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
     
     helpOfferTimerRef.current = window.setTimeout(() => {
       offerDashboardAssistance();
-    }, 12000);
+    }, 15000);
   };
 
   const offerDashboardAssistance = () => {
     if (hasOfferedHelp || isSpeaking) return;
     
     const dashboardOffers = [
-      "Need help navigating your dashboard? I can guide you to any section.",
-      "Would you like me to explain any dashboard features?",
-      "I can help you access study plans, concept cards, or practice exams.",
-      "Let me know if you need assistance with any learning tools."
+      "I notice you have thermodynamics as a priority concept. Would you like me to guide you to the concept cards?",
+      "Your physics progress could use some attention. Should I help you access practice questions?",
+      "You're doing great with biology! Want to try some advanced practice tests?",
+      "Ready to start your 2 hour 30 minute physics session? I can help you begin."
     ];
     
     const randomOffer = dashboardOffers[Math.floor(Math.random() * dashboardOffers.length)];
@@ -83,7 +83,7 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
     helpOfferTimerRef.current = window.setTimeout(() => {
       setHasOfferedHelp(false);
       offerDashboardAssistance();
-    }, 25000);
+    }, 30000);
   };
 
   const handleVoiceCommand = (command: string) => {
@@ -111,7 +111,6 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
 
   return (
     <>
-      {/* Enhanced Speech Recognition for Dashboard */}
       <EnhancedSpeechRecognition 
         language={language}
         continuous={true}
