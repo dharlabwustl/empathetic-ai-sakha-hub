@@ -64,39 +64,10 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
   };
 };
 
-// Enhanced message tracking with session-based prevention and activity monitoring
+// Enhanced message tracking with session-based prevention
 const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
 const SESSION_ID = Date.now().toString();
 const MESSAGE_COOLDOWN = 300000; // 5 minutes cooldown for same message
-const ACTIVITY_TIMEOUT = 10000; // 10 seconds before offering assistance
-const PAUSE_BETWEEN_OFFERS = 60000; // 1 minute between assistance offers
-
-let lastActivityTime = Date.now();
-let lastOfferTime = 0;
-let activityTimeoutId: number | null = null;
-
-// Track user activity
-export const trackUserActivity = () => {
-  lastActivityTime = Date.now();
-  if (activityTimeoutId) {
-    clearTimeout(activityTimeoutId);
-    activityTimeoutId = null;
-  }
-};
-
-// Check if we should offer assistance
-export const shouldOfferAssistance = (): boolean => {
-  const now = Date.now();
-  const timeSinceActivity = now - lastActivityTime;
-  const timeSinceLastOffer = now - lastOfferTime;
-  
-  return timeSinceActivity >= ACTIVITY_TIMEOUT && timeSinceLastOffer >= PAUSE_BETWEEN_OFFERS;
-};
-
-// Mark that we offered assistance
-export const markAssistanceOffered = () => {
-  lastOfferTime = Date.now();
-};
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();

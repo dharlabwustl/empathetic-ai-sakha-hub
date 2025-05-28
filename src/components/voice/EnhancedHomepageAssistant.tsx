@@ -2,10 +2,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { getDefaultVoiceConfig, trackUserActivity, shouldOfferAssistance, markAssistanceOffered } from '@/utils/voiceConfig';
+import { getDefaultVoiceConfig } from '@/utils/voiceConfig';
 import { 
   homepageWelcomeMessages, 
-  assistanceOfferMessages,
   speakMessagesWithBreaks,
   VoiceMessage 
 } from '@/utils/voiceMessages';
@@ -26,39 +25,9 @@ const EnhancedHomepageAssistant: React.FC<EnhancedHomepageAssistantProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const lastGreetingPathRef = useRef<string>('');
-  const activityCheckIntervalRef = useRef<number | null>(null);
   
   const shouldPlayWelcome = location.pathname === '/';
   
-  // Track user activity
-  useEffect(() => {
-    const handleActivity = () => {
-      trackUserActivity();
-    };
-
-    // Track various user interactions
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    events.forEach(event => {
-      document.addEventListener(event, handleActivity, true);
-    });
-
-    // Check periodically if we should offer assistance
-    activityCheckIntervalRef.current = window.setInterval(() => {
-      if (!isSpeaking && shouldOfferAssistance()) {
-        offerAssistance();
-      }
-    }, 5000); // Check every 5 seconds
-
-    return () => {
-      events.forEach(event => {
-        document.removeEventListener(event, handleActivity, true);
-      });
-      if (activityCheckIntervalRef.current) {
-        clearInterval(activityCheckIntervalRef.current);
-      }
-    };
-  }, [isSpeaking]);
-
   // Enhanced command processing
   const processVoiceCommand = (transcript: string) => {
     const command = transcript.toLowerCase();
@@ -117,26 +86,6 @@ const EnhancedHomepageAssistant: React.FC<EnhancedHomepageAssistantProps> = ({
     window.speechSynthesis.speak(speech);
   };
 
-  const offerAssistance = async () => {
-    if (audioMuted || hasPlayedWelcome) return;
-    
-    markAssistanceOffered();
-    const voiceConfig = getDefaultVoiceConfig();
-    
-    await speakMessagesWithBreaks(
-      assistanceOfferMessages,
-      { ...voiceConfig, language },
-      () => {
-        setIsSpeaking(true);
-        if (onSpeakingChange) onSpeakingChange(true);
-      },
-      () => {
-        setIsSpeaking(false);
-        if (onSpeakingChange) onSpeakingChange(false);
-      }
-    );
-  };
-
   const speakFeatureOverview = async () => {
     const featureMessages: VoiceMessage[] = [
       {
@@ -150,6 +99,14 @@ const EnhancedHomepageAssistant: React.FC<EnhancedHomepageAssistantProps> = ({
       {
         text: "Interactive concept mastery helps you understand complex topics step by step.",
         pauseAfter: 2000
+      },
+      {
+        text: "Smart flashcards use spaced repetition to improve your memory retention.",
+        pauseAfter: 2000
+      },
+      {
+        text: "Practice exams simulate real test conditions with detailed performance analysis.",
+        pauseAfter: 1500
       },
       {
         text: "Would you like to experience these features with a free trial?",
@@ -209,9 +166,6 @@ const EnhancedHomepageAssistant: React.FC<EnhancedHomepageAssistantProps> = ({
     return () => {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
-      }
-      if (activityCheckIntervalRef.current) {
-        clearInterval(activityCheckIntervalRef.current);
       }
     };
   }, []);
