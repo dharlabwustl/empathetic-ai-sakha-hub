@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -26,7 +25,7 @@ const StudentDashboard = () => {
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [dashboardPreferences, setDashboardPreferences] = useState<any>(null);
-  const [useAdaptiveLayout, setUseAdaptiveLayout] = useState(false);
+  const [useAdaptiveLayout, setUseAdaptiveLayout] = useState(true); // Always use adaptive layout
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,20 +65,34 @@ const StudentDashboard = () => {
       setProfileImage(savedImage);
     }
 
-    // Check for adaptive dashboard preferences
+    // Always load dashboard preferences for adaptive layout
     const savedPreferences = localStorage.getItem('dashboardPreferences');
     const isPersonalized = new URLSearchParams(location.search).get('personalized') === 'true';
     
-    if (savedPreferences || isPersonalized) {
-      try {
-        const preferences = savedPreferences ? JSON.parse(savedPreferences) : null;
-        setDashboardPreferences(preferences);
-        setUseAdaptiveLayout(true);
-      } catch (error) {
-        console.error('Error loading dashboard preferences:', error);
-      }
+    try {
+      const preferences = savedPreferences ? JSON.parse(savedPreferences) : {
+        examGoal: userProfile?.examGoal || 'NEET',
+        learningStyle: 'visual',
+        studyStyle: 'gradual',
+        weakSubjects: ['Physics', 'Organic Chemistry'],
+        strongSubjects: ['Biology'],
+        confidenceLevel: 'intermediate'
+      };
+      setDashboardPreferences(preferences);
+      setUseAdaptiveLayout(true);
+    } catch (error) {
+      console.error('Error loading dashboard preferences:', error);
+      // Set default preferences
+      setDashboardPreferences({
+        examGoal: userProfile?.examGoal || 'NEET',
+        learningStyle: 'visual',
+        studyStyle: 'gradual',
+        weakSubjects: ['Physics', 'Organic Chemistry'],
+        strongSubjects: ['Biology'],
+        confidenceLevel: 'intermediate'
+      });
     }
-  }, [location]);
+  }, [location, userProfile]);
 
   // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
@@ -136,6 +149,12 @@ const StudentDashboard = () => {
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
     storeMoodInLocalStorage(mood);
+    
+    // Update dashboard preferences to trigger re-render
+    setDashboardPreferences(prev => ({
+      ...prev,
+      currentMood: mood
+    }));
   };
 
   const handleProfileImageUpdate = (imageUrl: string) => {
@@ -191,26 +210,24 @@ const StudentDashboard = () => {
 
   const enhancedUserProfile = {
     ...userProfile,
-    avatar: profileImage || userProfile.avatar || userProfile.photoURL
+    avatar: profileImage || userProfile.avatar || userProfile.photoURL,
+    currentMood: currentMood,
+    examGoal: userProfile.examGoal || dashboardPreferences?.examGoal || 'NEET'
   };
 
   const getTabContent = () => {
     if (activeTab === "overview") {
       const content = <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
       
-      // Wrap in adaptive layout if preferences exist
-      if (useAdaptiveLayout && dashboardPreferences) {
-        return (
-          <AdaptiveDashboardLayout 
-            userProfile={enhancedUserProfile} 
-            preferences={dashboardPreferences}
-          >
-            {content}
-          </AdaptiveDashboardLayout>
-        );
-      }
-      
-      return content;
+      // Always wrap in adaptive layout
+      return (
+        <AdaptiveDashboardLayout 
+          userProfile={enhancedUserProfile} 
+          preferences={dashboardPreferences}
+        >
+          {content}
+        </AdaptiveDashboardLayout>
+      );
     }
     return null;
   };
