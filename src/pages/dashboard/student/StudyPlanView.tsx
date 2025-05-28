@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { StudyPlanBreakdown } from '@/components/dashboard/student/study-plan/StudyPlanBreakdown';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Download, Calendar } from 'lucide-react';
 import { StudyPlanSubject } from '@/types/user/studyPlan';
 
-// Mock data for demonstration purposes
+// Enhanced mock data with weightage and detailed topics
 const mockStudyPlan = {
   examName: "JEE Advanced",
   examDate: "2023-12-15",
@@ -19,12 +18,64 @@ const mockStudyPlan = {
       hoursPerWeek: 12,
       priority: "high" as const,
       proficiency: "medium" as const,
+      totalWeightage: 33,
+      completedWeightage: 18,
+      completed: false,
       topics: [
-        { id: "p1", name: "Mechanics", difficulty: "medium" as const, completed: true, status: "completed" as const },
-        { id: "p2", name: "Thermodynamics", difficulty: "medium" as const, completed: false, status: "in-progress" as const },
-        { id: "p3", name: "Electromagnetism", difficulty: "hard" as const, completed: false, status: "pending" as const },
-        { id: "p4", name: "Modern Physics", difficulty: "hard" as const, completed: false, status: "pending" as const },
-        { id: "p5", name: "Optics", difficulty: "medium" as const, completed: false, status: "pending" as const },
+        { 
+          id: "p1", 
+          name: "Mechanics", 
+          difficulty: "medium" as const, 
+          completed: true, 
+          status: "completed" as const,
+          priority: "high" as const,
+          weightage: 12,
+          estimatedHours: 8,
+          subtopics: [
+            { id: "p1s1", name: "Kinematics", completed: true, weightage: 4, priority: "high" as const, difficulty: "medium" as const },
+            { id: "p1s2", name: "Dynamics", completed: true, weightage: 5, priority: "high" as const, difficulty: "medium" as const },
+            { id: "p1s3", name: "Work & Energy", completed: true, weightage: 3, priority: "medium" as const, difficulty: "easy" as const }
+          ]
+        },
+        { 
+          id: "p2", 
+          name: "Thermodynamics", 
+          difficulty: "medium" as const, 
+          completed: false, 
+          status: "in-progress" as const,
+          priority: "medium" as const,
+          weightage: 8,
+          estimatedHours: 6,
+          subtopics: [
+            { id: "p2s1", name: "Laws of Thermodynamics", completed: false, weightage: 4, priority: "high" as const, difficulty: "hard" as const },
+            { id: "p2s2", name: "Heat Engines", completed: false, weightage: 4, priority: "medium" as const, difficulty: "medium" as const }
+          ]
+        },
+        { 
+          id: "p3", 
+          name: "Electromagnetism", 
+          difficulty: "hard" as const, 
+          completed: false, 
+          status: "pending" as const,
+          priority: "high" as const,
+          weightage: 10,
+          estimatedHours: 10,
+          subtopics: [
+            { id: "p3s1", name: "Electric Fields", completed: false, weightage: 3, priority: "high" as const, difficulty: "medium" as const },
+            { id: "p3s2", name: "Magnetic Fields", completed: false, weightage: 4, priority: "high" as const, difficulty: "hard" as const },
+            { id: "p3s3", name: "Electromagnetic Induction", completed: false, weightage: 3, priority: "medium" as const, difficulty: "hard" as const }
+          ]
+        },
+        { 
+          id: "p4", 
+          name: "Modern Physics", 
+          difficulty: "hard" as const, 
+          completed: false, 
+          status: "pending" as const,
+          priority: "medium" as const,
+          weightage: 3,
+          estimatedHours: 4
+        }
       ]
     },
     {
@@ -34,11 +85,45 @@ const mockStudyPlan = {
       hoursPerWeek: 10,
       priority: "medium" as const,
       proficiency: "weak" as const,
+      totalWeightage: 33,
+      completedWeightage: 8,
+      completed: false,
       topics: [
-        { id: "c1", name: "Physical Chemistry", difficulty: "hard" as const, completed: false, status: "in-progress" as const },
-        { id: "c2", name: "Organic Chemistry", difficulty: "hard" as const, completed: false, status: "pending" as const },
-        { id: "c3", name: "Inorganic Chemistry", difficulty: "medium" as const, completed: false, status: "pending" as const },
-        { id: "c4", name: "Analytical Chemistry", difficulty: "easy" as const, completed: true, status: "completed" as const },
+        { 
+          id: "c1", 
+          name: "Physical Chemistry", 
+          difficulty: "hard" as const, 
+          completed: false, 
+          status: "in-progress" as const,
+          priority: "high" as const,
+          weightage: 15,
+          estimatedHours: 12,
+          subtopics: [
+            { id: "c1s1", name: "Chemical Equilibrium", completed: true, weightage: 5, priority: "high" as const, difficulty: "medium" as const },
+            { id: "c1s2", name: "Electrochemistry", completed: false, weightage: 6, priority: "high" as const, difficulty: "hard" as const },
+            { id: "c1s3", name: "Chemical Kinetics", completed: true, weightage: 4, priority: "medium" as const, difficulty: "medium" as const }
+          ]
+        },
+        { 
+          id: "c2", 
+          name: "Organic Chemistry", 
+          difficulty: "hard" as const, 
+          completed: false, 
+          status: "pending" as const,
+          priority: "high" as const,
+          weightage: 12,
+          estimatedHours: 10
+        },
+        { 
+          id: "c3", 
+          name: "Inorganic Chemistry", 
+          difficulty: "medium" as const, 
+          completed: false, 
+          status: "pending" as const,
+          priority: "medium" as const,
+          weightage: 6,
+          estimatedHours: 6
+        }
       ]
     },
     {
@@ -48,16 +133,62 @@ const mockStudyPlan = {
       hoursPerWeek: 13,
       priority: "high" as const,
       proficiency: "strong" as const,
+      totalWeightage: 34,
+      completedWeightage: 22,
+      completed: false,
       topics: [
-        { id: "m1", name: "Calculus", difficulty: "medium" as const, completed: true, status: "completed" as const },
-        { id: "m2", name: "Algebra", difficulty: "medium" as const, completed: false, status: "in-progress" as const },
-        { id: "m3", name: "Coordinate Geometry", difficulty: "easy" as const, completed: true, status: "completed" as const },
-        { id: "m4", name: "Trigonometry", difficulty: "easy" as const, completed: false, status: "pending" as const },
-        { id: "m5", name: "Statistics", difficulty: "medium" as const, completed: false, status: "pending" as const },
-        { id: "m6", name: "Vectors", difficulty: "hard" as const, completed: false, status: "pending" as const },
+        { 
+          id: "m1", 
+          name: "Calculus", 
+          difficulty: "medium" as const, 
+          completed: true, 
+          status: "completed" as const,
+          priority: "high" as const,
+          weightage: 12,
+          estimatedHours: 8,
+          subtopics: [
+            { id: "m1s1", name: "Differential Calculus", completed: true, weightage: 6, priority: "high" as const, difficulty: "medium" as const },
+            { id: "m1s2", name: "Integral Calculus", completed: true, weightage: 6, priority: "high" as const, difficulty: "medium" as const }
+          ]
+        },
+        { 
+          id: "m2", 
+          name: "Algebra", 
+          difficulty: "medium" as const, 
+          completed: false, 
+          status: "in-progress" as const,
+          priority: "high" as const,
+          weightage: 10,
+          estimatedHours: 7,
+          subtopics: [
+            { id: "m2s1", name: "Quadratic Equations", completed: true, weightage: 3, priority: "high" as const, difficulty: "easy" as const },
+            { id: "m2s2", name: "Complex Numbers", completed: true, weightage: 4, priority: "high" as const, difficulty: "medium" as const },
+            { id: "m2s3", name: "Sequences & Series", completed: false, weightage: 3, priority: "medium" as const, difficulty: "medium" as const }
+          ]
+        },
+        { 
+          id: "m3", 
+          name: "Coordinate Geometry", 
+          difficulty: "easy" as const, 
+          completed: true, 
+          status: "completed" as const,
+          priority: "medium" as const,
+          weightage: 8,
+          estimatedHours: 5
+        },
+        { 
+          id: "m4", 
+          name: "Trigonometry", 
+          difficulty: "easy" as const, 
+          completed: false, 
+          status: "pending" as const,
+          priority: "medium" as const,
+          weightage: 4,
+          estimatedHours: 3
+        }
       ]
     }
-  ]
+  ] as StudyPlanSubject[]
 };
 
 const StudyPlanView = () => {
