@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -43,13 +43,13 @@ const NEETStrategyCard: React.FC = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="bg-gradient-to-br from-purple-50/80 via-white to-blue-100/60 dark:from-purple-950/30 dark:via-gray-900 dark:to-blue-900/20 border border-purple-200/50 dark:border-purple-800/30 shadow-lg">
+      <CardHeader className="border-b border-purple-100/50 dark:border-purple-800/30">
         <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-blue-600" />
+          <Target className="h-5 w-5 text-purple-600" />
           <motion.span
             animate={{ 
-              color: ["#2563eb", "#7c3aed", "#2563eb"]
+              color: ["#7c3aed", "#2563eb", "#7c3aed"]
             }}
             transition={{ 
               duration: 2, 
@@ -60,39 +60,80 @@ const NEETStrategyCard: React.FC = () => {
           >
             NEET Strategy Card
           </motion.span>
+          <motion.div
+            animate={{ 
+              x: [0, 5, 0],
+              opacity: [0.7, 1, 0.7]
+            }}
+            transition={{ 
+              duration: 1.5, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold animate-pulse">
+              PRIORITY
+            </Badge>
+          </motion.div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <div className="space-y-3">
-          <Link to="/dashboard/student/study-plan">
-            <Button variant="outline" className="w-full justify-start hover:bg-blue-50 transition-colors">
-              <BookOpen className="h-4 w-4 mr-2" />
-              <motion.span
-                animate={{ 
-                  color: ["#1d4ed8", "#7c2d12", "#1d4ed8"]
-                }}
-                transition={{ 
-                  duration: 1.5, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                Adaptive Plan
-              </motion.span>
-            </Button>
-          </Link>
+          <motion.div
+            className="bg-gradient-to-r from-purple-100/80 to-blue-100/60 dark:from-purple-900/30 dark:to-blue-900/20 p-3 rounded-lg border border-purple-200/50 dark:border-purple-800/30"
+            animate={{ 
+              boxShadow: ["0 0 10px rgba(139, 92, 246, 0.3)", "0 0 20px rgba(139, 92, 246, 0.5)", "0 0 10px rgba(139, 92, 246, 0.3)"]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Link to="/dashboard/student/study-plan">
+              <Button variant="outline" className="w-full justify-start hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-200 dark:border-purple-700">
+                <BookOpen className="h-4 w-4 mr-2" />
+                <motion.span
+                  animate={{ 
+                    color: ["#1d4ed8", "#7c2d12", "#1d4ed8"]
+                  }}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  Adaptive Plan
+                </motion.span>
+                <motion.div
+                  animate={{ 
+                    x: [0, 5, 0]
+                  }}
+                  transition={{ 
+                    duration: 1, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="ml-auto"
+                >
+                  <ArrowRight className="h-4 w-4 text-purple-600" />
+                </motion.div>
+              </Button>
+            </Link>
+          </motion.div>
           
           <motion.div
             animate={{ 
-              backgroundColor: ["#dbeafe", "#e0e7ff", "#dbeafe"]
+              backgroundColor: ["#e0e7ff", "#ddd6fe", "#e0e7ff"]
             }}
             transition={{ 
               duration: 3, 
               repeat: Infinity,
               ease: "easeInOut"
             }}
+            className="p-3 rounded-lg"
           >
-            <Badge className="w-full justify-center text-blue-800">
+            <Badge className="w-full justify-center text-purple-800 dark:text-purple-200 bg-purple-100/80 dark:bg-purple-900/30">
               <motion.span
                 animate={{ 
                   scale: [1, 1.05, 1]
@@ -132,7 +173,7 @@ const NEETStrategyCard: React.FC = () => {
             ))}
           </div>
 
-          <div className="pt-2 border-t">
+          <div className="pt-2 border-t border-purple-100/50 dark:border-purple-800/30">
             <Link to="/dashboard/student/academic">
               <motion.div
                 whileHover={{ scale: 1.02 }}
@@ -140,7 +181,7 @@ const NEETStrategyCard: React.FC = () => {
               >
                 <Button 
                   size="sm" 
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold"
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold shadow-lg"
                 >
                   <motion.div
                     animate={{ 

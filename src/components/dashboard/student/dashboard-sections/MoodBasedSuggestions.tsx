@@ -84,33 +84,33 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
   
   // Get mood-specific background styling
   const getMoodBackground = () => {
-    if (!currentMood) return "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20";
+    if (!currentMood) return "from-purple-50/80 to-indigo-50/60 dark:from-purple-950/30 dark:to-indigo-900/20";
     
     switch (currentMood) {
       case MoodType.HAPPY:
-        return "from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20";
+        return "from-yellow-50/80 to-amber-50/60 dark:from-yellow-950/30 dark:to-amber-900/20";
       case MoodType.MOTIVATED:
-        return "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20";
+        return "from-green-50/80 to-emerald-50/60 dark:from-green-950/30 dark:to-emerald-900/20";
       case MoodType.FOCUSED:
-        return "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20";
+        return "from-blue-50/80 to-indigo-50/60 dark:from-blue-950/30 dark:to-indigo-900/20";
       case MoodType.NEUTRAL:
-        return "from-gray-50 to-slate-50 dark:from-gray-800/30 dark:to-slate-800/30";
+        return "from-gray-50/80 to-slate-50/60 dark:from-gray-800/30 dark:to-slate-800/30";
       case MoodType.TIRED:
-        return "from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20";
+        return "from-orange-50/80 to-amber-50/60 dark:from-orange-950/30 dark:to-amber-900/20";
       case MoodType.ANXIOUS:
-        return "from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20";
+        return "from-purple-50/80 to-violet-50/60 dark:from-purple-950/30 dark:to-violet-900/20";
       case MoodType.STRESSED:
-        return "from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20";
+        return "from-red-50/80 to-rose-50/60 dark:from-red-950/30 dark:to-rose-900/20";
       case MoodType.SAD:
-        return "from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20";
+        return "from-indigo-50/80 to-blue-50/60 dark:from-indigo-950/30 dark:to-blue-900/20";
       default:
-        return "from-gray-50 to-blue-50 dark:from-gray-800/30 dark:to-blue-900/20";
+        return "from-gray-50/80 to-blue-50/60 dark:from-gray-800/30 dark:to-blue-900/20";
     }
   };
 
   return (
-    <Card className="overflow-hidden border-0 shadow-md">
-      <CardHeader className={`bg-gradient-to-r ${getMoodBackground()} pb-2`}>
+    <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-50/80 via-white to-purple-100/60 dark:from-purple-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-purple-200/50 dark:border-purple-800/30">
+      <CardHeader className={`bg-gradient-to-r ${getMoodBackground()} pb-2 border-b border-purple-100/50 dark:border-purple-800/30`}>
         <CardTitle className="text-lg flex items-center gap-2">
           <motion.span 
             className="text-xl"
@@ -126,7 +126,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
         <div className="flex flex-col gap-4">
           {!currentMood ? (
             <motion.div 
-              className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800/30 text-center"
+              className="bg-purple-50/80 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-100/50 dark:border-purple-800/30 text-center"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -180,7 +180,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
               </motion.div>
               
               <motion.div 
-                className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-violet-100 dark:border-violet-800/30"
+                className="bg-gradient-to-r from-violet-50/80 to-purple-50/60 dark:from-violet-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-violet-100/50 dark:border-violet-800/30"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -203,7 +203,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
           
           <div className="grid grid-cols-2 gap-2 mt-2">
             <motion.div 
-              className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-3 rounded-lg border border-green-100 dark:border-green-800/30"
+              className="bg-gradient-to-r from-green-50/80 to-emerald-50/60 dark:from-green-950/30 dark:to-emerald-900/20 p-3 rounded-lg border border-green-100/50 dark:border-green-800/30"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
@@ -216,7 +216,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
             </motion.div>
             
             <motion.div 
-              className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-3 rounded-lg border border-purple-100 dark:border-purple-800/30"
+              className="bg-gradient-to-r from-purple-50/80 to-blue-50/60 dark:from-purple-950/30 dark:to-blue-900/20 p-3 rounded-lg border border-purple-100/50 dark:border-purple-800/30"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
