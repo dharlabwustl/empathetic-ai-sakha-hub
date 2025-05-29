@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
 import MobileNavigation from "@/pages/dashboard/student/MobileNavigation";
 import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleButton';
 import TopNavigationControls from '@/components/dashboard/student/TopNavigationControls';
@@ -72,8 +73,20 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
           onToggleSidebar={onToggleSidebar}
           formattedDate={formattedDate}
           formattedTime={formattedTime}
+        />
+        
+        {/* Dashboard header */}
+        <DashboardHeader 
+          userProfile={userProfile}
+          formattedTime={formattedTime}
+          formattedDate={formattedDate}
           onViewStudyPlan={onViewStudyPlan}
-          userName={userProfile.name || userProfile.firstName}
+        />
+
+        {/* Surrounding Influences Meter */}
+        <SurroundingInfluencesSection 
+          influenceMeterCollapsed={influenceMeterCollapsed}
+          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
         />
         
         {/* Mobile Navigation */}
@@ -99,14 +112,6 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
           lastActivity={lastActivity}
           suggestedNextAction={suggestedNextAction}
         />
-
-        {/* Surrounding Influences Meter - moved to bottom */}
-        <div className="mt-8">
-          <SurroundingInfluencesSection 
-            influenceMeterCollapsed={influenceMeterCollapsed}
-            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-          />
-        </div>
       </main>
     </div>
   );

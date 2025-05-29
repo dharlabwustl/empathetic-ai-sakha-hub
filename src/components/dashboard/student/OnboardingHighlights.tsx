@@ -132,7 +132,7 @@ const OnboardingHighlights: React.FC<OnboardingHighlightsProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-40"
+            className="fixed inset-0 bg-black/50 z-40"
             onClick={handleSkip}
           />
 
@@ -174,7 +174,7 @@ const OnboardingHighlights: React.FC<OnboardingHighlightsProps> = ({
                     highlightPosition.left + (highlightPosition.width / 2) - 150,
             }}
           >
-            <Card className="w-80 p-4 bg-white dark:bg-gray-900 shadow-xl border-2 border-yellow-400">
+            <Card className="w-80 p-4 bg-white dark:bg-gray-800 shadow-xl border-2 border-yellow-400">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                   {step.title}
@@ -183,18 +183,18 @@ const OnboardingHighlights: React.FC<OnboardingHighlightsProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={handleSkip}
-                  className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  className="h-6 w-6 p-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
               
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 {step.description}
               </p>
               
               <div className="flex items-center justify-between">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-gray-500">
                   Step {currentStep + 1} of {onboardingSteps.length}
                 </div>
                 
@@ -204,7 +204,6 @@ const OnboardingHighlights: React.FC<OnboardingHighlightsProps> = ({
                       variant="outline"
                       size="sm"
                       onClick={handlePrevious}
-                      className="text-gray-700 dark:text-gray-300"
                     >
                       <ArrowLeft className="h-4 w-4 mr-1" />
                       Previous

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Brain, FileText, Zap, Sparkles, X } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Brain, FileText, Zap, Sparkles } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 import { motion } from 'framer-motion';
 
@@ -31,7 +32,6 @@ interface TodaysPlanSectionProps {
 
 const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, currentMood }) => {
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(true);
   
   // Create mood-based study plans
   const getMoodBasedStudyPlan = (mood?: MoodType): StudyPlan => {
@@ -188,15 +188,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
     }
   };
 
-  const handleClose = () => {
-    setIsVisible(false);
-  };
-
-  if (!isVisible) return null;
-
   return (
     <motion.div
-      id="todays-plan-section"
       className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -278,39 +271,29 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
               </motion.div>
               Today's NEET Study Plan
             </CardTitle>
-            <div className="flex items-center gap-2">
-              {currentMood && (
-                <Badge variant="outline" className="capitalize">
-                  {currentMood.toLowerCase()} mood
-                </Badge>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClose}
-                className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            {currentMood && (
+              <Badge variant="outline" className="capitalize">
+                {currentMood.toLowerCase()} mood
+              </Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent className="relative z-10">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
                 <span>{plan.date}</span>
               </div>
-              <div className="text-sm text-gray-900 dark:text-gray-100">
+              <div className="text-sm">
                 Goal: <span className="font-medium">{plan.dailyGoal}</span>
               </div>
             </div>
             
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-700 dark:text-gray-300">Daily progress</span>
-                <span className="text-gray-900 dark:text-gray-100">{plan.progress}%</span>
+                <span>Daily progress</span>
+                <span>{plan.progress}%</span>
               </div>
               <Progress value={plan.progress} className="h-2" />
             </div>
@@ -335,11 +318,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
                       }`}>
                         {getTaskIcon(task.type)}
                       </div>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{task.title}</span>
+                      <span className="font-medium">{task.title}</span>
                     </div>
                     {getDifficultyBadge(task.difficulty)}
                   </div>
-                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center text-xs text-muted-foreground">
                     <Clock className="h-3 w-3 mr-1" />
                     <span>{task.timeEstimate} min</span>
                   </div>
@@ -348,8 +331,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             </div>
             
             <div className="flex items-center justify-between text-sm pt-1">
-              <div className="text-gray-700 dark:text-gray-300">
-                Total time: <span className="font-medium text-gray-900 dark:text-gray-100">{getTotalTime(plan.tasks)} min</span>
+              <div>
+                Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
               </div>
               <Button size="sm" onClick={() => navigate('/dashboard/student/today')}>
                 View Full Plan
