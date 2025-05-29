@@ -43,46 +43,160 @@ const NEETStrategyCard: React.FC = () => {
   };
 
   return (
-    <Card>
+    <Card className="relative overflow-hidden">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-blue-600" />
-          NEET Strategy Card
+          <motion.div
+            animate={{ 
+              rotate: [0, 360],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              duration: 3, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Target className="h-5 w-5 text-blue-600" />
+          </motion.div>
+          <motion.span
+            animate={{ 
+              color: ["#2563eb", "#7c3aed", "#2563eb"]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="font-bold"
+          >
+            NEET Strategy Card
+          </motion.span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <Button variant="outline" className="w-full justify-start">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100"
+            onClick={() => navigate('/dashboard/student/study-plan')}
+          >
             <BookOpen className="h-4 w-4 mr-2" />
             Adaptive Plan
           </Button>
-          <Badge className="w-full justify-center bg-blue-100 text-blue-800">
-            Personalized Strategy
-          </Badge>
+          
+          <motion.div
+            animate={{ 
+              scale: [1, 1.02, 1],
+              boxShadow: ["0 0 0 rgba(59, 130, 246, 0)", "0 0 20px rgba(59, 130, 246, 0.3)", "0 0 0 rgba(59, 130, 246, 0)"]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Badge className="w-full justify-center bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border border-blue-200">
+              <motion.span
+                animate={{ 
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-semibold"
+              >
+                🔥 HIGH PRIORITY - Personalized Strategy
+              </motion.span>
+            </Badge>
+          </motion.div>
           
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Current Focus</h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400">{strategy}</p>
+            <motion.p 
+              className="text-xs text-gray-600 dark:text-gray-400"
+              animate={{ 
+                color: ["#6b7280", "#3b82f6", "#6b7280"]
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              {strategy}
+            </motion.p>
           </div>
           
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Subject Status</h4>
             {subjects.map((subject, index) => (
-              <div key={index} className="flex items-center justify-between text-xs">
+              <motion.div 
+                key={index} 
+                className="flex items-center justify-between text-xs"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+              >
                 <span>{subject.name}</span>
                 {getSubjectBadge(subject)}
-              </div>
+              </motion.div>
             ))}
           </div>
           
           <div className="space-y-1">
             {objectives.map((objective, index) => (
-              <div key={index} className="flex items-center gap-2 text-xs">
-                <CheckCircle className="h-3 w-3 text-green-600" />
+              <motion.div 
+                key={index} 
+                className="flex items-center gap-2 text-xs"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 360]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                >
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                </motion.div>
                 <span className="text-gray-700 dark:text-gray-300">{objective}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
+
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Button 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold mt-3"
+              onClick={() => navigate('/dashboard/student/study-plan')}
+            >
+              <motion.div
+                animate={{ 
+                  rotate: [0, 360]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+              </motion.div>
+              View Complete Strategy
+            </Button>
+          </motion.div>
         </div>
       </CardContent>
     </Card>
