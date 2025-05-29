@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, CheckCircle, Target, Sparkles, X } from 'lucide-react';
+import { Calendar, Clock, BookOpen, CheckCircle, Target, Sparkles, X, RotateCcw, Trophy, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
 
 interface TodaysPlanSectionProps {
@@ -27,10 +27,10 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
   };
 
   const sessions = [
-    { subject: "Chemistry", topic: "Organic Compounds", time: "9:00 AM", status: "completed", duration: "1.5h" },
-    { subject: "Physics", topic: "Wave Optics", time: "11:00 AM", status: "current", duration: "2h" },
-    { subject: "Biology", topic: "Genetics", time: "2:00 PM", status: "pending", duration: "1.5h" },
-    { subject: "Mathematics", topic: "Integration", time: "4:00 PM", status: "pending", duration: "1h" }
+    { subject: "Chemistry", topic: "Organic Compounds", time: "9:00 AM", status: "completed", difficulty: "Medium" },
+    { subject: "Physics", topic: "Wave Optics", time: "11:00 AM", status: "current", difficulty: "High" },
+    { subject: "Biology", topic: "Genetics", time: "2:00 PM", status: "pending", difficulty: "Medium" },
+    { subject: "Mathematics", topic: "Integration", time: "4:00 PM", status: "pending", difficulty: "Easy" }
   ];
 
   const getMoodEmoji = () => {
@@ -42,6 +42,14 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
       case MoodType.CONFIDENT: return "💪";
       case MoodType.TIRED: return "😴";
       default: return "📚";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300';
+      case 'current': return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300';
+      default: return 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400';
     }
   };
 
@@ -57,9 +65,44 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
         <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
-              <Calendar className="h-5 w-5 text-blue-600" />
-              Today's NEET Study Plan
-              <span className="text-xl ml-2">{getMoodEmoji()}</span>
+              <motion.div
+                animate={{ 
+                  rotate: [0, 360],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  duration: 3, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Calendar className="h-5 w-5 text-blue-600" />
+              </motion.div>
+              <motion.span
+                animate={{ 
+                  color: ["#2563eb", "#3b82f6", "#2563eb"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                Live Daily NEET Plan
+              </motion.span>
+              <motion.span 
+                className="text-xl ml-2"
+                animate={{ 
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity
+                }}
+              >
+                {getMoodEmoji()}
+              </motion.span>
             </CardTitle>
             {onClose && (
               <Button
@@ -74,7 +117,17 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
           </div>
         </CardHeader>
         <CardContent className="space-y-4 relative z-10">
-          <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+          <motion.div 
+            className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200 dark:border-blue-700"
+            animate={{ 
+              boxShadow: ["0 0 10px rgba(59, 130, 246, 0.3)", "0 0 20px rgba(59, 130, 246, 0.5)", "0 0 10px rgba(59, 130, 246, 0.3)"]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Daily Progress</span>
               <span className="text-sm font-bold text-blue-900 dark:text-blue-100">
@@ -92,12 +145,12 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                 <span>On track</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           <div className="space-y-2">
             <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-3">Study Sessions</h4>
             {sessions.map((session, index) => (
-              <div
+              <motion.div
                 key={index}
                 className={`p-3 rounded-lg border ${
                   session.status === 'completed' 
@@ -106,45 +159,94 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                     ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
                     : 'bg-gray-50 border-gray-200 dark:bg-gray-800/50 dark:border-gray-700'
                 }`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {session.status === 'completed' && <CheckCircle className="h-4 w-4 text-green-600" />}
-                    {session.status === 'current' && <Clock className="h-4 w-4 text-blue-600" />}
+                    {session.status === 'current' && (
+                      <motion.div
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          rotate: [0, 180, 360]
+                        }}
+                        transition={{ 
+                          duration: 2, 
+                          repeat: Infinity
+                        }}
+                      >
+                        <Clock className="h-4 w-4 text-blue-600" />
+                      </motion.div>
+                    )}
                     {session.status === 'pending' && <BookOpen className="h-4 w-4 text-gray-500" />}
                     <div>
                       <p className="font-medium text-sm text-gray-900 dark:text-white">
                         {session.subject}: {session.topic}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {session.time} • {session.duration}
+                        {session.time} • {session.difficulty} level
                       </p>
                     </div>
                   </div>
-                  <Badge 
-                    className={`text-xs ${
-                      session.status === 'completed' 
-                        ? 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300'
-                        : session.status === 'current'
-                        ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300'
-                        : 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400'
-                    }`}
-                  >
+                  <Badge className={getStatusColor(session.status)}>
                     {session.status}
                   </Badge>
                 </div>
-              </div>
+                
+                {session.status !== 'completed' && (
+                  <div className="flex gap-1 mt-2">
+                    <Link to={`/dashboard/student/concepts/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                        <BookOpen className="h-2 w-2 mr-1" />
+                        Study
+                      </Button>
+                    </Link>
+                    <Link to={`/dashboard/student/flashcards/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                        <RotateCcw className="h-2 w-2 mr-1" />
+                        Recall
+                      </Button>
+                    </Link>
+                    <Link to={`/dashboard/student/formula-practice/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                        <Zap className="h-2 w-2 mr-1" />
+                        Formula
+                      </Button>
+                    </Link>
+                    <Link to={`/dashboard/student/practice-exam/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                        <Trophy className="h-2 w-2 mr-1" />
+                        Exam
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </motion.div>
             ))}
           </div>
           
-          <Button 
-            size="sm" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => navigate('/dashboard/student/study-plan')}
+          <motion.div
+            animate={{ 
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           >
-            <Calendar className="h-4 w-4 mr-2" />
-            View Full Plan
-          </Button>
+            <Button 
+              size="sm" 
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold"
+              onClick={() => navigate('/dashboard/student/study-plan')}
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Continue Live Plan
+            </Button>
+          </motion.div>
         </CardContent>
       </Card>
     </motion.div>
