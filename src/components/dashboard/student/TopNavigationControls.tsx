@@ -86,27 +86,8 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const getCurrentPlan = () => {
-    // Get subscription info from user
-    if (user?.subscription) {
-      if (typeof user.subscription === 'string') {
-        return user.subscription === 'free' ? 'Free' : user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
-      } else if (typeof user.subscription === 'object') {
-        const planType = user.subscription.planType || 'free';
-        return planType === 'free' ? 'Free' : planType.charAt(0).toUpperCase() + planType.slice(1);
-      }
-    }
+    // Simple fallback for subscription display
     return 'Free';
-  };
-
-  const isFreePlan = () => {
-    if (user?.subscription) {
-      if (typeof user.subscription === 'string') {
-        return user.subscription === 'free';
-      } else if (typeof user.subscription === 'object') {
-        return user.subscription.planType === 'free';
-      }
-    }
-    return true;
   };
   
   return (
@@ -117,26 +98,14 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
             Welcome back, {userName || user?.name || 'Student'}!
           </h1>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSubscriptionClick}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary p-0 h-auto"
-            >
-              Current Plan: {getCurrentPlan()}
-            </Button>
-            {isFreePlan() && (
-              <Button
-                size="sm"
-                onClick={handleSubscriptionClick}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white text-xs px-3 py-1 h-6"
-              >
-                <Crown className="h-3 w-3 mr-1" />
-                Upgrade
-              </Button>
-            )}
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSubscriptionClick}
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary p-0 h-auto"
+          >
+            Current Plan: {getCurrentPlan()}
+          </Button>
         </div>
       </div>
 

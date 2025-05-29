@@ -1,11 +1,8 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Crown, ArrowUpRight } from "lucide-react";
 import { UserProfileBase, SubscriptionType } from "@/types/user/base";
 
 interface ProfileCardProps {
@@ -14,8 +11,6 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
-  const navigate = useNavigate();
-  
   // Determine subscription display info
   const getSubscriptionInfo = () => {
     let planType = "free";
@@ -49,11 +44,10 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
     const color = subscriptionColors[planType.toLowerCase()] || subscriptionColors.free;
     const label = subscriptionLabels[planType.toLowerCase()] || "Unknown";
     
-    return { color, label, planType: planType.toLowerCase() };
+    return { color, label };
   };
   
   const subscriptionInfo = getSubscriptionInfo();
-  const showUpgradeButton = subscriptionInfo.planType === 'free' || subscriptionInfo.planType === 'trial';
   
   // Format last active time if available
   const lastActiveText = "Active now";
@@ -69,10 +63,6 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
   };
   
   const avatarUrl = userProfile.avatar || '';
-  
-  const handleUpgradeClick = () => {
-    navigate('/dashboard/student/subscription');
-  };
   
   return (
     <Card className={`overflow-hidden ${className}`}>
@@ -100,19 +90,6 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
               <p className="text-xs text-muted-foreground mt-1">{lastActiveText}</p>
             </div>
           </div>
-          
-          {/* Upgrade Button */}
-          {showUpgradeButton && (
-            <Button 
-              size="sm" 
-              onClick={handleUpgradeClick}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
-            >
-              <Crown className="h-4 w-4 mr-1" />
-              Upgrade
-              <ArrowUpRight className="h-3 w-3 ml-1" />
-            </Button>
-          )}
         </div>
         
         <div className="grid grid-cols-2 gap-4 mt-6">
