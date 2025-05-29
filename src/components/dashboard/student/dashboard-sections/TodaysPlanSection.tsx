@@ -282,7 +282,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             <div>
               Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
             </div>
-            <Button size="sm" onClick={() => navigate('/dashboard/student/today')} className="shadow-sm">
+            <Button 
+              size="sm" 
+              onClick={() => navigate('/dashboard/student/today')} 
+              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
+            >
               View Full Plan
             </Button>
           </div>

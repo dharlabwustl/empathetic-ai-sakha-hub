@@ -3,7 +3,10 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Crown } from "lucide-react";
 import { UserProfileBase, SubscriptionType } from "@/types/user/base";
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;
@@ -11,6 +14,8 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
+  const navigate = useNavigate();
+
   // Determine subscription display info
   const getSubscriptionInfo = () => {
     let planType = "free";
@@ -44,10 +49,20 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
     const color = subscriptionColors[planType.toLowerCase()] || subscriptionColors.free;
     const label = subscriptionLabels[planType.toLowerCase()] || "Unknown";
     
-    return { color, label };
+    return { color, label, planType: planType.toLowerCase() };
   };
   
   const subscriptionInfo = getSubscriptionInfo();
+  
+  // Check if user should see upgrade button
+  const shouldShowUpgrade = () => {
+    const freePlans = ['free', 'trial'];
+    return freePlans.includes(subscriptionInfo.planType);
+  };
+
+  const handleUpgradeClick = () => {
+    navigate('/dashboard/student/subscription');
+  };
   
   // Format last active time if available
   const lastActiveText = "Active now";
@@ -90,6 +105,18 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
               <p className="text-xs text-muted-foreground mt-1">{lastActiveText}</p>
             </div>
           </div>
+
+          {/* Upgrade Button */}
+          {shouldShowUpgrade() && (
+            <Button
+              onClick={handleUpgradeClick}
+              size="sm"
+              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              <Crown className="h-4 w-4 mr-1" />
+              Upgrade
+            </Button>
+          )}
         </div>
         
         <div className="grid grid-cols-2 gap-4 mt-6">

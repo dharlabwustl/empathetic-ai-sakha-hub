@@ -125,7 +125,7 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
           
           <Link to={suggestion.actionLink} className="no-underline">
             <Button 
-              className={`w-full bg-gradient-to-r ${suggestion.gradient} hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-200`}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
             >
               {suggestion.actionText} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
