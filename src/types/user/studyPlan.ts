@@ -30,11 +30,11 @@ export interface StudyPlan {
   goal?: string;
   examGoal: string;
   examDate: string;
-  status: 'active' | 'completed' | 'archived' | 'pending';
+  status: 'active' | 'completed' | 'archived' | 'paused';
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
+  learningPace: 'slow' | 'medium' | 'fast';
   createdAt: string;
   updatedAt?: string;
   progressPercent?: number;
@@ -50,13 +50,13 @@ export interface NewStudyPlan {
   title?: string;
   goal?: string;
   examGoal: string;
-  examDate: string;
+  examDate: string | Date;
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
+  learningPace: 'slow' | 'medium' | 'fast';
   weeklyHours?: number;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
+  status?: 'active' | 'completed' | 'archived' | 'paused';
 }
 
 export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };
