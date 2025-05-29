@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Brain, FileText } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Brain, FileText, ArrowDown, Sparkles } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 
 interface StudyPlan {
@@ -188,10 +188,28 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
   };
 
   return (
-    <Card>
+    <Card className="relative animate-pulse border-2 border-blue-300 shadow-lg shadow-blue-200/50">
+      {/* Animated arrow for Today's Study Plan */}
+      <div className="absolute -top-3 left-4 animate-bounce">
+        <ArrowDown className="h-6 w-6 text-blue-500" />
+      </div>
+      
+      {/* Sparkle animations */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+        <div className="absolute top-4 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-pulse"></div>
+        <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+      </div>
+
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle>Today's Study Plan</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Today's NEET Study Plan
+            <Badge variant="secondary" className="text-xs animate-pulse">
+              LIVE PLAN
+            </Badge>
+            <Sparkles className="h-4 w-4 text-yellow-500 animate-pulse" />
+          </CardTitle>
           {currentMood && (
             <Badge variant="outline" className="capitalize">
               {currentMood.toLowerCase()} mood
