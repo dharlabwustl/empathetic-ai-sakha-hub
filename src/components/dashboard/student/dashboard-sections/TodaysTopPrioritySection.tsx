@@ -164,7 +164,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                     Study Concept
                   </Button>
                 </Link>
-                <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
+                <Link to={`/dashboard/student/flashcards/${topic.subject.toLowerCase()}`} className="flex-1">
                   <Button 
                     size="sm" 
                     variant="outline"
@@ -172,16 +172,6 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                   >
                     <RotateCcw className="h-3 w-3 mr-1" />
                     Practice Recall
-                  </Button>
-                </Link>
-                <Link to={`/dashboard/student/concepts/${encodeURIComponent(topic.topic)}/formula-lab`} className="flex-1">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full hover:bg-purple-50"
-                  >
-                    <Zap className="h-3 w-3 mr-1" />
-                    Formula Lab
                   </Button>
                 </Link>
               </div>
@@ -202,10 +192,10 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
             <Button 
               size="sm" 
               className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold"
-              onClick={() => navigate('/dashboard/student/practice-exam/2/start')}
+              onClick={() => navigate('/dashboard/student/concepts')}
             >
               <Zap className="h-4 w-4 mr-2" />
-              Take Practice Exam Now!
+              Start Improving Now!
             </Button>
           </motion.div>
         </CardContent>
