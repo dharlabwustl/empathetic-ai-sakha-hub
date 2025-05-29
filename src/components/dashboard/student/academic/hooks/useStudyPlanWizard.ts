@@ -1,208 +1,113 @@
 
 import { useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import type { NewStudyPlan, StudyPlanSubject } from "@/types/user/studyPlan";
-import { useNavigate } from 'react-router-dom';
+import { StudyPlanSubject, NewStudyPlan } from '@/types/user/studyPlan';
 
-interface UseStudyPlanWizardProps {
-  examGoal?: string;
-  onCreatePlan: (plan: NewStudyPlan) => void;
-  onClose: () => void;
-}
-
-export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: UseStudyPlanWizardProps) => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
-  const [formData, setFormData] = useState<Partial<NewStudyPlan>>({
-    title: '',
-    goal: examGoal || '',
-    examGoal: examGoal || '',
-    subjects: [],
-    weeklyHours: 20,
-    status: 'active',
-    studyHoursPerDay: 6,
+export const useStudyPlanWizard = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [planData, setPlanData] = useState<Partial<NewStudyPlan>>({
+    examDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
+    studyHoursPerDay: 4,
     preferredStudyTime: 'evening',
-    learningPace: 'moderate',
-    examDate: new Date()
+    learningPace: 'medium'
   });
 
-  const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
-  const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
-  const [mediumSubjects, setMediumSubjects] = useState<string[]>([]);
+  const updatePlanData = (updates: Partial<NewStudyPlan>) => {
+    setPlanData(prev => ({ ...prev, ...updates }));
+  };
 
-  const handleToggleSubject = (subject: string, type: 'strong' | 'weak' | 'medium') => {
-    if (type === 'strong') {
-      if (strongSubjects.includes(subject)) {
-        setStrongSubjects(strongSubjects.filter(s => s !== subject));
-      } else {
-        if (weakSubjects.includes(subject)) {
-          setWeakSubjects(weakSubjects.filter(s => s !== subject));
-        }
-        if (mediumSubjects.includes(subject)) {
-          setMediumSubjects(mediumSubjects.filter(s => s !== subject));
-        }
-        setStrongSubjects([...strongSubjects, subject]);
-      }
-    } else if (type === 'weak') {
-      if (weakSubjects.includes(subject)) {
-        setWeakSubjects(weakSubjects.filter(s => s !== subject));
-      } else {
-        if (strongSubjects.includes(subject)) {
-          setStrongSubjects(strongSubjects.filter(s => s !== subject));
-        }
-        if (mediumSubjects.includes(subject)) {
-          setMediumSubjects(mediumSubjects.filter(s => s !== subject));
-        }
-        setWeakSubjects([...weakSubjects, subject]);
-      }
-    } else {
-      if (mediumSubjects.includes(subject)) {
-        setMediumSubjects(mediumSubjects.filter(s => s !== subject));
-      } else {
-        if (strongSubjects.includes(subject)) {
-          setStrongSubjects(strongSubjects.filter(s => s !== subject));
-        }
-        if (weakSubjects.includes(subject)) {
-          setWeakSubjects(weakSubjects.filter(s => s !== subject));
-        }
-        setMediumSubjects([...mediumSubjects, subject]);
-      }
+  const nextStep = () => {
+    setCurrentStep(prev => Math.min(prev + 1, 5));
+  };
+
+  const previousStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const getSubjectsByExamType = (examType: string): StudyPlanSubject[] => {
+    const subjectConfigs = {
+      'NEET': [
+        { id: 'neet-phy', name: 'Physics', color: '#3B82F6', hoursPerWeek: 8, priority: 'medium' as const, proficiency: 'strong' as const, completed: false },
+        { id: 'neet-chem', name: 'Chemistry', color: '#EF4444', hoursPerWeek: 8, priority: 'medium' as const, proficiency: 'medium' as const, completed: false },
+        { id: 'neet-bio', name: 'Biology', color: '#10B981', hoursPerWeek: 8, priority: 'medium' as const, proficiency: 'medium' as const, completed: false },
+      ],
+      'JEE': [
+        { id: 'jee-phy', name: 'Physics', color: '#3B82F6', hoursPerWeek: 10, priority: 'high' as const, proficiency: 'medium' as const, completed: false },
+        { id: 'jee-chem', name: 'Chemistry', color: '#EF4444', hoursPerWeek: 8, priority: 'medium' as const, proficiency: 'weak' as const, completed: false },
+        { id: 'jee-math', name: 'Mathematics', color: '#8B5CF6', hoursPerWeek: 12, priority: 'high' as const, proficiency: 'strong' as const, completed: false },
+      ]
+    };
+
+    const subjects = subjectConfigs[examType as keyof typeof subjectConfigs] || subjectConfigs['NEET'];
+    
+    return subjects.map(subject => ({
+      ...subject,
+      weeklyHours: subject.hoursPerWeek,
+      progress: 0
+    }));
+  };
+
+  const validateCurrentStep = (): boolean => {
+    switch (currentStep) {
+      case 1:
+        return !!planData.examDate;
+      case 2:
+        return !!(planData.studyHoursPerDay && planData.studyHoursPerDay > 0);
+      case 3:
+        return !!(planData.subjects && planData.subjects.length > 0);
+      case 4:
+        return !!planData.preferredStudyTime;
+      case 5:
+        return !!planData.learningPace;
+      default:
+        return false;
     }
   };
 
-  const getSubjectsProficiencyList = (): StudyPlanSubject[] => {
-    const subjectsList: StudyPlanSubject[] = [
-      ...strongSubjects.map(subject => ({ 
-        id: `subject-${Math.random().toString(36).substr(2, 9)}`,
-        name: subject, 
-        color: getRandomColor(),
-        hoursPerWeek: formData.studyHoursPerDay || 4,
-        priority: 'medium' as const,
-        proficiency: 'strong' as const,
-        completed: false 
-      })),
-      ...mediumSubjects.map(subject => ({ 
-        id: `subject-${Math.random().toString(36).substr(2, 9)}`,
-        name: subject, 
-        color: getRandomColor(),
-        hoursPerWeek: (formData.studyHoursPerDay || 4) * 1.2,
-        priority: 'medium' as const,
-        proficiency: 'medium' as const,
-        completed: false 
-      })),
-      ...weakSubjects.map(subject => ({ 
-        id: `subject-${Math.random().toString(36).substr(2, 9)}`,
-        name: subject, 
-        color: getRandomColor(),
-        hoursPerWeek: (formData.studyHoursPerDay || 4) * 1.5,
-        priority: 'high' as const,
-        proficiency: 'weak' as const,
-        completed: false 
-      }))
-    ];
-    return subjectsList;
-  };
+  const submitPlan = async (): Promise<boolean> => {
+    try {
+      // Validate all required fields
+      if (!planData.examDate || !planData.studyHoursPerDay || !planData.subjects) {
+        throw new Error('Missing required fields');
+      }
 
-  const handlePaceChange = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
-    const learningPace: 'slow' | 'moderate' | 'fast' = 
-      pace === 'Relaxed' ? 'slow' : 
-      pace === 'Balanced' ? 'moderate' : 'fast';
-    setFormData(prev => ({ ...prev, learningPace }));
-  };
+      // Create the final plan object
+      const finalPlan: NewStudyPlan = {
+        id: `plan-${Date.now()}`,
+        title: `${planData.examGoal || 'Study'} Preparation Plan`,
+        goal: planData.examGoal || 'General Preparation',
+        examGoal: planData.examGoal || 'NEET',
+        subjects: planData.subjects,
+        studyHoursPerDay: planData.studyHoursPerDay,
+        preferredStudyTime: planData.preferredStudyTime || 'evening',
+        learningPace: planData.learningPace || 'medium',
+        weeklyHours: (planData.studyHoursPerDay || 4) * 7,
+        examDate: planData.examDate,
+        status: 'active'
+      };
 
-  const handleStudyTimeChange = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
-    const preferredStudyTime = time.toLowerCase() as 'morning' | 'afternoon' | 'evening' | 'night';
-    setFormData(prev => ({ ...prev, preferredStudyTime }));
-  };
-
-  const handleExamGoalSelect = (goal: string) => {
-    setFormData(prev => ({ ...prev, goal, examGoal: goal, title: goal }));
-    // Clear subjects when changing exam goal
-    setStrongSubjects([]);
-    setWeakSubjects([]);
-    setMediumSubjects([]);
-    setStep(2); // Move to next step after goal selection
-  };
-
-  const handleNext = () => {
-    if (step < 6) {
-      setStep(step + 1);
-    } else {
-      const updatedFormData = {
-        ...formData,
-        title: formData.examGoal || '',
-        subjects: getSubjectsProficiencyList(),
-        weeklyHours: formData.studyHoursPerDay ? formData.studyHoursPerDay * 7 : 20,
-        status: 'active' as const
-      } as NewStudyPlan;
+      // Here you would typically save to your backend
+      console.log('Submitting plan:', finalPlan);
       
-      onCreatePlan(updatedFormData);
-      setStep(1);
-      setStrongSubjects([]);
-      setWeakSubjects([]);
-      setMediumSubjects([]);
-      setFormData({
-        title: '',
-        goal: '',
-        examGoal: '',
-        subjects: [],
-        weeklyHours: 20,
-        status: 'active',
-        studyHoursPerDay: 6,
-        preferredStudyTime: 'morning',
-        learningPace: 'moderate',
-        examDate: new Date()
-      });
-      onClose();
-      toast({
-        title: "Study Plan Created",
-        description: "Your personalized study plan has been generated successfully.",
-      });
-      
-      // Navigate to the Academic Advisor view after creating a plan
-      navigate('/dashboard/student/academic');
-    }
-  };
+      // Save to localStorage for demo
+      const existingPlans = JSON.parse(localStorage.getItem('studyPlans') || '[]');
+      existingPlans.push(finalPlan);
+      localStorage.setItem('studyPlans', JSON.stringify(existingPlans));
 
-  const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    } else {
-      onClose();
+      return true;
+    } catch (error) {
+      console.error('Error submitting plan:', error);
+      return false;
     }
   };
 
   return {
-    step,
-    formData,
-    setFormData,
-    strongSubjects,
-    weakSubjects,
-    mediumSubjects,
-    handleToggleSubject,
-    handlePaceChange,
-    handleStudyTimeChange,
-    handleExamGoalSelect,
-    handleNext,
-    handleBack
+    currentStep,
+    planData,
+    updatePlanData,
+    nextStep,
+    previousStep,
+    getSubjectsByExamType,
+    validateCurrentStep,
+    submitPlan
   };
 };
-
-// Helper function to generate random pastel colors
-function getRandomColor(): string {
-  const colors = [
-    '#8B5CF6', // Purple
-    '#EC4899', // Pink
-    '#10B981', // Green
-    '#F59E0B', // Yellow
-    '#2563EB', // Blue
-    '#EF4444', // Red
-    '#6366F1', // Indigo
-    '#14B8A6', // Teal
-    '#F97316', // Orange
-    '#8B5CF6', // Purple
-  ];
-  
-  return colors[Math.floor(Math.random() * colors.length)];
-}
