@@ -1,118 +1,177 @@
 
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useSmartVoiceAssistant } from '@/hooks/useSmartVoiceAssistant';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { speakWithFemaleVoice, createIntelligentPause } from '@/utils/voiceConfig';
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
-  userProgress?: {
-    overallProgress: number;
-    studyStreak: number;
-    completedLessons: number;
-    examReadinessScore: number;
-  };
-  onSpeakingChange?: (isSpeaking: boolean) => void;
+  language?: string;
+  userMood?: string;
+  userProgress?: any;
+  studyStreak?: number;
+  lastActivity?: string;
 }
 
 const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({ 
-  userName,
+  userName = 'Student',
+  language = 'en-US',
+  userMood,
   userProgress,
-  onSpeakingChange 
+  studyStreak,
+  lastActivity
 }) => {
+  const [hasGreeted, setHasGreeted] = useState(false);
+  const [isActive, setIsActive] = useState(true);
+  const [lastMessageTime, setLastMessageTime] = useState(0);
+  const [userActivityDetected, setUserActivityDetected] = useState(false);
   const location = useLocation();
-  const isDashboard = location.pathname.includes('/dashboard');
-  const [isInvoked, setIsInvoked] = useState(false);
-  
-  const { isSpeaking, speak, processCommand } = useSmartVoiceAssistant({
-    context: 'dashboard',
-    userName,
-    inactivityTimeout: 60000, // 60 seconds for dashboard
-    enableInactivityPrompts: false // Silent unless invoked
-  });
-  
-  // Notify parent component of speaking state changes
+  const navigate = useNavigate();
+  const activityTimeoutRef = useRef<NodeJS.Timeout>();
+  const messageTimeoutRef = useRef<NodeJS.Timeout>();
+  const sessionStartRef = useRef(Date.now());
+
+  // Check if user is logged in and on dashboard
+  const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const isOnDashboard = location.pathname.includes('/dashboard/student');
+  const shouldBeActive = isUserLoggedIn && isOnDashboard;
+
+  // Activity detection - silence voice when user is active
   useEffect(() => {
-    if (onSpeakingChange) {
-      onSpeakingChange(isSpeaking);
-    }
-  }, [isSpeaking, onSpeakingChange]);
-  
-  // Enhanced command processing for dashboard
-  const processDashboardCommand = (command: string): boolean => {
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
-      if (userProgress) {
-        speak(`You're doing great, ${userName}! Your overall progress is at ${userProgress.overallProgress}%, and you have a ${userProgress.studyStreak}-day study streak. Keep it up!`);
-      } else {
-        speak("You're making good progress in your studies. Keep maintaining consistency for better results!");
+    const handleUserActivity = () => {
+      setUserActivityDetected(true);
+      
+      // Cancel any ongoing speech
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
       }
-      return true;
-    }
-    
-    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage')) {
-      const motivationalMessages = [
-        `${userName}, every expert was once a beginner. Your consistent effort is building towards success!`,
-        "Remember, each study session brings you closer to your goal. You're investing in your future!",
-        "Your dedication today determines your success tomorrow. Keep pushing forward!",
-        "Challenges are what make life interesting. Overcoming them is what makes life meaningful!"
-      ];
-      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      speak(randomMessage);
-      return true;
-    }
-    
-    if (lowerCommand.includes('next topic') || lowerCommand.includes('what should i study')) {
-      speak("Based on your progress, I recommend focusing on your weakest subjects first, then reinforcing your strong areas. Check your personalized study plan for specific recommendations.");
-      return true;
-    }
-    
-    if (lowerCommand.includes('streak') || lowerCommand.includes('consistency')) {
-      if (userProgress?.studyStreak) {
-        speak(`Amazing! You have a ${userProgress.studyStreak}-day study streak. Consistency is key to exam success!`);
-      } else {
-        speak("Building a study streak is crucial for success. Try to study a little bit every day to maintain momentum!");
+      
+      // Clear existing timeout
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
       }
-      return true;
-    }
-    
-    return processCommand(command);
-  };
-  
-  // Handle voice commands and invocation
-  useEffect(() => {
-    const handleVoiceCommand = (event: CustomEvent) => {
-      const command = event.detail.command;
-      if (command && isDashboard) {
-        setIsInvoked(true);
-        const handled = processDashboardCommand(command);
-        if (!handled) {
-          // Default response for unrecognized commands
-          speak("I can help you with your study progress, motivation, or suggest what to study next. What would you like to know?");
-        }
-      }
+      
+      // Set timeout to resume after 60 seconds of inactivity
+      activityTimeoutRef.current = setTimeout(() => {
+        setUserActivityDetected(false);
+      }, 60000);
     };
+
+    const events = ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'];
     
-    const handleVoiceInvoke = () => {
-      setIsInvoked(true);
-      speak(`Hi ${userName}! I'm here to help with your studies. You can ask about your progress, get motivation, or ask what to study next.`);
-    };
-    
-    window.addEventListener('voice-command', handleVoiceCommand as EventListener);
-    window.addEventListener('invoke-dashboard-voice', handleVoiceInvoke);
-    
+    events.forEach(event => {
+      document.addEventListener(event, handleUserActivity, { passive: true });
+    });
+
     return () => {
-      window.removeEventListener('voice-command', handleVoiceCommand as EventListener);
-      window.removeEventListener('invoke-dashboard-voice', handleVoiceInvoke);
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity);
+      });
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
     };
-  }, [isDashboard, userName, userProgress]);
-  
-  // Don't render anything if not on dashboard
-  if (!isDashboard) {
-    return null;
-  }
-  
-  return null; // This component only handles voice logic
+  }, []);
+
+  // Session and context management
+  useEffect(() => {
+    // Reset state when login status or page changes
+    if (!shouldBeActive) {
+      setHasGreeted(false);
+      setIsActive(false);
+      
+      // Cancel any ongoing speech
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Clear timeouts
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+      
+      return;
+    }
+
+    setIsActive(true);
+    
+    // Reset greeting state for new sessions
+    const sessionDuration = Date.now() - sessionStartRef.current;
+    if (sessionDuration < 5000) { // Only greet within first 5 seconds of session
+      setHasGreeted(false);
+    }
+  }, [shouldBeActive, location.pathname]);
+
+  // Intelligent greeting with proper timing
+  useEffect(() => {
+    if (!shouldBeActive || hasGreeted || userActivityDetected) {
+      return;
+    }
+
+    const now = Date.now();
+    
+    // Prevent too frequent messages (minimum 60 seconds between greetings)
+    if (now - lastMessageTime < 60000) {
+      return;
+    }
+
+    const deliverGreeting = async () => {
+      try {
+        let greetingMessage = '';
+        
+        // Context-aware greeting based on time and user state
+        const hour = new Date().getHours();
+        const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        
+        if (userProgress && userProgress.overallProgress) {
+          greetingMessage = `${timeGreeting}, ${userName}! You're making great progress at ${userProgress.overallProgress}% completion. Ready to continue your NEET preparation?`;
+        } else {
+          greetingMessage = `${timeGreeting}, ${userName}! Welcome to your NEET preparation dashboard. Let's make today count!`;
+        }
+
+        const success = speakWithFemaleVoice(greetingMessage, { language });
+        
+        if (success) {
+          setHasGreeted(true);
+          setLastMessageTime(now);
+          
+          // Schedule next message after intelligent pause only if user is still inactive
+          messageTimeoutRef.current = setTimeout(() => {
+            if (!userActivityDetected && shouldBeActive) {
+              const motivationMessage = `I'll be here whenever you need guidance. Focus on your studies - you've got this!`;
+              speakWithFemaleVoice(motivationMessage, { language });
+            }
+          }, 8000);
+        }
+      } catch (error) {
+        console.error('Voice greeting error:', error);
+      }
+    };
+
+    // Delay initial greeting to avoid overlap with other voice components
+    const greetingTimeout = setTimeout(deliverGreeting, 2000);
+
+    return () => {
+      clearTimeout(greetingTimeout);
+    };
+  }, [shouldBeActive, hasGreeted, userActivityDetected, userName, userProgress, language, lastMessageTime]);
+
+  // Cleanup on unmount or route change
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+    };
+  }, [location.pathname]);
+
+  // This component only handles voice logic, no visual rendering
+  return null;
 };
 
 export default DashboardVoiceAssistant;

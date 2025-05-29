@@ -1,104 +1,127 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { speakWithFemaleVoice } from '@/utils/voiceConfig';
 
 interface VoiceGreetingProps {
-  isFirstTimeUser: boolean;
-  userName: string;
-  isReturningUser?: boolean;
-  lastActivity?: string;
-  pendingTasks?: string[];
+  isFirstTimeUser?: boolean;
+  userName?: string;
+  language?: string;
 }
 
-const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
-  isFirstTimeUser, 
-  userName,
-  isReturningUser = false,
-  lastActivity,
-  pendingTasks = []
+const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
+  isFirstTimeUser = false,
+  userName = 'Student',
+  language = 'en-US'
 }) => {
-  const hasSpokenRef = useRef(false);
-  const lastSpokenTimeRef = useRef<number>(0);
+  const [hasGreeted, setHasGreeted] = useState(false);
+  const [userActivityDetected, setUserActivityDetected] = useState(false);
+  const location = useLocation();
+  const activityTimeoutRef = useRef<NodeJS.Timeout>();
+  const greetingTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // Only be active on welcome/onboarding screens
+  const shouldGreet = location.pathname.includes('/welcome') || 
+                     location.pathname.includes('/post-login-welcome') ||
+                     location.pathname.includes('/onboarding');
 
+  // Activity detection
   useEffect(() => {
-    // Prevent multiple announcements within a short time period
-    const now = Date.now();
-    const timeSinceLastSpoken = now - lastSpokenTimeRef.current;
-    const MIN_INTERVAL = 30000; // 30 seconds minimum between announcements
-
-    // Only speak once per mount and respect time interval
-    if (hasSpokenRef.current || timeSinceLastSpoken < MIN_INTERVAL) {
-      console.log('🔇 Voice Greeting: Skipping announcement - already spoken or too soon');
-      return;
-    }
-    
-    const speakGreeting = () => {
-      if (!('speechSynthesis' in window)) return;
+    const handleUserActivity = () => {
+      setUserActivityDetected(true);
       
-      let greeting = '';
-      
-      // Check if user is truly returning (not first time after signup)
-      const isNewUserSignup = localStorage.getItem('new_user_signup') === 'true';
-      const actuallyReturning = isReturningUser && !isNewUserSignup;
-      
-      if (actuallyReturning) {
-        greeting = `Welcome back to PREPZR, ${userName}! I'm your PREPZR AI assistant, ready to help you continue your studies today.`;
-        
-        if (lastActivity) {
-          greeting += ` Last time you were ${lastActivity}. `;
-        }
-        
-        if (pendingTasks.length > 0) {
-          greeting += `You have ${pendingTasks.length} pending activities waiting for you. `;
-        }
-        
-        greeting += `Let's make today productive!`;
-      } else if (isFirstTimeUser || isNewUserSignup) {
-        greeting = `Congratulations ${userName}! Welcome to PREPZR! I'm your PREPZR AI assistant, and I'm excited to guide you on your exam preparation journey. PREPZR will be with you at every step, helping you become exam-ready with personalized study plans, adaptive learning, and continuous support. Let's start this amazing journey together and achieve your goals!`;
-      } else {
-        greeting = `Hello ${userName}! I'm your PREPZR AI assistant, ready to help you achieve your learning goals today.`;
-      }
-      
-      // Use the centralized female voice function
-      speakWithFemaleVoice(
-        greeting,
-        {
-          rate: 0.95,
-          pitch: 1.1,
-          volume: 0.8
-        },
-        () => {
-          hasSpokenRef.current = true;
-          lastSpokenTimeRef.current = Date.now();
-          console.log('🔊 Voice Greeting: Started speaking');
-        },
-        () => {
-          console.log('🔇 Voice Greeting: Finished speaking');
-          // Clear the new user signup flag after first greeting
-          if (isNewUserSignup) {
-            localStorage.removeItem('new_user_signup');
-          }
-        }
-      );
-    };
-
-    // Load voices if not already loaded
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.addEventListener('voiceschanged', speakGreeting, { once: true });
-    } else {
-      // Small delay to ensure voices are loaded and prevent conflicts
-      setTimeout(speakGreeting, 1500);
-    }
-    
-    return () => {
-      // Clean up speech synthesis
+      // Cancel any ongoing speech
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
+      
+      // Clear existing timeout
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+      
+      // Set timeout to resume after 60 seconds of inactivity
+      activityTimeoutRef.current = setTimeout(() => {
+        setUserActivityDetected(false);
+      }, 60000);
     };
-  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks]);
 
-  // This component doesn't render anything visible
+    const events = ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'];
+    
+    if (shouldGreet) {
+      events.forEach(event => {
+        document.addEventListener(event, handleUserActivity, { passive: true });
+      });
+    }
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity);
+      });
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+    };
+  }, [shouldGreet]);
+
+  // Handle greeting logic
+  useEffect(() => {
+    if (!shouldGreet || hasGreeted || userActivityDetected) {
+      return;
+    }
+
+    const deliverGreeting = () => {
+      let greetingMessage = '';
+      
+      if (isFirstTimeUser) {
+        greetingMessage = `Congratulations ${userName}! Welcome to PREPZR. You've taken the first step towards exam success. Let's begin your transformation journey!`;
+      } else {
+        greetingMessage = `Welcome back to PREPZR, ${userName}! Ready to continue your learning journey?`;
+      }
+
+      const success = speakWithFemaleVoice(greetingMessage, { language });
+      
+      if (success) {
+        setHasGreeted(true);
+      }
+    };
+
+    // Delay greeting to avoid conflicts
+    greetingTimeoutRef.current = setTimeout(deliverGreeting, 2000);
+
+    return () => {
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
+    };
+  }, [shouldGreet, hasGreeted, userActivityDetected, isFirstTimeUser, userName, language]);
+
+  // Reset when route changes
+  useEffect(() => {
+    setHasGreeted(false);
+    setUserActivityDetected(false);
+    
+    // Cancel speech when leaving
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  }, [location.pathname]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return null;
 };
 

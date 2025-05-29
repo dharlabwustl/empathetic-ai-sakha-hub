@@ -105,11 +105,12 @@ export const speakWithFemaleVoice = (
 ): boolean => {
   if (!('speechSynthesis' in window)) return false;
   
-  // Enhanced repetition prevention
-  const messageKey = text.toLowerCase().trim().substring(0, 50); // Use first 50 chars as key
+  // Enhanced repetition prevention with session tracking
+  const messageKey = text.toLowerCase().trim().substring(0, 50);
   const now = Date.now();
   const messageInfo = spokenMessages.get(messageKey);
   
+  // Check if message was recently spoken in this session
   if (messageInfo && 
       messageInfo.sessionId === SESSION_ID && 
       (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
@@ -117,7 +118,7 @@ export const speakWithFemaleVoice = (
     return false;
   }
   
-  // Cancel any ongoing speech
+  // Cancel any ongoing speech before starting new one
   window.speechSynthesis.cancel();
   
   const utterance = createFemaleUtterance(text, config);
@@ -133,11 +134,24 @@ export const speakWithFemaleVoice = (
   // Store the timestamp and session when we start speaking
   spokenMessages.set(messageKey, { timestamp: now, sessionId: SESSION_ID });
   
-  window.speechSynthesis.speak(utterance);
-  return true;
+  try {
+    window.speechSynthesis.speak(utterance);
+    return true;
+  } catch (error) {
+    console.error('Speech synthesis error:', error);
+    return false;
+  }
 };
 
 // Smart breaks between messages
 export const createIntelligentPause = (duration: number = 3000): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, duration));
+};
+
+// Global cleanup function for voice
+export const cleanupVoice = () => {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+  spokenMessages.clear();
 };
