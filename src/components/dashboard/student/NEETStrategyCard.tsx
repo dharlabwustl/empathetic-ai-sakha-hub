@@ -47,18 +47,55 @@ const NEETStrategyCard: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="h-5 w-5 text-blue-600" />
-          NEET Strategy Card
+          <motion.span
+            animate={{ 
+              color: ["#2563eb", "#7c3aed", "#2563eb"]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            NEET Strategy Card
+          </motion.span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <Button variant="outline" className="w-full justify-start">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => navigate('/dashboard/student/academic')}
+          >
             <BookOpen className="h-4 w-4 mr-2" />
             Adaptive Plan
           </Button>
-          <Badge className="w-full justify-center bg-blue-100 text-blue-800">
-            Personalized Strategy
-          </Badge>
+          <motion.div
+            animate={{ 
+              backgroundColor: ["rgb(219, 234, 254)", "rgb(233, 213, 255)", "rgb(219, 234, 254)"]
+            }}
+            transition={{ 
+              duration: 3, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Badge className="w-full justify-center text-blue-800">
+              <motion.span
+                animate={{ 
+                  scale: [1, 1.05, 1]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                Personalized Strategy
+              </motion.span>
+            </Badge>
+          </motion.div>
           
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Current Focus</h4>
@@ -83,6 +120,26 @@ const NEETStrategyCard: React.FC = () => {
               </div>
             ))}
           </div>
+
+          <motion.div
+            className="mt-4"
+            animate={{ 
+              scale: [1, 1.02, 1],
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Button 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              onClick={() => navigate('/dashboard/student/study-plan')}
+            >
+              <Target className="h-4 w-4 mr-2" />
+              View Study Plan
+            </Button>
+          </motion.div>
         </div>
       </CardContent>
     </Card>
