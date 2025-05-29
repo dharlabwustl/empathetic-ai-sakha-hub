@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Clock, BookOpen, TrendingUp, AlertTriangle, Sparkles, X, RotateCcw, Zap, Trophy } from 'lucide-react';
+import { Target, Clock, BookOpen, TrendingUp, AlertTriangle, Sparkles, X, RotateCcw, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -164,7 +164,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                     Study Concept
                   </Button>
                 </Link>
-                <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
+                <Link to={`/dashboard/student/flashcards/${topic.subject.toLowerCase()}`} className="flex-1">
                   <Button 
                     size="sm" 
                     variant="outline"
@@ -172,26 +172,6 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                   >
                     <RotateCcw className="h-3 w-3 mr-1" />
                     Practice Recall
-                  </Button>
-                </Link>
-                <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab" className="flex-1">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full hover:bg-purple-50"
-                  >
-                    <Zap className="h-3 w-3 mr-1" />
-                    Formula Lab
-                  </Button>
-                </Link>
-                <Link to="/dashboard/student/practice-exam/2/start" className="flex-1">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full hover:bg-yellow-50"
-                  >
-                    <Trophy className="h-3 w-3 mr-1" />
-                    Take Exam
                   </Button>
                 </Link>
               </div>

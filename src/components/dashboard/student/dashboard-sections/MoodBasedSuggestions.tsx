@@ -5,7 +5,7 @@ import { MoodType } from '@/types/user/base';
 import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood } from '../mood-tracking/moodUtils';
 import MoodLogButton from '../mood-tracking/MoodLogButton';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, TrendingUp, Clock, Calendar, BookOpen, RotateCcw, Trophy } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -18,79 +18,69 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
   // Get recommendations based on current mood
   const recommendation = currentMood ? getStudyRecommendationForMood(currentMood) : "";
   
-  // Get study action based on mood with proper routing
+  // Get study action based on mood
   const getStudyAction = () => {
     if (!currentMood) return { text: "Start Today's Plan", link: "/dashboard/student/today" };
     
     switch (currentMood) {
       case MoodType.HAPPY:
         return { 
-          text: "Take Challenge Exam", 
-          link: "/dashboard/student/practice-exam/2/start",
-          color: "bg-gradient-to-r from-yellow-400 to-amber-500",
-          icon: Trophy
+          text: "Take on a Challenge", 
+          link: "/dashboard/student/practice-exam",
+          color: "bg-gradient-to-r from-yellow-400 to-amber-500"
         };
       case MoodType.MOTIVATED:
         return { 
           text: "Master New Concepts", 
           link: "/dashboard/student/concepts",
-          color: "bg-gradient-to-r from-green-500 to-emerald-600",
-          icon: BookOpen
+          color: "bg-gradient-to-r from-green-500 to-emerald-600"
         };
       case MoodType.FOCUSED:
         return { 
           text: "Complete Practice Exam", 
-          link: "/dashboard/student/practice-exam/2/start",
-          color: "bg-gradient-to-r from-blue-500 to-indigo-600",
-          icon: Trophy
+          link: "/dashboard/student/practice-exam",
+          color: "bg-gradient-to-r from-blue-500 to-indigo-600"
         };
       case MoodType.NEUTRAL:
         return { 
           text: "Follow Today's Plan", 
           link: "/dashboard/student/today",
-          color: "bg-gradient-to-r from-gray-500 to-slate-600",
-          icon: Calendar
+          color: "bg-gradient-to-r from-gray-500 to-slate-600"
         };
       case MoodType.TIRED:
         return { 
           text: "Review Simple Flashcards", 
-          link: "/dashboard/student/flashcards/1/interactive",
-          color: "bg-gradient-to-r from-orange-400 to-amber-500",
-          icon: RotateCcw
+          link: "/dashboard/student/flashcards",
+          color: "bg-gradient-to-r from-orange-400 to-amber-500"
         };
       case MoodType.ANXIOUS:
         return { 
           text: "Try Guided Relaxation", 
           link: "/dashboard/student/feel-good-corner",
-          color: "bg-gradient-to-r from-purple-500 to-violet-600",
-          icon: BookOpen
+          color: "bg-gradient-to-r from-purple-500 to-violet-600"
         };
       case MoodType.STRESSED:
         return { 
           text: "Take a Mindful Break", 
           link: "/dashboard/student/feel-good-corner",
-          color: "bg-gradient-to-r from-red-500 to-rose-600",
-          icon: BookOpen
+          color: "bg-gradient-to-r from-red-500 to-rose-600"
         };
       case MoodType.SAD:
         return { 
           text: "Visit Feel Good Corner", 
           link: "/dashboard/student/feel-good-corner",
-          color: "bg-gradient-to-r from-indigo-500 to-blue-600",
-          icon: BookOpen
+          color: "bg-gradient-to-r from-indigo-500 to-blue-600"
         };
       default:
         return { 
           text: "Follow Today's Plan", 
           link: "/dashboard/student/today",
-          color: "bg-gradient-to-r from-violet-500 to-purple-600",
-          icon: Calendar
+          color: "bg-gradient-to-r from-violet-500 to-purple-600"
         };
     }
   };
   
   const studyAction = getStudyAction();
-  const IconComponent = studyAction.icon;
   
   // Get mood-specific background styling
   const getMoodBackground = () => {
@@ -115,35 +105,6 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
         return "from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20";
       default:
         return "from-gray-50 to-blue-50 dark:from-gray-800/30 dark:to-blue-900/20";
-    }
-  };
-
-  // Get mood-based study activities
-  const getMoodActivities = () => {
-    if (!currentMood) return [];
-    
-    const baseActivities = [
-      { name: "Study Concepts", link: "/dashboard/student/concepts", icon: BookOpen },
-      { name: "Practice Recall", link: "/dashboard/student/flashcards/1/interactive", icon: RotateCcw },
-      { name: "Take Practice Exam", link: "/dashboard/student/practice-exam/2/start", icon: Trophy }
-    ];
-
-    // Mood-specific additional activities
-    switch (currentMood) {
-      case MoodType.FOCUSED:
-      case MoodType.MOTIVATED:
-        return [
-          ...baseActivities,
-          { name: "Advanced Formula Lab", link: "/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab", icon: BookOpen }
-        ];
-      case MoodType.TIRED:
-      case MoodType.STRESSED:
-        return [
-          { name: "Light Review", link: "/dashboard/student/flashcards/1/interactive", icon: RotateCcw },
-          { name: "Feel Good Corner", link: "/dashboard/student/feel-good-corner", icon: BookOpen }
-        ];
-      default:
-        return baseActivities;
     }
   };
 
@@ -233,35 +194,9 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
                   <Button 
                     className={`w-full text-white ${studyAction.color || 'bg-gradient-to-r from-violet-500 to-purple-600'} hover:scale-105 transition-transform`}
                   >
-                    <IconComponent className="h-4 w-4 mr-2" />
-                    {studyAction.text} 
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    {studyAction.text} <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>
-              </motion.div>
-
-              {/* Mood-based study activities */}
-              <motion.div 
-                className="space-y-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <p className="text-sm font-medium mb-2">Recommended Activities</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {getMoodActivities().slice(0, 4).map((activity, index) => (
-                    <Link key={index} to={activity.link}>
-                      <motion.div
-                        className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <activity.icon className="h-4 w-4 mx-auto mb-1 text-blue-600" />
-                        <p className="text-xs font-medium">{activity.name}</p>
-                      </motion.div>
-                    </Link>
-                  ))}
-                </div>
               </motion.div>
             </>
           )}
