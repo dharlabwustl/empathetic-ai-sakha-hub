@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MoodType, UserProfileType } from "@/types/user/base";
-import { Bell, Calendar, BookMarked } from "lucide-react";
+import { Bell, Calendar, BookMarked, Crown } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
 import { 
@@ -50,7 +50,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     }
   };
 
-  // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -80,6 +79,15 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex flex-wrap items-center gap-2">
                 {greetingText}, <span className="text-purple-700 dark:text-purple-400">{userName}</span>!
+                {/* Upgrade button */}
+                <Button
+                  size="sm"
+                  onClick={() => navigate('/dashboard/student/subscription')}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-lg ml-2"
+                >
+                  <Crown className="h-4 w-4 mr-1" />
+                  Upgrade
+                </Button>
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {formattedDate} • {formattedTime}

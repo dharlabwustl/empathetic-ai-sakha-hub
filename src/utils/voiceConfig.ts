@@ -75,9 +75,9 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Enhanced pronunciation fixes for better clarity
+  // Enhanced pronunciation fixes for better clarity - FIXED PREPZR pronunciation
   const correctedText = text
-    .replace(/PREPZR/gi, 'Prep-Zer')  // Main brand pronunciation
+    .replace(/PREPZR/gi, 'Prep-Zer')  // Main brand pronunciation - FIXED
     .replace(/prepzr/gi, 'prep-zer')
     .replace(/Prepzr/g, 'Prep-Zer')
     .replace(/NEET/gi, 'N-E-E-T')    // Spell out NEET for clarity

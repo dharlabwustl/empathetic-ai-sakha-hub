@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Rocket, Brain, Target, Star, ArrowRight } from 'lucide-react';
+import { Rocket, Brain, Target, Star, ArrowRight, Sparkles, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 interface SmartSuggestionsCenterProps {
   performance: {
@@ -15,6 +16,59 @@ interface SmartSuggestionsCenterProps {
 }
 
 export default function SmartSuggestionsCenter({ performance }: SmartSuggestionsCenterProps) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update time every minute for dynamic suggestions
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const getTimeBasedSuggestion = () => {
+    const hour = currentTime.getHours();
+    
+    if (hour >= 5 && hour < 12) {
+      return {
+        icon: <Sparkles className="h-5 w-5 text-yellow-500" />,
+        text: "Good morning! Start with fresh concepts when your mind is sharp. Morning is perfect for new topics 🌅",
+        color: "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/30 dark:border-yellow-700/50",
+        gradient: "from-yellow-500 to-orange-600",
+        actionText: "Study New Concepts",
+        actionLink: "/dashboard/student/concepts"
+      };
+    } else if (hour >= 12 && hour < 17) {
+      return {
+        icon: <Target className="h-5 w-5 text-blue-500" />,
+        text: "Afternoon focus time! Perfect for practice problems and reinforcing what you learned this morning 🎯",
+        color: "bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:border-blue-700/50",
+        gradient: "from-blue-500 to-indigo-600",
+        actionText: "Practice Problems",
+        actionLink: "/dashboard/student/practice-exam"
+      };
+    } else if (hour >= 17 && hour < 21) {
+      return {
+        icon: <Brain className="h-5 w-5 text-purple-500" />,
+        text: "Evening review time! Consolidate today's learning with flashcards and quick revision 🧠",
+        color: "bg-purple-50 border-purple-200 dark:bg-purple-900/30 dark:border-purple-700/50",
+        gradient: "from-purple-500 to-pink-600",
+        actionText: "Review with Flashcards",
+        actionLink: "/dashboard/student/flashcards"
+      };
+    } else {
+      return {
+        icon: <Star className="h-5 w-5 text-indigo-500" />,
+        text: "Night wind-down! Light revision or motivational content to end your day positively ⭐",
+        color: "bg-indigo-50 border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-700/50",
+        gradient: "from-indigo-500 to-purple-600",
+        actionText: "Light Revision",
+        actionLink: "/dashboard/student/feel-good-corner"
+      };
+    }
+  };
+
   const getSuggestion = () => {
     if (performance.accuracy > 80 && performance.quizScores > 85) {
       return {
@@ -54,14 +108,7 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
       };
     }
     
-    return {
-      icon: <Brain className="h-5 w-5 text-purple-500" />,
-      text: "Based on your recent activity, we recommend focusing on key concepts today.",
-      color: "bg-purple-50 border-purple-200 dark:bg-purple-900/30 dark:border-purple-700/50",
-      gradient: "from-purple-500 to-indigo-600",
-      actionText: "View Recommendation",
-      actionLink: "/dashboard/student/today"
-    };
+    return getTimeBasedSuggestion();
   };
   
   const suggestion = getSuggestion();
@@ -72,15 +119,31 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
         <CardTitle className="text-lg flex items-center gap-2">
           <Brain className="h-5 w-5 text-violet-500" />
           Smart Suggestions
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            <Clock className="h-4 w-4 text-violet-400 ml-1" />
+          </motion.div>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pb-5">
-        <div className={`p-4 rounded-lg ${suggestion.color} border mb-3 shadow-sm`}>
+        <motion.div 
+          className={`p-4 rounded-lg ${suggestion.color} border mb-3 shadow-sm`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="flex items-start gap-3">
-            {suggestion.icon}
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              {suggestion.icon}
+            </motion.div>
             <p className="text-sm">{suggestion.text}</p>
           </div>
-        </div>
+        </motion.div>
         
         <div className="grid grid-cols-1 gap-2">
           <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-3 rounded-lg border border-purple-100 dark:border-purple-800/30 flex justify-between items-center">

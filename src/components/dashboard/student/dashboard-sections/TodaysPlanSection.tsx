@@ -1,12 +1,12 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Brain, FileText } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Brain, FileText, Zap, Sparkles } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
+import { motion } from 'framer-motion';
 
 interface StudyPlan {
   date: string;
@@ -188,76 +188,159 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <CardTitle>Today's Study Plan</CardTitle>
-          {currentMood && (
-            <Badge variant="outline" className="capitalize">
-              {currentMood.toLowerCase()} mood
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Calendar className="h-4 w-4" />
-              <span>{plan.date}</span>
-            </div>
-            <div className="text-sm">
-              Goal: <span className="font-medium">{plan.dailyGoal}</span>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Daily progress</span>
-              <span>{plan.progress}%</span>
-            </div>
-            <Progress value={plan.progress} className="h-2" />
-          </div>
-          
-          <div className="space-y-3 pt-2">
-            {plan.tasks.map((task, idx) => (
-              <div 
-                key={idx}
-                className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                onClick={() => handleTaskClick(task)}
+    <motion.div
+      className="relative"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      {/* Animated arrow pointing down */}
+      <motion.div
+        className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10"
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <div className="text-red-500 text-2xl">↓</div>
+      </motion.div>
+
+      {/* Priority badge */}
+      <motion.div
+        className="absolute -top-2 -right-2 z-20"
+        animate={{ scale: [1, 1.1, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      >
+        <Badge className="bg-red-500 text-white font-bold px-3 py-1 shadow-lg">
+          LIVE PLAN
+        </Badge>
+      </motion.div>
+
+      {/* Sparkle effects */}
+      {[...Array(3)].map((_, index) => (
+        <motion.div
+          key={index}
+          className="absolute text-yellow-400 text-lg"
+          style={{
+            top: `${20 + index * 30}%`,
+            left: `${10 + index * 80}%`,
+          }}
+          animate={{
+            scale: [0, 1, 0],
+            rotate: [0, 180, 360],
+            opacity: [0, 1, 0],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            delay: index * 0.5,
+          }}
+        >
+          <Sparkles className="h-4 w-4" />
+        </motion.div>
+      ))}
+
+      <Card className="relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
+        {/* Pulsing border effect */}
+        <motion.div
+          className="absolute inset-0 border-4 border-blue-400 rounded-lg opacity-50"
+          animate={{
+            boxShadow: [
+              "0 0 0 0 rgba(59, 130, 246, 0.4)",
+              "0 0 0 20px rgba(59, 130, 246, 0)",
+              "0 0 0 0 rgba(59, 130, 246, 0.4)"
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+
+        {/* Glowing background */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20"
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        />
+
+        <CardHeader className="pb-2 relative z-10">
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
               >
-                <div className="flex justify-between items-center mb-1">
-                  <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-full ${
-                      task.type === 'concept' ? 'bg-blue-100 text-blue-600' :
-                      task.type === 'flashcard' ? 'bg-purple-100 text-purple-600' :
-                      'bg-green-100 text-green-600'
-                    }`}>
-                      {getTaskIcon(task.type)}
-                    </div>
-                    <span className="font-medium">{task.title}</span>
-                  </div>
-                  {getDifficultyBadge(task.difficulty)}
-                </div>
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3 mr-1" />
-                  <span>{task.timeEstimate} min</span>
-                </div>
+                <Zap className="h-5 w-5 text-blue-600" />
+              </motion.div>
+              Today's NEET Study Plan
+            </CardTitle>
+            {currentMood && (
+              <Badge variant="outline" className="capitalize">
+                {currentMood.toLowerCase()} mood
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="relative z-10">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4" />
+                <span>{plan.date}</span>
               </div>
-            ))}
-          </div>
-          
-          <div className="flex items-center justify-between text-sm pt-1">
-            <div>
-              Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
+              <div className="text-sm">
+                Goal: <span className="font-medium">{plan.dailyGoal}</span>
+              </div>
             </div>
-            <Button size="sm" onClick={() => navigate('/dashboard/student/today')}>
-              View Full Plan
-            </Button>
+            
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Daily progress</span>
+                <span>{plan.progress}%</span>
+              </div>
+              <Progress value={plan.progress} className="h-2" />
+            </div>
+            
+            <div className="space-y-3 pt-2">
+              {plan.tasks.map((task, idx) => (
+                <motion.div 
+                  key={idx}
+                  className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200"
+                  onClick={() => handleTaskClick(task)}
+                  whileHover={{ scale: 1.02 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-full ${
+                        task.type === 'concept' ? 'bg-blue-100 text-blue-600' :
+                        task.type === 'flashcard' ? 'bg-purple-100 text-purple-600' :
+                        'bg-green-100 text-green-600'
+                      }`}>
+                        {getTaskIcon(task.type)}
+                      </div>
+                      <span className="font-medium">{task.title}</span>
+                    </div>
+                    {getDifficultyBadge(task.difficulty)}
+                  </div>
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span>{task.timeEstimate} min</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="flex items-center justify-between text-sm pt-1">
+              <div>
+                Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
+              </div>
+              <Button size="sm" onClick={() => navigate('/dashboard/student/today')}>
+                View Full Plan
+              </Button>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
