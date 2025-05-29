@@ -38,7 +38,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
       case MoodType.MOTIVATED: return "🚀";
       case MoodType.FOCUSED: return "🎯";
       case MoodType.STRESSED: return "😰";
-      case MoodType.NEUTRAL: return "😐";
+      case MoodType.CONFUSED: return "🤔";
+      case MoodType.CONFIDENT: return "💪";
       case MoodType.TIRED: return "😴";
       default: return "📚";
     }
@@ -203,19 +204,19 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                         Study
                       </Button>
                     </Link>
-                    <Link to="/dashboard/student/flashcards/1/interactive">
+                    <Link to={`/dashboard/student/flashcards/${session.subject.toLowerCase()}`}>
                       <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <RotateCcw className="h-2 w-2 mr-1" />
                         Recall
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/concepts/${encodeURIComponent("Newton's Second Law")}/formula-lab`}>
+                    <Link to={`/dashboard/student/formula-practice/${session.subject.toLowerCase()}`}>
                       <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Zap className="h-2 w-2 mr-1" />
                         Formula
                       </Button>
                     </Link>
-                    <Link to="/dashboard/student/practice-exam/2/start">
+                    <Link to={`/dashboard/student/practice-exam/${session.subject.toLowerCase()}`}>
                       <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Trophy className="h-2 w-2 mr-1" />
                         Exam

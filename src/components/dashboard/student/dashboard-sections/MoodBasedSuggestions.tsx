@@ -26,7 +26,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.HAPPY:
         return { 
           text: "Take on a Challenge", 
-          link: "/dashboard/student/practice-exam/2/start",
+          link: "/dashboard/student/practice-exam",
           color: "bg-gradient-to-r from-yellow-400 to-amber-500"
         };
       case MoodType.MOTIVATED:
@@ -38,7 +38,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.FOCUSED:
         return { 
           text: "Complete Practice Exam", 
-          link: "/dashboard/student/practice-exam/2/start",
+          link: "/dashboard/student/practice-exam",
           color: "bg-gradient-to-r from-blue-500 to-indigo-600"
         };
       case MoodType.NEUTRAL:
@@ -50,7 +50,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.TIRED:
         return { 
           text: "Review Simple Flashcards", 
-          link: "/dashboard/student/flashcards/1/interactive",
+          link: "/dashboard/student/flashcards",
           color: "bg-gradient-to-r from-orange-400 to-amber-500"
         };
       case MoodType.ANXIOUS:
@@ -75,7 +75,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
         return { 
           text: "Follow Today's Plan", 
           link: "/dashboard/student/today",
-          color: "bg-gradient-to-r from-blue-500 to-purple-600"
+          color: "bg-gradient-to-r from-violet-500 to-purple-600"
         };
     }
   };
@@ -180,7 +180,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
               </motion.div>
               
               <motion.div 
-                className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800/30"
+                className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-violet-100 dark:border-violet-800/30"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -192,7 +192,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
                 
                 <Link to={studyAction.link} className="no-underline">
                   <Button 
-                    className={`w-full text-white ${studyAction.color || 'bg-gradient-to-r from-blue-500 to-purple-600'} hover:scale-105 transition-transform`}
+                    className={`w-full text-white ${studyAction.color || 'bg-gradient-to-r from-violet-500 to-purple-600'} hover:scale-105 transition-transform`}
                   >
                     {studyAction.text} <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
