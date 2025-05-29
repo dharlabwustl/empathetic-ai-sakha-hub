@@ -10,6 +10,7 @@ import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import PrepzrAIVoiceAssistant from "@/components/voice/PrepzrAIVoiceAssistant";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
@@ -45,6 +46,19 @@ const StudentDashboard = () => {
 
   // Important: Force disable welcome tour completely
   const [shouldShowTour, setShouldShowTour] = useState(false);
+
+  // Determine if user is first time
+  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true' || 
+                         !userProfile?.loginCount || 
+                         userProfile.loginCount <= 1;
+
+  // Get last activity for voice assistant
+  const getLastActivity = () => {
+    if (lastActivity?.description) {
+      return lastActivity.description;
+    }
+    return null;
+  };
 
   useEffect(() => {
     // Explicitly mark tour as seen to prevent it from appearing
@@ -157,7 +171,7 @@ const StudentDashboard = () => {
   };
 
   const studyStreak = 5;
-  const lastActivity = 'completed Physics concepts';
+  const lastActivityStr = 'completed Physics concepts';
 
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
@@ -189,17 +203,25 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Enhanced Dashboard Voice Assistant with user progress context */}
+      {/* PREPZR AI Voice Assistant - Main system */}
+      <PrepzrAIVoiceAssistant
+        userName={userProfile.name || userProfile.firstName}
+        language="en-US"
+        isNewUser={isFirstTimeUser}
+        lastActivity={getLastActivity()}
+        currentPage="dashboard"
+      />
+
+      {/* Existing voice components - keeping for compatibility */}
       <DashboardVoiceAssistant
         userName={userProfile.name}
         language="en-IN"
         userMood={currentMood}
         userProgress={userProgressData}
         studyStreak={studyStreak}
-        lastActivity={lastActivity}
+        lastActivity={lastActivityStr}
       />
 
-      {/* Interactive Voice Assistant with enhanced navigation */}
       <InteractiveVoiceAssistant 
         userName={userProfile.name}
         language="en-US"

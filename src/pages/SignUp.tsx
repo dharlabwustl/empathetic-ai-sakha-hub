@@ -1,6 +1,7 @@
 
 import { OnboardingProvider } from "@/components/signup/OnboardingContext";
 import SignUpContent from "@/components/signup/SignupContent";
+import PrepzrAIVoiceAssistant from "@/components/voice/PrepzrAIVoiceAssistant";
 import { motion } from "framer-motion";
 
 const SignUp = () => {
@@ -14,6 +15,8 @@ const SignUp = () => {
       <OnboardingProvider>
         <SignUpContent />
       </OnboardingProvider>
+      
+      {/* No voice assistant on signup pages as per instructions */}
     </motion.div>
   );
 };
