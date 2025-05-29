@@ -147,6 +147,7 @@ const OnboardingHighlights: React.FC<OnboardingHighlightsProps> = ({
               left: highlightPosition.left,
               width: highlightPosition.width,
               height: highlightPosition.height,
+              boxShadow: '0 0 20px rgba(255, 255, 0, 0.5)'
             }}
             animate={{
               boxShadow: [
@@ -193,7 +194,7 @@ const OnboardingHighlights: React.FC<OnboardingHighlightsProps> = ({
               </p>
               
               <div className="flex items-center justify-between">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-gray-500">
                   Step {currentStep + 1} of {onboardingSteps.length}
                 </div>
                 
