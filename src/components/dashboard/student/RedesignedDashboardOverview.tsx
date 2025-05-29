@@ -5,7 +5,6 @@ import { KpiData } from '@/hooks/useKpiTracking';
 import ComprehensiveAdaptiveDashboard from '../adaptive/ComprehensiveAdaptiveDashboard';
 import EnhancedDashboardHeader from './EnhancedDashboardHeader';
 import OnboardingHighlights from './OnboardingHighlights';
-import NEETStrategyCard from './NEETStrategyCard';
 import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
@@ -52,10 +51,16 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         onMoodChange={onMoodChange}
       />
 
-      {/* NEET Strategy Card with enhanced subjects and progress */}
+      {/* Comprehensive Adaptive Dashboard with exam readiness */}
+      <ComprehensiveAdaptiveDashboard 
+        userProfile={userProfile}
+        kpis={kpis}
+        currentMood={currentMood}
+        onMoodChange={onMoodChange}
+      />
+
+      {/* Three cards section moved below exam readiness */}
       <div className="grid gap-6">
-        <NEETStrategyCard />
-        
         {/* Today's Top Priority Section with animations */}
         {showTopPriority && (
           <TodaysTopPrioritySection onClose={() => setShowTopPriority(false)} />
@@ -75,14 +80,6 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
           userName={userProfile.name || userProfile.firstName || "Student"}
         />
       </div>
-
-      {/* Comprehensive Adaptive Dashboard */}
-      <ComprehensiveAdaptiveDashboard 
-        userProfile={userProfile}
-        kpis={kpis}
-        currentMood={currentMood}
-        onMoodChange={onMoodChange}
-      />
 
       {/* Onboarding highlights for first-time users */}
       <OnboardingHighlights

@@ -115,7 +115,7 @@ export default function SmartSuggestionsCenter({ performance, userName = "Studen
       <CardHeader className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 pb-2">
         <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
           <Brain className="h-5 w-5 text-violet-500" />
-          Smart Suggestions
+          Daily Smart Suggestions
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
