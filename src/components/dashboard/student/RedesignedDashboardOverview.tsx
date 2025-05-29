@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import ComprehensiveAdaptiveDashboard from '../adaptive/ComprehensiveAdaptiveDashboard';
-import EnhancedDashboardHeader from './EnhancedDashboardHeader';
 import OnboardingHighlights from './OnboardingHighlights';
 import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import EnhancedNameHeaderCard from './EnhancedNameHeaderCard';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -29,11 +29,9 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
   const [onboardingComplete, setOnboardingComplete] = useState(false);
 
   const handleViewStudyPlan = () => {
-    // Navigate to study plan or open modal
     console.log('View study plan clicked');
   };
 
-  // Mock performance data for smart suggestions
   const performanceData = {
     accuracy: 75,
     quizScores: 82,
@@ -43,10 +41,9 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
 
   return (
     <div className="space-y-6">
-      {/* Enhanced header with real-time clock, date, and study streak */}
-      <EnhancedDashboardHeader
+      {/* Enhanced Name Header Card */}
+      <EnhancedNameHeaderCard
         userProfile={userProfile}
-        onViewStudyPlan={handleViewStudyPlan}
         currentMood={currentMood}
         onMoodChange={onMoodChange}
       />
@@ -59,14 +56,14 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         onMoodChange={onMoodChange}
       />
 
-      {/* Three cards section moved below exam readiness */}
+      {/* Three cards section moved above exam readiness */}
       <div className="grid gap-6">
-        {/* Today's Top Priority Section with animations */}
+        {/* Today's Top Priority Section */}
         {showTopPriority && (
           <TodaysTopPrioritySection onClose={() => setShowTopPriority(false)} />
         )}
         
-        {/* Today's Study Plan Section with animations */}
+        {/* Today's Study Plan Section */}
         {showStudyPlan && (
           <TodaysPlanSection 
             currentMood={currentMood}
@@ -74,7 +71,7 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
           />
         )}
         
-        {/* Enhanced Smart Suggestions with time-based greetings */}
+        {/* Enhanced Smart Suggestions */}
         <SmartSuggestionsCenter 
           performance={performanceData}
           userName={userProfile.name || userProfile.firstName || "Student"}
