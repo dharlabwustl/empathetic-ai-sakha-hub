@@ -1,169 +1,35 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Mic, Volume2 } from 'lucide-react';
 
 interface EnhancedVoiceCircleProps {
-  isSpeaking: boolean;
+  isSpeaking?: boolean;
   isListening?: boolean;
-  size?: number;
+  onClick?: () => void;
   className?: string;
 }
 
 export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
-  isSpeaking,
+  isSpeaking = false,
   isListening = false,
-  size = 56,
-  className = ""
-}) => {
-  return (
-    <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      {/* Outer vibrant pulse ring */}
-      {isSpeaking && (
-        <motion.div
-          className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400"
-          animate={{
-            scale: [1, 1.4, 1.2, 1.6, 1],
-            opacity: [0.6, 0.3, 0.5, 0.2, 0.6],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      )}
-      
-      {/* Middle pulse ring */}
-      {isSpeaking && (
-        <motion.div
-          className="absolute inset-1 rounded-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
-          animate={{
-            scale: [1, 1.3, 1.1, 1.4, 1],
-            opacity: [0.5, 0.7, 0.4, 0.6, 0.5],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.2
-          }}
-        />
-      )}
-      
-      {/* Inner active ring */}
-      {(isSpeaking || isListening) && (
-        <motion.div
-          className={`absolute inset-2 rounded-full ${
-            isSpeaking 
-              ? 'bg-gradient-to-r from-pink-500 to-violet-500' 
-              : 'bg-gradient-to-r from-green-400 to-blue-400'
-          }`}
-          animate={{
-            scale: isSpeaking ? [1, 1.2, 1] : [1, 1.1, 1],
-            opacity: [0.8, 0.9, 0.8],
-          }}
-          transition={{
-            duration: isSpeaking ? 1 : 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      )}
-      
-      {/* Main AI circle with dynamic color changes */}
-      <motion.div
-        className={`relative z-10 w-full h-full rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
-          isSpeaking 
-            ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600' 
-            : isListening
-            ? 'bg-gradient-to-r from-green-500 to-blue-500'
-            : 'bg-gradient-to-r from-blue-500 to-purple-500'
-        }`}
-        animate={isSpeaking ? {
-          background: [
-            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)',
-            'linear-gradient(45deg, #ec4899, #9333ea, #3b82f6)',
-            'linear-gradient(45deg, #3b82f6, #ec4899, #9333ea)',
-            'linear-gradient(45deg, #9333ea, #3b82f6, #ec4899)'
-          ],
-          scale: [1, 1.05, 1, 1.02, 1]
-        } : {}}
-        transition={{
-          background: {
-            duration: 3,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          },
-          scale: {
-            duration: 0.8,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          }
-        }}
-      >
-        <motion.span 
-          className="text-white font-bold text-lg select-none"
-          animate={isSpeaking ? {
-            scale: [1, 1.1, 1, 1.05, 1],
-            color: ['#ffffff', '#fbbf24', '#ffffff', '#34d399', '#ffffff']
-          } : {}}
-          transition={{
-            duration: 1.5,
-            repeat: isSpeaking ? Infinity : 0,
-            ease: "easeInOut"
-          }}
-        >
-          AI
-        </motion.span>
-      </motion.div>
-      
-      {/* Sound waves */}
-      {isSpeaking && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 bg-gradient-to-t from-purple-400 to-pink-400 rounded-full"
-              style={{
-                left: `${30 + i * 15}%`,
-                height: '8px'
-              }}
-              animate={{
-                scaleY: [1, 2, 0.5, 1.5, 1],
-                opacity: [0.6, 1, 0.4, 0.8, 0.6]
-              }}
-              transition={{
-                duration: 0.6,
-                repeat: Infinity,
-                delay: i * 0.1,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
-  isSpeaking,
-  isListening,
+  onClick,
   className = ""
 }) => {
   return (
     <motion.div
-      className={`relative ${className}`}
-      whileHover={{ scale: 1.05 }}
+      className={`relative cursor-pointer ${className}`}
+      onClick={onClick}
+      whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
     >
-      {/* Background gradient pulse */}
-      {(isSpeaking || isListening) && (
+      {/* Outer pulsing ring when speaking */}
+      {isSpeaking && (
         <motion.div
-          className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
+          className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-30"
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.7, 0.3, 0.7],
+            scale: [1, 1.5, 1],
+            opacity: [0.3, 0.6, 0.3],
           }}
           transition={{
             duration: 1.5,
@@ -173,12 +39,100 @@ export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = ({
         />
       )}
       
-      <EnhancedVoiceCircle 
-        isSpeaking={isSpeaking}
-        isListening={isListening}
-        size={56}
-        className="relative z-10"
-      />
+      {/* Middle ring when listening */}
+      {isListening && (
+        <motion.div
+          className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 opacity-40"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.4, 0.7, 0.4],
+          }}
+          transition={{
+            duration: 1,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      )}
+      
+      {/* Main voice circle */}
+      <motion.div
+        className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg border-2 ${
+          isSpeaking 
+            ? 'bg-gradient-to-r from-blue-500 to-purple-500 border-blue-300' 
+            : isListening
+            ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-green-300'
+            : 'bg-gradient-to-r from-indigo-500 to-purple-500 border-indigo-300'
+        }`}
+        animate={{
+          boxShadow: isSpeaking || isListening
+            ? [
+                "0 0 20px rgba(99, 102, 241, 0.5)",
+                "0 0 40px rgba(99, 102, 241, 0.8)",
+                "0 0 20px rgba(99, 102, 241, 0.5)"
+              ]
+            : "0 4px 20px rgba(0, 0, 0, 0.1)"
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: isSpeaking || isListening ? Infinity : 0
+        }}
+      >
+        {/* Icon with animation */}
+        <motion.div
+          animate={{
+            scale: isSpeaking || isListening ? [1, 1.2, 1] : 1,
+            rotate: isSpeaking ? [0, 360] : 0
+          }}
+          transition={{
+            scale: { duration: 1, repeat: isSpeaking || isListening ? Infinity : 0 },
+            rotate: { duration: 2, repeat: isSpeaking ? Infinity : 0, ease: "linear" }
+          }}
+        >
+          {isSpeaking ? (
+            <Volume2 className="h-7 w-7 text-white" />
+          ) : (
+            <Mic className="h-7 w-7 text-white" />
+          )}
+        </motion.div>
+      </motion.div>
+      
+      {/* Floating particles when active */}
+      {(isSpeaking || isListening) && (
+        <>
+          {[...Array(6)].map((_, index) => (
+            <motion.div
+              key={index}
+              className="absolute w-2 h-2 bg-white rounded-full opacity-60"
+              style={{
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
+              animate={{
+                x: [0, Math.cos(index * 60 * Math.PI / 180) * 30],
+                y: [0, Math.sin(index * 60 * Math.PI / 180) * 30],
+                opacity: [0.6, 0, 0.6],
+                scale: [0.5, 1, 0.5],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                delay: index * 0.1,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </>
+      )}
     </motion.div>
+  );
+};
+
+export const FloatingVoiceButton: React.FC<EnhancedVoiceCircleProps> = (props) => {
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <EnhancedVoiceCircle {...props} />
+    </div>
   );
 };

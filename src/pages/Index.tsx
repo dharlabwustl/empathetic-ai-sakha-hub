@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
@@ -17,12 +18,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BackedBySection from '@/components/home/BackedBySection';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
-import InteractiveVoiceAssistant from '@/components/voice/InteractiveVoiceAssistant';
-import SpeechRecognitionButton from '@/components/voice/SpeechRecognitionButton';
-import PrepzrVoiceAssistant from '@/components/voice/PrepzrVoiceAssistant';
 import AuthGuard from '@/components/auth/AuthGuard';
-import EnhancedHomepageAssistant from '@/components/voice/EnhancedHomepageAssistant';
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
+import HomepageVoiceAssistant from '@/components/voice/HomepageVoiceAssistant';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -39,11 +37,6 @@ const Index = () => {
   
   const handleNavigationCommand = (route: string) => {
     navigate(route);
-  };
-
-  const handleSpeechCommand = (command: string) => {
-    console.log('Speech command received:', command);
-    // Commands are processed within the SpeechRecognitionButton component
   };
 
   // Listen for events
@@ -116,26 +109,17 @@ const Index = () => {
         
         <Footer />
         
-        {/* Enhanced Homepage Voice Assistant with intelligent messaging */}
-        <EnhancedHomepageAssistant 
-          language="en-US"
-          onSpeakingChange={setIsSpeaking}
-        />
-        
-        {/* Speech Recognition Button - positioned above voice assistant */}
-        <SpeechRecognitionButton
-          position="homepage"
-          onCommand={handleSpeechCommand}
-          className="fixed bottom-24 right-6 z-50"
-        />
+        {/* Homepage Voice Assistant */}
+        <HomepageVoiceAssistant onSpeakingChange={setIsSpeaking} />
 
-        {/* Enhanced Floating Voice Button with vibrant animations */}
-        <div className="fixed bottom-6 right-6 z-40">
-          <FloatingVoiceButton 
-            isSpeaking={isSpeaking}
-            className="cursor-pointer"
-          />
-        </div>
+        {/* Enhanced Floating Voice Button with context awareness */}
+        <FloatingVoiceButton 
+          isSpeaking={isSpeaking}
+          onClick={() => {
+            // Dispatch custom event to invoke voice assistant
+            window.dispatchEvent(new CustomEvent('invoke-voice-assistant'));
+          }}
+        />
       </div>
     </AuthGuard>
   );

@@ -74,8 +74,17 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
-  // Ensure consistent pronunciation of PREPZR as "PREP-ZER"
-  utterance.text = text.replace(/PREPZR/gi, 'Prep Zer').replace(/Sakha AI/gi, 'Prep Zer AI');
+  
+  // Enhanced pronunciation fixes for better clarity
+  const correctedText = text
+    .replace(/PREPZR/gi, 'Prep-Zer')  // Main brand pronunciation
+    .replace(/prepzr/gi, 'prep-zer')
+    .replace(/Prepzr/g, 'Prep-Zer')
+    .replace(/NEET/gi, 'N-E-E-T')    // Spell out NEET for clarity
+    .replace(/JEE/gi, 'J-E-E')       // Spell out JEE for clarity
+    .replace(/AI/gi, 'A-I');         // Spell out AI for clarity
+  
+  utterance.text = correctedText;
   utterance.lang = finalConfig.language;
   utterance.rate = finalConfig.rate;
   utterance.pitch = finalConfig.pitch;
