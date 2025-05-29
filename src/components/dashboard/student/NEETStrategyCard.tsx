@@ -3,18 +3,44 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp } from 'lucide-react';
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const NEETStrategyCard: React.FC = () => {
+  const navigate = useNavigate();
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
+  const subjects = [
+    { name: "Physics", progress: 75, status: "strong", color: "blue" },
+    { name: "Chemistry", progress: 45, status: "weak", color: "red" },
+    { name: "Biology", progress: 55, status: "weak", color: "orange" }
+  ];
+
   const objectives = [
     "Complete syllabus",
     "Concept clarity", 
     "Regular practice"
   ];
+
+  const getSubjectBadge = (subject: any) => {
+    if (subject.status === "weak") {
+      return (
+        <div className="flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3 text-orange-600" />
+          <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300 text-xs">
+            Needs Focus
+          </Badge>
+        </div>
+      );
+    }
+    return (
+      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+        Strong
+      </Badge>
+    );
+  };
 
   return (
     <motion.div
@@ -22,6 +48,7 @@ const NEETStrategyCard: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
+      data-tour="neet-strategy"
     >
       {/* Animated arrow pointing down */}
       <motion.div
@@ -90,7 +117,7 @@ const NEETStrategyCard: React.FC = () => {
 
         <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
@@ -99,7 +126,7 @@ const NEETStrategyCard: React.FC = () => {
               </motion.div>
               NEET Strategy Card - Adaptive Plan
             </CardTitle>
-            <Badge className="bg-orange-100 text-orange-800 border-orange-300">
+            <Badge className="bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300">
               {urgencyLevel}
             </Badge>
           </div>
@@ -111,6 +138,40 @@ const NEETStrategyCard: React.FC = () => {
             </h3>
           </div>
 
+          {/* Subject progress section */}
+          <div className="space-y-3 mb-4">
+            <h4 className="font-medium text-gray-900 dark:text-white text-sm">Subject Progress</h4>
+            {subjects.map((subject, index) => (
+              <motion.div
+                key={subject.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-orange-600" />
+                    <span className="font-medium text-gray-900 dark:text-white">{subject.name}</span>
+                  </div>
+                  {getSubjectBadge(subject)}
+                </div>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{subject.progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      subject.status === 'weak' ? 'bg-red-500' : 'bg-green-500'
+                    }`}
+                    style={{ width: `${subject.progress}%` }}
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
           {/* Study metrics grid */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
@@ -119,26 +180,6 @@ const NEETStrategyCard: React.FC = () => {
                 <div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">Total Study Time</p>
                   <p className="font-semibold text-orange-900 dark:text-orange-100">6 hours/day</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-orange-600" />
-                <div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Concepts</p>
-                  <p className="font-semibold text-orange-900 dark:text-orange-100">8 today</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-orange-600" />
-                <div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Daily Pace</p>
-                  <p className="font-semibold text-orange-900 dark:text-orange-100">Moderate</p>
                 </div>
               </div>
             </div>
@@ -176,9 +217,10 @@ const NEETStrategyCard: React.FC = () => {
             <Button 
               size="sm" 
               className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              onClick={() => navigate('/dashboard/student/study-plan')}
             >
               <Zap className="h-4 w-4 mr-2" />
-              Start Today's Focus
+              View Your Plan
             </Button>
           </motion.div>
         </CardContent>
