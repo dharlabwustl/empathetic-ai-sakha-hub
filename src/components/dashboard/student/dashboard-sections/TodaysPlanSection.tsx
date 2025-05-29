@@ -204,19 +204,19 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                         Study
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/flashcards/${session.subject.toLowerCase()}`}>
+                    <Link to="/dashboard/student/flashcards/1/interactive">
                       <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <RotateCcw className="h-2 w-2 mr-1" />
                         Recall
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/formula-practice/${session.subject.toLowerCase()}`}>
+                    <Link to={`/dashboard/student/concepts/${encodeURIComponent(session.topic)}/formula-lab`}>
                       <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Zap className="h-2 w-2 mr-1" />
                         Formula
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/practice-exam/${session.subject.toLowerCase()}`}>
+                    <Link to="/dashboard/student/practice-exam/2/start">
                       <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Trophy className="h-2 w-2 mr-1" />
                         Exam
@@ -241,7 +241,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
             <Button 
               size="sm" 
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold"
-              onClick={() => navigate('/dashboard/student/study-plan')}
+              onClick={() => navigate('/dashboard/student/today')}
             >
               <Calendar className="h-4 w-4 mr-2" />
               Continue Live Plan

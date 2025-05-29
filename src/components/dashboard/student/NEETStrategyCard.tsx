@@ -43,46 +43,180 @@ const NEETStrategyCard: React.FC = () => {
   };
 
   return (
-    <Card>
+    <Card className="relative overflow-hidden border-2 border-gradient-to-r from-purple-200 to-indigo-200 dark:from-purple-800 dark:to-indigo-800">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-blue-600" />
-          NEET Strategy Card
+          <motion.div
+            animate={{ 
+              rotate: [0, 10, -10, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Target className="h-5 w-5 text-blue-600" />
+          </motion.div>
+          <motion.span
+            animate={{ 
+              color: ["#2563eb", "#7c3aed", "#2563eb"]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="font-bold"
+          >
+            NEET Strategy Card
+          </motion.span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <Button variant="outline" className="w-full justify-start">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Adaptive Plan
-          </Button>
-          <Badge className="w-full justify-center bg-blue-100 text-blue-800">
-            Personalized Strategy
-          </Badge>
+          <motion.div
+            animate={{ 
+              backgroundColor: ["rgba(59, 130, 246, 0.1)", "rgba(124, 58, 237, 0.1)", "rgba(59, 130, 246, 0.1)"]
+            }}
+            transition={{ 
+              duration: 3, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => navigate('/dashboard/student/academic')}
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              Adaptive Plan
+            </Button>
+          </motion.div>
+          
+          <motion.div
+            animate={{ 
+              scale: [1, 1.02, 1]
+            }}
+            transition={{ 
+              duration: 2.5, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Badge className="w-full justify-center bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 dark:from-blue-900/30 dark:to-purple-900/30">
+              <motion.span
+                animate={{ 
+                  textShadow: ["0px 0px 0px rgba(59, 130, 246, 0.5)", "0px 0px 10px rgba(59, 130, 246, 0.8)", "0px 0px 0px rgba(59, 130, 246, 0.5)"]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                Personalized Strategy
+              </motion.span>
+            </Badge>
+          </motion.div>
           
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Current Focus</h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400">{strategy}</p>
+            <motion.p 
+              className="text-xs text-gray-600 dark:text-gray-400"
+              animate={{ 
+                opacity: [0.7, 1, 0.7]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              {strategy}
+            </motion.p>
           </div>
           
           <div className="space-y-2">
-            <h4 className="text-sm font-medium">Subject Status</h4>
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              Subject Status
+              <motion.div
+                animate={{ 
+                  rotate: [0, 360]
+                }}
+                transition={{ 
+                  duration: 4, 
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+              >
+                <TrendingUp className="h-3 w-3 text-blue-600" />
+              </motion.div>
+            </h4>
             {subjects.map((subject, index) => (
-              <div key={index} className="flex items-center justify-between text-xs">
+              <motion.div 
+                key={index} 
+                className="flex items-center justify-between text-xs"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+              >
                 <span>{subject.name}</span>
                 {getSubjectBadge(subject)}
-              </div>
+              </motion.div>
             ))}
           </div>
           
           <div className="space-y-1">
             {objectives.map((objective, index) => (
-              <div key={index} className="flex items-center gap-2 text-xs">
-                <CheckCircle className="h-3 w-3 text-green-600" />
+              <motion.div 
+                key={index} 
+                className="flex items-center gap-2 text-xs"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.2, 1]
+                  }}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity,
+                    delay: index * 0.2,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                </motion.div>
                 <span className="text-gray-700 dark:text-gray-300">{objective}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
+
+          <motion.div
+            className="pt-2 border-t"
+            animate={{ 
+              borderColor: ["rgba(59, 130, 246, 0.3)", "rgba(124, 58, 237, 0.3)", "rgba(59, 130, 246, 0.3)"]
+            }}
+            transition={{ 
+              duration: 3, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <Button 
+              size="sm" 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold"
+              onClick={() => navigate('/dashboard/student/academic')}
+            >
+              <Sparkles className="h-3 w-3 mr-2" />
+              View Complete Study Plan
+            </Button>
+          </motion.div>
         </div>
       </CardContent>
     </Card>

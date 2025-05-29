@@ -5,7 +5,7 @@ import { MoodType } from '@/types/user/base';
 import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood } from '../mood-tracking/moodUtils';
 import MoodLogButton from '../mood-tracking/MoodLogButton';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, TrendingUp, Clock } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock, Calendar, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -15,10 +15,8 @@ interface MoodBasedSuggestionsProps {
 }
 
 export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: MoodBasedSuggestionsProps) {
-  // Get recommendations based on current mood
   const recommendation = currentMood ? getStudyRecommendationForMood(currentMood) : "";
   
-  // Get study action based on mood
   const getStudyAction = () => {
     if (!currentMood) return { text: "Start Today's Plan", link: "/dashboard/student/today" };
     
@@ -26,7 +24,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.HAPPY:
         return { 
           text: "Take on a Challenge", 
-          link: "/dashboard/student/practice-exam",
+          link: "/dashboard/student/practice-exam/2/start",
           color: "bg-gradient-to-r from-yellow-400 to-amber-500"
         };
       case MoodType.MOTIVATED:
@@ -38,7 +36,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.FOCUSED:
         return { 
           text: "Complete Practice Exam", 
-          link: "/dashboard/student/practice-exam",
+          link: "/dashboard/student/practice-exam/2/start",
           color: "bg-gradient-to-r from-blue-500 to-indigo-600"
         };
       case MoodType.NEUTRAL:
@@ -50,7 +48,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.TIRED:
         return { 
           text: "Review Simple Flashcards", 
-          link: "/dashboard/student/flashcards",
+          link: "/dashboard/student/flashcards/1/interactive",
           color: "bg-gradient-to-r from-orange-400 to-amber-500"
         };
       case MoodType.ANXIOUS:
@@ -82,7 +80,6 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
   
   const studyAction = getStudyAction();
   
-  // Get mood-specific background styling
   const getMoodBackground = () => {
     if (!currentMood) return "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20";
     
@@ -198,6 +195,22 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
                   </Button>
                 </Link>
               </motion.div>
+
+              {/* Quick Daily Plan Links */}
+              <div className="grid grid-cols-2 gap-2">
+                <Link to="/dashboard/student/today">
+                  <Button size="sm" variant="outline" className="w-full">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    Today's Plan
+                  </Button>
+                </Link>
+                <Link to="/dashboard/student/flashcards/1/interactive">
+                  <Button size="sm" variant="outline" className="w-full">
+                    <BookOpen className="h-3 w-3 mr-1" />
+                    Quick Recall
+                  </Button>
+                </Link>
+              </div>
             </>
           )}
           
