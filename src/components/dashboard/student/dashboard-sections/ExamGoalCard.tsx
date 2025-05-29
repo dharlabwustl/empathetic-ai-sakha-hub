@@ -97,7 +97,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
         </div>
 
         <div className="pt-2 border-t">
-          <Link to="/dashboard/student/academic">
+          <Link to="/dashboard/student/academic-advisor">
             <Button size="sm" variant="ghost" className="w-full text-xs">
               <Zap className="h-3 w-3 mr-1" />
               Switch Exam & New Plan
