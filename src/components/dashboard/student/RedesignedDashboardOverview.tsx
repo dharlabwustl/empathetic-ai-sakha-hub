@@ -1,13 +1,13 @@
-
 import React, { useState } from 'react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import ComprehensiveAdaptiveDashboard from '../adaptive/ComprehensiveAdaptiveDashboard';
-import EnhancedDashboardHeader from './EnhancedDashboardHeader';
+import EnhancedNameHeaderCard from './EnhancedNameHeaderCard';
 import OnboardingHighlights from './OnboardingHighlights';
 import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import EnhancedExamReadinessScore from './dashboard-sections/EnhancedExamReadinessScore';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -43,23 +43,22 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
 
   return (
     <div className="space-y-6">
-      {/* Enhanced header with real-time clock, date, and study streak */}
-      <EnhancedDashboardHeader
-        userProfile={userProfile}
-        onViewStudyPlan={handleViewStudyPlan}
-        currentMood={currentMood}
-        onMoodChange={onMoodChange}
-      />
+      {/* Enhanced Name Header Card - NEW at top */}
+      <EnhancedNameHeaderCard userProfile={userProfile} />
 
-      {/* Comprehensive Adaptive Dashboard with exam readiness */}
+      {/* Exam Goals Section - keeping same as before but without enhanced header */}
       <ComprehensiveAdaptiveDashboard 
         userProfile={userProfile}
         kpis={kpis}
         currentMood={currentMood}
         onMoodChange={onMoodChange}
+        hideHeader={true}
       />
 
-      {/* Three cards section moved below exam readiness */}
+      {/* Enhanced Exam Readiness Score - at same position but enhanced */}
+      <EnhancedExamReadinessScore />
+
+      {/* Three Priority Cards Section - moved above from bottom */}
       <div className="grid gap-6">
         {/* Today's Top Priority Section with animations */}
         {showTopPriority && (
