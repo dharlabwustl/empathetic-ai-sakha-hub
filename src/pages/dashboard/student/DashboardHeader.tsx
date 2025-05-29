@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useNavigate } from 'react-router-dom';
+import TimeDisplayWidget from '@/components/dashboard/student/TimeDisplayWidget';
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -63,8 +64,17 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     navigate('/dashboard/student/profile');
   };
 
+  const handleUpgradeClick = () => {
+    navigate('https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/subscription');
+  };
+
   return (
     <div className="mb-6">
+      {/* Time Display Widget */}
+      <div className="mb-4">
+        <TimeDisplayWidget studyStreak={userProfile.studyStreak || 12} />
+      </div>
+
       <Card className="p-4 bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-800 dark:to-blue-900/20 border-purple-100 dark:border-purple-800/30">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* User avatar and greeting */}
@@ -82,7 +92,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 {/* Upgrade button */}
                 <Button
                   size="sm"
-                  onClick={() => navigate('/dashboard/student/subscription')}
+                  onClick={handleUpgradeClick}
                   className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-lg ml-2"
                 >
                   <Crown className="h-4 w-4 mr-1" />

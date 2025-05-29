@@ -3,10 +3,12 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp } from 'lucide-react';
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const NEETStrategyCard: React.FC = () => {
+  const navigate = useNavigate();
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
@@ -16,9 +18,20 @@ const NEETStrategyCard: React.FC = () => {
     "Regular practice"
   ];
 
+  const subjects = [
+    { name: "Physics", progress: 65, isWeak: true, color: "text-red-600" },
+    { name: "Chemistry", progress: 78, isWeak: false, color: "text-green-600" },
+    { name: "Biology", progress: 85, isWeak: false, color: "text-blue-600" }
+  ];
+
+  const handleViewPlan = () => {
+    navigate('/dashboard/student/study-plans');
+  };
+
   return (
     <motion.div
       className="relative"
+      data-tour="neet-strategy"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -153,6 +166,28 @@ const NEETStrategyCard: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Focus Areas - Subjects */}
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-orange-900 dark:text-orange-100 mb-2">Focus Areas</h4>
+            <div className="space-y-2">
+              {subjects.map((subject, index) => (
+                <div key={subject.name} className="flex items-center justify-between p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg border border-orange-100 dark:border-orange-800">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${subject.isWeak ? 'bg-red-500' : 'bg-green-500'}`} />
+                    <span className={`font-medium ${subject.color}`}>{subject.name}</span>
+                    {subject.isWeak && (
+                      <Badge variant="destructive" className="text-xs px-1 py-0">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        Weak
+                      </Badge>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium">{subject.progress}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
           
           <div className="space-y-2">
             {objectives.map((objective, index) => (
@@ -176,9 +211,10 @@ const NEETStrategyCard: React.FC = () => {
             <Button 
               size="sm" 
               className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              onClick={handleViewPlan}
             >
               <Zap className="h-4 w-4 mr-2" />
-              Start Today's Focus
+              View Your Plan
             </Button>
           </motion.div>
         </CardContent>
