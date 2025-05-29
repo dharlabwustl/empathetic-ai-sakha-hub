@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Brain, FileText } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Brain, FileText, ArrowRight, Target } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 
 interface StudyPlan {
@@ -22,6 +21,7 @@ interface StudyTask {
   difficulty: 'easy' | 'medium' | 'hard';
   timeEstimate: number;
   completed: boolean;
+  priority?: boolean;
 }
 
 interface TodaysPlanSectionProps {
@@ -45,7 +45,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
           type: 'concept',
           difficulty: 'medium',
           timeEstimate: 30,
-          completed: false
+          completed: false,
+          priority: true
         },
         {
           id: 'flashcard-1',
@@ -57,11 +58,12 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
         },
         {
           id: 'quiz-1',
-          title: "Algebra Practice Problems",
+          title: "NEET Biology Practice",
           type: 'quiz',
           difficulty: 'medium',
           timeEstimate: 25,
-          completed: false
+          completed: false,
+          priority: true
         }
       ]
     };
@@ -187,6 +189,9 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
     }
   };
 
+  const priorityTasks = plan.tasks.filter(task => task.priority);
+  const neetTasks = plan.tasks.filter(task => task.title.toLowerCase().includes('neet') || task.type === 'quiz');
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -218,9 +223,118 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             </div>
             <Progress value={plan.progress} className="h-2" />
           </div>
-          
+
+          {/* Today's Top Priority Section with Animations */}
+          {priorityTasks.length > 0 && (
+            <div className="relative">
+              {/* Premium animated border */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 p-[2px] animate-pulse">
+                <div className="bg-white dark:bg-gray-900 rounded-lg h-full w-full"></div>
+              </div>
+              
+              {/* Animated arrow indicator */}
+              <div className="absolute -left-6 top-1/2 transform -translate-y-1/2">
+                <ArrowRight className="h-5 w-5 text-purple-500 animate-bounce" />
+              </div>
+              
+              {/* Sparkling effect */}
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+              
+              <div className="relative bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-lg border-2 border-transparent">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="h-5 w-5 text-purple-600 animate-pulse" />
+                  <h3 className="font-bold text-purple-800 dark:text-purple-200">Today's Top Priority</h3>
+                  <div className="flex gap-1">
+                    <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse"></div>
+                    <div className="w-1 h-1 bg-pink-500 rounded-full animate-pulse delay-100"></div>
+                    <div className="w-1 h-1 bg-purple-500 rounded-full animate-pulse delay-200"></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {priorityTasks.map((task, idx) => (
+                    <div 
+                      key={idx}
+                      className="p-3 bg-white/80 dark:bg-gray-800/80 border rounded-lg cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all duration-200 transform hover:scale-[1.02]"
+                      onClick={() => handleTaskClick(task)}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-800/50 dark:text-purple-300">
+                            {getTaskIcon(task.type)}
+                          </div>
+                          <span className="font-medium">{task.title}</span>
+                        </div>
+                        {getDifficultyBadge(task.difficulty)}
+                      </div>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>{task.timeEstimate} min</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Today's NEET Study Plan Section with Animations */}
+          {neetTasks.length > 0 && (
+            <div className="relative mt-6">
+              {/* Premium animated border */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 p-[2px] animate-pulse">
+                <div className="bg-white dark:bg-gray-900 rounded-lg h-full w-full"></div>
+              </div>
+              
+              {/* Animated arrow indicator */}
+              <div className="absolute -left-6 top-1/2 transform -translate-y-1/2">
+                <ArrowRight className="h-5 w-5 text-blue-500 animate-bounce delay-75" />
+              </div>
+              
+              {/* Sparkling effect */}
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping delay-150"></div>
+              
+              <div className="relative bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-lg border-2 border-transparent">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="h-5 w-5 text-blue-600 animate-pulse" />
+                  <h3 className="font-bold text-blue-800 dark:text-blue-200">Today's NEET Study Plan</h3>
+                  <div className="flex gap-1">
+                    <div className="w-1 h-1 bg-blue-500 rounded-full animate-pulse delay-75"></div>
+                    <div className="w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-150"></div>
+                    <div className="w-1 h-1 bg-blue-500 rounded-full animate-pulse delay-225"></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {neetTasks.map((task, idx) => (
+                    <div 
+                      key={idx}
+                      className="p-3 bg-white/80 dark:bg-gray-800/80 border rounded-lg cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 transform hover:scale-[1.02]"
+                      onClick={() => handleTaskClick(task)}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-800/50 dark:text-blue-300">
+                            {getTaskIcon(task.type)}
+                          </div>
+                          <span className="font-medium">{task.title}</span>
+                        </div>
+                        {getDifficultyBadge(task.difficulty)}
+                      </div>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>{task.timeEstimate} min</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Regular Tasks */}
           <div className="space-y-3 pt-2">
-            {plan.tasks.map((task, idx) => (
+            {plan.tasks.filter(task => !task.priority && !task.title.toLowerCase().includes('neet')).map((task, idx) => (
               <div 
                 key={idx}
                 className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
