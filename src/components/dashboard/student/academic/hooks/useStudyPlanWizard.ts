@@ -24,7 +24,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
     learningPace: 'moderate',
-    examDate: new Date().toISOString().split('T')[0]
+    examDate: new Date()
   });
 
   const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
@@ -78,33 +78,27 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         name: subject, 
         color: getRandomColor(),
         hoursPerWeek: formData.studyHoursPerDay || 4,
-        weeklyHours: formData.studyHoursPerDay || 4,
         priority: 'medium' as const,
         proficiency: 'strong' as const,
-        completed: false,
-        progress: 0
+        completed: false 
       })),
       ...mediumSubjects.map(subject => ({ 
         id: `subject-${Math.random().toString(36).substr(2, 9)}`,
         name: subject, 
         color: getRandomColor(),
         hoursPerWeek: (formData.studyHoursPerDay || 4) * 1.2,
-        weeklyHours: (formData.studyHoursPerDay || 4) * 1.2,
         priority: 'medium' as const,
         proficiency: 'medium' as const,
-        completed: false,
-        progress: 0
+        completed: false 
       })),
       ...weakSubjects.map(subject => ({ 
         id: `subject-${Math.random().toString(36).substr(2, 9)}`,
         name: subject, 
         color: getRandomColor(),
         hoursPerWeek: (formData.studyHoursPerDay || 4) * 1.5,
-        weeklyHours: (formData.studyHoursPerDay || 4) * 1.5,
         priority: 'high' as const,
         proficiency: 'weak' as const,
-        completed: false,
-        progress: 0
+        completed: false 
       }))
     ];
     return subjectsList;
@@ -140,8 +134,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         title: formData.examGoal || '',
         subjects: getSubjectsProficiencyList(),
         weeklyHours: formData.studyHoursPerDay ? formData.studyHoursPerDay * 7 : 20,
-        status: 'active' as const,
-        examDate: formData.examDate || new Date().toISOString().split('T')[0]
+        status: 'active' as const
       } as NewStudyPlan;
       
       onCreatePlan(updatedFormData);
@@ -159,7 +152,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         studyHoursPerDay: 6,
         preferredStudyTime: 'morning',
         learningPace: 'moderate',
-        examDate: new Date().toISOString().split('T')[0]
+        examDate: new Date()
       });
       onClose();
       toast({
