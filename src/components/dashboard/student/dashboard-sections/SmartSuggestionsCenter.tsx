@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Rocket, Brain, Target, Star, ArrowRight, ArrowDown, Sparkles } from 'lucide-react';
+import { Rocket, Brain, Target, Star, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
+import { SmartSuggestionBox } from '../shared/SmartSuggestionBox';
 
 interface SmartSuggestionsCenterProps {
   performance: {
@@ -68,43 +68,19 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
   const suggestion = getSuggestion();
 
   return (
-    <Card className="overflow-hidden border-0 shadow-md relative animate-pulse border-2 border-orange-300 shadow-lg shadow-orange-200/50">
-      {/* Enhanced animated arrow for Top Priority with glow effect */}
-      <div className="absolute -top-4 left-4 animate-bounce z-10">
-        <div className="relative">
-          <ArrowDown className="h-7 w-7 text-orange-500 drop-shadow-lg filter animate-pulse" />
-          <div className="absolute inset-0 h-7 w-7 text-orange-300 animate-ping">
-            <ArrowDown className="h-7 w-7" />
-          </div>
-        </div>
-      </div>
-      
-      {/* Enhanced sparkle animations with varying sizes and delays */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-3 right-3 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-ping"></div>
-        <div className="absolute top-6 right-8 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-        <div className="absolute bottom-4 left-4 w-2 h-2 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.6s' }}></div>
-        <div className="absolute top-8 left-3 w-1 h-1 bg-orange-400 rounded-full animate-pulse" style={{ animationDelay: '1.2s' }}></div>
-        <div className="absolute bottom-8 right-5 w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" style={{ animationDelay: '1.8s' }}></div>
-        <div className="absolute top-1/2 right-2 w-1 h-1 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '2.4s' }}></div>
-        <div className="absolute bottom-1/2 left-6 w-1.5 h-1.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
-      </div>
-
-      {/* Enhanced gradient overlay with multiple layers */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/70 via-transparent to-red-50/40 pointer-events-none"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-yellow-50/30 to-orange-50/50 pointer-events-none"></div>
-
-      <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 pb-2 relative z-10 border-b border-orange-100/50">
+    <Card className="overflow-hidden border-0 shadow-md">
+      <CardHeader className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Brain className="h-6 w-6 text-orange-500 animate-pulse" />
-          Today's Top Priority
-          <Badge variant="secondary" className="text-xs animate-pulse bg-orange-100 text-orange-800 border-orange-300 shadow-sm">
-            PRIORITY!
-          </Badge>
-          <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" />
+          <Brain className="h-5 w-5 text-violet-500" />
+          Smart Suggestions
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 pb-5 relative z-10">
+      <CardContent className="p-4 pb-5">
+        {/* Dynamic time-based suggestions */}
+        <div className="mb-4">
+          <SmartSuggestionBox />
+        </div>
+        
         <div className={`p-4 rounded-lg ${suggestion.color} border mb-3 shadow-sm`}>
           <div className="flex items-start gap-3">
             {suggestion.icon}
@@ -125,7 +101,7 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
           
           <Link to={suggestion.actionLink} className="no-underline">
             <Button 
-              className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
+              className={`w-full bg-gradient-to-r ${suggestion.gradient} hover:opacity-90 text-white`}
             >
               {suggestion.actionText} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

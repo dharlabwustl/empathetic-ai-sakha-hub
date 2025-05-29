@@ -3,10 +3,7 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { UserProfileBase, SubscriptionType } from "@/types/user/base";
-import { Crown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;
@@ -14,8 +11,6 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
-  const navigate = useNavigate();
-  
   // Determine subscription display info
   const getSubscriptionInfo = () => {
     let planType = "free";
@@ -49,7 +44,7 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
     const color = subscriptionColors[planType.toLowerCase()] || subscriptionColors.free;
     const label = subscriptionLabels[planType.toLowerCase()] || "Unknown";
     
-    return { color, label, planType: planType.toLowerCase() };
+    return { color, label };
   };
   
   const subscriptionInfo = getSubscriptionInfo();
@@ -68,10 +63,6 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
   };
   
   const avatarUrl = userProfile.avatar || '';
-
-  const handleUpgrade = () => {
-    navigate('/dashboard/student/subscription');
-  };
   
   return (
     <Card className={`overflow-hidden ${className}`}>
@@ -86,19 +77,7 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
             </Avatar>
             
             <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h3 className="text-lg font-semibold">{userProfile.name}</h3>
-                {subscriptionInfo.planType === 'free' && (
-                  <Button
-                    size="sm"
-                    onClick={handleUpgrade}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg border-0 transition-all duration-200 hover:shadow-xl"
-                  >
-                    <Crown className="h-3 w-3 mr-1" />
-                    Upgrade
-                  </Button>
-                )}
-              </div>
+              <h3 className="text-lg font-semibold">{userProfile.name}</h3>
               <div className="flex items-center mt-1 space-x-2">
                 <Badge variant="outline" className={subscriptionInfo.color}>
                   {subscriptionInfo.label}

@@ -1,12 +1,11 @@
-
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEnhancedVoiceAssistant } from '@/hooks/useEnhancedVoiceAssistant';
 
 interface HomepageVoiceAssistantProps {
   onSpeakingChange?: (isSpeaking: boolean) => void;
   onListeningChange?: (isListening: boolean) => void;
-  onStopSpeaking?: (handler: () => void) => void;
+  onStopSpeaking?: () => void;
 }
 
 const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
@@ -15,9 +14,6 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
   onStopSpeaking
 }) => {
   const navigate = useNavigate();
-  const hasSpokenWelcomeRef = useRef(false);
-  const lastSpeechTimeRef = useRef(0);
-  const MIN_SPEECH_INTERVAL = 30000; // 30 seconds between speeches
   
   const processHomepageCommand = useCallback((command: string, confidence: number) => {
     const lowerCommand = command.toLowerCase().trim();
@@ -29,7 +25,7 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     if (lowerCommand.includes('sign up') || lowerCommand.includes('signup') || 
         lowerCommand.includes('register') || lowerCommand.includes('join') ||
         lowerCommand.includes('create account')) {
-      speak("Great! I'll take you to our signup page where you can create your free account and start your exam preparation journey with Prep-Zer.");
+      speak("Great! I'll take you to our signup page where you can create your free account and start your exam preparation journey.");
       setTimeout(() => navigate('/signup'), 1000);
       return;
     }
@@ -37,7 +33,7 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     // Free trial commands
     if (lowerCommand.includes('free trial') || lowerCommand.includes('trial') ||
         lowerCommand.includes('try free') || lowerCommand.includes('start free')) {
-      speak("Excellent! Prep-Zer offers a 7-day free trial with full access to our emotionally intelligent study platform. Let me guide you to get started!");
+      speak("Excellent! PREPZR offers a 7-day free trial with full access to our emotionally intelligent study platform. Let me guide you to get started!");
       setTimeout(() => navigate('/signup?trial=true'), 1000);
       return;
     }
@@ -45,7 +41,7 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     // Login commands
     if (lowerCommand.includes('login') || lowerCommand.includes('log in') ||
         lowerCommand.includes('sign in') || lowerCommand.includes('signin')) {
-      speak("I'll take you to the login page. Welcome back to Prep-Zer!");
+      speak("I'll take you to the login page. Welcome back to PREPZR!");
       setTimeout(() => navigate('/login'), 1000);
       return;
     }
@@ -53,7 +49,7 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     // Exam readiness test commands
     if (lowerCommand.includes('exam readiness') || lowerCommand.includes('readiness test') ||
         lowerCommand.includes('assessment') || lowerCommand.includes('test my level')) {
-      speak("Our Exam Readiness Test is a great way to understand your current preparation level. It analyzes your strengths and weaknesses across subjects. You can take it after signing up with Prep-Zer!");
+      speak("Our Exam Readiness Test is a great way to understand your current preparation level. It analyzes your strengths and weaknesses across subjects. You can take it after signing up!");
       // Trigger exam readiness analyzer
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
@@ -64,23 +60,21 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     // Scholarship test commands
     if (lowerCommand.includes('scholarship') || lowerCommand.includes('discount') ||
         lowerCommand.includes('scholarship test')) {
-      speak("Our scholarship test can help you earn discounts on Prep-Zer premium plans! High performers can get up to 50% off. You can take it after creating your account.");
+      speak("Our scholarship test can help you earn discounts on PREPZR premium plans! High performers can get up to 50% off. You can take it after creating your account.");
       return;
     }
 
     // About PREPZR commands
     if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('about prepzr') ||
-        lowerCommand.includes('tell me about') || lowerCommand.includes('explain prepzr') ||
-        lowerCommand.includes('what is prep zer') || lowerCommand.includes('about prep zer')) {
-      speak("Prep-Zer is India's first emotionally intelligent exam preparation platform. We understand not just what you need to learn, but how you feel while learning. Our AI adapts to your mood, motivation levels, and learning patterns to create a supportive study experience tailored just for you.");
+        lowerCommand.includes('tell me about') || lowerCommand.includes('explain prepzr')) {
+      speak("PREPZR is India's first emotionally intelligent exam preparation platform. We understand not just what you need to learn, but how you feel while learning. Our AI adapts to your mood, motivation levels, and learning patterns to create a supportive study experience tailored just for you.");
       return;
     }
 
     // Benefits and features
     if (lowerCommand.includes('benefits') || lowerCommand.includes('features') ||
-        lowerCommand.includes('why prepzr') || lowerCommand.includes('how does it help') ||
-        lowerCommand.includes('why prep zer')) {
-      speak("Prep-Zer offers personalized study plans, mood-based learning adaptation, comprehensive practice tests, and 24/7 AI support. Unlike traditional coaching, we focus on your emotional well-being during exam preparation, leading to better results and reduced stress.");
+        lowerCommand.includes('why prepzr') || lowerCommand.includes('how does it help')) {
+      speak("PREPZR offers personalized study plans, mood-based learning adaptation, comprehensive practice tests, and 24/7 AI support. Unlike traditional coaching, we focus on your emotional well-being during exam preparation, leading to better results and reduced stress.");
       return;
     }
 
@@ -94,20 +88,20 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     // Comparison with coaching institutes
     if (lowerCommand.includes('coaching') || lowerCommand.includes('institute') ||
         lowerCommand.includes('traditional') || lowerCommand.includes('better than')) {
-      speak("Unlike traditional coaching institutes, Prep-Zer offers 24/7 accessibility, personalized attention, emotional intelligence, and adaptive learning. You study at your own pace without the stress of fixed schedules or one-size-fits-all approaches.");
+      speak("Unlike traditional coaching institutes, PREPZR offers 24/7 accessibility, personalized attention, emotional intelligence, and adaptive learning. You study at your own pace without the stress of fixed schedules or one-size-fits-all approaches.");
       return;
     }
 
     // Help and general queries
     if (lowerCommand.includes('help') || lowerCommand.includes('how') ||
         lowerCommand.includes('guide') || lowerCommand.includes('start')) {
-      speak("I'm here to help you learn about Prep-Zer! You can ask me about our features, free trial, exam preparation methods, or anything else. Just say 'free trial' to get started, or 'sign up' to create your account!");
+      speak("I'm here to help you learn about PREPZR! You can ask me about our features, free trial, exam preparation methods, or anything else. Just say 'free trial' to get started, or 'sign up' to create your account!");
       return;
     }
 
     // Default response for unrecognized commands
     if (lowerCommand.length > 3) {
-      speak("I'm Prep-Zer's voice assistant! I can help you learn about our exam preparation platform, sign up for a free trial, or answer questions about our features. What would you like to know?");
+      speak("I'm PREPZR's voice assistant! I can help you learn about our exam preparation platform, sign up for a free trial, or answer questions about our features. What would you like to know?");
     }
   }, [navigate]);
 
@@ -121,7 +115,7 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
   } = useEnhancedVoiceAssistant({
     context: 'homepage',
     onCommand: processHomepageCommand,
-    reminderInterval: 60 // Longer interval to prevent repetition
+    reminderInterval: 45
   });
 
   // Notify parent component about speaking and listening state
@@ -140,33 +134,19 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
   // Expose stop speaking functionality
   useEffect(() => {
     if (onStopSpeaking) {
-      onStopSpeaking(stopSpeaking);
+      onStopSpeaking = stopSpeaking;
     }
   }, [stopSpeaking, onStopSpeaking]);
 
-  // Enhanced welcome message with better timing and repetition prevention
+  // Auto-start listening when component mounts
   useEffect(() => {
-    if (isSupported && !hasSpokenWelcomeRef.current) {
-      const now = Date.now();
-      if (now - lastSpeechTimeRef.current < MIN_SPEECH_INTERVAL) {
-        return; // Skip if too soon
-      }
-
+    if (isSupported) {
       // Small delay to ensure proper initialization
       const timer = setTimeout(() => {
-        if (!hasSpokenWelcomeRef.current) {
-          hasSpokenWelcomeRef.current = true;
-          lastSpeechTimeRef.current = now;
-          
-          // Start listening first
-          startListening();
-          
-          // Then provide welcome message after a brief pause
-          setTimeout(() => {
-            speak("Welcome to Prep-Zer! I'm your AI guide. Ask me about our emotionally intelligent exam preparation platform, or say 'free trial' to get started!");
-          }, 2000);
-        }
-      }, 1500);
+        startListening();
+        // Welcome message
+        speak("Welcome to PREPZR! I'm your AI guide. Ask me about our emotionally intelligent exam preparation platform, or say 'free trial' to get started!");
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
