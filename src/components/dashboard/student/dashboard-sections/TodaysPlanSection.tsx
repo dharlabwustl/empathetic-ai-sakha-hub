@@ -47,9 +47,9 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300';
-      case 'current': return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300';
-      default: return 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400';
+      case 'completed': return 'bg-green-100/80 text-green-800 border-green-300 dark:bg-green-950/30 dark:text-green-300';
+      case 'current': return 'bg-blue-100/80 text-blue-800 border-blue-300 dark:bg-blue-950/30 dark:text-blue-300';
+      default: return 'bg-gray-100/80 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400';
     }
   };
 
@@ -61,8 +61,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
       transition={{ duration: 0.6, delay: 0.1 }}
       data-tour="study-plan"
     >
-      <Card className="relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
-        <CardHeader className="pb-3 relative z-10">
+      <Card className="premium-card shadow-lg overflow-hidden">
+        <CardHeader className="pb-3 relative z-10 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/20 dark:to-indigo-950/20">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
               <motion.div
@@ -79,15 +79,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                 <Calendar className="h-5 w-5 text-blue-600" />
               </motion.div>
               <motion.span
-                animate={{ 
-                  color: ["#2563eb", "#3b82f6", "#2563eb"]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="font-bold"
+                className="font-bold gradient-text"
               >
                 Live Daily NEET Plan
               </motion.span>
@@ -118,7 +110,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
         </CardHeader>
         <CardContent className="space-y-4 relative z-10">
           <motion.div 
-            className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200 dark:border-blue-700"
+            className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200/50 dark:border-blue-700/50 backdrop-blur-sm"
             animate={{ 
               boxShadow: ["0 0 10px rgba(59, 130, 246, 0.3)", "0 0 20px rgba(59, 130, 246, 0.5)", "0 0 10px rgba(59, 130, 246, 0.3)"]
             }}
@@ -152,12 +144,12 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
             {sessions.map((session, index) => (
               <motion.div
                 key={index}
-                className={`p-3 rounded-lg border ${
+                className={`p-3 rounded-lg border backdrop-blur-sm ${
                   session.status === 'completed' 
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
+                    ? 'bg-green-50/80 border-green-200/60 dark:bg-green-950/20 dark:border-green-700/50'
                     : session.status === 'current'
-                    ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
-                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800/50 dark:border-gray-700'
+                    ? 'bg-blue-50/80 border-blue-200/60 dark:bg-blue-950/20 dark:border-blue-700/50'
+                    : 'bg-gray-50/80 border-gray-200/60 dark:bg-gray-800/50 dark:border-gray-700/50'
                 }`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -199,25 +191,25 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                 {session.status !== 'completed' && (
                   <div className="flex gap-1 mt-2">
                     <Link to={`/dashboard/student/concepts/${session.subject.toLowerCase()}`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 hover:bg-blue-50 border-blue-200">
                         <BookOpen className="h-2 w-2 mr-1" />
                         Study
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/flashcards/${session.subject.toLowerCase()}`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                    <Link to="/dashboard/student/flashcards/1/interactive">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 hover:bg-green-50 border-green-200">
                         <RotateCcw className="h-2 w-2 mr-1" />
                         Recall
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/formula-practice/${session.subject.toLowerCase()}`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                    <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 hover:bg-purple-50 border-purple-200">
                         <Zap className="h-2 w-2 mr-1" />
                         Formula
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/practice-exam/${session.subject.toLowerCase()}`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
+                    <Link to="/dashboard/student/practice-exam/2/start">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 hover:bg-yellow-50 border-yellow-200">
                         <Trophy className="h-2 w-2 mr-1" />
                         Exam
                       </Button>
@@ -240,8 +232,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
           >
             <Button 
               size="sm" 
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold"
-              onClick={() => navigate('/dashboard/student/study-plan')}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg"
+              onClick={() => navigate('/dashboard/student/academic')}
             >
               <Calendar className="h-4 w-4 mr-2" />
               Continue Live Plan
