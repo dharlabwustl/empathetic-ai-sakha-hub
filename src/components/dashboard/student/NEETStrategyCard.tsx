@@ -47,44 +47,17 @@ const NEETStrategyCard: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="h-5 w-5 text-blue-600" />
-          <motion.span
-            animate={{ 
-              color: ["#2563eb", "#7c3aed", "#2563eb"]
-            }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="font-bold"
-          >
-            NEET Strategy Card
-          </motion.span>
+          NEET Strategy Card
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <Button 
-            variant="outline" 
-            className="w-full justify-start"
-            onClick={() => navigate('/dashboard/student/academic')}
-          >
+          <Button variant="outline" className="w-full justify-start">
             <BookOpen className="h-4 w-4 mr-2" />
             Adaptive Plan
           </Button>
           <Badge className="w-full justify-center bg-blue-100 text-blue-800">
-            <motion.span
-              animate={{ 
-                scale: [1, 1.05, 1]
-              }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              Personalized Strategy
-            </motion.span>
+            Personalized Strategy
           </Badge>
           
           <div className="space-y-2">

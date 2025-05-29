@@ -18,7 +18,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
   // Get recommendations based on current mood
   const recommendation = currentMood ? getStudyRecommendationForMood(currentMood) : "";
   
-  // Get study action based on mood - FIXED ROUTING
+  // Get study action based on mood
   const getStudyAction = () => {
     if (!currentMood) return { text: "Start Today's Plan", link: "/dashboard/student/today" };
     
@@ -26,7 +26,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.HAPPY:
         return { 
           text: "Take on a Challenge", 
-          link: "/dashboard/student/practice-exam/2/start", // FIXED: Proper exam route
+          link: "/dashboard/student/practice-exam",
           color: "bg-gradient-to-r from-yellow-400 to-amber-500"
         };
       case MoodType.MOTIVATED:
@@ -38,7 +38,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.FOCUSED:
         return { 
           text: "Complete Practice Exam", 
-          link: "/dashboard/student/practice-exam/2/start", // FIXED: Proper exam route
+          link: "/dashboard/student/practice-exam",
           color: "bg-gradient-to-r from-blue-500 to-indigo-600"
         };
       case MoodType.NEUTRAL:
@@ -50,7 +50,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.TIRED:
         return { 
           text: "Review Simple Flashcards", 
-          link: "/dashboard/student/flashcards/1/interactive", // FIXED: Proper flashcard route
+          link: "/dashboard/student/flashcards",
           color: "bg-gradient-to-r from-orange-400 to-amber-500"
         };
       case MoodType.ANXIOUS:

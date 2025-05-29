@@ -164,7 +164,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                     Study Concept
                   </Button>
                 </Link>
-                <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
+                <Link to={`/dashboard/student/flashcards/${topic.subject.toLowerCase()}`} className="flex-1">
                   <Button 
                     size="sm" 
                     variant="outline"
