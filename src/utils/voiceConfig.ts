@@ -57,9 +57,9 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
 export const getDefaultVoiceConfig = (): VoiceConfig => {
   return {
     voice: getPreferredFemaleVoice(),
-    rate: 0.9,
+    rate: 0.7,
     pitch: 1.0,
-    volume: 0.7, // Reduced volume to prevent echo
+    volume: 0.3, // Very low volume to prevent echo
     language: 'en-US'
   };
 };
@@ -67,8 +67,8 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
 // Enhanced message tracking with session-based prevention and echo prevention
 const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
 const SESSION_ID = Date.now().toString();
-const MESSAGE_COOLDOWN = 180000; // 3 minutes cooldown for same message
-const SPEECH_DELAY = 500; // Delay before speaking to prevent echo
+const MESSAGE_COOLDOWN = 600000; // 10 minutes cooldown for same message
+const SPEECH_DELAY = 2000; // Longer delay before speaking to prevent echo
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -76,13 +76,20 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Enhanced pronunciation fixes for PREPZR
+  // Enhanced pronunciation fixes for PREPZR with more variations
   let processedText = text
-    .replace(/PREPZR/gi, 'Prep-Zer')
-    .replace(/Sakha AI/gi, 'Prep-Zer AI')
-    .replace(/PrepZR/gi, 'Prep-Zer')
-    .replace(/prep zr/gi, 'Prep-Zer')
-    .replace(/prepzr/gi, 'Prep-Zer');
+    .replace(/PREPZR/gi, 'Prep Zer')
+    .replace(/Sakha AI/gi, 'Prep Zer AI')
+    .replace(/PrepZR/gi, 'Prep Zer')
+    .replace(/prep zr/gi, 'Prep Zer')
+    .replace(/prepzr/gi, 'Prep Zer')
+    .replace(/prep zer/gi, 'Prep Zer')
+    .replace(/prep-zer/gi, 'Prep Zer')
+    .replace(/prepzer/gi, 'Prep Zer')
+    .replace(/PREP ZR/gi, 'Prep Zer')
+    .replace(/prep ZR/gi, 'Prep Zer')
+    .replace(/Prepzr/gi, 'Prep Zer')
+    .replace(/PrepZer/gi, 'Prep Zer');
     
   utterance.text = processedText;
   utterance.lang = finalConfig.language;
@@ -122,10 +129,16 @@ export const speakWithFemaleVoice = (
       return;
     }
     
-    // Add delay to prevent echo
+    // Cancel any ongoing speech to prevent overlap
+    window.speechSynthesis.cancel();
+    
+    // Add longer delay to prevent echo
     setTimeout(() => {
-      // Cancel any ongoing speech to prevent overlap
-      window.speechSynthesis.cancel();
+      // Check if speech synthesis is still available
+      if (!window.speechSynthesis) {
+        resolve(false);
+        return;
+      }
       
       const utterance = createFemaleUtterance(text, config);
       
@@ -160,7 +173,7 @@ export const speakWithFemaleVoice = (
 };
 
 // Smart breaks between messages
-export const createIntelligentPause = (duration: number = 2000): Promise<void> => {
+export const createIntelligentPause = (duration: number = 4000): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, duration));
 };
 

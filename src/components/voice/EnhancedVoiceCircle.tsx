@@ -53,9 +53,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Removed pulse ring to prevent vibration and echo */}
-      
-      {/* Main button - no vibration animations */}
+      {/* Main button - no pulse ring or vibration to prevent echo */}
       <Button
         onClick={handleClick}
         variant="ghost"
@@ -88,7 +86,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   );
 };
 
-// Floating voice button without vibration
+// Simplified floating voice button without text overlays or vibrations
 interface FloatingVoiceButtonProps {
   isSpeaking?: boolean;
   isListening?: boolean;
@@ -116,15 +114,6 @@ export const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
           className="drop-shadow-lg"
         />
       </div>
-      
-      {/* Status text */}
-      {(isSpeaking || isListening) && (
-        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-          <div className="bg-black/80 text-white text-xs px-2 py-1 rounded">
-            {isSpeaking ? 'PREPZR speaking... (tap to stop)' : 'Listening...'}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
