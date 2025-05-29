@@ -5,7 +5,7 @@ import { MoodType } from '@/types/user/base';
 import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood } from '../mood-tracking/moodUtils';
 import MoodLogButton from '../mood-tracking/MoodLogButton';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, TrendingUp, Clock } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock }  from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -26,7 +26,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.HAPPY:
         return { 
           text: "Take on a Challenge", 
-          link: "/dashboard/student/practice-exam",
+          link: "/dashboard/student/practice-exam/2/start",
           color: "bg-gradient-to-r from-yellow-400 to-amber-500"
         };
       case MoodType.MOTIVATED:
@@ -38,7 +38,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.FOCUSED:
         return { 
           text: "Complete Practice Exam", 
-          link: "/dashboard/student/practice-exam",
+          link: "/dashboard/student/practice-exam/2/start",
           color: "bg-gradient-to-r from-blue-500 to-indigo-600"
         };
       case MoodType.NEUTRAL:
@@ -50,7 +50,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       case MoodType.TIRED:
         return { 
           text: "Review Simple Flashcards", 
-          link: "/dashboard/student/flashcards",
+          link: "/dashboard/student/flashcards/1/interactive",
           color: "bg-gradient-to-r from-orange-400 to-amber-500"
         };
       case MoodType.ANXIOUS:
