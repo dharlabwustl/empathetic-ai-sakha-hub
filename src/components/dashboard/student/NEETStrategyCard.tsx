@@ -3,12 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 
 const NEETStrategyCard: React.FC = () => {
-  const navigate = useNavigate();
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
@@ -18,19 +16,8 @@ const NEETStrategyCard: React.FC = () => {
     "Regular practice"
   ];
 
-  const subjects = [
-    { name: 'Physics', progress: 65, isWeak: false, hours: 2 },
-    { name: 'Chemistry', progress: 72, isWeak: false, hours: 2 },
-    { name: 'Biology', progress: 48, isWeak: true, hours: 2.5 }
-  ];
-
-  const handleViewPlan = () => {
-    navigate('/dashboard/student/academic');
-  };
-
   return (
     <motion.div
-      id="neet-strategy-card"
       className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -131,7 +118,7 @@ const NEETStrategyCard: React.FC = () => {
                 <Clock className="h-4 w-4 text-orange-600" />
                 <div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">Total Study Time</p>
-                  <p className="font-semibold text-orange-900 dark:text-orange-100">6.5 hours/day</p>
+                  <p className="font-semibold text-orange-900 dark:text-orange-100">6 hours/day</p>
                 </div>
               </div>
             </div>
@@ -166,35 +153,6 @@ const NEETStrategyCard: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Subject Focus Areas */}
-          <div className="space-y-2">
-            <h4 className="font-medium text-orange-900 dark:text-orange-100 mb-2">Focus Areas</h4>
-            {subjects.map((subject, index) => (
-              <motion.div 
-                key={index} 
-                className="flex items-center justify-between p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg border border-orange-200 dark:border-orange-700"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-orange-600" />
-                  <span className="text-sm font-medium">{subject.name}</span>
-                  {subject.isWeak && (
-                    <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200 text-xs">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      Weak
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">{subject.hours}h/day</p>
-                  <p className="text-xs font-medium">{subject.progress}%</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
           
           <div className="space-y-2">
             {objectives.map((objective, index) => (
@@ -203,7 +161,7 @@ const NEETStrategyCard: React.FC = () => {
                 className="flex items-center gap-2 text-sm"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.2 + 0.3 }}
+                transition={{ delay: index * 0.2 }}
               >
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <span className="text-gray-700 dark:text-gray-300">{objective}</span>
@@ -218,10 +176,9 @@ const NEETStrategyCard: React.FC = () => {
             <Button 
               size="sm" 
               className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-              onClick={handleViewPlan}
             >
               <Zap className="h-4 w-4 mr-2" />
-              View Your Plan
+              Start Today's Focus
             </Button>
           </motion.div>
         </CardContent>
