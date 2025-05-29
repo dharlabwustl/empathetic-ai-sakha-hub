@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, CheckCircle, Target, Sparkles, X, RotateCcw, Trophy, Zap, Play } from 'lucide-react';
+import { Calendar, Clock, BookOpen, CheckCircle, Target, Sparkles, X, RotateCcw, Trophy, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -18,20 +18,19 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
   const navigate = useNavigate();
 
   const todaysPlan = {
-    totalSessions: 5,
-    completedSessions: 2,
-    currentSession: "Physics - Wave Optics",
-    nextSession: "Biology - Genetics",
-    studyTime: "7 hours",
-    progress: 40
+    totalSessions: 4,
+    completedSessions: 1,
+    currentSession: "Chemistry - Organic Compounds",
+    nextSession: "Physics - Wave Optics",
+    studyTime: "6 hours",
+    progress: 25
   };
 
   const sessions = [
     { subject: "Chemistry", topic: "Organic Compounds", time: "9:00 AM", status: "completed", difficulty: "Medium" },
-    { subject: "Mathematics", topic: "Integration", time: "10:30 AM", status: "completed", difficulty: "Easy" },
     { subject: "Physics", topic: "Wave Optics", time: "11:00 AM", status: "current", difficulty: "High" },
     { subject: "Biology", topic: "Genetics", time: "2:00 PM", status: "pending", difficulty: "Medium" },
-    { subject: "Chemistry", topic: "Chemical Kinetics", time: "4:00 PM", status: "pending", difficulty: "High" }
+    { subject: "Mathematics", topic: "Integration", time: "4:00 PM", status: "pending", difficulty: "Easy" }
   ];
 
   const getMoodEmoji = () => {
@@ -62,8 +61,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
       transition={{ duration: 0.6, delay: 0.1 }}
       data-tour="study-plan"
     >
-      <Card className="relative shadow-xl border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
-        <CardHeader className="pb-3 relative z-10 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
+      <Card className="relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
+        <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
               <motion.div
@@ -92,18 +91,6 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
               >
                 Live Daily NEET Plan
               </motion.span>
-              <motion.div
-                animate={{ 
-                  scale: [1, 1.2, 1]
-                }}
-                transition={{ 
-                  duration: 1.5, 
-                  repeat: Infinity
-                }}
-                className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold"
-              >
-                LIVE
-              </motion.div>
               <motion.span 
                 className="text-xl ml-2"
                 animate={{ 
@@ -131,7 +118,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
         </CardHeader>
         <CardContent className="space-y-4 relative z-10">
           <motion.div 
-            className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-lg border border-blue-200 dark:border-blue-700"
+            className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200 dark:border-blue-700"
             animate={{ 
               boxShadow: ["0 0 10px rgba(59, 130, 246, 0.3)", "0 0 20px rgba(59, 130, 246, 0.5)", "0 0 10px rgba(59, 130, 246, 0.3)"]
             }}
@@ -191,7 +178,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                           repeat: Infinity
                         }}
                       >
-                        <Play className="h-4 w-4 text-blue-600" />
+                        <Clock className="h-4 w-4 text-blue-600" />
                       </motion.div>
                     )}
                     {session.status === 'pending' && <BookOpen className="h-4 w-4 text-gray-500" />}
@@ -204,44 +191,33 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(session.status)}>
-                      {session.status}
-                    </Badge>
-                    {session.status === 'current' && (
-                      <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold"
-                      >
-                        NOW
-                      </motion.div>
-                    )}
-                  </div>
+                  <Badge className={getStatusColor(session.status)}>
+                    {session.status}
+                  </Badge>
                 </div>
                 
                 {session.status !== 'completed' && (
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-1 mt-2">
-                    <Link to={`/dashboard/student/concepts`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 w-full">
+                  <div className="flex gap-1 mt-2">
+                    <Link to={`/dashboard/student/concepts/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <BookOpen className="h-2 w-2 mr-1" />
                         Study
                       </Button>
                     </Link>
-                    <Link to="/dashboard/student/flashcards/1/interactive">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 w-full">
+                    <Link to={`/dashboard/student/flashcards/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <RotateCcw className="h-2 w-2 mr-1" />
                         Recall
                       </Button>
                     </Link>
-                    <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 w-full">
+                    <Link to={`/dashboard/student/formula-practice/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Zap className="h-2 w-2 mr-1" />
                         Formula
                       </Button>
                     </Link>
-                    <Link to="/dashboard/student/practice-exam/2/start">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 w-full">
+                    <Link to={`/dashboard/student/practice-exam/${session.subject.toLowerCase()}`}>
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Trophy className="h-2 w-2 mr-1" />
                         Exam
                       </Button>
@@ -264,7 +240,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
           >
             <Button 
               size="sm" 
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold"
               onClick={() => navigate('/dashboard/student/study-plan')}
             >
               <Calendar className="h-4 w-4 mr-2" />
