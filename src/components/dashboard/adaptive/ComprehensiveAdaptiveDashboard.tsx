@@ -1,33 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Calendar, Clock, Target, TrendingUp, Award, BookOpen, Brain, 
+  Zap, Users, Heart, MessageCircle, ChevronRight, Play, 
+  Bell, Star, CheckCircle, AlertCircle, User, Crown, ExternalLink,
+  Settings, Bot, Volume2, VolumeX, Mic, MicOff
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { 
-  BookOpen, 
-  Clock, 
-  TrendingUp, 
-  Target, 
-  Calendar,
-  Trophy,
-  Flame,
-  CheckCircle,
-  AlertCircle,
-  Star,
-  GraduationCap,
-  Brain,
-  Lightbulb,
-  ArrowRight,
-  Sparkles,
-  Users,
-  Award
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import SmartSuggestions from '../student/shared/SmartSuggestions';
+import { MoodSelector } from '../student/MoodSelector';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import NEETStrategyCard from '@/components/dashboard/student/NEETStrategyCard';
+import SubjectBreakdownSection from '@/components/dashboard/student/SubjectBreakdownSection';
 
 interface ComprehensiveAdaptiveDashboardProps {
   userProfile: UserProfileBase;

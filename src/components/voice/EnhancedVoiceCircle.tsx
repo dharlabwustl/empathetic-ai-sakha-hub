@@ -22,9 +22,9 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   size = 'md'
 }) => {
   const sizeClasses = {
-    sm: 'h-10 w-10',
-    md: 'h-12 w-12',
-    lg: 'h-14 w-14'
+    sm: 'h-12 w-12',
+    md: 'h-16 w-16',
+    lg: 'h-20 w-20'
   };
 
   const textSizes = {
@@ -91,7 +91,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
       </Button>
       
       {/* Status indicator */}
-      <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white">
+      <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white">
         {isSpeaking && (
           <div className="h-full w-full rounded-full bg-green-500 animate-pulse" />
         )}
@@ -109,7 +109,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   );
 };
 
-// Enhanced floating voice button with smaller size to prevent feedback
+// Enhanced floating voice button with volume waves and immediate response
 interface FloatingVoiceButtonProps {
   isSpeaking?: boolean;
   isListening?: boolean;
@@ -128,13 +128,13 @@ export const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
   return (
     <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
       <div className="relative">
-        {/* Smaller size to prevent microphone feedback */}
+        {/* Static positioning - no bounce animation */}
         <EnhancedVoiceCircle
           isListening={isListening}
           isSpeaking={isSpeaking}
           onClick={onClick}
           onStopSpeaking={onStopSpeaking}
-          size="md"
+          size="lg"
           className="drop-shadow-2xl"
         />
       </div>
