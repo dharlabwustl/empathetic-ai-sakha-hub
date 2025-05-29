@@ -7,7 +7,7 @@ import { Brain, BookOpen, Coffee, Lightbulb, Target, Heart, Zap } from 'lucide-r
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
-import MoodLogButton from '../MoodLogButton';
+import MoodLogButton from '../mood-tracking/MoodLogButton';
 
 interface MoodBasedSuggestionsProps {
   currentMood?: MoodType;
@@ -32,7 +32,7 @@ const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({
     }
 
     switch (mood) {
-      case MoodType.Happy:
+      case MoodType.HAPPY:
         return {
           title: "Perfect Mood for Learning!",
           description: "Your positive energy is ideal for tackling new concepts",
@@ -42,7 +42,7 @@ const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({
           ],
           color: "yellow"
         };
-      case MoodType.Motivated:
+      case MoodType.MOTIVATED:
         return {
           title: "High Energy Detected!",
           description: "Channel this motivation into intensive study sessions",
@@ -52,7 +52,7 @@ const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({
           ],
           color: "green"
         };
-      case MoodType.Focused:
+      case MoodType.FOCUSED:
         return {
           title: "Peak Focus State",
           description: "Perfect time for deep learning and complex topics",
@@ -62,7 +62,7 @@ const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({
           ],
           color: "blue"
         };
-      case MoodType.Tired:
+      case MoodType.TIRED:
         return {
           title: "Take It Easy",
           description: "Light activities and review work best right now",
@@ -72,7 +72,7 @@ const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({
           ],
           color: "orange"
         };
-      case MoodType.Stressed:
+      case MoodType.STRESSED:
         return {
           title: "Stress Relief Mode",
           description: "Focus on relaxation and light review",

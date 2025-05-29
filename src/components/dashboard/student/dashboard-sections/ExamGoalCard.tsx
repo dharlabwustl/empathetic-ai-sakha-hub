@@ -8,7 +8,7 @@ import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap } from 'lucide-react
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
-import MoodLogButton from '../MoodLogButton';
+import MoodLogButton from '../mood-tracking/MoodLogButton';
 
 interface ExamGoalCardProps {
   currentMood?: MoodType;
