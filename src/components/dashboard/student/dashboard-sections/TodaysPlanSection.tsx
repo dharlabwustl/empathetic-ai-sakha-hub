@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Brain, FileText, ArrowDown, Zap } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Brain, FileText, ArrowDown, Sparkles } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 
 interface StudyPlan {
@@ -188,34 +188,27 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
   };
 
   return (
-    <Card className="relative overflow-hidden border-2 border-orange-200 shadow-lg">
-      {/* Animated arrow pointing down from above */}
-      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
-        <ArrowDown className="h-6 w-6 text-orange-500 animate-bounce" />
+    <Card className="relative animate-pulse border-2 border-blue-300 shadow-lg shadow-blue-200/50">
+      {/* Animated arrow for Today's Study Plan */}
+      <div className="absolute -top-3 left-4 animate-bounce">
+        <ArrowDown className="h-6 w-6 text-blue-500" />
       </div>
       
-      {/* Sparkle effects */}
-      <div className="absolute top-2 left-4 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
-      <div className="absolute top-4 right-6 w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse" style={{ animationDelay: '500ms' }}></div>
-      <div className="absolute bottom-6 left-8 w-1 h-1 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '1000ms' }}></div>
-      <div className="absolute bottom-4 right-4 w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '1500ms' }}></div>
-      
-      {/* Pulsing border with colored shadow */}
-      <div className="absolute inset-0 border-2 border-orange-300 rounded-lg animate-pulse shadow-lg shadow-orange-200/50"></div>
-      
-      {/* Glowing indicator */}
-      <div className="absolute top-3 right-3">
-        <div className="flex items-center gap-1">
-          <Zap className="h-4 w-4 text-yellow-500 animate-pulse" />
-          <Badge className="bg-orange-500 text-white animate-pulse">LIVE PLAN</Badge>
-        </div>
+      {/* Sparkle animations */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+        <div className="absolute top-4 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-pulse"></div>
+        <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
       </div>
 
-      <CardHeader className="pb-2 relative z-10">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="flex items-center gap-2">
             Today's NEET Study Plan
-            <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white animate-pulse">PRIORITY!</Badge>
+            <Badge variant="secondary" className="text-xs animate-pulse">
+              LIVE PLAN
+            </Badge>
+            <Sparkles className="h-4 w-4 text-yellow-500 animate-pulse" />
           </CardTitle>
           {currentMood && (
             <Badge variant="outline" className="capitalize">
@@ -224,7 +217,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
           )}
         </div>
       </CardHeader>
-      <CardContent className="relative z-10">
+      <CardContent>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -248,7 +241,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             {plan.tasks.map((task, idx) => (
               <div 
                 key={idx}
-                className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 hover:shadow-md"
+                className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
                 onClick={() => handleTaskClick(task)}
               >
                 <div className="flex justify-between items-center mb-1">
@@ -276,11 +269,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             <div>
               Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
             </div>
-            <Button 
-              size="sm" 
-              onClick={() => navigate('/dashboard/student/today')}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
-            >
+            <Button size="sm" onClick={() => navigate('/dashboard/student/today')}>
               View Full Plan
             </Button>
           </div>

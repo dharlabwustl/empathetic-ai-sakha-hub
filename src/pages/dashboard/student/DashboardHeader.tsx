@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MoodType, UserProfileType } from "@/types/user/base";
-import { Bell, Calendar, BookMarked, Crown } from "lucide-react";
+import { Bell, Calendar, BookMarked } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
 import { 
@@ -64,10 +64,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     navigate('/dashboard/student/profile');
   };
 
-  const handleUpgradeClick = () => {
-    navigate('/dashboard/student/subscription');
-  };
-
   return (
     <div className="mb-6">
       <Card className="p-4 bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-800 dark:to-blue-900/20 border-purple-100 dark:border-purple-800/30">
@@ -88,15 +84,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {formattedDate} • {formattedTime}
               </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleUpgradeClick}
-                className="mt-1 p-0 h-auto text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 px-3 py-1 rounded-full font-medium transition-all duration-200 hover:shadow-lg"
-              >
-                <Crown className="h-3 w-3 mr-1" />
-                Upgrade Plan
-              </Button>
             </div>
           </div>
 
