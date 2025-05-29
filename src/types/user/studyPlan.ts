@@ -1,72 +1,62 @@
 
+// Study Plan Types
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  completed: boolean;
+  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
+  priority: 'high' | 'medium' | 'low';
+}
+
 export interface StudyPlanSubject {
   id: string;
   name: string;
   color?: string;
-  hoursPerWeek?: number;
+  hoursPerWeek: number;
   weeklyHours: number;
-  progress: number;
-  priority?: 'low' | 'medium' | 'high';
-  proficiency?: 'weak' | 'medium' | 'strong';
-  completed?: boolean;
+  priority: 'high' | 'medium' | 'low';
+  proficiency: 'weak' | 'medium' | 'strong';
+  completed: boolean;
+  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
-  status?: 'pending' | 'in-progress' | 'completed';
-}
-
-export interface NewStudyPlanSubject {
-  name: string;
-  proficiency: 'strong' | 'weak' | 'medium';
+  topics?: StudyPlanTopic[];
+  progress: number;
 }
 
 export interface StudyPlan {
   id: string;
-  title: string;
-  goal: string;
+  title?: string;
+  goal?: string;
   examGoal: string;
+  examDate: string;
+  status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'medium' | 'fast';
-  weeklyHours: number;
-  examDate: string;
-  status: 'active' | 'paused' | 'completed' | 'archived';
+  learningPace: 'slow' | 'moderate' | 'fast';
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  progressPercent?: number;
+  progressPercentage?: number;
+  progress?: number;
+  daysLeft?: number;
+  weeklyHours?: number;
+  userId?: string;
 }
 
 export interface NewStudyPlan {
   id?: string;
   title?: string;
   goal?: string;
-  examGoal?: string;
-  subjects?: StudyPlanSubject[];
-  studyHoursPerDay?: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'medium' | 'fast';
+  examGoal: string;
+  examDate: string;
+  subjects: StudyPlanSubject[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
   weeklyHours?: number;
-  examDate?: string;
-  status?: 'active' | 'paused' | 'completed' | 'archived';
+  status?: 'active' | 'completed' | 'archived' | 'pending';
 }
 
-export interface CreditPack {
-  id: string;
-  name: string;
-  credits: number;
-  price: number;
-  description: string;
-  isPopular?: boolean;
-  bestValue?: boolean;
-  isExamCredits?: boolean;
-}
-
-export interface Milestone {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'pending' | 'in-progress' | 'completed';
-  completed?: boolean;
-  category: string;
-  progress: number;
-}
+export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };
