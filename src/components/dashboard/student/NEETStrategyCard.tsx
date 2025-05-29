@@ -174,7 +174,7 @@ const NEETStrategyCard: React.FC = () => {
           </div>
 
           <div className="pt-2 border-t border-purple-100/50 dark:border-purple-800/30">
-            <Link to="/dashboard/student/academic">
+            <Link to="/dashboard/student/study-plan">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

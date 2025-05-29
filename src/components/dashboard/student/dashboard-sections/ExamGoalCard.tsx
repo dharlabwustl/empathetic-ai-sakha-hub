@@ -17,9 +17,9 @@ interface ExamGoalCardProps {
 
 const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }) => {
   const examData = {
-    name: "NEET 2024",
-    date: "May 5, 2024",
-    daysLeft: 45,
+    name: "NEET 2026",
+    date: "May 5, 2026",
+    daysLeft: 145,
     progress: 68,
     subjects: [
       { name: "Physics", progress: 72, color: "blue" },
@@ -29,7 +29,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
   };
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50/80 via-white to-blue-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
