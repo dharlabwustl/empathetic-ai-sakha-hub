@@ -72,7 +72,7 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
       {/* Enhanced animated arrow for Top Priority with glow effect */}
       <div className="absolute -top-4 left-4 animate-bounce z-10">
         <div className="relative">
-          <ArrowDown className="h-7 w-7 text-orange-500 drop-shadow-lg filter" />
+          <ArrowDown className="h-7 w-7 text-orange-500 drop-shadow-lg filter animate-pulse" />
           <div className="absolute inset-0 h-7 w-7 text-orange-300 animate-ping">
             <ArrowDown className="h-7 w-7" />
           </div>
@@ -125,7 +125,7 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
           
           <Link to={suggestion.actionLink} className="no-underline">
             <Button 
-              className={`w-full bg-gradient-to-r ${suggestion.gradient} hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-200`}
+              className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
             >
               {suggestion.actionText} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

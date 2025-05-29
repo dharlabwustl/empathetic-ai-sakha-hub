@@ -192,7 +192,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
       {/* Enhanced animated arrow for Today's Study Plan with glow effect */}
       <div className="absolute -top-4 left-4 animate-bounce z-10">
         <div className="relative">
-          <ArrowDown className="h-7 w-7 text-blue-500 drop-shadow-lg filter" />
+          <ArrowDown className="h-7 w-7 text-blue-500 drop-shadow-lg filter animate-pulse" />
           <div className="absolute inset-0 h-7 w-7 text-blue-300 animate-ping">
             <ArrowDown className="h-7 w-7" />
           </div>
@@ -282,7 +282,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             <div>
               Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
             </div>
-            <Button size="sm" onClick={() => navigate('/dashboard/student/today')} className="shadow-sm">
+            <Button 
+              size="sm" 
+              onClick={() => navigate('/dashboard/student/today')} 
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
+            >
               View Full Plan
             </Button>
           </div>
