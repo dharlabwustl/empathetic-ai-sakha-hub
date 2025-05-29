@@ -1,123 +1,110 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useIntelligentVoiceAssistant } from '@/hooks/useIntelligentVoiceAssistant';
-import EnhancedSpeechRecognition from './EnhancedSpeechRecognition';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { 
+  speakWithFemaleVoice, 
+  isUserCurrentlyActive, 
+  cleanupOnNavigation 
+} from '@/utils/voiceConfig';
 
 interface DashboardVoiceGreetingProps {
-  userName: string;
-  isFirstTimeUser: boolean;
+  userName?: string;
+  isFirstTimeUser?: boolean;
   language?: string;
   onSpeakingChange?: (isSpeaking: boolean) => void;
 }
 
 const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
-  userName,
-  isFirstTimeUser,
+  userName = 'Student',
+  isFirstTimeUser = false,
   language = 'en-US',
   onSpeakingChange
 }) => {
-  const [hasOfferedHelp, setHasOfferedHelp] = useState(false);
-  const helpOfferTimerRef = useRef<number | null>(null);
-  const lastActivityRef = useRef(Date.now());
+  const [hasGreeted, setHasGreeted] = useState(false);
+  const location = useLocation();
+  const greetingTimeoutRef = useRef<NodeJS.Timeout>();
   
-  const { isSpeaking, playInitialGreeting, speak, trackActivity } = useIntelligentVoiceAssistant({
-    userName,
-    language,
-    onSpeakingChange,
-    inactivityTimeout: 15000 // 15 seconds for dashboard
-  });
+  // Only active on dashboard
+  const isOnDashboard = location.pathname.includes('/dashboard/student');
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const shouldGreet = isOnDashboard && isLoggedIn;
 
+  // Handle dashboard greeting based on user type
   useEffect(() => {
-    if (userName && userName !== 'there') {
-      const greetingMessage = isFirstTimeUser 
-        ? `Welcome to your NEET preparation dashboard, ${userName}! Your exam readiness score is looking good. Let's focus on improving those weak areas today.`
-        : `Good to see you back, ${userName}! Your current study streak is impressive. Ready to tackle today's priority concepts?`;
+    if (!shouldGreet || hasGreeted || !userName) {
+      return;
+    }
+
+    const speakDashboardGreeting = () => {
+      if (isUserCurrentlyActive()) {
+        console.log('🔇 Voice: User is active, not speaking dashboard greeting');
+        return;
+      }
+
+      let greetingMessage = '';
       
-      setTimeout(() => {
-        playInitialGreeting(greetingMessage);
-        // Schedule help offer after greeting
-        setTimeout(() => {
-          scheduleHelpOffer();
-        }, 5000);
-      }, 2000);
-    }
-  }, [userName, isFirstTimeUser, playInitialGreeting]);
+      // Check if this is truly first time on dashboard
+      const hasSeenDashboard = localStorage.getItem('hasSeenDashboard') === 'true';
+      
+      if (isFirstTimeUser && !hasSeenDashboard) {
+        greetingMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
+        localStorage.setItem('hasSeenDashboard', 'true');
+      } else {
+        // Returning user message
+        const hour = new Date().getHours();
+        const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        greetingMessage = `${timeGreeting}, ${userName}! Ready to continue your exam preparation?`;
+      }
 
-  const handleActivity = () => {
-    lastActivityRef.current = Date.now();
-    setHasOfferedHelp(false);
-    
-    if (helpOfferTimerRef.current) {
-      clearTimeout(helpOfferTimerRef.current);
-      helpOfferTimerRef.current = null;
-    }
-    
-    scheduleHelpOffer();
-    trackActivity();
-  };
+      if (onSpeakingChange) onSpeakingChange(true);
+      
+      const success = speakWithFemaleVoice(greetingMessage, { language }, 'dashboard-greeting',
+        () => {
+          if (onSpeakingChange) onSpeakingChange(true);
+        },
+        () => {
+          if (onSpeakingChange) onSpeakingChange(false);
+        }
+      );
+      
+      if (success) {
+        setHasGreeted(true);
+      }
+    };
 
-  const scheduleHelpOffer = () => {
-    if (helpOfferTimerRef.current) {
-      clearTimeout(helpOfferTimerRef.current);
-    }
-    
-    helpOfferTimerRef.current = window.setTimeout(() => {
-      offerDashboardAssistance();
-    }, 15000);
-  };
+    // Delay greeting to avoid conflicts with other voice assistants
+    greetingTimeoutRef.current = setTimeout(speakDashboardGreeting, 3000);
 
-  const offerDashboardAssistance = () => {
-    if (hasOfferedHelp || isSpeaking) return;
-    
-    const dashboardOffers = [
-      "I notice you have thermodynamics as a priority concept. Would you like me to guide you to the concept cards?",
-      "Your physics progress could use some attention. Should I help you access practice questions?",
-      "You're doing great with biology! Want to try some advanced practice tests?",
-      "Ready to start your 2 hour 30 minute physics session? I can help you begin."
-    ];
-    
-    const randomOffer = dashboardOffers[Math.floor(Math.random() * dashboardOffers.length)];
-    speak(randomOffer, false);
-    setHasOfferedHelp(true);
-    
-    helpOfferTimerRef.current = window.setTimeout(() => {
-      setHasOfferedHelp(false);
-      offerDashboardAssistance();
-    }, 30000);
-  };
-
-  const handleVoiceCommand = (command: string) => {
-    console.log('Dashboard voice command:', command);
-    handleActivity();
-  };
-
-  useEffect(() => {
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
-    events.forEach(event => {
-      document.addEventListener(event, handleActivity, true);
-    });
-    
     return () => {
-      events.forEach(event => {
-        document.removeEventListener(event, handleActivity, true);
-      });
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
+    };
+  }, [shouldGreet, hasGreeted, userName, isFirstTimeUser, language, onSpeakingChange]);
+
+  // Reset when leaving dashboard
+  useEffect(() => {
+    if (!isOnDashboard) {
+      setHasGreeted(false);
+      cleanupOnNavigation();
       
-      if (helpOfferTimerRef.current) {
-        clearTimeout(helpOfferTimerRef.current);
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
+    }
+  }, [isOnDashboard]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cleanupOnNavigation();
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
       }
     };
   }, []);
 
-  return (
-    <>
-      <EnhancedSpeechRecognition 
-        language={language}
-        continuous={true}
-        onCommand={handleVoiceCommand}
-      />
-    </>
-  );
+  return null;
 };
 
 export default DashboardVoiceGreeting;
