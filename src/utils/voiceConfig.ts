@@ -76,20 +76,27 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Enhanced pronunciation fixes for PREPZR with more variations
+  // Enhanced pronunciation fixes for PREPZR with comprehensive coverage
   let processedText = text
-    .replace(/PREPZR/gi, 'Prep Zer')
-    .replace(/Sakha AI/gi, 'Prep Zer AI')
-    .replace(/PrepZR/gi, 'Prep Zer')
-    .replace(/prep zr/gi, 'Prep Zer')
-    .replace(/prepzr/gi, 'Prep Zer')
-    .replace(/prep zer/gi, 'Prep Zer')
-    .replace(/prep-zer/gi, 'Prep Zer')
-    .replace(/prepzer/gi, 'Prep Zer')
-    .replace(/PREP ZR/gi, 'Prep Zer')
-    .replace(/prep ZR/gi, 'Prep Zer')
-    .replace(/Prepzr/gi, 'Prep Zer')
-    .replace(/PrepZer/gi, 'Prep Zer');
+    .replace(/PREPZR/gi, 'Prep-Zer')
+    .replace(/Sakha AI/gi, 'Prep-Zer AI')
+    .replace(/PrepZR/gi, 'Prep-Zer')
+    .replace(/prep zr/gi, 'Prep-Zer')
+    .replace(/prepzr/gi, 'Prep-Zer')
+    .replace(/prep zer/gi, 'Prep-Zer')
+    .replace(/prep-zer/gi, 'Prep-Zer')
+    .replace(/prepzer/gi, 'Prep-Zer')
+    .replace(/PREP ZR/gi, 'Prep-Zer')
+    .replace(/prep ZR/gi, 'Prep-Zer')
+    .replace(/Prepzr/gi, 'Prep-Zer')
+    .replace(/PrepZer/gi, 'Prep-Zer')
+    .replace(/PREP-ZR/gi, 'Prep-Zer')
+    .replace(/Prep ZR/gi, 'Prep-Zer')
+    .replace(/prep-ZR/gi, 'Prep-Zer')
+    .replace(/Prep-ZR/gi, 'Prep-Zer')
+    .replace(/PREPZER/gi, 'Prep-Zer')
+    .replace(/PrepZer/gi, 'Prep-Zer')
+    .replace(/prep zer/gi, 'Prep-Zer');
     
   utterance.text = processedText;
   utterance.lang = finalConfig.language;
