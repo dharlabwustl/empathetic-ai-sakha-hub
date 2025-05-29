@@ -3,9 +3,12 @@ import React from 'react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import ComprehensiveAdaptiveDashboard from '../adaptive/ComprehensiveAdaptiveDashboard';
-import TimeDisplayWidget from './TimeDisplayWidget';
+import MergedDashboardHeader from './MergedDashboardHeader';
 import EnhancedSmartSuggestions from './EnhancedSmartSuggestions';
 import OnboardingHighlights from './OnboardingHighlights';
+import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
+import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
+import SurroundingInfluencesSection from './SurroundingInfluencesSection';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -24,13 +27,27 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
   const isFirstTimeUser = !localStorage.getItem('hasSeenOnboarding') && 
                          (!userProfile.loginCount || userProfile.loginCount <= 1);
 
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
+
   return (
     <div className="space-y-6">
-      {/* Time Display Widget */}
-      <TimeDisplayWidget streak={userProfile.studyStreak || 12} />
+      {/* Merged Dashboard Header */}
+      <MergedDashboardHeader 
+        userProfile={userProfile}
+        currentMood={currentMood}
+        onMoodChange={onMoodChange}
+        onViewStudyPlan={() => {}}
+        streak={userProfile.studyStreak || 12}
+      />
       
       {/* Enhanced Smart Suggestions */}
       <EnhancedSmartSuggestions userName={userProfile.name || userProfile.firstName} />
+      
+      {/* Today's Top Priority Section */}
+      <TodaysTopPrioritySection />
+      
+      {/* Today's Plan Section */}
+      <TodaysPlanSection currentMood={currentMood} />
       
       {/* Main Dashboard */}
       <ComprehensiveAdaptiveDashboard 
@@ -38,6 +55,12 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         kpis={kpis}
         currentMood={currentMood}
         onMoodChange={onMoodChange}
+      />
+      
+      {/* Surrounding Influences Meter - Moved to bottom */}
+      <SurroundingInfluencesSection 
+        influenceMeterCollapsed={influenceMeterCollapsed}
+        setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
       />
       
       {/* Onboarding Highlights */}

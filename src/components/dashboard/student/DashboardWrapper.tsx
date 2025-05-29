@@ -3,11 +3,9 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
 import MobileNavigation from "@/pages/dashboard/student/MobileNavigation";
 import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleButton';
 import TopNavigationControls from '@/components/dashboard/student/TopNavigationControls';
-import SurroundingInfluencesSection from '@/components/dashboard/student/SurroundingInfluencesSection';
 import MainContent from '@/components/dashboard/student/MainContent';
 import { useIsMobile } from "@/hooks/use-mobile";
 import UniversalSidebar from '@/components/dashboard/UniversalSidebar';
@@ -56,7 +54,6 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
-  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
 
   return (
     <div className="flex min-h-screen">
@@ -73,20 +70,8 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
           onToggleSidebar={onToggleSidebar}
           formattedDate={formattedDate}
           formattedTime={formattedTime}
-        />
-        
-        {/* Dashboard header */}
-        <DashboardHeader 
-          userProfile={userProfile}
-          formattedTime={formattedTime}
-          formattedDate={formattedDate}
           onViewStudyPlan={onViewStudyPlan}
-        />
-
-        {/* Surrounding Influences Meter */}
-        <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+          userName={userProfile.name || userProfile.firstName}
         />
         
         {/* Mobile Navigation */}
