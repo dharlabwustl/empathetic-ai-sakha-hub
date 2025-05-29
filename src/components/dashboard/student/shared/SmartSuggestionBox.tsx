@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, ArrowDown } from 'lucide-react';
+import { Lightbulb, ArrowDown, Sparkles } from 'lucide-react';
 
 interface SmartSuggestionBoxProps {
   suggestions: string[];
@@ -122,6 +122,9 @@ export const SmartSuggestionBox: React.FC<SmartSuggestionBoxProps> = ({
             <Badge variant="secondary" className="text-xs animate-pulse">
               {isTopPriority ? 'PRIORITY!' : 'LIVE PLAN'}
             </Badge>
+          )}
+          {(isTopPriority || isStudyPlan) && (
+            <Sparkles className="h-4 w-4 text-yellow-500 animate-pulse" />
           )}
         </div>
         <div className="space-y-2">

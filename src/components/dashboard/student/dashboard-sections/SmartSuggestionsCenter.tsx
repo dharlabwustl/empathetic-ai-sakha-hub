@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Rocket, Brain, Target, Star, ArrowRight, ArrowDown, Sparkles } from 'lucide-react';
