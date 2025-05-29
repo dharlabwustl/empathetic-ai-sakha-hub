@@ -103,12 +103,14 @@ export const SmartSuggestionBox: React.FC<SmartSuggestionBoxProps> = ({
         </div>
       )}
       
-      {/* Sparkle animation for enhanced sections */}
+      {/* Premium sparkle animations for enhanced sections */}
       {(isTopPriority || isStudyPlan) && (
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
           <div className="absolute top-4 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-pulse"></div>
           <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-6 left-2 w-1 h-1 bg-amber-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-6 right-4 w-1.5 h-1.5 bg-orange-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
         </div>
       )}
 
