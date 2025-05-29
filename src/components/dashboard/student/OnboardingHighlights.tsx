@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { X, ChevronRight, Target, BookOpen, Brain, BarChart } from 'lucide-react';
+import { X, ChevronRight, Target, BookOpen, Brain, BarChart, FileText, Zap } from 'lucide-react';
 
 interface OnboardingStep {
   id: string;
@@ -44,6 +44,22 @@ const onboardingSteps: OnboardingStep[] = [
     description: 'Track your preparation progress and identify areas that need more attention.',
     icon: <BarChart className="h-5 w-5" />,
     targetSelector: '[data-tour="exam-readiness"]',
+    position: 'bottom'
+  },
+  {
+    id: 'concepts',
+    title: 'Concept Learning',
+    description: 'Master key concepts with detailed explanations and practice problems.',
+    icon: <FileText className="h-5 w-5" />,
+    targetSelector: '[data-tour="concepts"]',
+    position: 'bottom'
+  },
+  {
+    id: 'flashcards',
+    title: 'Flashcards',
+    description: 'Quick revision with intelligent spaced repetition system.',
+    icon: <Zap className="h-5 w-5" />,
+    targetSelector: '[data-tour="flashcards"]',
     position: 'bottom'
   }
 ];

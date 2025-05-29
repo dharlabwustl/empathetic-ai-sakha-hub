@@ -65,7 +65,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   };
 
   const handleUpgradeClick = () => {
-    navigate('https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/subscription');
+    window.open('https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/subscription', '_blank');
   };
 
   return (

@@ -191,7 +191,7 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center" data-tour="concepts">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Concepts Learned</span>
                   <Badge variant="outline">128</Badge>
                 </div>
@@ -203,7 +203,7 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
                   <span className="text-sm text-gray-600 dark:text-gray-400">Mock Tests</span>
                   <Badge variant="outline">12</Badge>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center" data-tour="flashcards">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Revision Sessions</span>
                   <Badge variant="outline">34</Badge>
                 </div>
