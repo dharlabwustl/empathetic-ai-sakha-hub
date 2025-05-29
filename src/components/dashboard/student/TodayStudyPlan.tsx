@@ -13,7 +13,7 @@ interface Task {
   time: string;
   type: 'exam' | 'task' | 'revision' | 'concept';
   completed?: boolean;
-  route?: string;
+  route?: string; // Added route property for navigation
 }
 
 interface TodayStudyPlanProps {
@@ -24,6 +24,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 767px)');
   
+  // Get appropriate icon for each task type
   const getTaskIcon = (type: string) => {
     switch (type) {
       case 'exam':
@@ -35,22 +36,25 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
     }
   };
   
+  // Handle task click navigation
   const handleTaskClick = (task: Task) => {
+    // For concept type, always navigate to concept detail page with the correct path
     if (task.type === 'concept') {
       console.log("TodayStudyPlan - Navigating to concept detail page:", task.id);
       navigate(`/dashboard/student/concepts/${task.id}`);
       return;
     }
     
+    // For other types, use provided route or fallback
     if (task.route) {
       navigate(task.route);
     } else {
       switch (task.type) {
         case 'exam':
-          navigate('/dashboard/student/practice-exam/2/start');
+          navigate('/dashboard/student/practice-exam');
           break;
         case 'revision':
-          navigate('/dashboard/student/flashcards/1/interactive');
+          navigate('/dashboard/student/flashcards');
           break;
         default:
           navigate('/dashboard/student/today');
