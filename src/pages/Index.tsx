@@ -132,10 +132,10 @@ const Index = () => {
         <SpeechRecognitionButton
           position="homepage"
           onCommand={handleSpeechCommand}
-          className="fixed bottom-24 right-6 z-50"
+          className="fixed bottom-20 right-6 z-40"
         />
 
-        {/* Enhanced Floating Voice Button with volume waves and immediate response */}
+        {/* Simplified Floating Voice Button without volume waves */}
         <FloatingVoiceButton 
           isSpeaking={isSpeaking}
           isListening={isListening}

@@ -19,28 +19,28 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   onClick,
   onStopSpeaking,
   className = '',
-  size = 'md'
+  size = 'sm'
 }) => {
   const sizeClasses = {
     sm: 'h-12 w-12',
-    md: 'h-16 w-16',
-    lg: 'h-20 w-20'
+    md: 'h-14 w-14',
+    lg: 'h-16 w-16'
   };
 
   const textSizes = {
     sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base'
+    md: 'text-xs',
+    lg: 'text-sm'
   };
 
   const getAnimationClasses = () => {
     if (isSpeaking) {
-      return 'bg-gradient-to-r from-green-500 to-blue-500 shadow-lg shadow-green-500/50';
+      return 'bg-gradient-to-r from-green-500 to-blue-500 shadow-md';
     }
     if (isListening) {
-      return 'animate-ping bg-gradient-to-r from-red-500 to-pink-500 shadow-lg shadow-red-500/50';
+      return 'bg-gradient-to-r from-red-500 to-pink-500 shadow-md animate-pulse';
     }
-    return 'bg-gradient-to-r from-purple-500 to-blue-500 hover:shadow-lg hover:shadow-purple-500/50';
+    return 'bg-gradient-to-r from-purple-500 to-blue-500 hover:shadow-md hover:shadow-purple-500/30';
   };
 
   const handleClick = () => {
@@ -53,50 +53,32 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Outer pulse ring for listening state */}
+      {/* Simple pulse ring for listening state - no volume waves */}
       {isListening && (
-        <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-red-400 animate-ping opacity-75`} />
+        <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-red-400 animate-ping opacity-60`} />
       )}
       
-      {/* Volume waves for speaking state */}
-      {isSpeaking && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className={`absolute rounded-full border-2 border-green-400 animate-pulse opacity-60`}
-              style={{
-                width: `${100 + (i + 1) * 20}%`,
-                height: `${100 + (i + 1) * 20}%`,
-                animationDelay: `${i * 0.2}s`,
-                animationDuration: '1.5s'
-              }}
-            />
-          ))}
-        </div>
-      )}
-      
-      {/* Main button */}
+      {/* Main button - smaller and cleaner */}
       <Button
         onClick={handleClick}
         variant="ghost"
         className={`
-          relative ${sizeClasses[size]} rounded-full border-2 border-white/20 
+          relative ${sizeClasses[size]} rounded-full border border-white/20 
           ${getAnimationClasses()}
-          text-white transition-all duration-300 hover:scale-105
+          text-white transition-all duration-200 hover:scale-105
           flex items-center justify-center font-bold ${textSizes[size]}
         `}
       >
         AI
       </Button>
       
-      {/* Status indicator */}
-      <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white">
+      {/* Simple status indicator */}
+      <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border border-white">
         {isSpeaking && (
-          <div className="h-full w-full rounded-full bg-green-500 animate-pulse" />
+          <div className="h-full w-full rounded-full bg-green-500" />
         )}
         {isListening && !isSpeaking && (
-          <div className="h-full w-full rounded-full bg-red-500 animate-pulse" />
+          <div className="h-full w-full rounded-full bg-red-500" />
         )}
         {!isListening && !isSpeaking && !isMuted && (
           <div className="h-full w-full rounded-full bg-purple-500" />
@@ -109,7 +91,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   );
 };
 
-// Enhanced floating voice button with volume waves and immediate response
+// Simplified floating voice button without volume waves
 interface FloatingVoiceButtonProps {
   isSpeaking?: boolean;
   isListening?: boolean;
@@ -128,22 +110,21 @@ export const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
   return (
     <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
       <div className="relative">
-        {/* Static positioning - no bounce animation */}
         <EnhancedVoiceCircle
           isListening={isListening}
           isSpeaking={isSpeaking}
           onClick={onClick}
           onStopSpeaking={onStopSpeaking}
-          size="lg"
-          className="drop-shadow-2xl"
+          size="sm"
+          className="drop-shadow-lg"
         />
       </div>
       
       {/* Status text */}
       {(isSpeaking || isListening) && (
-        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-          <div className="bg-black/80 text-white text-xs px-3 py-1 rounded-full">
-            {isSpeaking ? 'PREPZR is speaking... (tap to stop)' : 'Listening...'}
+        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+          <div className="bg-black/80 text-white text-xs px-2 py-1 rounded">
+            {isSpeaking ? 'PREPZR speaking... (tap to stop)' : 'Listening...'}
           </div>
         </div>
       )}

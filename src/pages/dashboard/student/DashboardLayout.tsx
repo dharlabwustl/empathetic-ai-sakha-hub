@@ -139,11 +139,11 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      {/* Speech Recognition Button positioned above voice assistant with mobile-friendly positioning */}
+      {/* Speech Recognition Button positioned for mobile-friendly access */}
       <SpeechRecognitionButton
         position="dashboard"
         onCommand={handleSpeechCommand}
-        className={`fixed z-50 ${isMobile ? 'bottom-32 right-4' : 'bottom-32 right-6'}`}
+        className={`fixed z-40 ${isMobile ? 'bottom-24 right-4' : 'bottom-24 right-6'}`}
       />
       
       {showStudyPlan && (
