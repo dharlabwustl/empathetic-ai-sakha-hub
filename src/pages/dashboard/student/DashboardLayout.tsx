@@ -100,25 +100,24 @@ const DashboardLayout = ({
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <div className="flex min-h-screen">
-        <main className={`transition-all duration-300 text-base flex-1 ${isMobile ? 'p-3 pb-20' : 'p-4 sm:p-6 pb-20 md:pb-6'}`}>
-          {/* Surrounding Influences Section - Hidden on mobile for cleaner experience */}
-          {!isMobile && (
-            <SurroundingInfluencesSection 
-              influenceMeterCollapsed={influenceMeterCollapsed}
-              setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-            />
-          )}
+        <main className={`transition-all duration-300 text-base flex-1 p-4 sm:p-6 pb-20 md:pb-6`}>
+          {/* Surrounding Influences Section */}
+          <SurroundingInfluencesSection 
+            influenceMeterCollapsed={influenceMeterCollapsed}
+            setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+          />
           
-          {/* Mobile Navigation - Fixed at bottom */}
           {isMobile && (
-            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+            <div className="mb-6">
+              <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+            </div>
           )}
           
-          {/* Main Content - Mobile optimized spacing */}
+          {/* Main Content */}
           {children ? (
-            <div className={`${isMobile ? 'mt-2' : 'mt-6'}`}>{children}</div>
+            <div className="mt-6">{children}</div>
           ) : (
-            <div className={`${isMobile ? 'mt-2' : 'mt-4 sm:mt-6'}`}>
+            <div className="mt-4 sm:mt-6">
               <DashboardContent
                 activeTab={activeTab}
                 onTabChange={onTabChange}
@@ -139,11 +138,11 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      {/* Speech Recognition Button positioned higher with more space */}
+      {/* Speech Recognition Button positioned above voice assistant with higher z-index */}
       <SpeechRecognitionButton
         position="dashboard"
         onCommand={handleSpeechCommand}
-        className={`fixed z-40 ${isMobile ? 'bottom-32 right-4' : 'bottom-32 right-6'}`}
+        className="fixed bottom-32 right-6 z-50"
       />
       
       {showStudyPlan && (
