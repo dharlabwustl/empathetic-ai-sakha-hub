@@ -35,12 +35,12 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 
   const getAnimationClasses = () => {
     if (isSpeaking) {
-      return 'bg-gradient-to-r from-green-500 to-blue-500 shadow-md';
+      return 'bg-gradient-to-r from-green-500 to-blue-500 shadow-lg animate-pulse';
     }
     if (isListening) {
-      return 'bg-gradient-to-r from-red-500 to-pink-500 shadow-md animate-pulse';
+      return 'bg-gradient-to-r from-red-500 to-pink-500 shadow-lg animate-pulse';
     }
-    return 'bg-gradient-to-r from-purple-500 to-blue-500 hover:shadow-md hover:shadow-purple-500/30';
+    return 'bg-gradient-to-r from-purple-500 to-blue-500 hover:shadow-lg hover:shadow-purple-500/30';
   };
 
   const handleClick = () => {
@@ -53,32 +53,44 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Simple pulse ring for listening state - no volume waves */}
+      {/* Enhanced pulse ring for listening state */}
       {isListening && (
-        <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-red-400 animate-ping opacity-60`} />
+        <>
+          <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-red-400 animate-ping opacity-40`} />
+          <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-red-300 animate-ping opacity-20`} style={{ animationDelay: '0.5s' }} />
+        </>
       )}
       
-      {/* Main button - smaller and cleaner */}
+      {/* Enhanced speaking animation */}
+      {isSpeaking && (
+        <>
+          <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-green-400 animate-ping opacity-30`} />
+          <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-blue-300 animate-ping opacity-20`} style={{ animationDelay: '0.3s' }} />
+        </>
+      )}
+      
+      {/* Main AI button with enhanced styling */}
       <Button
         onClick={handleClick}
         variant="ghost"
         className={`
           relative ${sizeClasses[size]} rounded-full border border-white/20 
           ${getAnimationClasses()}
-          text-white transition-all duration-200 hover:scale-105
+          text-white transition-all duration-300 hover:scale-110
           flex items-center justify-center font-bold ${textSizes[size]}
+          shadow-lg backdrop-blur-sm
         `}
       >
         AI
       </Button>
       
-      {/* Simple status indicator */}
-      <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border border-white">
+      {/* Enhanced status indicator */}
+      <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white shadow-sm">
         {isSpeaking && (
-          <div className="h-full w-full rounded-full bg-green-500" />
+          <div className="h-full w-full rounded-full bg-green-500 animate-pulse" />
         )}
         {isListening && !isSpeaking && (
-          <div className="h-full w-full rounded-full bg-red-500" />
+          <div className="h-full w-full rounded-full bg-red-500 animate-pulse" />
         )}
         {!isListening && !isSpeaking && !isMuted && (
           <div className="h-full w-full rounded-full bg-purple-500" />
@@ -91,7 +103,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   );
 };
 
-// Simplified floating voice button without volume waves
+// Enhanced floating voice button with context awareness
 interface FloatingVoiceButtonProps {
   isSpeaking?: boolean;
   isListening?: boolean;
@@ -116,15 +128,15 @@ export const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
           onClick={onClick}
           onStopSpeaking={onStopSpeaking}
           size="sm"
-          className="drop-shadow-lg"
+          className="drop-shadow-xl"
         />
       </div>
       
-      {/* Status text */}
+      {/* Enhanced status text with better styling */}
       {(isSpeaking || isListening) && (
-        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-          <div className="bg-black/80 text-white text-xs px-2 py-1 rounded">
-            {isSpeaking ? 'PREPZR speaking... (tap to stop)' : 'Listening...'}
+        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
+          <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm border border-white/10">
+            {isSpeaking ? '🗣️ Prep-Zer speaking... (tap to stop)' : '👂 Listening...'}
           </div>
         </div>
       )}

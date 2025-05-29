@@ -1,4 +1,3 @@
-
 // Centralized voice configuration for consistent female voice across the app
 export interface VoiceConfig {
   voice: SpeechSynthesisVoice | null;
@@ -59,7 +58,7 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
     voice: getPreferredFemaleVoice(),
     rate: 0.9,
     pitch: 1.0,
-    volume: 0.6, // Further reduced volume to prevent echo
+    volume: 0.6,
     language: 'en-US'
   };
 };
@@ -68,7 +67,7 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
 const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
 const SESSION_ID = Date.now().toString();
 const MESSAGE_COOLDOWN = 180000; // 3 minutes cooldown for same message
-const SPEECH_DELAY = 800; // Increased delay before speaking to prevent echo
+const SPEECH_DELAY = 800; // Delay before speaking to prevent echo
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -76,15 +75,19 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Enhanced pronunciation fixes for PREPZR with correct pronunciation
+  // Enhanced pronunciation fixes for PREPZR and other brand terms
   let processedText = text
+    // PREPZR pronunciation - phonetic breakdown
     .replace(/PREPZR/gi, 'Prep-Zer')
-    .replace(/Sakha AI/gi, 'Prep-Zer AI')
     .replace(/PrepZR/gi, 'Prep-Zer')
-    .replace(/prep zr/gi, 'Prep-Zer')
     .replace(/prepzr/gi, 'Prep-Zer')
+    .replace(/prep zr/gi, 'Prep-Zer')
+    .replace(/prep-zr/gi, 'Prep-Zer')
     .replace(/prep zer/gi, 'Prep-Zer')
-    .replace(/prep-zer/gi, 'Prep-Zer');
+    // Other brand consistency
+    .replace(/Sakha AI/gi, 'Prep-Zer AI')
+    .replace(/NEET/gi, 'NEET')
+    .replace(/JEE/gi, 'JEE');
     
   utterance.text = processedText;
   utterance.lang = finalConfig.language;

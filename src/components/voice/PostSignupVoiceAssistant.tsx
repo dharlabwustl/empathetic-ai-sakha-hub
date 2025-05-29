@@ -57,7 +57,7 @@ const PostSignupVoiceAssistant: React.FC<PostSignupVoiceAssistantProps> = ({
     // General help
     if (lowerCommand.includes('help') || lowerCommand.includes('what now') ||
         lowerCommand.includes('next') || lowerCommand.includes('guide')) {
-      speak(`Welcome to PREPZR ${userName}! I recommend starting with the Exam Readiness Test to assess your current level, then we'll create your personalized study plan. Ready to begin?`);
+      speak(`Welcome to Prep-Zer ${userName}! I recommend starting with the Exam Readiness Test to assess your current level, then we'll create your personalized study plan. Ready to begin?`);
       return;
     }
 
@@ -89,7 +89,7 @@ const PostSignupVoiceAssistant: React.FC<PostSignupVoiceAssistantProps> = ({
   useEffect(() => {
     if (isSupported && userName) {
       const timer = setTimeout(() => {
-        speak(`Congratulations ${userName}! Welcome to the PREPZR family! You've just taken the most important step towards exam success. I'm here to guide you through your personalized learning journey. Ready to begin?`);
+        speak(`Congratulations ${userName}! Welcome to the Prep-Zer family! You've just taken the most important step towards exam success. I'm here to guide you through your personalized learning journey. Ready to begin?`);
         startListening();
       }, 1500);
 

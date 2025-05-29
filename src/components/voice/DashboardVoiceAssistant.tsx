@@ -27,96 +27,92 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     const lowerCommand = command.toLowerCase().trim();
     
     // Only process if confidence is reasonable
-    if (confidence < 0.3 && lowerCommand.length < 8) return;
+    if (confidence < 0.3 && lowerCommand.length < 5) return;
 
-    // Study-related commands
-    if (lowerCommand.includes('start studying') || lowerCommand.includes('study now') ||
-        lowerCommand.includes('begin study') || lowerCommand.includes('study session')) {
-      speak("Let's start your study session! I'll take you to your concept cards where you can begin learning.");
-      setTimeout(() => navigate('/dashboard/student/concepts'), 1000);
-      return;
-    }
-
-    // Concept cards
-    if (lowerCommand.includes('concept cards') || lowerCommand.includes('concepts') ||
-        lowerCommand.includes('flashcards') || lowerCommand.includes('cards')) {
-      speak("Great choice! Concept cards are perfect for focused learning. Let's dive in!");
-      setTimeout(() => navigate('/dashboard/student/concepts'), 1000);
-      return;
-    }
-
-    // Study plan
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('plan') ||
-        lowerCommand.includes('schedule') || lowerCommand.includes('routine')) {
-      speak("I'll show you your personalized study plan with all your subjects and progress tracking.");
-      setTimeout(() => navigate('/dashboard/student/academic'), 1000);
+    // Study plan navigation
+    if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule') ||
+        lowerCommand.includes('plan') || lowerCommand.includes('timetable')) {
+      speak("Opening your personalized study plan. This shows your daily schedule optimized for your exam goals.");
+      setTimeout(() => navigate('/dashboard/student?tab=study-plan'), 500);
       return;
     }
 
     // Practice tests
     if (lowerCommand.includes('practice test') || lowerCommand.includes('mock test') ||
-        lowerCommand.includes('test') || lowerCommand.includes('exam practice')) {
-      speak("Time for some practice! Mock tests are excellent for building exam confidence. Let's get started!");
-      setTimeout(() => navigate('/dashboard/student/practice'), 1000);
+        lowerCommand.includes('practice exam') || lowerCommand.includes('test')) {
+      speak("Great! Let's head to practice exams where you can test your knowledge and track your progress.");
+      setTimeout(() => navigate('/dashboard/student/practice-exam'), 500);
+      return;
+    }
+
+    // Flashcards
+    if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card') ||
+        lowerCommand.includes('revision cards') || lowerCommand.includes('cards')) {
+      speak("Perfect for quick revision! Opening your smart flashcards with spaced repetition.");
+      setTimeout(() => navigate('/dashboard/student/flashcards'), 500);
+      return;
+    }
+
+    // Concepts
+    if (lowerCommand.includes('concept') || lowerCommand.includes('theory') ||
+        lowerCommand.includes('learn') || lowerCommand.includes('study material')) {
+      speak("Let's dive into concept learning! This section has all your subjects organized for easy understanding.");
+      setTimeout(() => navigate('/dashboard/student/concepts'), 500);
       return;
     }
 
     // Progress and analytics
-    if (lowerCommand.includes('progress') || lowerCommand.includes('analytics') ||
-        lowerCommand.includes('performance') || lowerCommand.includes('stats')) {
-      speak("Let me show you your learning analytics and progress insights. It's great to track your growth!");
-      setTimeout(() => navigate('/dashboard/student/analytics'), 1000);
+    if (lowerCommand.includes('progress') || lowerCommand.includes('performance') ||
+        lowerCommand.includes('analytics') || lowerCommand.includes('stats')) {
+      speak("Here's your detailed progress analysis showing your strengths and areas for improvement.");
+      setTimeout(() => navigate('/dashboard/student?tab=analytics'), 500);
       return;
     }
 
-    // Mood and motivation
-    if (lowerCommand.includes('feeling') || lowerCommand.includes('mood') ||
-        lowerCommand.includes('motivated') || lowerCommand.includes('stressed')) {
-      speak("I understand that how you feel affects your learning. PREPZR adapts to your emotional state to provide the best study experience. You're doing great!");
-      return;
-    }
-
-    // Next action or recommendation
-    if (lowerCommand.includes('what next') || lowerCommand.includes('recommend') ||
-        lowerCommand.includes('suggest') || lowerCommand.includes('what should i do')) {
+    // Next task or suggestion
+    if (lowerCommand.includes('what should i study') || lowerCommand.includes('next task') ||
+        lowerCommand.includes('what now') || lowerCommand.includes('suggest')) {
       if (suggestedNextAction) {
-        speak(`Based on your progress, I recommend: ${suggestedNextAction}. Would you like me to take you there?`);
+        speak(`Based on your progress, I suggest: ${suggestedNextAction}. This will help optimize your preparation strategy.`);
       } else {
-        speak("I suggest continuing with your concept cards or taking a practice test to reinforce your learning. What interests you more?");
+        speak("Let me check your study plan... I recommend starting with your weakest subject or taking a practice test to identify areas for improvement.");
       }
+      return;
+    }
+
+    // Motivational support
+    if (lowerCommand.includes('motivate') || lowerCommand.includes('encourage') ||
+        lowerCommand.includes('feeling down') || lowerCommand.includes('stressed')) {
+      speak(`${userName}, remember that every expert was once a beginner! Your consistent effort is building the foundation for your success. You've got this! Let's take one step at a time.`);
       return;
     }
 
     // Help and guidance
     if (lowerCommand.includes('help') || lowerCommand.includes('guide') ||
-        lowerCommand.includes('lost') || lowerCommand.includes('confused')) {
-      if (isFirstTimeUser) {
-        speak(`${userName}, as a new user, I recommend starting with concept cards to build your foundation, then moving to practice tests. Your study plan is personalized just for you!`);
-      } else {
-        speak(`${userName}, you're doing great! Continue with your regular study routine or try something new like the formula lab or analytics to track your progress.`);
-      }
+        lowerCommand.includes('how to') || lowerCommand.includes('navigate')) {
+      speak("I'm here to help! You can ask me to open your study plan, practice tests, flashcards, or concepts. I can also provide study suggestions and motivational support. What would you like to do?");
       return;
     }
 
-    // Motivational commands
-    if (lowerCommand.includes('motivate') || lowerCommand.includes('encourage') ||
-        lowerCommand.includes('inspire') || lowerCommand.includes('motivation')) {
-      const motivationalMessages = [
-        `${userName}, every step you take brings you closer to your exam success! Your consistency is your superpower.`,
-        `You're building something amazing ${userName}! Each study session adds to your knowledge foundation.`,
-        `${userName}, remember why you started this journey. Your dedication today shapes your future success!`,
-        `Great job staying committed ${userName}! Champions are made through daily practice, just like what you're doing.`
+    // Study tips
+    if (lowerCommand.includes('study tip') || lowerCommand.includes('advice') ||
+        lowerCommand.includes('how to study') || lowerCommand.includes('improve')) {
+      const tips = [
+        "Try the Pomodoro technique: 25 minutes of focused study followed by a 5-minute break.",
+        "Review your notes within 24 hours to improve retention by up to 80%.",
+        "Practice active recall by testing yourself instead of just re-reading notes.",
+        "Create mind maps to visualize connections between different concepts."
       ];
-      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      speak(randomMessage);
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+      speak(`Here's a study tip for you: ${randomTip}`);
       return;
     }
 
-    // Default response for unrecognized commands
+    // Default helpful response
     if (lowerCommand.length > 3) {
-      speak(`I'm here to help with your studies ${userName}! You can ask me to start studying, show your study plan, take practice tests, or check your progress. What would you like to do?`);
+      speak("I'm your Prep-Zer study assistant! I can help you navigate to different sections, provide study suggestions, or offer motivational support. What would you like to do?");
     }
-  }, [userName, isFirstTimeUser, suggestedNextAction, navigate]);
+  }, [userName, navigate, suggestedNextAction]);
 
   const {
     isSpeaking,
@@ -127,7 +123,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     context: 'dashboard',
     userName,
     onCommand: processDashboardCommand,
-    reminderInterval: 60
+    isActive: true
   });
 
   // Notify parent component about speaking state
@@ -137,30 +133,37 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     }
   }, [isSpeaking, onSpeakingChange]);
 
-  // Context-aware greeting based on user status
+  // Context-aware greeting for dashboard users
   useEffect(() => {
-    if (isSupported && !hasGreeted && userName) {
+    if (isSupported && !hasGreeted) {
       const timer = setTimeout(() => {
         let greetingMessage = '';
         
-        if (isFirstTimeUser) {
-          greetingMessage = `Welcome to your PREPZR dashboard ${userName}! This is your command center for exam preparation excellence. Ready to start your first study session? I recommend beginning with the concept cards!`;
-        } else if (loginCount === 2) {
-          greetingMessage = `Welcome back ${userName}! Great to see you again. Your dedication to consistent learning is exactly what leads to exam success. What would you like to focus on in today's study session?`;
-        } else if (lastActivity) {
-          greetingMessage = `Hi ${userName}! Your study streak is impressive. ${lastActivity.description}. Ready to continue your learning journey?`;
+        if (isFirstTimeUser || loginCount <= 1) {
+          greetingMessage = `Welcome to your Prep-Zer dashboard, ${userName}! This is your command center for exam preparation excellence. I'm here to help you navigate and succeed. Ready to start your study journey?`;
         } else {
-          greetingMessage = `Welcome back ${userName}! Your consistency in learning is your greatest strength. What would you like to study today?`;
+          const hour = new Date().getHours();
+          const timeGreeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+          
+          if (lastActivity) {
+            greetingMessage = `${timeGreeting} ${userName}! Welcome back. I see you were working on ${lastActivity.description}. Ready to continue your preparation?`;
+          } else {
+            greetingMessage = `${timeGreeting} ${userName}! Welcome back to Prep-Zer. Your study streak is looking great! What would you like to focus on today?`;
+          }
         }
         
         speak(greetingMessage);
-        startListening();
         setHasGreeted(true);
+        
+        // Start listening for commands after greeting
+        setTimeout(() => {
+          startListening();
+        }, 3000);
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [isSupported, hasGreeted, userName, isFirstTimeUser, loginCount, lastActivity, speak, startListening]);
+  }, [isSupported, hasGreeted, isFirstTimeUser, loginCount, lastActivity, userName, speak, startListening]);
 
   return null;
 };

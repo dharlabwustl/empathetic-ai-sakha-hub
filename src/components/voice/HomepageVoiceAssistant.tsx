@@ -1,3 +1,4 @@
+
 import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEnhancedVoiceAssistant } from '@/hooks/useEnhancedVoiceAssistant';
@@ -5,7 +6,7 @@ import { useEnhancedVoiceAssistant } from '@/hooks/useEnhancedVoiceAssistant';
 interface HomepageVoiceAssistantProps {
   onSpeakingChange?: (isSpeaking: boolean) => void;
   onListeningChange?: (isListening: boolean) => void;
-  onStopSpeaking?: () => void;
+  onStopSpeaking?: (handler: () => void) => void;
 }
 
 const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
@@ -18,90 +19,83 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
   const processHomepageCommand = useCallback((command: string, confidence: number) => {
     const lowerCommand = command.toLowerCase().trim();
     
-    // Process commands immediately with lower confidence threshold for faster response
-    if (confidence < 0.2 && lowerCommand.length < 6) return;
+    // Only process if confidence is reasonable
+    if (confidence < 0.3 && lowerCommand.length < 5) return;
 
-    // Signup and registration commands
-    if (lowerCommand.includes('sign up') || lowerCommand.includes('signup') || 
-        lowerCommand.includes('register') || lowerCommand.includes('join') ||
-        lowerCommand.includes('create account')) {
-      speak("Great! I'll take you to our signup page where you can create your free account and start your exam preparation journey.");
-      setTimeout(() => navigate('/signup'), 1000);
+    // PREPZR introduction and benefits
+    if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('about prepzr') ||
+        lowerCommand.includes('tell me about') || lowerCommand.includes('what is prep zr')) {
+      speak("Prep-Zer is the world's first emotionally aware exam preparation platform! We use advanced AI to understand your learning style, mood, and progress to create personalized study plans. Unlike traditional coaching institutes, Prep-Zer adapts to YOU - providing 24/7 support, smart practice tests, and emotional guidance throughout your exam journey.");
       return;
     }
 
-    // Free trial commands
+    // Free trial and signup
     if (lowerCommand.includes('free trial') || lowerCommand.includes('trial') ||
-        lowerCommand.includes('try free') || lowerCommand.includes('start free')) {
-      speak("Excellent! PREPZR offers a 7-day free trial with full access to our emotionally intelligent study platform. Let me guide you to get started!");
-      setTimeout(() => navigate('/signup?trial=true'), 1000);
+        lowerCommand.includes('sign up') || lowerCommand.includes('register') ||
+        lowerCommand.includes('get started')) {
+      speak("Excellent! Prep-Zer offers a completely free 7-day trial with full access to all features. You'll get personalized study plans, AI-powered practice tests, and emotional support. Ready to start your transformation? Just click the signup button!");
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('scroll-to-signup'));
+      }, 1000);
       return;
     }
 
-    // Login commands
+    // Login
     if (lowerCommand.includes('login') || lowerCommand.includes('log in') ||
-        lowerCommand.includes('sign in') || lowerCommand.includes('signin')) {
-      speak("I'll take you to the login page. Welcome back to PREPZR!");
-      setTimeout(() => navigate('/login'), 1000);
+        lowerCommand.includes('sign in')) {
+      speak("Welcome back! Click the login button to access your Prep-Zer dashboard and continue your exam preparation journey.");
+      navigate('/auth');
       return;
     }
 
-    // Exam readiness test commands
+    // Exam Readiness Test
     if (lowerCommand.includes('exam readiness') || lowerCommand.includes('readiness test') ||
         lowerCommand.includes('assessment') || lowerCommand.includes('test my level')) {
-      speak("Our Exam Readiness Test is a great way to understand your current preparation level. It analyzes your strengths and weaknesses across subjects. You can take it after signing up!");
-      // Trigger exam readiness analyzer
+      speak("Great question! Our Exam Readiness Test is a comprehensive assessment that evaluates your current preparation level across all subjects. It helps us create the perfect personalized study plan for you. Want to take it now?");
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('open-exam-analyzer'));
       }, 1000);
       return;
     }
 
-    // Scholarship test commands
+    // Scholarship test
     if (lowerCommand.includes('scholarship') || lowerCommand.includes('discount') ||
         lowerCommand.includes('scholarship test')) {
-      speak("Our scholarship test can help you earn discounts on PREPZR premium plans! High performers can get up to 50% off. You can take it after creating your account.");
-      return;
-    }
-
-    // About PREPZR commands
-    if (lowerCommand.includes('what is prepzr') || lowerCommand.includes('about prepzr') ||
-        lowerCommand.includes('tell me about') || lowerCommand.includes('explain prepzr')) {
-      speak("PREPZR is India's first emotionally intelligent exam preparation platform. We understand not just what you need to learn, but how you feel while learning. Our AI adapts to your mood, motivation levels, and learning patterns to create a supportive study experience tailored just for you.");
-      return;
-    }
-
-    // Benefits and features
-    if (lowerCommand.includes('benefits') || lowerCommand.includes('features') ||
-        lowerCommand.includes('why prepzr') || lowerCommand.includes('how does it help')) {
-      speak("PREPZR offers personalized study plans, mood-based learning adaptation, comprehensive practice tests, and 24/7 AI support. Unlike traditional coaching, we focus on your emotional well-being during exam preparation, leading to better results and reduced stress.");
-      return;
-    }
-
-    // Subscription and pricing
-    if (lowerCommand.includes('subscription') || lowerCommand.includes('pricing') ||
-        lowerCommand.includes('plans') || lowerCommand.includes('cost')) {
-      speak("We offer flexible subscription plans starting with a free 7-day trial. Our premium plans include unlimited practice tests, personalized study plans, and advanced analytics. Would you like to start with our free trial?");
+      speak("Amazing! Prep-Zer offers scholarship tests that can give you significant discounts on our premium plans. High performers can earn up to 50% off! These tests evaluate your academic potential and dedication to studies.");
       return;
     }
 
     // Comparison with coaching institutes
-    if (lowerCommand.includes('coaching') || lowerCommand.includes('institute') ||
-        lowerCommand.includes('traditional') || lowerCommand.includes('better than')) {
-      speak("Unlike traditional coaching institutes, PREPZR offers 24/7 accessibility, personalized attention, emotional intelligence, and adaptive learning. You study at your own pace without the stress of fixed schedules or one-size-fits-all approaches.");
+    if (lowerCommand.includes('better than coaching') || lowerCommand.includes('coaching institute') ||
+        lowerCommand.includes('vs coaching') || lowerCommand.includes('traditional coaching')) {
+      speak("Great question! Unlike traditional coaching institutes, Prep-Zer offers 24/7 personalized support, adapts to your learning pace, tracks your emotional well-being, and costs a fraction of expensive coaching fees. You get world-class education without geographical limitations or rigid schedules!");
       return;
     }
 
-    // Help and general queries
-    if (lowerCommand.includes('help') || lowerCommand.includes('how') ||
-        lowerCommand.includes('guide') || lowerCommand.includes('start')) {
-      speak("I'm here to help you learn about PREPZR! You can ask me about our features, free trial, exam preparation methods, or anything else. Just say 'free trial' to get started, or 'sign up' to create your account!");
+    // Comparison with other platforms
+    if (lowerCommand.includes('better than others') || lowerCommand.includes('vs other platform') ||
+        lowerCommand.includes('different from') || lowerCommand.includes('why choose')) {
+      speak("Prep-Zer is unique because we're the only platform that combines AI-powered personalization with emotional intelligence. While others just provide content, we understand your feelings, adapt to your moods, and provide psychological support throughout your exam journey. It's like having a personal mentor and therapist combined!");
+      return;
+    }
+
+    // Subscription and plans
+    if (lowerCommand.includes('subscription') || lowerCommand.includes('plans') ||
+        lowerCommand.includes('pricing') || lowerCommand.includes('cost')) {
+      speak("Prep-Zer offers flexible subscription plans starting with a completely free 7-day trial. Our affordable plans include personalized study schedules, unlimited practice tests, AI tutoring, and emotional support - all at a fraction of traditional coaching costs!");
+      return;
+    }
+
+    // General help or greeting
+    if (lowerCommand.includes('help') || lowerCommand.includes('hello') ||
+        lowerCommand.includes('hi') || lowerCommand.includes('hey')) {
+      speak("Hello! I'm your Prep-Zer AI assistant! I'm here to tell you about our revolutionary exam preparation platform. You can ask me about our free trial, exam readiness test, how we're better than coaching institutes, or anything else about Prep-Zer!");
       return;
     }
 
     // Default response for unrecognized commands
     if (lowerCommand.length > 3) {
-      speak("I'm PREPZR's voice assistant! I can help you learn about our exam preparation platform, sign up for a free trial, or answer questions about our features. What would you like to know?");
+      speak("I'm here to help you learn about Prep-Zer! You can ask me about our free trial, exam readiness test, subscription plans, or how we're revolutionizing exam preparation. What would you like to know?");
     }
   }, [navigate]);
 
@@ -114,11 +108,10 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     isSupported
   } = useEnhancedVoiceAssistant({
     context: 'homepage',
-    onCommand: processHomepageCommand,
-    reminderInterval: 45
+    onCommand: processHomepageCommand
   });
 
-  // Notify parent component about speaking and listening state
+  // Notify parent components about state changes
   useEffect(() => {
     if (onSpeakingChange) {
       onSpeakingChange(isSpeaking);
@@ -131,28 +124,24 @@ const HomepageVoiceAssistant: React.FC<HomepageVoiceAssistantProps> = ({
     }
   }, [isListening, onListeningChange]);
 
-  // Expose stop speaking functionality
   useEffect(() => {
     if (onStopSpeaking) {
-      onStopSpeaking = stopSpeaking;
+      onStopSpeaking(stopSpeaking);
     }
   }, [stopSpeaking, onStopSpeaking]);
 
-  // Auto-start listening when component mounts
+  // Auto-start voice assistant on homepage
   useEffect(() => {
     if (isSupported) {
-      // Small delay to ensure proper initialization
       const timer = setTimeout(() => {
+        speak("Welcome to Prep-Zer! I'm your AI assistant, here to guide you through the world's first emotionally aware exam preparation platform. Feel free to ask me anything about how Prep-Zer can transform your exam preparation journey!");
         startListening();
-        // Welcome message
-        speak("Welcome to PREPZR! I'm your AI guide. Ask me about our emotionally intelligent exam preparation platform, or say 'free trial' to get started!");
-      }, 1000);
+      }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [isSupported, startListening, speak]);
+  }, [isSupported, speak, startListening]);
 
-  // This component doesn't render anything visible
   return null;
 };
 
