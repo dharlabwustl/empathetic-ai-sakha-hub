@@ -106,12 +106,12 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
             </div>
           </div>
 
-          {/* Upgrade Button */}
+          {/* Upgrade Button with improved colors */}
           {shouldShowUpgrade() && (
             <Button
               onClick={handleUpgradeClick}
               size="sm"
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
             >
               <Crown className="h-4 w-4 mr-1" />
               Upgrade

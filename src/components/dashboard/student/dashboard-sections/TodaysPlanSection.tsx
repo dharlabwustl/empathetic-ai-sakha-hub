@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -190,7 +189,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
   return (
     <Card className="relative animate-pulse border-2 border-blue-300 shadow-lg shadow-blue-200/50 overflow-hidden">
       {/* Enhanced animated arrow for Today's Study Plan with glow effect */}
-      <div className="absolute -top-4 left-4 animate-bounce z-10">
+      <div className="absolute -top-4 left-4 animate-bounce z-20">
         <div className="relative">
           <ArrowDown className="h-7 w-7 text-blue-500 drop-shadow-lg filter" />
           <div className="absolute inset-0 h-7 w-7 text-blue-300 animate-ping">
@@ -200,7 +199,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
       </div>
       
       {/* Enhanced sparkle animations with varying patterns */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
         <div className="absolute top-3 right-3 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-ping"></div>
         <div className="absolute top-6 right-8 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
         <div className="absolute bottom-4 left-4 w-2 h-2 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.8s' }}></div>
@@ -211,10 +210,10 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
       </div>
 
       {/* Enhanced gradient overlay with multiple layers */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-transparent to-indigo-50/40 pointer-events-none"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-sky-50/30 to-blue-50/50 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-transparent to-indigo-50/40 pointer-events-none z-5"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-sky-50/30 to-blue-50/50 pointer-events-none z-5"></div>
 
-      <CardHeader className="pb-2 relative z-10 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/30 dark:to-indigo-900/30 border-b border-blue-100/50">
+      <CardHeader className="pb-2 relative z-15 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/30 dark:to-indigo-900/30 border-b border-blue-100/50">
         <div className="flex justify-between items-center">
           <CardTitle className="flex items-center gap-2">
             Today's NEET Study Plan
@@ -230,7 +229,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
           )}
         </div>
       </CardHeader>
-      <CardContent className="relative z-10">
+      <CardContent className="relative z-15">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -285,7 +284,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             <Button 
               size="sm" 
               onClick={() => navigate('/dashboard/student/today')} 
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
             >
               View Full Plan
             </Button>
