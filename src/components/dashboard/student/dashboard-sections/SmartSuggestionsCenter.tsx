@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Rocket, Brain, Target, Star, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { SmartSuggestionBox } from '../shared/SmartSuggestionBox';
 
 interface SmartSuggestionsCenterProps {
   performance: {
@@ -76,11 +75,6 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pb-5">
-        {/* Dynamic time-based suggestions */}
-        <div className="mb-4">
-          <SmartSuggestionBox />
-        </div>
-        
         <div className={`p-4 rounded-lg ${suggestion.color} border mb-3 shadow-sm`}>
           <div className="flex items-start gap-3">
             {suggestion.icon}
