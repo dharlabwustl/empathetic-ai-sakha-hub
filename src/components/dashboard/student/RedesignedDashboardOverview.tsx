@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import ComprehensiveAdaptiveDashboard from '../adaptive/ComprehensiveAdaptiveDashboard';
-import EnhancedDashboardHeader from './EnhancedDashboardHeader';
 import OnboardingHighlights from './OnboardingHighlights';
 import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import EnhancedNameHeaderCard from './EnhancedNameHeaderCard';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -43,23 +43,14 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
 
   return (
     <div className="space-y-6">
-      {/* Enhanced header with real-time clock, date, and study streak */}
-      <EnhancedDashboardHeader
+      {/* Enhanced Name Header Card with time, day, and streak */}
+      <EnhancedNameHeaderCard
         userProfile={userProfile}
-        onViewStudyPlan={handleViewStudyPlan}
         currentMood={currentMood}
         onMoodChange={onMoodChange}
       />
 
-      {/* Comprehensive Adaptive Dashboard with exam readiness */}
-      <ComprehensiveAdaptiveDashboard 
-        userProfile={userProfile}
-        kpis={kpis}
-        currentMood={currentMood}
-        onMoodChange={onMoodChange}
-      />
-
-      {/* Three cards section moved below exam readiness */}
+      {/* Three cards section moved to top */}
       <div className="grid gap-6">
         {/* Today's Top Priority Section with animations */}
         {showTopPriority && (
@@ -80,6 +71,14 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
           userName={userProfile.name || userProfile.firstName || "Student"}
         />
       </div>
+
+      {/* Comprehensive Adaptive Dashboard with exam readiness */}
+      <ComprehensiveAdaptiveDashboard 
+        userProfile={userProfile}
+        kpis={kpis}
+        currentMood={currentMood}
+        onMoodChange={onMoodChange}
+      />
 
       {/* Onboarding highlights for first-time users */}
       <OnboardingHighlights
