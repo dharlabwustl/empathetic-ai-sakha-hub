@@ -50,9 +50,9 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
-      case 'Critical': return 'bg-red-100/80 text-red-800 border-red-300 dark:bg-red-950/30 dark:text-red-300';
-      case 'High': return 'bg-orange-100/80 text-orange-800 border-orange-300 dark:bg-orange-950/30 dark:text-orange-300';
-      default: return 'bg-yellow-100/80 text-yellow-800 border-yellow-300 dark:bg-yellow-950/30 dark:text-yellow-300';
+      case 'Critical': return 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300';
+      case 'High': return 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300';
+      default: return 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300';
     }
   };
 
@@ -64,8 +64,8 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
       transition={{ duration: 0.6 }}
       data-tour="top-priority"
     >
-      <Card className="premium-card shadow-lg overflow-hidden">
-        <CardHeader className="pb-3 relative z-10 bg-gradient-to-r from-red-50/80 to-orange-50/80 dark:from-red-950/20 dark:to-orange-950/20">
+      <Card className="relative shadow-lg border-2 border-gradient-to-r from-red-200 to-orange-200 dark:from-red-800 dark:to-orange-800 overflow-hidden">
+        <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
               <motion.div
@@ -82,7 +82,15 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                 <Target className="h-5 w-5 text-red-600" />
               </motion.div>
               <motion.span
-                className="font-bold animate-priority-pulse"
+                animate={{ 
+                  color: ["#dc2626", "#ea580c", "#dc2626"]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
               >
                 Today's Top Priority - Take Action!
               </motion.span>
@@ -103,7 +111,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
           {priorityTopics.map((topic, index) => (
             <motion.div
               key={index}
-              className="border rounded-lg p-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm"
+              className="border rounded-lg p-4 bg-white/90 dark:bg-gray-800/90"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -118,7 +126,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                     <Badge className={getUrgencyColor(topic.urgency)}>
                       {topic.urgency}
                     </Badge>
-                    <Badge className="bg-gray-100/80 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300">
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300">
                       Accuracy: {topic.accuracy}%
                     </Badge>
                   </div>
@@ -131,7 +139,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                     duration: 1, 
                     repeat: Infinity
                   }}
-                  className="text-right border-2 rounded-lg p-2 bg-white/50 backdrop-blur-sm"
+                  className="text-right border-2 rounded-lg p-2"
                 >
                   <p className="text-xs text-gray-600 dark:text-gray-400">Days Left</p>
                   <p className="font-bold text-red-900 dark:text-red-100">{topic.daysLeft}</p>
@@ -156,11 +164,11 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                     Study Concept
                   </Button>
                 </Link>
-                <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
+                <Link to={`/dashboard/student/flashcards/${topic.subject.toLowerCase()}`} className="flex-1">
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="w-full hover:bg-green-50 border-green-200"
+                    className="w-full hover:bg-green-50"
                   >
                     <RotateCcw className="h-3 w-3 mr-1" />
                     Practice Recall
@@ -183,7 +191,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
           >
             <Button 
               size="sm" 
-              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold shadow-lg"
+              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold"
               onClick={() => navigate('/dashboard/student/concepts')}
             >
               <Zap className="h-4 w-4 mr-2" />
