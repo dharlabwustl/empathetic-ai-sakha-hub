@@ -57,18 +57,19 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
 export const getDefaultVoiceConfig = (): VoiceConfig => {
   return {
     voice: getPreferredFemaleVoice(),
-    rate: 0.7,
+    rate: 0.85,
     pitch: 1.0,
-    volume: 0.3, // Very low volume to prevent echo
+    volume: 0.6,
     language: 'en-US'
   };
 };
 
-// Enhanced message tracking with session-based prevention and echo prevention
-const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
+// Enhanced message tracking with session-based prevention and better cooldown
+const spokenMessages = new Map<string, { timestamp: number; sessionId: string; count: number }>();
 const SESSION_ID = Date.now().toString();
-const MESSAGE_COOLDOWN = 600000; // 10 minutes cooldown for same message
-const SPEECH_DELAY = 2000; // Longer delay before speaking to prevent echo
+const MESSAGE_COOLDOWN = 900000; // 15 minutes cooldown for same message
+const SPEECH_DELAY = 1500; // Shorter delay for better responsiveness
+const MAX_REPETITIONS = 1; // Only allow one repetition per session
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -76,20 +77,33 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Enhanced pronunciation fixes for PREPZR with more variations
+  // Enhanced pronunciation fixes for PREPZR with comprehensive variations
   let processedText = text
-    .replace(/PREPZR/gi, 'Prep Zer')
-    .replace(/Sakha AI/gi, 'Prep Zer AI')
-    .replace(/PrepZR/gi, 'Prep Zer')
-    .replace(/prep zr/gi, 'Prep Zer')
-    .replace(/prepzr/gi, 'Prep Zer')
-    .replace(/prep zer/gi, 'Prep Zer')
-    .replace(/prep-zer/gi, 'Prep Zer')
-    .replace(/prepzer/gi, 'Prep Zer')
-    .replace(/PREP ZR/gi, 'Prep Zer')
-    .replace(/prep ZR/gi, 'Prep Zer')
-    .replace(/Prepzr/gi, 'Prep Zer')
-    .replace(/PrepZer/gi, 'Prep Zer');
+    // Primary PREPZR replacements
+    .replace(/PREPZR/gi, 'Prep-Zer')
+    .replace(/PrepZR/gi, 'Prep-Zer')
+    .replace(/prepzr/gi, 'Prep-Zer')
+    .replace(/Prepzr/gi, 'Prep-Zer')
+    .replace(/PrepZer/gi, 'Prep-Zer')
+    .replace(/PREP ZR/gi, 'Prep-Zer')
+    .replace(/prep zr/gi, 'Prep-Zer')
+    .replace(/prep zer/gi, 'Prep-Zer')
+    .replace(/prep-zer/gi, 'Prep-Zer')
+    .replace(/prepzer/gi, 'Prep-Zer')
+    .replace(/prep ZR/gi, 'Prep-Zer')
+    // Handle variations with AI
+    .replace(/Sakha AI/gi, 'Prep-Zer AI')
+    .replace(/PREPZR AI/gi, 'Prep-Zer AI')
+    .replace(/prepzr ai/gi, 'Prep-Zer AI')
+    .replace(/Prepzr AI/gi, 'Prep-Zer AI')
+    // Handle in context
+    .replace(/Welcome to PREPZR/gi, 'Welcome to Prep-Zer')
+    .replace(/welcome to prepzr/gi, 'welcome to Prep-Zer')
+    .replace(/I'm PREPZR/gi, "I'm Prep-Zer")
+    .replace(/I am PREPZR/gi, "I am Prep-Zer")
+    // Additional context-aware replacements
+    .replace(/(\w+)\s+PREPZR/gi, (match, word) => `${word} Prep-Zer`)
+    .replace(/PREPZR(\s+\w+)/gi, (match, word) => `Prep-Zer${word}`);
     
   utterance.text = processedText;
   utterance.lang = finalConfig.language;
@@ -116,15 +130,16 @@ export const speakWithFemaleVoice = (
       return;
     }
     
-    // Enhanced repetition prevention
-    const messageKey = text.toLowerCase().trim().substring(0, 50);
+    // Enhanced repetition prevention with count tracking
+    const messageKey = text.toLowerCase().trim().substring(0, 100);
     const now = Date.now();
     const messageInfo = spokenMessages.get(messageKey);
     
     if (messageInfo && 
         messageInfo.sessionId === SESSION_ID && 
+        messageInfo.count >= MAX_REPETITIONS &&
         (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
-      console.log('🔇 Voice: Preventing repetition of message:', text.substring(0, 50) + '...');
+      console.log('🔇 Voice: Preventing repetition of message (count:', messageInfo.count, '):', text.substring(0, 50) + '...');
       resolve(false);
       return;
     }
@@ -132,7 +147,7 @@ export const speakWithFemaleVoice = (
     // Cancel any ongoing speech to prevent overlap
     window.speechSynthesis.cancel();
     
-    // Add longer delay to prevent echo
+    // Add delay to prevent echo and ensure proper voice loading
     setTimeout(() => {
       // Check if speech synthesis is still available
       if (!window.speechSynthesis) {
@@ -159,8 +174,13 @@ export const speakWithFemaleVoice = (
         resolve(false);
       };
       
-      // Store the timestamp and session when we start speaking
-      spokenMessages.set(messageKey, { timestamp: now, sessionId: SESSION_ID });
+      // Update or create the message tracking record
+      const currentInfo = spokenMessages.get(messageKey);
+      spokenMessages.set(messageKey, { 
+        timestamp: now, 
+        sessionId: SESSION_ID, 
+        count: currentInfo ? currentInfo.count + 1 : 1 
+      });
       
       try {
         window.speechSynthesis.speak(utterance);
@@ -173,7 +193,7 @@ export const speakWithFemaleVoice = (
 };
 
 // Smart breaks between messages
-export const createIntelligentPause = (duration: number = 4000): Promise<void> => {
+export const createIntelligentPause = (duration: number = 3000): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, duration));
 };
 
