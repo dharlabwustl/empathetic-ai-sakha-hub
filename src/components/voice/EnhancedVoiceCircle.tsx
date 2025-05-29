@@ -38,7 +38,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
       return 'bg-gradient-to-r from-green-500 to-blue-500 shadow-md';
     }
     if (isListening) {
-      return 'bg-gradient-to-r from-red-500 to-pink-500 shadow-md';
+      return 'bg-gradient-to-r from-red-500 to-pink-500 shadow-md animate-pulse';
     }
     return 'bg-gradient-to-r from-purple-500 to-blue-500 hover:shadow-md hover:shadow-purple-500/30';
   };
@@ -53,7 +53,12 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Main button - no pulse ring or vibration to prevent echo */}
+      {/* Simple pulse ring for listening state - no volume waves */}
+      {isListening && (
+        <div className={`absolute inset-0 ${sizeClasses[size]} rounded-full bg-red-400 animate-ping opacity-60`} />
+      )}
+      
+      {/* Main button - smaller and cleaner */}
       <Button
         onClick={handleClick}
         variant="ghost"
@@ -86,7 +91,7 @@ export const EnhancedVoiceCircle: React.FC<EnhancedVoiceCircleProps> = ({
   );
 };
 
-// Simplified floating voice button without text overlays or vibrations
+// Simplified floating voice button without volume waves
 interface FloatingVoiceButtonProps {
   isSpeaking?: boolean;
   isListening?: boolean;
@@ -114,6 +119,15 @@ export const FloatingVoiceButton: React.FC<FloatingVoiceButtonProps> = ({
           className="drop-shadow-lg"
         />
       </div>
+      
+      {/* Status text */}
+      {(isSpeaking || isListening) && (
+        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+          <div className="bg-black/80 text-white text-xs px-2 py-1 rounded">
+            {isSpeaking ? 'PREPZR speaking... (tap to stop)' : 'Listening...'}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

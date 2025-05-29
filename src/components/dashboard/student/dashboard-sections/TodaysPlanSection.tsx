@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -187,33 +188,24 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
   };
 
   return (
-    <Card className="relative animate-pulse border-2 border-blue-300 shadow-lg shadow-blue-200/50 overflow-hidden">
-      {/* Premium animated arrow for Today's Study Plan */}
-      <div className="absolute -top-3 left-4 animate-bounce z-10">
-        <ArrowDown className="h-6 w-6 text-blue-500 drop-shadow-md animate-pulse" />
+    <Card className="relative animate-pulse border-2 border-blue-300 shadow-lg shadow-blue-200/50">
+      {/* Animated arrow for Today's Study Plan */}
+      <div className="absolute -top-3 left-4 animate-bounce">
+        <ArrowDown className="h-6 w-6 text-blue-500" />
       </div>
       
-      {/* Enhanced sparkle animations with more variety */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {/* Sparkle animations */}
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
         <div className="absolute top-4 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-pulse"></div>
         <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-        <div className="absolute top-6 left-2 w-1 h-1 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-6 right-4 w-1.5 h-1.5 bg-indigo-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-        <div className="absolute top-1/2 right-1 w-1 h-1 bg-cyan-400 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-8 right-8 w-0.5 h-0.5 bg-sky-400 rounded-full animate-ping" style={{ animationDelay: '2.5s' }}></div>
-        <div className="absolute bottom-8 left-8 w-1 h-1 bg-blue-300 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
       </div>
 
-      {/* Enhanced gradient overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-transparent to-indigo-50/50 pointer-events-none"></div>
-
-      <CardHeader className="pb-2 relative z-10 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-500 animate-pulse" />
             Today's NEET Study Plan
-            <Badge variant="secondary" className="text-xs animate-pulse bg-blue-100 text-blue-800 border-blue-300 shadow-sm">
+            <Badge variant="secondary" className="text-xs animate-pulse">
               LIVE PLAN
             </Badge>
             <Sparkles className="h-4 w-4 text-yellow-500 animate-pulse" />
@@ -225,7 +217,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
           )}
         </div>
       </CardHeader>
-      <CardContent className="relative z-10">
+      <CardContent>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -277,11 +269,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             <div>
               Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
             </div>
-            <Button 
-              size="sm" 
-              onClick={() => navigate('/dashboard/student/today')}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
-            >
+            <Button size="sm" onClick={() => navigate('/dashboard/student/today')}>
               View Full Plan
             </Button>
           </div>

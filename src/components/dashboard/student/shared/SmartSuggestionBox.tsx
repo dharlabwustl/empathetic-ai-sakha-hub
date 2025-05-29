@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, ArrowDown, Sparkles } from 'lucide-react';
+import { Lightbulb, ArrowDown } from 'lucide-react';
 
 interface SmartSuggestionBoxProps {
   suggestions: string[];
@@ -20,7 +20,7 @@ export const SmartSuggestionBox: React.FC<SmartSuggestionBoxProps> = ({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [dynamicSuggestions, setDynamicSuggestions] = useState(suggestions);
 
-  // Update time every minute for real-time suggestions
+  // Update time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -29,66 +29,47 @@ export const SmartSuggestionBox: React.FC<SmartSuggestionBoxProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Generate comprehensive time-based suggestions with contextual study advice
+  // Generate time-based suggestions
   useEffect(() => {
     const hour = currentTime.getHours();
-    const day = currentTime.getDay(); // 0 = Sunday, 6 = Saturday
-    const isWeekend = day === 0 || day === 6;
     let timeBased: string[] = [];
 
     if (hour >= 5 && hour < 12) {
-      // Morning (5 AM - 12 PM) - Peak cognitive performance
+      // Morning (5 AM - 12 PM)
       timeBased = [
-        "🌅 Peak brain time! Tackle complex Physics and Math concepts now",
-        "📚 Morning freshness - perfect for new concept learning",
-        "🧠 Your brain is 23% more alert - use it for difficult topics",
-        "☕ Study before breakfast for maximum retention",
-        isWeekend ? "🏠 Weekend morning boost - extra study session time!" : "📖 School day prep - review yesterday's notes"
+        "Start with complex topics - your brain is fresh!",
+        "Review yesterday's concepts first",
+        "Focus on Physics and Math this morning",
+        "Take breaks every 45 minutes"
       ];
     } else if (hour >= 12 && hour < 17) {
-      // Afternoon (12 PM - 5 PM) - Good for practice and review
+      // Afternoon (12 PM - 5 PM)
       timeBased = [
-        "🌞 Afternoon energy! Perfect for practice questions",
-        "📝 Post-lunch focus - ideal for Chemistry problem solving",
-        "🔄 Review morning concepts to strengthen memory",
-        "⚡ Quick revision sessions work best now",
-        isWeekend ? "🎯 Weekend afternoon - group study time!" : "📊 After-school power hour - maximize productivity"
+        "Practice previous year questions now",
+        "Focus on Chemistry reactions and formulas",
+        "Take a power nap if feeling tired",
+        "Review flashcards for quick revision"
       ];
     } else if (hour >= 17 && hour < 22) {
-      // Evening (5 PM - 10 PM) - Great for memorization and review
+      // Evening (5 PM - 10 PM)
       timeBased = [
-        "🌆 Evening memory boost! Perfect for Biology memorization",
-        "📊 Mock test time - analyze your performance",
-        "👥 Best time for group study sessions online",
-        "📈 Track today's progress and plan tomorrow",
-        isWeekend ? "🎮 Balance study and relaxation this evening" : "📚 Prime study hours - make them count!"
+        "Perfect time for Biology memorization",
+        "Solve mock tests and analyze errors",
+        "Group study with friends online",
+        "Review the day's learning progress"
       ];
     } else {
-      // Night/Late (10 PM - 5 AM) - Light review only
+      // Night/Late (10 PM - 5 AM)
       timeBased = [
-        "🌙 Wind down with light formula revision only",
-        "🧘 Practice meditation for better sleep and focus",
-        "📱 Quick flashcard review - no heavy studying",
-        "📋 Plan tomorrow's study schedule now",
-        hour >= 22 ? "😴 Sleep is crucial for memory consolidation!" : "🌅 Early riser? Light warm-up before main study"
+        "Light revision only - avoid new topics",
+        "Practice meditation for better sleep",
+        "Review formula sheets quickly",
+        "Plan tomorrow's study schedule"
       ];
     }
 
-    // Add seasonal and motivational suggestions
-    const motivationalTips = [
-      "🎯 Every minute counts towards your NEET success",
-      "💪 Consistency beats intensity - keep going!",
-      "🏆 You're building habits that lead to success",
-      "📈 Small improvements daily = massive results yearly"
-    ];
-
-    // Merge time-based suggestions with motivational tips and original suggestions
-    const merged = [
-      ...timeBased.slice(0, 2), 
-      ...motivationalTips.slice(0, 1),
-      ...suggestions.slice(0, 1)
-    ];
-    
+    // Merge with original suggestions, prioritizing time-based ones
+    const merged = [...timeBased.slice(0, 2), ...suggestions.slice(0, 2)];
     setDynamicSuggestions(merged);
   }, [currentTime, suggestions]);
 
@@ -118,26 +99,22 @@ export const SmartSuggestionBox: React.FC<SmartSuggestionBoxProps> = ({
       {/* Animated arrow for special sections */}
       {(isTopPriority || isStudyPlan) && (
         <div className="absolute -top-3 left-4 animate-bounce">
-          <ArrowDown className={`h-6 w-6 ${isTopPriority ? 'text-orange-500' : 'text-blue-500'} drop-shadow-md`} />
+          <ArrowDown className={`h-6 w-6 ${isTopPriority ? 'text-orange-500' : 'text-blue-500'}`} />
         </div>
       )}
       
-      {/* Enhanced sparkle animations for enhanced sections */}
+      {/* Sparkle animation for enhanced sections */}
       {(isTopPriority || isStudyPlan) && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
           <div className="absolute top-4 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-pulse"></div>
           <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-          <div className="absolute top-6 left-2 w-1 h-1 bg-amber-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-6 right-4 w-1.5 h-1.5 bg-orange-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-          <div className="absolute top-8 right-8 w-0.5 h-0.5 bg-pink-400 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-8 left-8 w-1 h-1 bg-red-300 rounded-full animate-pulse" style={{ animationDelay: '2.5s' }}></div>
         </div>
       )}
 
       <CardContent className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Lightbulb className={`h-5 w-5 ${isTopPriority ? 'text-orange-600 animate-pulse' : isStudyPlan ? 'text-blue-600 animate-pulse' : 'text-blue-600'}`} />
+          <Lightbulb className={`h-5 w-5 ${isTopPriority ? 'text-orange-600' : isStudyPlan ? 'text-blue-600' : 'text-blue-600'}`} />
           <h3 className={`font-semibold ${isTopPriority ? 'text-orange-900 dark:text-orange-100' : isStudyPlan ? 'text-blue-900 dark:text-blue-100' : 'text-blue-900 dark:text-blue-100'}`}>
             {title}
           </h3>
@@ -145,9 +122,6 @@ export const SmartSuggestionBox: React.FC<SmartSuggestionBoxProps> = ({
             <Badge variant="secondary" className="text-xs animate-pulse">
               {isTopPriority ? 'PRIORITY!' : 'LIVE PLAN'}
             </Badge>
-          )}
-          {(isTopPriority || isStudyPlan) && (
-            <Sparkles className="h-4 w-4 text-yellow-500 animate-pulse" />
           )}
         </div>
         <div className="space-y-2">
@@ -159,14 +133,14 @@ export const SmartSuggestionBox: React.FC<SmartSuggestionBoxProps> = ({
                 isTopPriority ? 'text-orange-800 dark:text-orange-200 border-orange-300' : 
                 isStudyPlan ? 'text-blue-800 dark:text-blue-200 border-blue-300' : 
                 'text-blue-800 dark:text-blue-200 border-blue-300'
-              } ${index < 3 ? 'animate-pulse' : ''} text-xs px-2 py-1`}
+              } ${index < 2 ? 'animate-pulse' : ''}`}
             >
               {suggestion}
             </Badge>
           ))}
         </div>
         {(isTopPriority || isStudyPlan) && (
-          <div className="mt-3 text-xs text-gray-500 flex items-center gap-1">
+          <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
             Updated {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>

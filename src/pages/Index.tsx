@@ -128,14 +128,14 @@ const Index = () => {
           onStopSpeaking={(handler) => setStopSpeakingHandler(() => handler)}
         />
         
-        {/* Speech Recognition Button - positioned much higher to avoid echo */}
+        {/* Speech Recognition Button - positioned higher to avoid echo */}
         <SpeechRecognitionButton
           position="homepage"
           onCommand={handleSpeechCommand}
-          className="fixed bottom-44 right-6 z-40"
+          className="fixed bottom-28 right-6 z-40"
         />
 
-        {/* Simplified Floating Voice Button without text overlays */}
+        {/* Simplified Floating Voice Button without volume waves */}
         <FloatingVoiceButton 
           isSpeaking={isSpeaking}
           isListening={isListening}

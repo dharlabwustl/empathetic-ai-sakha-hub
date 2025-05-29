@@ -139,11 +139,11 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      {/* Speech Recognition Button positioned much higher with more space to prevent echo */}
+      {/* Speech Recognition Button positioned higher with more space */}
       <SpeechRecognitionButton
         position="dashboard"
         onCommand={handleSpeechCommand}
-        className={`fixed z-40 ${isMobile ? 'bottom-40 right-4' : 'bottom-40 right-6'}`}
+        className={`fixed z-40 ${isMobile ? 'bottom-32 right-4' : 'bottom-32 right-6'}`}
       />
       
       {showStudyPlan && (

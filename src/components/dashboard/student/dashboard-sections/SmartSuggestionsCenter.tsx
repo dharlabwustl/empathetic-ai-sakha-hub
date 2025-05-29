@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Rocket, Brain, Target, Star, ArrowRight, ArrowDown, Sparkles } from 'lucide-react';
@@ -69,38 +68,30 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
 
   return (
     <Card className="overflow-hidden border-0 shadow-md relative animate-pulse border-2 border-orange-300 shadow-lg shadow-orange-200/50">
-      {/* Premium animated arrow for Top Priority */}
-      <div className="absolute -top-3 left-4 animate-bounce z-10">
-        <ArrowDown className="h-6 w-6 text-orange-500 drop-shadow-md animate-pulse" />
+      {/* Animated arrow for Top Priority */}
+      <div className="absolute -top-3 left-4 animate-bounce">
+        <ArrowDown className="h-6 w-6 text-orange-500" />
       </div>
       
-      {/* Enhanced sparkle animations with more variety */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {/* Sparkle animations */}
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
         <div className="absolute top-4 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-pulse"></div>
         <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-        <div className="absolute top-6 left-2 w-1 h-1 bg-orange-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-6 right-4 w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-        <div className="absolute top-1/2 right-1 w-1 h-1 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-8 right-8 w-0.5 h-0.5 bg-pink-400 rounded-full animate-ping" style={{ animationDelay: '2.5s' }}></div>
-        <div className="absolute bottom-8 left-8 w-1 h-1 bg-orange-300 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
       </div>
 
-      {/* Enhanced gradient overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/70 via-transparent to-red-50/50 pointer-events-none"></div>
-
-      <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 pb-2 relative z-10">
+      <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Brain className="h-5 w-5 text-orange-500 animate-pulse" />
+          <Brain className="h-5 w-5 text-orange-500" />
           Today's Top Priority
-          <Badge variant="secondary" className="text-xs animate-pulse bg-orange-100 text-orange-800 border-orange-300 shadow-sm">
+          <Badge variant="secondary" className="text-xs animate-pulse">
             PRIORITY!
           </Badge>
           <Sparkles className="h-4 w-4 text-yellow-500 animate-pulse" />
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 pb-5 relative z-10">
-        <div className={`p-4 rounded-lg ${suggestion.color} border mb-3 shadow-sm animate-pulse`}>
+      <CardContent className="p-4 pb-5">
+        <div className={`p-4 rounded-lg ${suggestion.color} border mb-3 shadow-sm`}>
           <div className="flex items-start gap-3">
             {suggestion.icon}
             <p className="text-sm">{suggestion.text}</p>
@@ -120,7 +111,7 @@ export default function SmartSuggestionsCenter({ performance }: SmartSuggestions
           
           <Link to={suggestion.actionLink} className="no-underline">
             <Button 
-              className={`w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200`}
+              className={`w-full bg-gradient-to-r ${suggestion.gradient} hover:opacity-90 text-white`}
             >
               {suggestion.actionText} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

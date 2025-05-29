@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MoodType, UserProfileType } from "@/types/user/base";
-import { Bell, Calendar, BookMarked, Crown } from "lucide-react";
+import { Bell, Calendar, BookMarked } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
 import { 
@@ -12,7 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -111,27 +111,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           {/* Action buttons and mood */}
           <div className="flex items-center gap-3">
-            {/* Upgrade button with premium styling */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    asChild
-                    size="sm"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
-                  >
-                    <Link to="/dashboard/student/subscription" className="flex items-center gap-1">
-                      <Crown className="h-4 w-4" />
-                      <span className="hidden sm:inline">Upgrade</span>
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Upgrade to Premium</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
             {/* Mood button */}
             {onMoodChange && (
               <TooltipProvider>
