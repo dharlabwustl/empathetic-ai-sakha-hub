@@ -29,10 +29,13 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     // Only process if confidence is reasonable
     if (confidence < 0.3 && lowerCommand.length < 8) return;
 
+    console.log('📊 Dashboard processing command:', lowerCommand, 'confidence:', confidence);
+
     // Study-related commands
     if (lowerCommand.includes('start studying') || lowerCommand.includes('study now') ||
-        lowerCommand.includes('begin study') || lowerCommand.includes('study session')) {
-      speak("Let's start your study session! I'll take you to your concept cards where you can begin learning.");
+        lowerCommand.includes('begin study') || lowerCommand.includes('study session') ||
+        lowerCommand.includes('lets study')) {
+      speak("Excellent! Let's start your study session. I'll take you to your concept cards where you can begin learning with content that adapts to your current mood and energy level.");
       setTimeout(() => navigate('/dashboard/student/concepts'), 1000);
       return;
     }
@@ -40,7 +43,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     // Concept cards
     if (lowerCommand.includes('concept cards') || lowerCommand.includes('concepts') ||
         lowerCommand.includes('flashcards') || lowerCommand.includes('cards')) {
-      speak("Great choice! Concept cards are perfect for focused learning. Let's dive in!");
+      speak("Great choice! Concept cards are perfect for focused learning. Our cards adapt to your understanding level and mood. Let's dive in!");
       setTimeout(() => navigate('/dashboard/student/concepts'), 1000);
       return;
     }
@@ -48,7 +51,7 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     // Study plan
     if (lowerCommand.includes('study plan') || lowerCommand.includes('plan') ||
         lowerCommand.includes('schedule') || lowerCommand.includes('routine')) {
-      speak("I'll show you your personalized study plan with all your subjects and progress tracking.");
+      speak("I'll show you your personalized study plan that adapts to your progress and emotional state. It's designed to keep you motivated and on track!");
       setTimeout(() => navigate('/dashboard/student/academic'), 1000);
       return;
     }
@@ -56,23 +59,25 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     // Practice tests
     if (lowerCommand.includes('practice test') || lowerCommand.includes('mock test') ||
         lowerCommand.includes('test') || lowerCommand.includes('exam practice')) {
-      speak("Time for some practice! Mock tests are excellent for building exam confidence. Let's get started!");
+      speak("Perfect timing for practice! Mock tests are excellent for building exam confidence. Our tests adapt to your stress levels and provide supportive feedback. Let's get started!");
       setTimeout(() => navigate('/dashboard/student/practice'), 1000);
       return;
     }
 
     // Progress and analytics
     if (lowerCommand.includes('progress') || lowerCommand.includes('analytics') ||
-        lowerCommand.includes('performance') || lowerCommand.includes('stats')) {
-      speak("Let me show you your learning analytics and progress insights. It's great to track your growth!");
+        lowerCommand.includes('performance') || lowerCommand.includes('stats') ||
+        lowerCommand.includes('how am i doing')) {
+      speak("Let me show you your learning analytics and progress insights! It's great to track your growth and see how your emotional well-being affects your learning.");
       setTimeout(() => navigate('/dashboard/student/analytics'), 1000);
       return;
     }
 
-    // Mood and motivation
+    // Mood and emotional support
     if (lowerCommand.includes('feeling') || lowerCommand.includes('mood') ||
-        lowerCommand.includes('motivated') || lowerCommand.includes('stressed')) {
-      speak("I understand that how you feel affects your learning. PREPZR adapts to your emotional state to provide the best study experience. You're doing great!");
+        lowerCommand.includes('stressed') || lowerCommand.includes('tired') ||
+        lowerCommand.includes('anxious') || lowerCommand.includes('motivated')) {
+      speak(`I understand that how you feel greatly affects your learning, ${userName}. PREPZR adapts to your emotional state to provide the best study experience. Remember, it's okay to have ups and downs - I'm here to support you through everything!`);
       return;
     }
 
@@ -80,10 +85,25 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     if (lowerCommand.includes('what next') || lowerCommand.includes('recommend') ||
         lowerCommand.includes('suggest') || lowerCommand.includes('what should i do')) {
       if (suggestedNextAction) {
-        speak(`Based on your progress, I recommend: ${suggestedNextAction}. Would you like me to take you there?`);
+        speak(`Based on your progress and current mood, I recommend: ${suggestedNextAction}. This suggestion is personalized just for you. Would you like me to take you there?`);
       } else {
-        speak("I suggest continuing with your concept cards or taking a practice test to reinforce your learning. What interests you more?");
+        speak("Based on your learning pattern, I suggest continuing with your concept cards or taking a practice test to reinforce your learning. Both will adapt to how you're feeling right now. What interests you more?");
       }
+      return;
+    }
+
+    // Motivational support
+    if (lowerCommand.includes('motivate') || lowerCommand.includes('encourage') ||
+        lowerCommand.includes('inspire') || lowerCommand.includes('motivation') ||
+        lowerCommand.includes('support')) {
+      const motivationalMessages = [
+        `${userName}, every step you take brings you closer to your exam success! Your consistency and emotional growth are your superpowers.`,
+        `You're building something amazing ${userName}! Each study session adds to your knowledge foundation and emotional resilience.`,
+        `${userName}, remember why you started this journey. Your dedication today, combined with emotional intelligence, shapes your future success!`,
+        `Great job staying committed ${userName}! Champions are made through daily practice and emotional awareness, just like what you're developing with PREPZR.`
+      ];
+      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+      speak(randomMessage);
       return;
     }
 
@@ -91,30 +111,16 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     if (lowerCommand.includes('help') || lowerCommand.includes('guide') ||
         lowerCommand.includes('lost') || lowerCommand.includes('confused')) {
       if (isFirstTimeUser) {
-        speak(`${userName}, as a new user, I recommend starting with concept cards to build your foundation, then moving to practice tests. Your study plan is personalized just for you!`);
+        speak(`${userName}, as a new PREPZR user, I recommend starting with concept cards to build your foundation, then moving to practice tests. Everything here adapts to your emotional state and learning style!`);
       } else {
-        speak(`${userName}, you're doing great! Continue with your regular study routine or try something new like the formula lab or analytics to track your progress.`);
+        speak(`${userName}, you're doing great! Continue with your emotionally intelligent study routine, try the formula lab, or check analytics to see how your mood affects your learning progress.`);
       }
-      return;
-    }
-
-    // Motivational commands
-    if (lowerCommand.includes('motivate') || lowerCommand.includes('encourage') ||
-        lowerCommand.includes('inspire') || lowerCommand.includes('motivation')) {
-      const motivationalMessages = [
-        `${userName}, every step you take brings you closer to your exam success! Your consistency is your superpower.`,
-        `You're building something amazing ${userName}! Each study session adds to your knowledge foundation.`,
-        `${userName}, remember why you started this journey. Your dedication today shapes your future success!`,
-        `Great job staying committed ${userName}! Champions are made through daily practice, just like what you're doing.`
-      ];
-      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      speak(randomMessage);
       return;
     }
 
     // Default response for unrecognized commands
     if (lowerCommand.length > 3) {
-      speak(`I'm here to help with your studies ${userName}! You can ask me to start studying, show your study plan, take practice tests, or check your progress. What would you like to do?`);
+      speak(`I'm here to support your study journey, ${userName}! You can ask me to start studying, show your adaptive study plan, take mood-aware practice tests, or check your emotional learning progress. How can I help you succeed today?`);
     }
   }, [userName, isFirstTimeUser, suggestedNextAction, navigate]);
 
@@ -137,24 +143,29 @@ const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
     }
   }, [isSpeaking, onSpeakingChange]);
 
-  // Context-aware greeting based on user status
+  // Context-aware greeting based on user status (silent unless necessary)
   useEffect(() => {
     if (isSupported && !hasGreeted && userName) {
       const timer = setTimeout(() => {
         let greetingMessage = '';
         
         if (isFirstTimeUser) {
-          greetingMessage = `Welcome to your PREPZR dashboard ${userName}! This is your command center for exam preparation excellence. Ready to start your first study session? I recommend beginning with the concept cards!`;
+          greetingMessage = `Welcome to your PREPZR dashboard, ${userName}! This is your emotionally intelligent command center for exam preparation excellence. Everything here adapts to your mood and learning style. Ready to start your first study session? I recommend beginning with the concept cards!`;
         } else if (loginCount === 2) {
-          greetingMessage = `Welcome back ${userName}! Great to see you again. Your dedication to consistent learning is exactly what leads to exam success. What would you like to focus on in today's study session?`;
+          greetingMessage = `Welcome back ${userName}! Great to see you again. Your dedication to consistent learning with emotional awareness is exactly what leads to exam success. What would you like to focus on in today's adaptive study session?`;
         } else if (lastActivity) {
-          greetingMessage = `Hi ${userName}! Your study streak is impressive. ${lastActivity.description}. Ready to continue your learning journey?`;
+          greetingMessage = `Hi ${userName}! Your emotionally intelligent study streak is impressive. ${lastActivity.description}. Ready to continue your adaptive learning journey?`;
         } else {
-          greetingMessage = `Welcome back ${userName}! Your consistency in learning is your greatest strength. What would you like to study today?`;
+          // Silent for regular returning users - only speak when invoked
+          setHasGreeted(true);
+          startListening();
+          return;
         }
         
         speak(greetingMessage);
-        startListening();
+        setTimeout(() => {
+          startListening();
+        }, 6000);
         setHasGreeted(true);
       }, 2000);
 

@@ -59,7 +59,7 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
     voice: getPreferredFemaleVoice(),
     rate: 0.9,
     pitch: 1.0,
-    volume: 0.6, // Further reduced volume to prevent echo
+    volume: 0.7,
     language: 'en-US'
   };
 };
@@ -68,7 +68,7 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
 const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
 const SESSION_ID = Date.now().toString();
 const MESSAGE_COOLDOWN = 180000; // 3 minutes cooldown for same message
-const SPEECH_DELAY = 800; // Increased delay before speaking to prevent echo
+const SPEECH_DELAY = 500; // Delay before speaking to prevent echo
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -76,15 +76,17 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Enhanced pronunciation fixes for PREPZR with correct pronunciation
+  // Enhanced pronunciation fixes with proper PREPZR pronunciation
   let processedText = text
     .replace(/PREPZR/gi, 'Prep-Zer')
-    .replace(/Sakha AI/gi, 'Prep-Zer AI')
     .replace(/PrepZR/gi, 'Prep-Zer')
-    .replace(/prep zr/gi, 'Prep-Zer')
     .replace(/prepzr/gi, 'Prep-Zer')
+    .replace(/prep zr/gi, 'Prep-Zer')
     .replace(/prep zer/gi, 'Prep-Zer')
-    .replace(/prep-zer/gi, 'Prep-Zer');
+    .replace(/prep-zer/gi, 'Prep-Zer')
+    .replace(/Sakha AI/gi, 'Prep-Zer AI')
+    .replace(/NEET/gi, 'N-E-E-T')
+    .replace(/JEE/gi, 'J-E-E');
     
   utterance.text = processedText;
   utterance.lang = finalConfig.language;

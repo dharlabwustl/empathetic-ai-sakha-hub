@@ -1,5 +1,7 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { speakWithFemaleVoice, stopAllSpeech } from '@/utils/voiceConfig';
 
 interface VoiceConfig {
   enabled: boolean;
@@ -33,18 +35,18 @@ export const useEnhancedVoiceAssistant = ({
   const [lastInteraction, setLastInteraction] = useState(Date.now());
   
   const recognitionRef = useRef<any>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const restartTimerRef = useRef<number | null>(null);
   const reminderTimerRef = useRef<number | null>(null);
   const retryCountRef = useRef(0);
   const maxRetries = 3;
+  const isActiveRef = useRef(true);
 
   const [voiceConfig, setVoiceConfig] = useState<VoiceConfig>({
     enabled: true,
     muted: false,
-    volume: 0.8,
-    rate: 0.95,
-    pitch: 1.1,
+    volume: 0.7,
+    rate: 0.9,
+    pitch: 1.0,
     voice: null,
     language: 'en-US'
   });
@@ -92,7 +94,7 @@ export const useEnhancedVoiceAssistant = ({
     };
   }, []);
 
-  // Initialize speech recognition with immediate response capability
+  // Initialize speech recognition with intelligent partial matching
   const initSpeechRecognition = useCallback(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       console.warn('Speech recognition not supported');
@@ -103,37 +105,48 @@ export const useEnhancedVoiceAssistant = ({
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       const recognition = new SpeechRecognition();
       
+      // Enhanced configuration for faster response
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = voiceConfig.language;
-      recognition.maxAlternatives = 1;
+      recognition.maxAlternatives = 3; // Get multiple alternatives
+      recognition.serviceURI = undefined; // Use default service
 
       recognition.onstart = () => {
         setIsListening(true);
         retryCountRef.current = 0;
         setLastInteraction(Date.now());
+        console.log('🎤 Enhanced speech recognition started');
       };
 
       recognition.onend = () => {
         setIsListening(false);
-        // Auto-restart if enabled and not manually stopped
-        if (voiceConfig.enabled && !voiceConfig.muted && retryCountRef.current < maxRetries) {
+        console.log('🎤 Speech recognition ended');
+        
+        // Auto-restart with intelligent backoff
+        if (voiceConfig.enabled && !voiceConfig.muted && retryCountRef.current < maxRetries && isActiveRef.current) {
+          const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 5000);
           restartTimerRef.current = window.setTimeout(() => {
-            startListening();
-          }, 1000);
+            if (isActiveRef.current) {
+              startListening();
+            }
+          }, delay);
         }
       };
 
       recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        console.error('🚨 Speech recognition error:', event.error);
         setIsListening(false);
         
         retryCountRef.current++;
-        if (retryCountRef.current < maxRetries && voiceConfig.enabled) {
+        if (retryCountRef.current < maxRetries && voiceConfig.enabled && isActiveRef.current) {
+          const delay = Math.min(2000 * retryCountRef.current, 10000);
           restartTimerRef.current = window.setTimeout(() => {
-            initSpeechRecognition();
-            startListening();
-          }, 2000 * retryCountRef.current); // Exponential backoff
+            if (isActiveRef.current) {
+              initSpeechRecognition();
+              startListening();
+            }
+          }, delay);
         }
       };
 
@@ -144,7 +157,7 @@ export const useEnhancedVoiceAssistant = ({
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
           const transcript = result[0].transcript.trim();
-          const confidence = result[0].confidence || 0.8; // Default confidence if not provided
+          const confidence = result[0].confidence || 0.8;
           
           if (result.isFinal) {
             finalTranscript += transcript;
@@ -153,17 +166,19 @@ export const useEnhancedVoiceAssistant = ({
             setPartialTranscript('');
             setLastInteraction(Date.now());
             
-            // Process command with immediate response
-            if (onCommand && finalTranscript) {
+            // Process final command with high confidence
+            if (onCommand && finalTranscript && confidence > 0.6) {
+              console.log('🗣️ Processing final command:', finalTranscript, 'confidence:', confidence);
               onCommand(finalTranscript, confidence);
             }
           } else {
             interimTranscript += transcript;
             setPartialTranscript(interimTranscript);
             
-            // Immediate partial matching for faster responses (lower threshold)
-            if (interimTranscript.length > 2 && onCommand) {
-              const partialConfidence = Math.max(confidence * 0.6, 0.3); // Lower threshold for faster response
+            // Intelligent partial matching for faster responses
+            if (interimTranscript.length > 4 && confidence > 0.8 && onCommand) {
+              const partialConfidence = confidence * 0.7; // Reduce confidence for partial
+              console.log('🔄 Processing partial command:', interimTranscript, 'confidence:', partialConfidence);
               onCommand(interimTranscript, partialConfidence);
             }
           }
@@ -173,52 +188,31 @@ export const useEnhancedVoiceAssistant = ({
       recognitionRef.current = recognition;
       return true;
     } catch (error) {
-      console.error('Error initializing speech recognition:', error);
+      console.error('❌ Error initializing speech recognition:', error);
       return false;
     }
   }, [voiceConfig.language, voiceConfig.enabled, voiceConfig.muted, onCommand]);
 
-  // Enhanced speak function with PREPZR pronunciation fix
+  // Enhanced speak function with PREPZR pronunciation
   const speak = useCallback((text: string, options?: Partial<VoiceConfig>) => {
-    if (!voiceConfig.enabled || voiceConfig.muted || !('speechSynthesis' in window)) {
+    if (!voiceConfig.enabled || voiceConfig.muted || !isActiveRef.current) {
       return false;
     }
 
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-
-    // Fix PREPZR pronunciation
-    const correctedText = text
-      .replace(/PREPZR/gi, 'PREP ZER')
-      .replace(/Prepzr/g, 'Prep Zer')
-      .replace(/prepzr/gi, 'prep zer');
-
-    const utterance = new SpeechSynthesisUtterance(correctedText);
-    const finalConfig = { ...voiceConfig, ...options };
-
-    if (finalConfig.voice) {
-      utterance.voice = finalConfig.voice;
-    }
-    utterance.volume = finalConfig.volume;
-    utterance.rate = finalConfig.rate;
-    utterance.pitch = finalConfig.pitch;
-    utterance.lang = finalConfig.language;
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setLastInteraction(Date.now());
-    };
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-    return true;
+    return speakWithFemaleVoice(
+      text,
+      { ...voiceConfig, ...options },
+      () => {
+        setIsSpeaking(true);
+        setLastInteraction(Date.now());
+      },
+      () => setIsSpeaking(false)
+    );
   }, [voiceConfig]);
 
-  // Start listening function with immediate activation
+  // Start listening with robust error handling
   const startListening = useCallback(() => {
-    if (!voiceConfig.enabled || voiceConfig.muted) return false;
+    if (!voiceConfig.enabled || voiceConfig.muted || !isActiveRef.current) return false;
 
     if (!recognitionRef.current) {
       const initialized = initSpeechRecognition();
@@ -229,16 +223,23 @@ export const useEnhancedVoiceAssistant = ({
       // Stop any ongoing recognition first
       if (recognitionRef.current && isListening) {
         recognitionRef.current.stop();
-        // Small delay before starting again
         setTimeout(() => {
-          recognitionRef.current?.start();
-        }, 100);
+          if (recognitionRef.current && isActiveRef.current) {
+            recognitionRef.current.start();
+          }
+        }, 200);
       } else {
         recognitionRef.current?.start();
       }
       return true;
     } catch (error) {
-      console.error('Error starting speech recognition:', error);
+      console.error('❌ Error starting speech recognition:', error);
+      // Reinitialize on error
+      setTimeout(() => {
+        if (isActiveRef.current) {
+          initSpeechRecognition();
+        }
+      }, 1000);
       return false;
     }
   }, [voiceConfig.enabled, voiceConfig.muted, initSpeechRecognition, isListening]);
@@ -249,7 +250,7 @@ export const useEnhancedVoiceAssistant = ({
       try {
         recognitionRef.current.stop();
       } catch (error) {
-        console.error('Error stopping speech recognition:', error);
+        console.error('❌ Error stopping speech recognition:', error);
       }
     }
     
@@ -261,16 +262,54 @@ export const useEnhancedVoiceAssistant = ({
 
   // Stop speaking function
   const stopSpeaking = useCallback(() => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
+    stopAllSpeech();
+    setIsSpeaking(false);
   }, []);
 
-  // Listen for immediate voice activation events
+  // Context-aware reminder system
+  useEffect(() => {
+    if (!voiceConfig.enabled || voiceConfig.muted || !isActiveRef.current) return;
+
+    const checkForReminder = () => {
+      const timeSinceLastInteraction = Date.now() - lastInteraction;
+      const shouldRemind = timeSinceLastInteraction >= (reminderInterval * 1000);
+      
+      if (shouldRemind && !isSpeaking && isActiveRef.current) {
+        let reminderMessage = '';
+        
+        switch (context) {
+          case 'homepage':
+            reminderMessage = "Hi there! I'm your PREPZR assistant. I can help you learn about our exam preparation platform, start a free trial, or answer any questions about how PREPZR can boost your exam success!";
+            break;
+          case 'post-signup':
+            reminderMessage = `${userName}, ready to start your PREPZR journey? I can guide you to take the exam readiness test or help you explore your new dashboard!`;
+            break;
+          case 'dashboard':
+            reminderMessage = `${userName}, need any study guidance? I'm here to help with your learning journey, suggest study topics, or provide motivation!`;
+            break;
+        }
+        
+        if (reminderMessage) {
+          speak(reminderMessage);
+          setLastInteraction(Date.now()); // Reset timer after reminder
+        }
+      }
+    };
+
+    reminderTimerRef.current = window.setInterval(checkForReminder, 15000); // Check every 15 seconds
+
+    return () => {
+      if (reminderTimerRef.current) {
+        clearInterval(reminderTimerRef.current);
+      }
+    };
+  }, [context, userName, reminderInterval, lastInteraction, isSpeaking, voiceConfig.enabled, voiceConfig.muted, speak]);
+
+  // Listen for voice activation events
   useEffect(() => {
     const handleStartVoiceRecognition = () => {
-      if (!isSpeaking) {
+      if (!isSpeaking && isActiveRef.current) {
+        setLastInteraction(Date.now());
         startListening();
       }
     };
@@ -282,47 +321,10 @@ export const useEnhancedVoiceAssistant = ({
     };
   }, [startListening, isSpeaking]);
 
-  // Reminder system based on context
-  useEffect(() => {
-    if (!voiceConfig.enabled || voiceConfig.muted) return;
-
-    const checkForReminder = () => {
-      const timeSinceLastInteraction = Date.now() - lastInteraction;
-      const shouldRemind = timeSinceLastInteraction >= (reminderInterval * 1000);
-      
-      if (shouldRemind && !isSpeaking) {
-        let reminderMessage = '';
-        
-        switch (context) {
-          case 'homepage':
-            reminderMessage = "Hi there! I'm here to help you learn about PREPZR. Feel free to ask me anything about our exam preparation platform or say 'free trial' to get started!";
-            break;
-          case 'post-signup':
-            reminderMessage = `Welcome ${userName}! Ready to begin your exam preparation journey? I can help guide you through your first steps.`;
-            break;
-          case 'dashboard':
-            reminderMessage = `${userName}, need any help with your studies? I'm here to assist with your learning journey.`;
-            break;
-        }
-        
-        if (reminderMessage) {
-          speak(reminderMessage);
-        }
-      }
-    };
-
-    reminderTimerRef.current = window.setInterval(checkForReminder, 10000); // Check every 10 seconds
-
-    return () => {
-      if (reminderTimerRef.current) {
-        clearInterval(reminderTimerRef.current);
-      }
-    };
-  }, [context, userName, reminderInterval, lastInteraction, isSpeaking, voiceConfig.enabled, voiceConfig.muted, speak]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      isActiveRef.current = false;
       stopListening();
       stopSpeaking();
       if (reminderTimerRef.current) {
@@ -339,7 +341,7 @@ export const useEnhancedVoiceAssistant = ({
         stopListening();
         stopSpeaking();
       } else if (prev.enabled) {
-        startListening();
+        setTimeout(startListening, 500);
       }
       return { ...prev, muted: newMuted };
     });
@@ -352,7 +354,7 @@ export const useEnhancedVoiceAssistant = ({
         stopListening();
         stopSpeaking();
       } else if (!prev.muted) {
-        startListening();
+        setTimeout(startListening, 500);
       }
       return { ...prev, enabled: newEnabled };
     });
