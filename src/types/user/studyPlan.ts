@@ -50,7 +50,7 @@ export interface NewStudyPlan {
   title?: string;
   goal?: string;
   examGoal: string;
-  examDate: string;
+  examDate: string | Date;
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
