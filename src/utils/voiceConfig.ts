@@ -57,36 +57,25 @@ export const getPreferredFemaleVoice = (): SpeechSynthesisVoice | null => {
 export const getDefaultVoiceConfig = (): VoiceConfig => {
   return {
     voice: getPreferredFemaleVoice(),
-    rate: 0.9,
-    pitch: 1.0,
-    volume: 0.6, // Further reduced volume to prevent echo
+    rate: 0.95,
+    pitch: 1.1,
+    volume: 0.8,
     language: 'en-US'
   };
 };
 
-// Enhanced message tracking with session-based prevention and echo prevention
+// Enhanced message tracking with session-based prevention
 const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
 const SESSION_ID = Date.now().toString();
-const MESSAGE_COOLDOWN = 180000; // 3 minutes cooldown for same message
-const SPEECH_DELAY = 800; // Increased delay before speaking to prevent echo
+const MESSAGE_COOLDOWN = 300000; // 5 minutes cooldown for same message
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
   const finalConfig = { ...defaultConfig, ...config };
   
   const utterance = new SpeechSynthesisUtterance();
-  
-  // Enhanced pronunciation fixes for PREPZR with correct pronunciation
-  let processedText = text
-    .replace(/PREPZR/gi, 'Prep-Zer')
-    .replace(/Sakha AI/gi, 'Prep-Zer AI')
-    .replace(/PrepZR/gi, 'Prep-Zer')
-    .replace(/prep zr/gi, 'Prep-Zer')
-    .replace(/prepzr/gi, 'Prep-Zer')
-    .replace(/prep zer/gi, 'Prep-Zer')
-    .replace(/prep-zer/gi, 'Prep-Zer');
-    
-  utterance.text = processedText;
+  // Ensure consistent pronunciation of PREPZR as "PREP-ZER"
+  utterance.text = text.replace(/PREPZR/gi, 'Prep Zer').replace(/Sakha AI/gi, 'Prep Zer AI');
   utterance.lang = finalConfig.language;
   utterance.rate = finalConfig.rate;
   utterance.pitch = finalConfig.pitch;
@@ -104,71 +93,42 @@ export const speakWithFemaleVoice = (
   config?: Partial<VoiceConfig>,
   onStart?: () => void,
   onEnd?: () => void
-): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if (!('speechSynthesis' in window)) {
-      resolve(false);
-      return;
-    }
-    
-    // Enhanced repetition prevention
-    const messageKey = text.toLowerCase().trim().substring(0, 50);
-    const now = Date.now();
-    const messageInfo = spokenMessages.get(messageKey);
-    
-    if (messageInfo && 
-        messageInfo.sessionId === SESSION_ID && 
-        (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
-      console.log('🔇 Voice: Preventing repetition of message:', text.substring(0, 50) + '...');
-      resolve(false);
-      return;
-    }
-    
-    // Add delay to prevent echo
-    setTimeout(() => {
-      // Cancel any ongoing speech to prevent overlap
-      window.speechSynthesis.cancel();
-      
-      const utterance = createFemaleUtterance(text, config);
-      
-      utterance.onstart = () => {
-        console.log('🎙️ Voice: Speaking:', text.substring(0, 50) + '...');
-        if (onStart) onStart();
-      };
-      
-      utterance.onend = () => {
-        console.log('✅ Voice: Finished speaking');
-        if (onEnd) onEnd();
-        resolve(true);
-      };
-      
-      utterance.onerror = (error) => {
-        console.error('❌ Voice: Error:', error);
-        if (onEnd) onEnd();
-        resolve(false);
-      };
-      
-      // Store the timestamp and session when we start speaking
-      spokenMessages.set(messageKey, { timestamp: now, sessionId: SESSION_ID });
-      
-      try {
-        window.speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.error('❌ Voice: Speech synthesis error:', error);
-        resolve(false);
-      }
-    }, SPEECH_DELAY);
-  });
+): boolean => {
+  if (!('speechSynthesis' in window)) return false;
+  
+  // Enhanced repetition prevention
+  const messageKey = text.toLowerCase().trim().substring(0, 50); // Use first 50 chars as key
+  const now = Date.now();
+  const messageInfo = spokenMessages.get(messageKey);
+  
+  if (messageInfo && 
+      messageInfo.sessionId === SESSION_ID && 
+      (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
+    console.log('🔇 Voice: Preventing repetition of message:', text.substring(0, 50) + '...');
+    return false;
+  }
+  
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  
+  const utterance = createFemaleUtterance(text, config);
+  
+  if (onStart) {
+    utterance.onstart = onStart;
+  }
+  
+  if (onEnd) {
+    utterance.onend = onEnd;
+  }
+  
+  // Store the timestamp and session when we start speaking
+  spokenMessages.set(messageKey, { timestamp: now, sessionId: SESSION_ID });
+  
+  window.speechSynthesis.speak(utterance);
+  return true;
 };
 
 // Smart breaks between messages
-export const createIntelligentPause = (duration: number = 2000): Promise<void> => {
+export const createIntelligentPause = (duration: number = 3000): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, duration));
-};
-
-// Stop all speech synthesis to prevent echo
-export const stopAllSpeech = (): void => {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
 };

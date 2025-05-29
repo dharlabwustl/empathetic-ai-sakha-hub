@@ -1,168 +1,218 @@
 
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useVoiceAnnouncer } from '@/hooks/useVoiceAnnouncer';
 import { useNavigate } from 'react-router-dom';
-import { useEnhancedVoiceAssistant } from '@/hooks/useEnhancedVoiceAssistant';
+import { MoodType } from '@/types/user/base';
 
 interface DashboardVoiceAssistantProps {
-  userName: string;
-  isFirstTimeUser?: boolean;
-  loginCount?: number;
-  lastActivity?: { type: string; description: string } | null;
-  suggestedNextAction?: string | null;
-  onSpeakingChange?: (isSpeaking: boolean) => void;
+  userName?: string;
+  language?: string;
+  userMood?: MoodType;
+  userProgress?: {
+    overallProgress: number;
+    physicsProgress: number;
+    chemistryProgress: number;
+    biologyProgress: number;
+    examReadinessScore: number;
+  };
+  studyStreak?: number;
+  lastActivity?: string;
 }
 
 const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({
-  userName,
-  isFirstTimeUser = false,
-  loginCount = 1,
-  lastActivity,
-  suggestedNextAction,
-  onSpeakingChange
+  userName = 'Student',
+  language = 'en-US',
+  userMood,
+  userProgress = {
+    overallProgress: 68,
+    physicsProgress: 56,
+    chemistryProgress: 69,
+    biologyProgress: 72,
+    examReadinessScore: 78
+  },
+  studyStreak = 5,
+  lastActivity = 'completed Physics concepts'
 }) => {
   const navigate = useNavigate();
-  const [hasGreeted, setHasGreeted] = useState(false);
-  
-  const processDashboardCommand = useCallback((command: string, confidence: number) => {
+
+  // Helper function to ensure correct PREPZR pronunciation
+  const formatTextForSpeech = (text: string): string => {
+    return text.replace(/PREPZR/gi, 'Prep-Zer');
+  };
+
+  const handleVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase().trim();
-    
-    // Only process if confidence is reasonable
-    if (confidence < 0.3 && lowerCommand.length < 8) return;
+    console.log('Prep-Zer AI processing dashboard command:', lowerCommand);
 
-    // Study-related commands
-    if (lowerCommand.includes('start studying') || lowerCommand.includes('study now') ||
-        lowerCommand.includes('begin study') || lowerCommand.includes('study session')) {
-      speak("Let's start your study session! I'll take you to your concept cards where you can begin learning.");
-      setTimeout(() => navigate('/dashboard/student/concepts'), 1000);
+    // Dashboard navigation commands with detailed context
+    if (lowerCommand.includes('dashboard') || lowerCommand.includes('home')) {
+      navigate('/dashboard/student');
+      speakMessage(formatTextForSpeech(`Welcome back to your personalized dashboard, ${userName}. Your current overall progress is ${userProgress.overallProgress}% and you're maintaining a ${studyStreak}-day study streak!`));
       return;
     }
 
-    // Concept cards
-    if (lowerCommand.includes('concept cards') || lowerCommand.includes('concepts') ||
-        lowerCommand.includes('flashcards') || lowerCommand.includes('cards')) {
-      speak("Great choice! Concept cards are perfect for focused learning. Let's dive in!");
-      setTimeout(() => navigate('/dashboard/student/concepts'), 1000);
+    if (lowerCommand.includes('concepts') || lowerCommand.includes('learn concepts')) {
+      navigate('/dashboard/student/concepts');
+      const weakestSubject = userProgress.physicsProgress < userProgress.chemistryProgress && userProgress.physicsProgress < userProgress.biologyProgress ? 'Physics' : 
+                            userProgress.chemistryProgress < userProgress.biologyProgress ? 'Chemistry' : 'Biology';
+      speakMessage(formatTextForSpeech(`Opening your concepts section, ${userName}. Based on your progress, I recommend focusing on ${weakestSubject} concepts today. You're currently at ${userProgress.physicsProgress}% in Physics, ${userProgress.chemistryProgress}% in Chemistry, and ${userProgress.biologyProgress}% in Biology.`));
       return;
     }
 
-    // Study plan
-    if (lowerCommand.includes('study plan') || lowerCommand.includes('plan') ||
-        lowerCommand.includes('schedule') || lowerCommand.includes('routine')) {
-      speak("I'll show you your personalized study plan with all your subjects and progress tracking.");
-      setTimeout(() => navigate('/dashboard/student/academic'), 1000);
+    if (lowerCommand.includes('flashcard') || lowerCommand.includes('flash card') || lowerCommand.includes('cards') || lowerCommand.includes('revision')) {
+      navigate('/dashboard/student/flashcards');
+      speakMessage(formatTextForSpeech(`Perfect choice for quick revision, ${userName}! Your flashcard sessions have been improving your retention rates. I'll open your personalized flashcard decks that adapt to your learning pace and focus on areas where you need more practice.`));
       return;
     }
 
-    // Practice tests
-    if (lowerCommand.includes('practice test') || lowerCommand.includes('mock test') ||
-        lowerCommand.includes('test') || lowerCommand.includes('exam practice')) {
-      speak("Time for some practice! Mock tests are excellent for building exam confidence. Let's get started!");
-      setTimeout(() => navigate('/dashboard/student/practice'), 1000);
+    if (lowerCommand.includes('practice exam') || lowerCommand.includes('test') || lowerCommand.includes('exam') || lowerCommand.includes('mock test')) {
+      navigate('/dashboard/student/practice-exam');
+      speakMessage(formatTextForSpeech(`Excellent! Time to test your knowledge with our AI-powered practice exams, ${userName}. Based on your exam readiness score of ${userProgress.examReadinessScore}%, I'll recommend exams that match your current preparation level and help identify areas for improvement.`));
       return;
     }
 
-    // Progress and analytics
-    if (lowerCommand.includes('progress') || lowerCommand.includes('analytics') ||
-        lowerCommand.includes('performance') || lowerCommand.includes('stats')) {
-      speak("Let me show you your learning analytics and progress insights. It's great to track your growth!");
-      setTimeout(() => navigate('/dashboard/student/analytics'), 1000);
+    if (lowerCommand.includes('formula lab') || lowerCommand.includes('formulas') || lowerCommand.includes('equations')) {
+      navigate('/dashboard/student/formula-lab');
+      speakMessage(formatTextForSpeech(`Opening the interactive Formula Lab, ${userName}! This is where you can practice and master all the essential formulas for Physics, Chemistry, and Biology. The lab adapts to show you formulas based on your current study topics.`));
       return;
     }
 
-    // Mood and motivation
-    if (lowerCommand.includes('feeling') || lowerCommand.includes('mood') ||
-        lowerCommand.includes('motivated') || lowerCommand.includes('stressed')) {
-      speak("I understand that how you feel affects your learning. PREPZR adapts to your emotional state to provide the best study experience. You're doing great!");
+    if (lowerCommand.includes('profile') || lowerCommand.includes('settings') || lowerCommand.includes('account')) {
+      navigate('/dashboard/student/profile');
+      speakMessage(formatTextForSpeech(`Opening your profile settings, ${userName}. Here you can customize your learning preferences, update your study goals, and manage your subscription plan.`));
       return;
     }
 
-    // Next action or recommendation
-    if (lowerCommand.includes('what next') || lowerCommand.includes('recommend') ||
-        lowerCommand.includes('suggest') || lowerCommand.includes('what should i do')) {
-      if (suggestedNextAction) {
-        speak(`Based on your progress, I recommend: ${suggestedNextAction}. Would you like me to take you there?`);
-      } else {
-        speak("I suggest continuing with your concept cards or taking a practice test to reinforce your learning. What interests you more?");
-      }
+    if (lowerCommand.includes('analytics') || lowerCommand.includes('performance') || lowerCommand.includes('statistics')) {
+      navigate('/dashboard/student/analytics');
+      speakMessage(formatTextForSpeech(`Let me show you your detailed performance analytics, ${userName}. You can track your progress trends, identify improvement areas, and see how you're performing compared to your study goals.`));
       return;
     }
 
-    // Help and guidance
-    if (lowerCommand.includes('help') || lowerCommand.includes('guide') ||
-        lowerCommand.includes('lost') || lowerCommand.includes('confused')) {
-      if (isFirstTimeUser) {
-        speak(`${userName}, as a new user, I recommend starting with concept cards to build your foundation, then moving to practice tests. Your study plan is personalized just for you!`);
-      } else {
-        speak(`${userName}, you're doing great! Continue with your regular study routine or try something new like the formula lab or analytics to track your progress.`);
-      }
+    // Study guidance commands with personalization
+    if (lowerCommand.includes('study plan') || lowerCommand.includes('schedule') || lowerCommand.includes('today plan')) {
+      const moodBasedGuidance = userMood === MoodType.ANXIOUS 
+        ? `I notice you might be feeling anxious today, ${userName}. Let's start with easier topics to build confidence.`
+        : userMood === MoodType.TIRED 
+        ? `You seem tired today, ${userName}. I'll suggest shorter study sessions with more breaks.`
+        : userMood === MoodType.MOTIVATED 
+        ? `I can sense your motivation today, ${userName}! Perfect time to tackle challenging concepts.`
+        : '';
+      
+      speakMessage(formatTextForSpeech(`${moodBasedGuidance} Based on your ${userProgress.overallProgress}% overall progress and recent ${lastActivity}, I recommend focusing on strengthening your weaker areas while maintaining momentum in your strong subjects. Would you like me to show your personalized study plan?`));
       return;
     }
 
-    // Motivational commands
-    if (lowerCommand.includes('motivate') || lowerCommand.includes('encourage') ||
-        lowerCommand.includes('inspire') || lowerCommand.includes('motivation')) {
-      const motivationalMessages = [
-        `${userName}, every step you take brings you closer to your exam success! Your consistency is your superpower.`,
-        `You're building something amazing ${userName}! Each study session adds to your knowledge foundation.`,
-        `${userName}, remember why you started this journey. Your dedication today shapes your future success!`,
-        `Great job staying committed ${userName}! Champions are made through daily practice, just like what you're doing.`
-      ];
-      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      speak(randomMessage);
+    if (lowerCommand.includes('how am i doing') || lowerCommand.includes('progress') || lowerCommand.includes('performance report')) {
+      speakMessage(formatTextForSpeech(`Great question, ${userName}! Your performance is impressive. You're at ${userProgress.overallProgress}% overall progress with a ${studyStreak}-day study streak. Your strongest subject is ${userProgress.biologyProgress > userProgress.chemistryProgress && userProgress.biologyProgress > userProgress.physicsProgress ? 'Biology' : userProgress.chemistryProgress > userProgress.physicsProgress ? 'Chemistry' : 'Physics'} at ${Math.max(userProgress.physicsProgress, userProgress.chemistryProgress, userProgress.biologyProgress)}%. Your exam readiness score of ${userProgress.examReadinessScore}% shows you're well-prepared. Keep up this excellent momentum!`));
       return;
     }
 
-    // Default response for unrecognized commands
-    if (lowerCommand.length > 3) {
-      speak(`I'm here to help with your studies ${userName}! You can ask me to start studying, show your study plan, take practice tests, or check your progress. What would you like to do?`);
+    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage me') || lowerCommand.includes('inspire me')) {
+      const personalizedMotivation = userMood === MoodType.ANXIOUS 
+        ? `${userName}, I understand exam preparation can feel overwhelming, but you're making remarkable progress. Your ${userProgress.examReadinessScore}% readiness score proves you're on the right track. Take it one concept at a time, and remember - every NEET topper felt anxious at some point. Your dedication will pay off!`
+        : userMood === MoodType.TIRED
+        ? `${userName}, even on tired days, you're showing up for your dreams. That's what separates achievers from dreamers. Your ${studyStreak}-day streak shows incredible consistency. Rest when needed, but remember - you're closer to your NEET goal than ever before!`
+        : `${userName}, your dedication is inspiring! With ${userProgress.overallProgress}% progress and ${studyStreak} consecutive study days, you're building the foundation for NEET success. Your consistency and hard work will transform your medical career dreams into reality. Keep pushing forward!`;
+      
+      speakMessage(formatTextForSpeech(personalizedMotivation));
+      return;
     }
-  }, [userName, isFirstTimeUser, suggestedNextAction, navigate]);
+
+    if (lowerCommand.includes('what should i study') || lowerCommand.includes('recommend') || lowerCommand.includes('suggest topics')) {
+      const recommendation = userProgress.physicsProgress < 60 
+        ? 'Physics concepts, especially Mechanics and Thermodynamics'
+        : userProgress.chemistryProgress < 70 
+        ? 'Chemistry topics, particularly Organic Chemistry reactions'
+        : 'Biology concepts to strengthen your already good foundation';
+      
+      speakMessage(formatTextForSpeech(`Based on your current progress analysis, ${userName}, I recommend focusing on ${recommendation}. This will give you the maximum improvement in your overall score. Would you like me to open the specific study materials for this subject?`));
+      return;
+    }
+
+    if (lowerCommand.includes('break') || lowerCommand.includes('rest') || lowerCommand.includes('tired')) {
+      const breakAdvice = userMood === MoodType.TIRED 
+        ? `You're right to listen to your body, ${userName}. After ${studyStreak} days of consistent studying, a quality break will actually improve your retention.`
+        : `Smart thinking, ${userName}! Taking strategic breaks is crucial for optimal learning.`;
+      
+      speakMessage(formatTextForSpeech(`${breakAdvice} Research shows 15-20 minute breaks every hour enhance memory consolidation. How about some light stretching, deep breathing, or a short walk? I'll remind you when it's time to return to your studies.`));
+      return;
+    }
+
+    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do') || lowerCommand.includes('commands')) {
+      speakMessage(formatTextForSpeech(`Hi ${userName}! I'm Prep-Zer AI, your personalized study companion. I can help you navigate to concepts, flashcards, practice exams, and formula lab. I can analyze your progress (currently ${userProgress.overallProgress}%), provide study recommendations, motivate you based on your mood, suggest break times, and answer questions about your NEET preparation strategy. I know all your dashboard sections and can guide you smoothly. What would you like to explore?`));
+      return;
+    }
+
+    // Subject-specific navigation with progress context
+    if (lowerCommand.includes('physics')) {
+      navigate('/dashboard/student/concepts?subject=physics');
+      speakMessage(formatTextForSpeech(`Opening Physics concepts, ${userName}. You're currently at ${userProgress.physicsProgress}% progress in Physics. I recommend focusing on areas like Mechanics, Electrodynamics, and Modern Physics to boost your score.`));
+      return;
+    }
+
+    if (lowerCommand.includes('chemistry')) {
+      navigate('/dashboard/student/concepts?subject=chemistry');
+      speakMessage(formatTextForSpeech(`Opening Chemistry concepts, ${userName}. Your Chemistry progress is ${userProgress.chemistryProgress}%. Let's explore Organic, Inorganic, and Physical Chemistry concepts that are frequently tested in NEET.`));
+      return;
+    }
+
+    if (lowerCommand.includes('biology')) {
+      navigate('/dashboard/student/concepts?subject=biology');
+      speakMessage(formatTextForSpeech(`Opening Biology concepts, ${userName}. You're doing well with ${userProgress.biologyProgress}% progress in Biology. Let's dive into Human Physiology, Plant Biology, and Genetics - the high-weightage topics in NEET.`));
+      return;
+    }
+
+    // Mood-based responses
+    if (lowerCommand.includes('anxious') || lowerCommand.includes('nervous') || lowerCommand.includes('worried')) {
+      speakMessage(formatTextForSpeech(`I understand you're feeling anxious, ${userName}. This is completely normal for NEET aspirants. Your ${userProgress.examReadinessScore}% readiness score shows you're well-prepared. Let's start with some quick wins today - perhaps reviewing topics you're already good at to build confidence before tackling new challenges.`));
+      return;
+    }
+
+    // Default response with personalization
+    speakMessage(formatTextForSpeech(`I heard you say: "${command}", ${userName}. I'm Prep-Zer AI, your intelligent study companion specialized for NEET preparation. With your current ${userProgress.overallProgress}% progress and ${studyStreak}-day study streak, you're on an excellent path. I can help you navigate sections, check detailed progress, provide personalized study guidance, or answer specific questions about your preparation. How can I assist you today?`));
+  };
 
   const {
-    isSpeaking,
-    speak,
-    startListening,
-    isSupported
-  } = useEnhancedVoiceAssistant({
-    context: 'dashboard',
+    speakMessage,
+    isVoiceSupported,
+    voiceInitialized
+  } = useVoiceAnnouncer({
     userName,
-    onCommand: processDashboardCommand,
-    reminderInterval: 60
+    autoStart: false,
+    onCommand: handleVoiceCommand
   });
 
-  // Notify parent component about speaking state
+  // Personalized greeting when component mounts
   useEffect(() => {
-    if (onSpeakingChange) {
-      onSpeakingChange(isSpeaking);
+    if (isVoiceSupported && voiceInitialized) {
+      const hasGreeted = sessionStorage.getItem('prepzr_dashboard_voice_greeted');
+      if (!hasGreeted) {
+        setTimeout(() => {
+          const moodContext = userMood === MoodType.ANXIOUS 
+            ? "I sense you might be feeling a bit anxious today. That's perfectly normal for dedicated NEET aspirants. Let's take this step by step and build your confidence." 
+            : userMood === MoodType.MOTIVATED 
+            ? "I can feel your motivation today - that's the energy that transforms dreams into reality!" 
+            : userMood === MoodType.TIRED
+            ? "Even on tired days, you're showing up for your dreams. That consistency is what separates achievers from dreamers."
+            : "Your dedication to NEET preparation is commendable.";
+          
+          const progressContext = userProgress.overallProgress >= 70 
+            ? `With ${userProgress.overallProgress}% overall progress, you're in the top tier of NEET preparation.`
+            : userProgress.overallProgress >= 50 
+            ? `Your ${userProgress.overallProgress}% progress shows steady advancement toward your NEET goals.`
+            : `At ${userProgress.overallProgress}% progress, you're building a strong foundation for NEET success.`;
+          
+          const greeting = formatTextForSpeech(`Welcome back, ${userName}! I'm Prep-Zer AI, your personalized study companion. ${moodContext} ${progressContext} Your ${studyStreak}-day study streak demonstrates remarkable consistency. I'm here to guide you through concepts, flashcards, practice exams, formula lab, and provide intelligent study recommendations. How can I support your NEET preparation journey today?`);
+          
+          speakMessage(greeting);
+          sessionStorage.setItem('prepzr_dashboard_voice_greeted', 'true');
+        }, 2000);
+      }
     }
-  }, [isSpeaking, onSpeakingChange]);
+  }, [isVoiceSupported, voiceInitialized, userName, userMood, userProgress, studyStreak, speakMessage]);
 
-  // Context-aware greeting based on user status
-  useEffect(() => {
-    if (isSupported && !hasGreeted && userName) {
-      const timer = setTimeout(() => {
-        let greetingMessage = '';
-        
-        if (isFirstTimeUser) {
-          greetingMessage = `Welcome to your PREPZR dashboard ${userName}! This is your command center for exam preparation excellence. Ready to start your first study session? I recommend beginning with the concept cards!`;
-        } else if (loginCount === 2) {
-          greetingMessage = `Welcome back ${userName}! Great to see you again. Your dedication to consistent learning is exactly what leads to exam success. What would you like to focus on in today's study session?`;
-        } else if (lastActivity) {
-          greetingMessage = `Hi ${userName}! Your study streak is impressive. ${lastActivity.description}. Ready to continue your learning journey?`;
-        } else {
-          greetingMessage = `Welcome back ${userName}! Your consistency in learning is your greatest strength. What would you like to study today?`;
-        }
-        
-        speak(greetingMessage);
-        startListening();
-        setHasGreeted(true);
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isSupported, hasGreeted, userName, isFirstTimeUser, loginCount, lastActivity, speak, startListening]);
-
-  return null;
+  return null; // This is a background service component
 };
 
 export default DashboardVoiceAssistant;
