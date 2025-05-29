@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -200,7 +201,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <div className="text-red-500 text-2xl">↓</div>
+        <div className="text-blue-500 text-2xl">↓</div>
       </motion.div>
 
       {/* Priority badge */}
@@ -209,7 +210,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
         animate={{ scale: [1, 1.1, 1] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
-        <Badge className="bg-red-500 text-white font-bold px-3 py-1 shadow-lg">
+        <Badge className="bg-blue-500 text-white font-bold px-3 py-1 shadow-lg">
           LIVE PLAN
         </Badge>
       </motion.div>

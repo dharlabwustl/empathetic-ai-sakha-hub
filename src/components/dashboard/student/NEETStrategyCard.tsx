@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles } from 'lucide-react';
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const NEETStrategyCard: React.FC = () => {
@@ -97,7 +97,7 @@ const NEETStrategyCard: React.FC = () => {
               >
                 <Target className="h-5 w-5 text-orange-600" />
               </motion.div>
-              Today's Top Priority
+              NEET Strategy Card - Adaptive Plan
             </CardTitle>
             <Badge className="bg-orange-100 text-orange-800 border-orange-300">
               {urgencyLevel}
@@ -109,6 +109,49 @@ const NEETStrategyCard: React.FC = () => {
             <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-2">
               {strategy}
             </h3>
+          </div>
+
+          {/* Study metrics grid */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-orange-600" />
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Total Study Time</p>
+                  <p className="font-semibold text-orange-900 dark:text-orange-100">6 hours/day</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-orange-600" />
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Concepts</p>
+                  <p className="font-semibold text-orange-900 dark:text-orange-100">8 today</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-orange-600" />
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Daily Pace</p>
+                  <p className="font-semibold text-orange-900 dark:text-orange-100">Moderate</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-orange-600" />
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Exam Proximity</p>
+                  <p className="font-semibold text-orange-900 dark:text-orange-100">183 days left</p>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div className="space-y-2">
