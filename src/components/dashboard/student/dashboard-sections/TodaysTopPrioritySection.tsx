@@ -45,6 +45,26 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
       urgency: "High", 
       daysLeft: 6,
       accuracy: 65
+    },
+    {
+      subject: "Chemistry",
+      topic: "Organic Chemistry Reactions",
+      progress: 35,
+      timeRequired: "2.5 hours",
+      difficulty: "High",
+      urgency: "Critical",
+      daysLeft: 4,
+      accuracy: 54
+    },
+    {
+      subject: "Physics",
+      topic: "Wave Optics",
+      progress: 40,
+      timeRequired: "1.5 hours",
+      difficulty: "Medium",
+      urgency: "High",
+      daysLeft: 8,
+      accuracy: 61
     }
   ];
 
@@ -164,7 +184,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                     Study Concept
                   </Button>
                 </Link>
-                <Link to={`/dashboard/student/flashcards/${topic.subject.toLowerCase()}`} className="flex-1">
+                <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
                   <Button 
                     size="sm" 
                     variant="outline"
