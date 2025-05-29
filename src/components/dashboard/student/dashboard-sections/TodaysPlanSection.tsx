@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Brain, FileText } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Brain, FileText, ArrowDown, Zap } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 
 interface StudyPlan {
@@ -188,10 +188,35 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
+    <Card className="relative overflow-hidden border-2 border-orange-200 shadow-lg">
+      {/* Animated arrow pointing down from above */}
+      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
+        <ArrowDown className="h-6 w-6 text-orange-500 animate-bounce" />
+      </div>
+      
+      {/* Sparkle effects */}
+      <div className="absolute top-2 left-4 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
+      <div className="absolute top-4 right-6 w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse" style={{ animationDelay: '500ms' }}></div>
+      <div className="absolute bottom-6 left-8 w-1 h-1 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '1000ms' }}></div>
+      <div className="absolute bottom-4 right-4 w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '1500ms' }}></div>
+      
+      {/* Pulsing border with colored shadow */}
+      <div className="absolute inset-0 border-2 border-orange-300 rounded-lg animate-pulse shadow-lg shadow-orange-200/50"></div>
+      
+      {/* Glowing indicator */}
+      <div className="absolute top-3 right-3">
+        <div className="flex items-center gap-1">
+          <Zap className="h-4 w-4 text-yellow-500 animate-pulse" />
+          <Badge className="bg-orange-500 text-white animate-pulse">LIVE PLAN</Badge>
+        </div>
+      </div>
+
+      <CardHeader className="pb-2 relative z-10">
         <div className="flex justify-between items-center">
-          <CardTitle>Today's Study Plan</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Today's NEET Study Plan
+            <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white animate-pulse">PRIORITY!</Badge>
+          </CardTitle>
           {currentMood && (
             <Badge variant="outline" className="capitalize">
               {currentMood.toLowerCase()} mood
@@ -199,7 +224,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative z-10">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -223,7 +248,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             {plan.tasks.map((task, idx) => (
               <div 
                 key={idx}
-                className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 hover:shadow-md"
                 onClick={() => handleTaskClick(task)}
               >
                 <div className="flex justify-between items-center mb-1">
@@ -251,7 +276,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan, curren
             <div>
               Total time: <span className="font-medium">{getTotalTime(plan.tasks)} min</span>
             </div>
-            <Button size="sm" onClick={() => navigate('/dashboard/student/today')}>
+            <Button 
+              size="sm" 
+              onClick={() => navigate('/dashboard/student/today')}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+            >
               View Full Plan
             </Button>
           </div>
