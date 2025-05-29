@@ -3,10 +3,7 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Crown } from "lucide-react";
 import { UserProfileBase, SubscriptionType } from "@/types/user/base";
-import { useNavigate } from 'react-router-dom';
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;
@@ -14,8 +11,6 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
-  const navigate = useNavigate();
-
   // Determine subscription display info
   const getSubscriptionInfo = () => {
     let planType = "free";
@@ -49,20 +44,10 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
     const color = subscriptionColors[planType.toLowerCase()] || subscriptionColors.free;
     const label = subscriptionLabels[planType.toLowerCase()] || "Unknown";
     
-    return { color, label, planType: planType.toLowerCase() };
+    return { color, label };
   };
   
   const subscriptionInfo = getSubscriptionInfo();
-  
-  // Check if user should see upgrade button
-  const shouldShowUpgrade = () => {
-    const freePlans = ['free', 'trial'];
-    return freePlans.includes(subscriptionInfo.planType);
-  };
-
-  const handleUpgradeClick = () => {
-    navigate('/dashboard/student/subscription');
-  };
   
   // Format last active time if available
   const lastActiveText = "Active now";
@@ -105,18 +90,6 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
               <p className="text-xs text-muted-foreground mt-1">{lastActiveText}</p>
             </div>
           </div>
-
-          {/* Upgrade Button with improved colors */}
-          {shouldShowUpgrade() && (
-            <Button
-              onClick={handleUpgradeClick}
-              size="sm"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
-            >
-              <Crown className="h-4 w-4 mr-1" />
-              Upgrade
-            </Button>
-          )}
         </div>
         
         <div className="grid grid-cols-2 gap-4 mt-6">
