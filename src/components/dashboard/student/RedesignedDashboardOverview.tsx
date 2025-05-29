@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { UserProfileBase, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
-import ComprehensiveAdaptiveDashboard from '../adaptive/ComprehensiveAdaptiveDashboard';
 import EnhancedNameHeaderCard from './EnhancedNameHeaderCard';
 import OnboardingHighlights from './OnboardingHighlights';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
 import EnhancedExamReadinessScore from './dashboard-sections/EnhancedExamReadinessScore';
+import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
+import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
+import NEETStrategyCard from './NEETStrategyCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +26,9 @@ import {
   Zap,
   Star,
   Trophy,
-  Activity
+  Activity,
+  MessageSquare,
+  Heart
 } from 'lucide-react';
 
 interface RedesignedDashboardOverviewProps {
@@ -58,54 +62,60 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
   };
 
   return (
-    <div className="space-y-6">
-      {/* Enhanced Name Header Card */}
-      <EnhancedNameHeaderCard userProfile={userProfile} />
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Main Content - 3 columns */}
+      <div className="lg:col-span-3 space-y-6">
+        {/* Enhanced Name Header Card */}
+        <EnhancedNameHeaderCard userProfile={userProfile} />
 
-      {/* Exam Goal Section */}
-      <Card className="bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <BookMarked className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">NEET 2026</h3>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                  <span>Days Left: <strong className="text-red-600">{daysLeft}</strong></span>
-                  <span>Pace: <strong>Moderate</strong></span>
-                  <span>Style: <strong>Visual</strong></span>
+        {/* Exam Goal Section */}
+        <Card className="bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <BookMarked className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">NEET 2026</h3>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <span>Days Left: <strong className="text-red-600">{daysLeft}</strong></span>
+                    <span>Pace: <strong>Moderate</strong></span>
+                    <span>Style: <strong>Visual</strong></span>
+                  </div>
                 </div>
               </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  Switch Exam
+                </Button>
+                <Button size="sm">
+                  New Plan
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Switch Exam
-              </Button>
-              <Button size="sm">
-                New Plan
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Enhanced Exam Readiness Score */}
-      <EnhancedExamReadinessScore 
-        overallScore={72}
-        confidence={78}
-        predictiveScore="685/720"
-        targetExam="NEET 2026"
-        daysUntilExam={daysLeft}
-      />
+        {/* Enhanced Exam Readiness Score */}
+        <EnhancedExamReadinessScore 
+          overallScore={72}
+          confidence={78}
+          predictiveScore="685/720"
+          targetExam="NEET 2026"
+          daysUntilExam={daysLeft}
+        />
 
-      {/* Daily Smart Suggestions (moved up) */}
-      <SmartSuggestionsCenter 
-        performance={performanceData}
-        userName={userProfile.name || userProfile.firstName || "Student"}
-      />
+        {/* Priority Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <TodaysTopPrioritySection />
+          <TodaysPlanSection currentMood={currentMood} />
+        </div>
 
-      {/* New Cards Section */}
-      <div className="grid gap-6">
+        {/* Daily Smart Suggestions */}
+        <SmartSuggestionsCenter 
+          performance={performanceData}
+          userName={userProfile.name || userProfile.firstName || "Student"}
+        />
+
         {/* Advanced Concept Mastery Techniques */}
         <Card>
           <CardHeader>
@@ -140,7 +150,7 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
           </CardContent>
         </Card>
 
-        {/* Weak Areas - Focus & Improve */}
+        {/* Weak Areas */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -163,7 +173,7 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
           </CardContent>
         </Card>
 
-        {/* Strong Areas - Maintain Excellence */}
+        {/* Strong Areas */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -237,13 +247,53 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         </div>
       </div>
 
-      {/* Comprehensive Adaptive Dashboard - Right Sidebar preserved */}
-      <ComprehensiveAdaptiveDashboard 
-        userProfile={userProfile}
-        kpis={kpis}
-        currentMood={currentMood}
-        onMoodChange={onMoodChange}
-      />
+      {/* Right Sidebar - 1 column */}
+      <div className="space-y-4">
+        {/* NEET Strategy Card */}
+        <NEETStrategyCard />
+
+        {/* AI Coach */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-purple-600" />
+              AI Coach
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full justify-start">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Get Guidance
+              </Button>
+              <Badge className="w-full justify-center bg-purple-100 text-purple-800">
+                24/7 Available
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Mood-based Learning */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-pink-600" />
+              Mood-based Learning
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full justify-start">
+                <Target className="h-4 w-4 mr-2" />
+                Adaptive Content
+              </Button>
+              <Badge className="w-full justify-center bg-pink-100 text-pink-800">
+                Current: {currentMood || 'Motivated'}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Onboarding highlights for first-time users */}
       <OnboardingHighlights

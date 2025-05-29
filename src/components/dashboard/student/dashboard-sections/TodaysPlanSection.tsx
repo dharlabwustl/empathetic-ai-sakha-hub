@@ -53,80 +53,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
       transition={{ duration: 0.6, delay: 0.1 }}
       data-tour="study-plan"
     >
-      {/* Animated arrow pointing down */}
-      <motion.div
-        className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-      >
-        <div className="text-blue-500 text-2xl">↓</div>
-      </motion.div>
-
-      {/* Priority badge */}
-      <motion.div
-        className="absolute -top-2 -right-2 z-20"
-        animate={{ scale: [1, 1.1, 1] }}
-        transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-      >
-        <Badge className="bg-blue-500 text-white font-bold px-3 py-1 shadow-lg">
-          ACTIVE!
-        </Badge>
-      </motion.div>
-
-      {/* Sparkle effects */}
-      {[...Array(3)].map((_, index) => (
-        <motion.div
-          key={index}
-          className="absolute text-blue-400 text-lg"
-          style={{
-            top: `${15 + index * 25}%`,
-            left: `${15 + index * 70}%`,
-          }}
-          animate={{
-            scale: [0, 1, 0],
-            rotate: [0, 180, 360],
-            opacity: [0, 1, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: index * 0.4,
-          }}
-        >
-          <Sparkles className="h-4 w-4" />
-        </motion.div>
-      ))}
-
       <Card className="relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
-        {/* Pulsing border effect */}
-        <motion.div
-          className="absolute inset-0 border-4 border-blue-400 rounded-lg opacity-50"
-          animate={{
-            boxShadow: [
-              "0 0 0 0 rgba(59, 130, 246, 0.4)",
-              "0 0 0 20px rgba(59, 130, 246, 0)",
-              "0 0 0 0 rgba(59, 130, 246, 0.4)"
-            ]
-          }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-        />
-
-        {/* Glowing background */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/20"
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 3, repeat: Infinity, delay: 0.2 }}
-        />
-
         <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              >
-                <Calendar className="h-5 w-5 text-blue-600" />
-              </motion.div>
+              <Calendar className="h-5 w-5 text-blue-600" />
               Today's NEET Study Plan
               <span className="text-xl ml-2">{getMoodEmoji()}</span>
             </CardTitle>
@@ -143,7 +74,6 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
           </div>
         </CardHeader>
         <CardContent className="space-y-4 relative z-10">
-          {/* Progress overview */}
           <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Daily Progress</span>
@@ -164,15 +94,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
             </div>
           </div>
 
-          {/* Study sessions */}
           <div className="space-y-2">
             <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-3">Study Sessions</h4>
             {sessions.map((session, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
                 className={`p-3 rounded-lg border ${
                   session.status === 'completed' 
                     ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
@@ -207,23 +133,18 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                     {session.status}
                   </Badge>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
           
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Button 
+            size="sm" 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() => navigate('/dashboard/student/study-plan')}
           >
-            <Button 
-              size="sm" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => navigate('/dashboard/student/study-plan')}
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              View Full Plan
-            </Button>
-          </motion.div>
+            <Calendar className="h-4 w-4 mr-2" />
+            View Full Plan
+          </Button>
         </CardContent>
       </Card>
     </motion.div>
