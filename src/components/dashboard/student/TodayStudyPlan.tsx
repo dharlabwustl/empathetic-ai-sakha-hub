@@ -13,7 +13,7 @@ interface Task {
   time: string;
   type: 'exam' | 'task' | 'revision' | 'concept';
   completed?: boolean;
-  route?: string;
+  route?: string; // Added route property for navigation
 }
 
 interface TodayStudyPlanProps {
@@ -24,6 +24,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 767px)');
   
+  // Get appropriate icon for each task type
   const getTaskIcon = (type: string) => {
     switch (type) {
       case 'exam':
@@ -35,22 +36,25 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
     }
   };
   
+  // Handle task click navigation
   const handleTaskClick = (task: Task) => {
+    // For concept type, always navigate to concept detail page with the correct path
     if (task.type === 'concept') {
       console.log("TodayStudyPlan - Navigating to concept detail page:", task.id);
       navigate(`/dashboard/student/concepts/${task.id}`);
       return;
     }
     
+    // For other types, use provided route or fallback
     if (task.route) {
       navigate(task.route);
     } else {
       switch (task.type) {
         case 'exam':
-          navigate('/dashboard/student/practice-exam/2/start');
+          navigate('/dashboard/student/practice-exam');
           break;
         case 'revision':
-          navigate('/dashboard/student/flashcards/1/interactive');
+          navigate('/dashboard/student/flashcards');
           break;
         default:
           navigate('/dashboard/student/today');
@@ -60,13 +64,13 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   };
 
   return (
-    <Card className="premium-card h-full transition-all duration-300">
+    <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className={`${isMobile ? "text-sm" : "text-base"} font-medium`}>Today's Plan</CardTitle>
         <Button 
           variant="ghost" 
           size={isMobile ? "sm" : "default"}
-          className={`${isMobile ? "h-7 w-7 p-0" : "h-8 w-8 p-0"} hover:bg-blue-50 transition-colors`} 
+          className={isMobile ? "h-7 w-7 p-0" : "h-8 w-8 p-0"} 
           onClick={() => navigate('/dashboard/student/today')}
         >
           <LayoutDashboard className={`h-${isMobile ? "3" : "4"} w-${isMobile ? "3" : "4"}`} />
@@ -81,7 +85,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
           tasks.map((task, i) => (
             <div
               key={i}
-              className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-all duration-200"
+              className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
               onClick={() => handleTaskClick(task)}
             >
               <div className="flex items-center gap-2">
@@ -107,7 +111,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
             variant="link" 
             size={isMobile ? "sm" : "default"}
             onClick={() => navigate('/dashboard/student/today')}
-            className={`px-0 ${isMobile ? "text-xs" : "text-sm"} hover:text-blue-600 transition-colors`}
+            className={`px-0 ${isMobile ? "text-xs" : "text-sm"}`}
           >
             View All Tasks
           </Button>

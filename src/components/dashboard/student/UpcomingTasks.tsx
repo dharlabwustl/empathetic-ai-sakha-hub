@@ -40,11 +40,12 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
   const getTaskRoute = (task: Task) => {
     switch (task.type) {
       case 'concept':
-        return `/dashboard/student/concepts/${task.id}`;
+        // Update route to use the enhanced concept detail page
+        return `/dashboard/student/concepts/study/${task.id}`;
       case 'flashcard':
         return `/dashboard/student/flashcards/1/interactive`;
       case 'exam':
-        return `/dashboard/student/practice-exam/2/start`;
+        return `/dashboard/student/practice-exam`;
       default:
         return `/dashboard/student`;
     }
@@ -64,7 +65,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
   };
 
   return (
-    <Card className="premium-card transition-all duration-300">
+    <Card>
       <CardHeader>
         <CardTitle>Upcoming Tasks</CardTitle>
       </CardHeader>
@@ -73,7 +74,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
           {tasks.map(task => (
             <div 
               key={task.id} 
-              className={cn("border rounded-lg p-3 hover:shadow-sm transition-all duration-200 cursor-pointer hover:bg-gray-50/50", 
+              className={cn("border rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer", 
                 getPriorityClass(task.priority)
               )}
               onClick={() => navigate(getTaskRoute(task))}
@@ -96,7 +97,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
               </div>
               
               <Button 
-                className="w-full mt-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all" 
+                className="w-full mt-3" 
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();

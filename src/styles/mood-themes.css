@@ -1,53 +1,207 @@
 
-/* Mood-based Dashboard Themes */
-.mood-theme-happy {
-  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 20%, #ffffff 100%);
+/* Mood-based dashboard themes */
+
+/* Happy theme - warm yellows and oranges */
+.mood-happy {
+  --mood-primary: rgba(255, 220, 100, 0.1);
+  --mood-accent: rgba(255, 230, 130, 0.15);
+  --mood-text: #8B5000;
+  --mood-border: rgba(255, 193, 7, 0.3);
 }
 
-.mood-theme-motivated {
-  background: linear-gradient(135deg, #d1fae5 0%, #10b981 20%, #ffffff 100%);
+.mood-happy .dashboard-container {
+  background: linear-gradient(135deg, rgba(255, 248, 225, 0.5), rgba(255, 243, 205, 0.3));
 }
 
-.mood-theme-focused {
-  background: linear-gradient(135deg, #dbeafe 0%, #3b82f6 20%, #ffffff 100%);
+/* Motivated theme - energetic greens and blues */
+.mood-motivated {
+  --mood-primary: rgba(34, 197, 94, 0.1);
+  --mood-accent: rgba(74, 222, 128, 0.15);
+  --mood-text: #166534;
+  --mood-border: rgba(34, 197, 94, 0.3);
 }
 
-.mood-theme-neutral {
-  background: linear-gradient(135deg, #f3f4f6 0%, #6b7280 20%, #ffffff 100%);
+.mood-motivated .dashboard-container {
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.5), rgba(220, 252, 231, 0.3));
 }
 
-.mood-theme-tired {
-  background: linear-gradient(135deg, #fed7aa 0%, #fb923c 20%, #ffffff 100%);
+/* Focused theme - calm purples and blues */
+.mood-focused {
+  --mood-primary: rgba(147, 51, 234, 0.1);
+  --mood-accent: rgba(168, 85, 247, 0.15);
+  --mood-text: #6B21A8;
+  --mood-border: rgba(147, 51, 234, 0.3);
 }
 
-.mood-theme-anxious {
-  background: linear-gradient(135deg, #e9d5ff 0%, #a855f7 20%, #ffffff 100%);
+.mood-focused .dashboard-container {
+  background: linear-gradient(135deg, rgba(250, 245, 255, 0.5), rgba(243, 232, 255, 0.3));
 }
 
-.mood-theme-stressed {
-  background: linear-gradient(135deg, #fecaca 0%, #ef4444 20%, #ffffff 100%);
+/* Tired theme - soft grays and muted colors */
+.mood-tired {
+  --mood-primary: rgba(156, 163, 175, 0.1);
+  --mood-accent: rgba(209, 213, 219, 0.15);
+  --mood-text: #6B7280;
+  --mood-border: rgba(156, 163, 175, 0.3);
 }
 
-.mood-theme-sad {
-  background: linear-gradient(135deg, #c7d2fe 0%, #6366f1 20%, #ffffff 100%);
+.mood-tired .dashboard-container {
+  background: linear-gradient(135deg, rgba(249, 250, 251, 0.5), rgba(243, 244, 246, 0.3));
 }
 
-.mood-theme-calm {
-  background: linear-gradient(135deg, #ccfbf1 0%, #14b8a6 20%, #ffffff 100%);
+/* Stressed theme - warm reds and oranges */
+.mood-stressed {
+  --mood-primary: rgba(239, 68, 68, 0.1);
+  --mood-accent: rgba(248, 113, 113, 0.15);
+  --mood-text: #B91C1C;
+  --mood-border: rgba(239, 68, 68, 0.3);
 }
 
-.mood-theme-confused {
-  background: linear-gradient(135deg, #fef3c7 0%, #f59e0b 20%, #ffffff 100%);
+.mood-stressed .dashboard-container {
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.5), rgba(254, 226, 226, 0.3));
 }
 
-.mood-theme-okay {
-  background: linear-gradient(135deg, #f0f9ff 0%, #0ea5e9 20%, #ffffff 100%);
+/* Anxious theme - soft blues and calming tones */
+.mood-anxious {
+  --mood-primary: rgba(59, 130, 246, 0.1);
+  --mood-accent: rgba(96, 165, 250, 0.15);
+  --mood-text: #1E40AF;
+  --mood-border: rgba(59, 130, 246, 0.3);
 }
 
-.mood-theme-overwhelmed {
-  background: linear-gradient(135deg, #fce7f3 0%, #ec4899 20%, #ffffff 100%);
+.mood-anxious .dashboard-container {
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.5), rgba(219, 234, 254, 0.3));
 }
 
-.mood-theme-curious {
-  background: linear-gradient(135deg, #f0fdf4 0%, #22c55e 20%, #ffffff 100%);
+/* Sad theme - gentle blues and grays */
+.mood-sad {
+  --mood-primary: rgba(100, 116, 139, 0.1);
+  --mood-accent: rgba(148, 163, 184, 0.15);
+  --mood-text: #475569;
+  --mood-border: rgba(100, 116, 139, 0.3);
+}
+
+.mood-sad .dashboard-container {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.3));
+}
+
+/* Curious theme - vibrant teals and cyans */
+.mood-curious {
+  --mood-primary: rgba(6, 182, 212, 0.1);
+  --mood-accent: rgba(34, 211, 238, 0.15);
+  --mood-text: #0E7490;
+  --mood-border: rgba(6, 182, 212, 0.3);
+}
+
+.mood-curious .dashboard-container {
+  background: linear-gradient(135deg, rgba(236, 254, 255, 0.5), rgba(207, 250, 254, 0.3));
+}
+
+/* Overwhelmed theme - muted earth tones */
+.mood-overwhelmed {
+  --mood-primary: rgba(180, 83, 9, 0.1);
+  --mood-accent: rgba(217, 119, 6, 0.15);
+  --mood-text: #92400E;
+  --mood-border: rgba(180, 83, 9, 0.3);
+}
+
+.mood-overwhelmed .dashboard-container {
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.5), rgba(254, 243, 199, 0.3));
+}
+
+/* Confused theme - warm grays with hints of yellow */
+.mood-confused {
+  --mood-primary: rgba(161, 161, 170, 0.1);
+  --mood-accent: rgba(212, 212, 216, 0.15);
+  --mood-text: #71717A;
+  --mood-border: rgba(161, 161, 170, 0.3);
+}
+
+.mood-confused .dashboard-container {
+  background: linear-gradient(135deg, rgba(250, 250, 250, 0.5), rgba(244, 244, 245, 0.3));
+}
+
+/* Neutral and Okay themes - balanced colors */
+.mood-neutral, .mood-okay {
+  --mood-primary: rgba(107, 114, 128, 0.1);
+  --mood-accent: rgba(156, 163, 175, 0.15);
+  --mood-text: #6B7280;
+  --mood-border: rgba(107, 114, 128, 0.3);
+}
+
+.mood-neutral .dashboard-container, .mood-okay .dashboard-container {
+  background: linear-gradient(135deg, rgba(249, 250, 251, 0.5), rgba(243, 244, 246, 0.3));
+}
+
+/* Apply mood colors to cards and components */
+.mood-happy .card,
+.mood-motivated .card,
+.mood-focused .card,
+.mood-tired .card,
+.mood-stressed .card,
+.mood-anxious .card,
+.mood-sad .card,
+.mood-curious .card,
+.mood-overwhelmed .card,
+.mood-confused .card,
+.mood-neutral .card,
+.mood-okay .card {
+  background-color: var(--mood-primary);
+  border-color: var(--mood-border);
+}
+
+/* Enhanced button styling based on mood */
+.mood-happy .mood-button,
+.mood-motivated .mood-button,
+.mood-focused .mood-button,
+.mood-tired .mood-button,
+.mood-stressed .mood-button,
+.mood-anxious .mood-button,
+.mood-sad .mood-button,
+.mood-curious .mood-button,
+.mood-overwhelmed .mood-button,
+.mood-confused .mood-button,
+.mood-neutral .mood-button,
+.mood-okay .mood-button {
+  background-color: var(--mood-accent);
+  border-color: var(--mood-border);
+  color: var(--mood-text);
+}
+
+/* Dark mode adjustments */
+.dark .mood-happy,
+.dark .mood-motivated,
+.dark .mood-focused,
+.dark .mood-tired,
+.dark .mood-stressed,
+.dark .mood-anxious,
+.dark .mood-sad,
+.dark .mood-curious,
+.dark .mood-overwhelmed,
+.dark .mood-confused,
+.dark .mood-neutral,
+.dark .mood-okay {
+  --mood-text: #E5E7EB;
+}
+
+.dark .mood-happy .dashboard-container,
+.dark .mood-motivated .dashboard-container,
+.dark .mood-focused .dashboard-container,
+.dark .mood-tired .dashboard-container,
+.dark .mood-stressed .dashboard-container,
+.dark .mood-anxious .dashboard-container,
+.dark .mood-sad .dashboard-container,
+.dark .mood-curious .dashboard-container,
+.dark .mood-overwhelmed .dashboard-container,
+.dark .mood-confused .dashboard-container,
+.dark .mood-neutral .dashboard-container,
+.dark .mood-okay .dashboard-container {
+  background: rgba(17, 24, 39, 0.8);
+}
+
+/* Smooth transitions */
+.dashboard-container,
+.card,
+.mood-button {
+  transition: all 0.3s ease-in-out;
 }

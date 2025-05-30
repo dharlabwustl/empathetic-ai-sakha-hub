@@ -64,15 +64,10 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
   };
 };
 
-// Session-based message tracking to prevent repetition
-const currentSessionId = Date.now().toString();
-const messageHistory = new Map<string, { 
-  timestamp: number; 
-  sessionId: string; 
-  pageContext: string;
-}>();
-
-const MESSAGE_COOLDOWN = 60000; // 60 seconds minimum between messages
+// Session-based message tracking with 60-second minimum intervals
+const SESSION_ID = Date.now().toString();
+const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
+const MIN_MESSAGE_INTERVAL = 60000; // 60 seconds minimum between messages
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -80,14 +75,11 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Enhanced pronunciation fixes - FIXED PREPZR pronunciation
+  // Fix PREPZR pronunciation as specified
   const correctedText = text
-    .replace(/PREPZR/gi, 'Prep-Zer')  // Main brand pronunciation
+    .replace(/PREPZR/gi, 'Prep-Zer')
     .replace(/prepzr/gi, 'prep-zer')
-    .replace(/Prepzr/g, 'Prep-Zer')
-    .replace(/NEET/gi, 'N-E-E-T')    // Spell out NEET for clarity
-    .replace(/JEE/gi, 'J-E-E')       // Spell out JEE for clarity
-    .replace(/AI/gi, 'A-I');         // Spell out AI for clarity
+    .replace(/Prepzr/g, 'Prep-Zer');
   
   utterance.text = correctedText;
   utterance.lang = finalConfig.language;
@@ -105,41 +97,24 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
 export const speakWithFemaleVoice = (
   text: string, 
   config?: Partial<VoiceConfig>,
-  pageContext?: string,
   onStart?: () => void,
   onEnd?: () => void
 ): boolean => {
   if (!('speechSynthesis' in window)) return false;
   
-  // Check if user is logged in for context-aware messaging
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const currentPath = window.location.pathname;
-  
-  // Enhanced context awareness - only speak on designated pages
-  const allowedPages = ['/', '/dashboard/student', '/welcome'];
-  const isAllowedPage = allowedPages.some(page => currentPath.includes(page));
-  
-  if (!isAllowedPage) {
-    console.log('🔇 Voice: Not allowed on this page:', currentPath);
-    return false;
-  }
-  
-  // Message tracking to prevent repetition
+  // Enhanced anti-repetition with 60-second minimum interval
   const messageKey = text.toLowerCase().trim().substring(0, 50);
   const now = Date.now();
-  const messageInfo = messageHistory.get(messageKey);
-  const context = pageContext || currentPath;
+  const messageInfo = spokenMessages.get(messageKey);
   
-  // Check if message was recently spoken in same context
   if (messageInfo && 
-      messageInfo.sessionId === currentSessionId && 
-      messageInfo.pageContext === context &&
-      (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
-    console.log('🔇 Voice: Preventing repetition of message within 60s cooldown');
+      messageInfo.sessionId === SESSION_ID && 
+      (now - messageInfo.timestamp) < MIN_MESSAGE_INTERVAL) {
+    console.log('🔇 Voice: 60-second interval not met for message:', text.substring(0, 30) + '...');
     return false;
   }
   
-  // Cancel any ongoing speech before starting new one
+  // Cancel any ongoing speech
   window.speechSynthesis.cancel();
   
   const utterance = createFemaleUtterance(text, config);
@@ -152,75 +127,49 @@ export const speakWithFemaleVoice = (
     utterance.onend = onEnd;
   }
   
-  // Store the message info when we start speaking
-  messageHistory.set(messageKey, { 
-    timestamp: now, 
-    sessionId: currentSessionId,
-    pageContext: context 
-  });
+  // Store the timestamp when we start speaking
+  spokenMessages.set(messageKey, { timestamp: now, sessionId: SESSION_ID });
   
-  try {
-    window.speechSynthesis.speak(utterance);
-    console.log('🔊 Voice: Speaking message on', context);
-    return true;
-  } catch (error) {
-    console.error('Speech synthesis error:', error);
-    return false;
-  }
+  window.speechSynthesis.speak(utterance);
+  return true;
 };
 
-// User activity detection
-let isUserActive = false;
-let activityTimeout: NodeJS.Timeout;
-
-export const isUserCurrentlyActive = (): boolean => {
-  return isUserActive;
-};
-
-export const markUserActivity = (): void => {
-  isUserActive = true;
+// User activity detection for pausing voice
+export const createUserActivityDetector = (onActivity: () => void) => {
+  const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
   
-  // Cancel any ongoing speech immediately
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-  }
-  
-  // Clear existing timeout
-  if (activityTimeout) {
-    clearTimeout(activityTimeout);
-  }
-  
-  // Reset activity status after 60 seconds
-  activityTimeout = setTimeout(() => {
-    isUserActive = false;
-  }, 60000);
-};
-
-// Initialize activity detection
-export const initializeActivityDetection = (): void => {
-  const events = ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'];
+  const activityHandler = () => {
+    onActivity();
+  };
   
   events.forEach(event => {
-    document.addEventListener(event, markUserActivity, { passive: true });
+    document.addEventListener(event, activityHandler, { passive: true });
   });
+  
+  return () => {
+    events.forEach(event => {
+      document.removeEventListener(event, activityHandler);
+    });
+  };
 };
 
-// Cleanup function
-export const cleanupVoice = (): void => {
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-  }
-  messageHistory.clear();
-  isUserActive = false;
-  if (activityTimeout) {
-    clearTimeout(activityTimeout);
-  }
+// Page navigation cleanup
+export const createNavigationCleanup = () => {
+  const cleanup = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  };
+  
+  window.addEventListener('beforeunload', cleanup);
+  window.addEventListener('popstate', cleanup);
+  
+  return () => {
+    window.removeEventListener('beforeunload', cleanup);
+    window.removeEventListener('popstate', cleanup);
+  };
 };
 
-// Navigation cleanup
-export const cleanupOnNavigation = (): void => {
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-  }
-  console.log('🔇 Voice: Cleaned up on navigation');
+export const createIntelligentPause = (duration: number = 60000): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, duration));
 };
