@@ -1,3 +1,4 @@
+
 import { MoodType } from '@/types/user/base';
 
 // Mood to emoji mapping
@@ -103,6 +104,77 @@ export const getStudyRecommendationForMood = (mood: MoodType): string => {
   }
 };
 
+// Get daily plan adjustments based on mood
+export const getDailyPlanAdjustments = (mood: MoodType) => {
+  switch (mood) {
+    case MoodType.MOTIVATED:
+    case MoodType.FOCUSED:
+      return {
+        studySessionLength: 90, // minutes
+        breakFrequency: 25, // every 25 minutes
+        difficultyLevel: 'challenging',
+        recommendedTopics: ['new concepts', 'complex problems', 'practice tests'],
+        studyTechniques: ['deep work', 'problem solving', 'concept mapping']
+      };
+    case MoodType.TIRED:
+    case MoodType.STRESSED:
+      return {
+        studySessionLength: 30,
+        breakFrequency: 15,
+        difficultyLevel: 'easy',
+        recommendedTopics: ['review', 'flashcards', 'light reading'],
+        studyTechniques: ['spaced repetition', 'visual aids', 'audio learning']
+      };
+    case MoodType.ANXIOUS:
+    case MoodType.OVERWHELMED:
+      return {
+        studySessionLength: 45,
+        breakFrequency: 20,
+        difficultyLevel: 'moderate',
+        recommendedTopics: ['familiar subjects', 'confidence building', 'past achievements review'],
+        studyTechniques: ['guided practice', 'step-by-step learning', 'positive reinforcement']
+      };
+    case MoodType.HAPPY:
+    case MoodType.CALM:
+      return {
+        studySessionLength: 60,
+        breakFrequency: 30,
+        difficultyLevel: 'balanced',
+        recommendedTopics: ['mixed practice', 'creative learning', 'collaborative study'],
+        studyTechniques: ['varied approaches', 'discussion', 'teaching others']
+      };
+    default:
+      return {
+        studySessionLength: 60,
+        breakFrequency: 25,
+        difficultyLevel: 'moderate',
+        recommendedTopics: ['regular curriculum', 'planned topics'],
+        studyTechniques: ['standard methods', 'note-taking', 'practice problems']
+      };
+  }
+};
+
+// Get mood-based theme class
+export const getMoodThemeClass = (mood?: MoodType): string => {
+  if (!mood) return '';
+  return `mood-${mood.toLowerCase()}`;
+};
+
+// Apply mood theme to dashboard
+export const applyMoodTheme = (mood: MoodType) => {
+  // Remove existing mood classes
+  document.body.className = document.body.className.replace(/mood-\w+/g, '');
+  
+  // Add new mood class
+  const themeClass = getMoodThemeClass(mood);
+  if (themeClass) {
+    document.body.classList.add(themeClass);
+  }
+  
+  // Store theme preference
+  localStorage.setItem('dashboard_mood_theme', mood);
+};
+
 // Store mood in localStorage
 export const storeMoodInLocalStorage = (mood: MoodType): void => {
   try {
@@ -133,8 +205,35 @@ export const storeMoodInLocalStorage = (mood: MoodType): void => {
     }
     
     localStorage.setItem("moodHistory", JSON.stringify(history));
+    
+    // Update daily plan based on mood
+    updateDailyPlanBasedOnMood(mood);
+    
+    // Apply theme
+    applyMoodTheme(mood);
+    
   } catch (error) {
     console.error("Error storing mood in localStorage:", error);
+  }
+};
+
+// Update daily plan based on mood
+export const updateDailyPlanBasedOnMood = (mood: MoodType): void => {
+  try {
+    const adjustments = getDailyPlanAdjustments(mood);
+    localStorage.setItem('mood_daily_plan_adjustments', JSON.stringify(adjustments));
+    
+    // Trigger custom event for components to react to plan changes
+    const planUpdateEvent = new CustomEvent('daily-plan-updated', { 
+      detail: { 
+        mood, 
+        adjustments,
+        timestamp: new Date().toISOString()
+      } 
+    });
+    document.dispatchEvent(planUpdateEvent);
+  } catch (error) {
+    console.error("Error updating daily plan:", error);
   }
 };
 
@@ -229,12 +328,6 @@ export const updateStudyTimeAllocationsByMood = (mood: MoodType): void => {
   } catch (error) {
     console.error("Error updating study time allocations:", error);
   }
-};
-
-// Get mood-based theme class
-export const getMoodThemeClass = (mood?: MoodType): string => {
-  if (!mood) return '';
-  return `mood-${mood.toLowerCase()}`;
 };
 
 // Get mood recommendation for daily plan

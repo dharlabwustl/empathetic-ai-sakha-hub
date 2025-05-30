@@ -15,6 +15,19 @@ export enum MoodType {
   CALM = 'calm'
 }
 
+export enum UserRole {
+  STUDENT = 'student',
+  TEACHER = 'teacher',
+  ADMIN = 'admin'
+}
+
+export enum SubscriptionType {
+  FREE = 'free',
+  BASIC = 'basic',
+  PREMIUM = 'premium',
+  ENTERPRISE = 'enterprise'
+}
+
 export interface MoodEntry {
   id: string;
   mood: MoodType;
@@ -31,6 +44,25 @@ export interface UserProfileBase {
   avatar?: string;
   photoURL?: string;
   loginCount?: number;
+  role?: UserRole;
+  studyStreak?: number;
+  personalityType?: string;
+  examPreparation?: {
+    targetExam: string;
+    targetDate: string;
+    currentProgress: number;
+  };
+  studyPreferences?: {
+    preferredTime: string;
+    studyDuration: number;
+    learningStyle: string;
+  };
+  subscription?: {
+    type: SubscriptionType;
+    status: string;
+    expiresAt?: Date;
+    credits?: number;
+  };
   goals?: Array<{
     id: string;
     title: string;
