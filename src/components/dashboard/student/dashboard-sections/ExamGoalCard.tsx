@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap, Clock, TrendingUp, Brain } from 'lucide-react';
+import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -25,26 +25,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       { name: "Physics", progress: 72, color: "blue" },
       { name: "Chemistry", progress: 65, color: "green" },
       { name: "Biology", progress: 71, color: "purple" }
-    ],
-    // Overall progress meters
-    overallReadiness: 78,
-    timeProgress: 65, // Days passed vs total prep time
-    studyProgress: 68, // Study hours completed vs planned
-    subjectBalance: 69 // How balanced the progress is across subjects
-  };
-
-  const getProgressColor = (progress: number) => {
-    if (progress >= 80) return "bg-green-500";
-    if (progress >= 60) return "bg-blue-500";
-    if (progress >= 40) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
-  const getProgressLabel = (progress: number) => {
-    if (progress >= 80) return "Excellent";
-    if (progress >= 60) return "Good";
-    if (progress >= 40) return "Fair";
-    return "Needs Focus";
+    ]
   };
 
   return (
@@ -74,99 +55,6 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
           </Badge>
         </div>
 
-        {/* Overall Progress Meters */}
-        <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
-          <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Overall Progress Meters
-          </h4>
-          
-          {/* Exam Readiness */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <Brain className="h-3 w-3 text-purple-600" />
-                Exam Readiness
-              </span>
-              <span className="font-medium text-purple-700">
-                {examData.overallReadiness}% - {getProgressLabel(examData.overallReadiness)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.overallReadiness)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.overallReadiness}%` }}
-                transition={{ duration: 1, delay: 0.2 }}
-              />
-            </div>
-          </div>
-
-          {/* Time Progress */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3 text-blue-600" />
-                Time Progress
-              </span>
-              <span className="font-medium text-blue-700">
-                {examData.timeProgress}% - {getProgressLabel(examData.timeProgress)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.timeProgress)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.timeProgress}%` }}
-                transition={{ duration: 1, delay: 0.4 }}
-              />
-            </div>
-          </div>
-
-          {/* Study Progress */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3 text-green-600" />
-                Study Progress
-              </span>
-              <span className="font-medium text-green-700">
-                {examData.studyProgress}% - {getProgressLabel(examData.studyProgress)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.studyProgress)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.studyProgress}%` }}
-                transition={{ duration: 1, delay: 0.6 }}
-              />
-            </div>
-          </div>
-
-          {/* Subject Balance */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <Target className="h-3 w-3 text-orange-600" />
-                Subject Balance
-              </span>
-              <span className="font-medium text-orange-700">
-                {examData.subjectBalance}% - {getProgressLabel(examData.subjectBalance)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.subjectBalance)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.subjectBalance}%` }}
-                transition={{ duration: 1, delay: 0.8 }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Overall Progress Summary */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Overall Progress</span>
@@ -175,7 +63,6 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
           <Progress value={examData.progress} className="h-2" />
         </div>
 
-        {/* Subject Progress */}
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Subject Progress</h4>
           {examData.subjects.map((subject, index) => (
