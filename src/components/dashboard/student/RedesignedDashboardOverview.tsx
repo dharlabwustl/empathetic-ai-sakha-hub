@@ -39,31 +39,39 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* 1. Name Section Card */}
-      <NameSectionCard userProfile={userProfile} />
+      {/* Row 1: Name Header, Exam Goal, Exam Readiness (2/3) + NEET Strategy (1/3) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left side - 2/3 width */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* 1. Name Section Card */}
+          <NameSectionCard userProfile={userProfile} />
 
-      {/* 2. Exam Goal Card - Same size as name header */}
-      <ExamGoalCard 
-        currentMood={currentMood}
-        onMoodChange={handleMoodChange}
-      />
+          {/* 2. Exam Goal Card */}
+          <ExamGoalCard 
+            currentMood={currentMood}
+            onMoodChange={handleMoodChange}
+          />
 
-      {/* 3. Exam Readiness and NEET Strategy in same row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ExamReadinessScoreCard />
-        <NEETStrategyCard />
+          {/* 3. Exam Readiness Score Card */}
+          <ExamReadinessScoreCard />
+        </div>
+
+        {/* Right side - 1/3 width */}
+        <div className="lg:col-span-1">
+          <NEETStrategyCard />
+        </div>
       </div>
 
-      {/* 4. Today's Priority and Live Plan Cards */}
+      {/* Row 2: Today's Priority and Live Plan Cards - 50:50 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TodaysTopPrioritySection />
         <TodaysPlanSection currentMood={currentMood} />
       </div>
 
-      {/* 5. Daily Smart Suggestions */}
+      {/* Row 3: Daily Smart Suggestions - Full width */}
       <DailySmartSuggestions />
 
-      {/* 6. Mood and AI Coach Cards */}
+      {/* Row 4: Mood and AI Coach Cards - 50:50 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MoodBasedSuggestions 
           currentMood={currentMood} 
@@ -72,13 +80,13 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         <AICoachCard />
       </div>
 
-      {/* 7. Weak and Strong Areas */}
+      {/* Row 5: Weak and Strong Areas - 50:50 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WeakAreasCard />
         <StrongAreasCard />
       </div>
 
-      {/* 8. Enhanced KPI Cards Grid */}
+      {/* Row 6: Enhanced KPI Cards Grid */}
       <motion.div 
         className="space-y-4"
         initial={{ opacity: 0, y: 20 }}

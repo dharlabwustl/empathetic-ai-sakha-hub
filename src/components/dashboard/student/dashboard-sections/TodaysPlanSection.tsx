@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Target, CheckCircle, PlayCircle, Zap, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Zap, RotateCcw, Trophy, ArrowRight, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -17,104 +17,129 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
   const todaysPlan = [
     {
       time: "9:00 AM",
-      subject: "Physics",
-      topic: "Newton's Laws",
-      duration: "45 min",
-      type: "concept",
-      completed: true,
-      priority: "high"
-    },
-    {
-      time: "10:00 AM", 
-      subject: "Chemistry",
+      subject: "Chemistry", 
       topic: "Chemical Bonding",
-      duration: "60 min",
-      type: "practice",
-      completed: false,
-      priority: "high"
+      duration: "90 mins",
+      type: "concept-study",
+      status: "pending",
+      priority: "High"
     },
     {
-      time: "11:30 AM",
-      subject: "Biology", 
-      topic: "Ecology Review",
-      duration: "30 min",
-      type: "revision",
-      completed: false,
-      priority: "medium"
+      time: "11:00 AM",
+      subject: "Physics",
+      topic: "Thermodynamics Practice",
+      duration: "60 mins", 
+      type: "practice",
+      status: "pending",
+      priority: "Medium"
     },
     {
       time: "2:00 PM",
-      subject: "Mock Test",
-      topic: "Full Length Test",
-      duration: "180 min", 
+      subject: "Biology",
+      topic: "Mock Test - Genetics",
+      duration: "45 mins",
       type: "exam",
-      completed: false,
-      priority: "high"
+      status: "pending", 
+      priority: "High"
     }
   ];
 
-  const completedTasks = todaysPlan.filter(task => task.completed).length;
-  const totalTasks = todaysPlan.length;
-  const progressPercentage = (completedTasks / totalTasks) * 100;
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'concept': return <BookOpen className="h-4 w-4" />;
-      case 'practice': return <Target className="h-4 w-4" />;
-      case 'revision': return <Clock className="h-4 w-4" />;
-      case 'exam': return <Zap className="h-4 w-4" />;
-      default: return <BookOpen className="h-4 w-4" />;
+  const getActionButton = (plan: any) => {
+    switch (plan.type) {
+      case 'concept-study':
+        return (
+          <Link to={`/dashboard/student/concepts/${plan.subject.toLowerCase()}`}>
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+              <BookOpen className="h-3 w-3 mr-1" />
+              Study
+            </Button>
+          </Link>
+        );
+      case 'practice':
+        return (
+          <Link to="/dashboard/student/flashcards/1/interactive">
+            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Practice
+            </Button>
+          </Link>
+        );
+      case 'exam':
+        return (
+          <Link to="/dashboard/student/practice-exam/2/start">
+            <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Trophy className="h-3 w-3 mr-1" />
+              Take Test
+            </Button>
+          </Link>
+        );
+      case 'formula':
+        return (
+          <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab">
+            <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
+              <Zap className="h-3 w-3 mr-1" />
+              Formula Lab
+            </Button>
+          </Link>
+        );
+      default:
+        return (
+          <Button size="sm" variant="outline">
+            <Play className="h-3 w-3 mr-1" />
+            Start
+          </Button>
+        );
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'concept': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'practice': return 'bg-green-100 text-green-800 border-green-300';
-      case 'revision': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'exam': return 'bg-purple-100 text-purple-800 border-purple-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'bg-red-100 text-red-800 border-red-300';
+      case 'Medium': return 'bg-orange-100 text-orange-800 border-orange-300';
+      default: return 'bg-yellow-100 text-yellow-800 border-yellow-300';
     }
   };
 
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.8 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
-        {/* Animated background for active status */}
+      <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-green-200 to-blue-200 dark:from-green-800 dark:to-blue-800 overflow-hidden">
+        {/* Active animated background */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50"
+          className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50"
           animate={{
-            opacity: [0.3, 0.5, 0.3],
+            opacity: [0.3, 0.7, 0.3],
           }}
           transition={{
-            duration: 3,
+            duration: 2.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
         
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 relative z-10">
-          <CardTitle className="flex items-center justify-between">
+        <CardHeader className="pb-3 relative z-10">
+          <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
             <div className="flex items-center gap-2">
               <motion.div
                 animate={{ 
-                  rotate: [0, 360]
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 3, -3, 0]
                 }}
                 transition={{ 
-                  duration: 4, 
+                  duration: 1.5, 
                   repeat: Infinity,
-                  ease: "linear"
+                  ease: "easeInOut"
                 }}
               >
-                <Calendar className="h-5 w-5 text-blue-600" />
+                <Calendar className="h-5 w-5 text-green-600" />
               </motion.div>
               <motion.span
                 animate={{ 
-                  color: ["#2563eb", "#4f46e5", "#2563eb"]
+                  color: ["#059669", "#2563eb", "#059669"]
                 }}
                 transition={{ 
                   duration: 2, 
@@ -123,131 +148,69 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
                 }}
                 className="font-bold"
               >
-                Live Daily NEET Plan
+                Live Daily NEET Plan - Active!
               </motion.span>
-              {/* Active indicator */}
+              {/* Animated active indicator */}
               <motion.div
                 animate={{
-                  scale: [1, 1.2, 1],
+                  scale: [1, 1.3, 1],
                   opacity: [0.5, 1, 0.5]
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 1,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
                 className="w-3 h-3 bg-green-500 rounded-full"
               />
             </div>
-            
-            <div className="text-right">
-              <div className="text-sm font-bold text-blue-700">{completedTasks}/{totalTasks}</div>
-              <div className="text-xs text-gray-600">Tasks Done</div>
-            </div>
+            <Link to="/dashboard/student/today">
+              <Button size="sm" variant="outline" className="hover:bg-green-50">
+                View Full Plan
+                <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4 relative z-10">
-          <div className="space-y-4">
-            {/* Progress Overview */}
-            <motion.div 
-              className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg"
-              animate={{ 
-                backgroundColor: ["rgb(239 246 255)", "rgb(238 242 255)", "rgb(239 246 255)"]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: "easeInOut"
+        <CardContent className="space-y-3 relative z-10">
+          {todaysPlan.map((plan, index) => (
+            <motion.div
+              key={index}
+              className="border-2 rounded-lg p-3 bg-white/90 dark:bg-gray-800/90"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ scale: 1.02 }}
+              style={{
+                boxShadow: plan.priority === 'High' ? '0 0 15px rgba(34, 197, 94, 0.3)' : '0 0 10px rgba(59, 130, 246, 0.2)'
               }}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Today's Progress</span>
-                <span className="text-sm font-bold text-blue-700">{Math.round(progressPercentage)}%</span>
-              </div>
-              <Progress value={progressPercentage} className="h-2" />
-            </motion.div>
-
-            {/* Today's Tasks */}
-            <div className="space-y-3">
-              {todaysPlan.map((task, index) => (
-                <motion.div
-                  key={index}
-                  className={`p-3 rounded-lg border-2 ${task.completed ? 'bg-green-50 border-green-200 opacity-75' : 'bg-white border-gray-200'}`}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${task.completed ? 'bg-green-100' : 'bg-blue-100'}`}>
-                        {task.completed ? (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        ) : (
-                          getTypeIcon(task.type)
-                        )}
-                      </div>
-                      
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{task.subject}</span>
-                          <Badge className={getTypeColor(task.type)} variant="outline">
-                            {task.type}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">{task.topic}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Clock className="h-3 w-3 text-gray-500" />
-                          <span className="text-xs text-gray-500">{task.time} • {task.duration}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {!task.completed && (
-                      <Link to="/dashboard/student/concepts">
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                            <PlayCircle className="h-3 w-3 mr-1" />
-                            Start
-                          </Button>
-                        </motion.div>
-                      </Link>
-                    )}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1 text-sm font-medium text-green-700">
+                    <Clock className="h-3 w-3" />
+                    {plan.time}
                   </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-2 pt-2">
-              <Link to="/dashboard/student/today">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button size="sm" variant="outline" className="w-full hover:bg-blue-50">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    View Full Plan
-                  </Button>
-                </motion.div>
-              </Link>
+                  <Badge className={getPriorityColor(plan.priority)}>
+                    {plan.priority}
+                  </Badge>
+                </div>
+                <span className="text-xs text-gray-600">{plan.duration}</span>
+              </div>
               
-              <Link to="/dashboard/student/academic-advisor">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button size="sm" variant="outline" className="w-full hover:bg-purple-50">
-                    <Target className="h-3 w-3 mr-1" />
-                    Customize Plan
-                  </Button>
-                </motion.div>
-              </Link>
-            </div>
-          </div>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                    {plan.subject}: {plan.topic}
+                  </h4>
+                </div>
+                
+                <div className="ml-3">
+                  {getActionButton(plan)}
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </CardContent>
       </Card>
     </motion.div>

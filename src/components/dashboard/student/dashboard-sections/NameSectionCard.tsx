@@ -76,8 +76,43 @@ const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
 
   const dailyStreak = userProfile.studyStreak || 12;
   const userName = userProfile.name || userProfile.firstName || 'Student';
-  const currentPlan = "Free Plan";
-  const expiryDate = "No expiry";
+  
+  // Calculate expiry based on plan
+  const getExpiryInfo = () => {
+    const signupDate = new Date(userProfile.createdAt || Date.now());
+    const currentPlan = userProfile.subscriptionPlan || "Free Plan";
+    
+    switch (currentPlan) {
+      case "Free Plan":
+        const freeExpiry = new Date(signupDate);
+        freeExpiry.setDate(freeExpiry.getDate() + 7);
+        return {
+          plan: "Free Plan",
+          expiry: freeExpiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        };
+      case "Monthly Premium":
+        const monthlyExpiry = new Date(signupDate);
+        monthlyExpiry.setMonth(monthlyExpiry.getMonth() + 1);
+        return {
+          plan: "Monthly Premium",
+          expiry: monthlyExpiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        };
+      case "Annual Premium":
+        const annualExpiry = new Date(signupDate);
+        annualExpiry.setFullYear(annualExpiry.getFullYear() + 1);
+        return {
+          plan: "Annual Premium", 
+          expiry: annualExpiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        };
+      default:
+        return {
+          plan: "Free Plan",
+          expiry: "7 days from signup"
+        };
+    }
+  };
+
+  const { plan: currentPlan, expiry: expiryDate } = getExpiryInfo();
 
   return (
     <motion.div
@@ -154,7 +189,7 @@ const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
                   <span className="text-gray-600 dark:text-gray-400">Plan:</span>
                   <span className="font-semibold text-purple-700 dark:text-purple-300">{currentPlan}</span>
                   <span className="text-gray-500">•</span>
-                  <span className="text-gray-600 dark:text-gray-400">{expiryDate}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Expires: {expiryDate}</span>
                 </div>
               </div>
             </div>

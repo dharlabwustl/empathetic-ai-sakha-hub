@@ -47,7 +47,7 @@ const WeakAreasCard: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <Card className="shadow-lg">
+      <Card className="premium-card shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-700">
             <AlertTriangle className="h-5 w-5" />
@@ -82,7 +82,7 @@ const WeakAreasCard: React.FC = () => {
               </div>
 
               <div className="flex gap-2">
-                <Link to="/dashboard/student/concepts" className="flex-1">
+                <Link to={`/dashboard/student/concepts/${area.subject.toLowerCase()}`} className="flex-1">
                   <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                     <BookOpen className="h-3 w-3 mr-1" />
                     Study
