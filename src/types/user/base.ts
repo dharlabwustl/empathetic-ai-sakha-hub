@@ -28,9 +28,9 @@ export enum SubscriptionType {
 }
 
 export enum UserRole {
-  STUDENT = 'student',
-  TEACHER = 'teacher',
-  ADMIN = 'admin'
+  Student = 'student',
+  Teacher = 'teacher',
+  Admin = 'admin'
 }
 
 export enum Gender {
@@ -111,7 +111,7 @@ export interface UserProfileBase {
   phone?: string;
   role: 'student' | 'teacher' | 'admin';
   subscription?: SubscriptionType | {
-    planType?: string;
+    planType: string;
     type?: string;
     startDate?: Date | string;
     expiryDate?: Date | string;
@@ -121,8 +121,6 @@ export interface UserProfileBase {
     isActive?: boolean;
     endDate?: string;
     memberLimit?: number;
-    credits?: number;
-    expiresAt?: Date;
   };
   goals?: {
     id: string;
@@ -147,10 +145,6 @@ export interface UserProfileBase {
     stressManagement?: string;
     studyEnvironment?: string;
     learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'analytical' | 'creative' | 'practical';
-    preferredTime?: string;
-    studyDuration?: number;
-    pace?: StudyPace;
-    hoursPerDay?: number;
   };
   demographics?: {
     age?: number;
@@ -199,40 +193,20 @@ export interface SubjectProgress {
   proficiency?: number;
 }
 
-export interface StudyPlanSubject {
+export interface SubscriptionPlan {
   id: string;
   name: string;
-  color?: string;
-  hoursPerWeek: number;
-  weeklyHours: number;
-  progress: number;
-  priority: 'high' | 'medium' | 'low';
-  proficiency: 'strong' | 'medium' | 'weak';
-  completed: boolean;
-  difficulty?: string;
-  status?: string;
-}
-
-export interface NewStudyPlan {
-  id?: string;
-  title?: string;
-  goal?: string;
-  examGoal?: string;
-  subjects?: StudyPlanSubject[];
-  studyHoursPerDay?: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  weeklyHours?: number;
-  status?: 'active' | 'paused' | 'completed' | 'archived';
-  examDate?: string;
-}
-
-export interface CreditPack {
-  id: string;
-  name: string;
-  credits: number;
   price: number;
-  description: string;
-  bestValue?: boolean;
-  isExamCredits?: boolean;
+  features: string[];
+  type: SubscriptionType;
+  maxMembers?: number;
+}
+
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  difficulty: string;
+  completed: boolean;
+  status: string;
+  priority: string;
 }

@@ -1,104 +1,187 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { 
-  speakWithFemaleVoice, 
-  isUserCurrentlyActive, 
-  initializeActivityDetection,
-  cleanupOnNavigation 
-} from '@/utils/voiceConfig';
+import { speakWithFemaleVoice, createUserActivityDetector, createNavigationCleanup, createIntelligentPause } from '@/utils/voiceConfig';
 
 interface PrepzrVoiceAssistantProps {
   userName?: string;
   language?: string;
+  isNewUser?: boolean;
+  context?: 'home' | 'signup' | 'welcome' | 'dashboard';
 }
 
 const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({ 
   userName = 'there',
-  language = 'en-US'
+  language = 'en-US',
+  isNewUser = false,
+  context
 }) => {
-  const [hasSpokenIntro, setHasSpokenIntro] = useState(false);
-  const [hasSpokenSuggestion, setHasSpokenSuggestion] = useState(false);
+  const [hasSpoken, setHasSpoken] = useState(false);
+  const [userActive, setUserActive] = useState(false);
+  const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
   const location = useLocation();
-  const messageTimeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<number | null>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
   
-  // Only active on home page for non-logged-in users
-  const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const isHomePage = location.pathname === '/';
-  const shouldBeActive = isHomePage && !isUserLoggedIn;
-
-  // Initialize activity detection
+  // Determine context from URL if not provided
+  const getContextFromPath = (path: string): string => {
+    if (path === '/' || path === '/home') return 'home';
+    if (path.includes('/signup') || path.includes('/login')) return 'signup';
+    if (path.includes('/welcome')) return 'welcome';
+    if (path.includes('/dashboard')) return 'dashboard';
+    return 'other';
+  };
+  
+  const currentContext = context || getContextFromPath(location.pathname);
+  
+  // Smart suggestions for home page
+  const homeSuggestions = [
+    "Want to try PREPZR free before signing up? Just say 'Free trial'.",
+    "Curious how PREPZR is different from coaching centers? Ask me – I'll explain.",
+    "Looking for scholarships or readiness tests? I'll help you get started."
+  ];
+  
+  // User activity detection
   useEffect(() => {
-    initializeActivityDetection();
+    const handleActivity = () => {
+      setUserActive(true);
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Reset activity after a brief pause
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = window.setTimeout(() => {
+        setUserActive(false);
+      }, 5000);
+    };
     
-    return () => {
-      if (messageTimeoutRef.current) {
-        clearTimeout(messageTimeoutRef.current);
+    const removeActivityDetector = createUserActivityDetector(handleActivity);
+    const removeNavigationCleanup = createNavigationCleanup();
+    
+    cleanupRef.current = () => {
+      removeActivityDetector();
+      removeNavigationCleanup();
+    };
+    
+    return cleanupRef.current;
+  }, []);
+  
+  // Main voice logic based on context
+  useEffect(() => {
+    if (userActive || hasSpoken) return;
+    
+    const speakMessage = async (message: string) => {
+      if (userActive) return;
+      
+      const success = speakWithFemaleVoice(message, { language });
+      if (success) {
+        setHasSpoken(true);
       }
     };
-  }, []);
-
-  // Handle intro message on home page
-  useEffect(() => {
-    if (!shouldBeActive || hasSpokenIntro) {
-      return;
-    }
-
-    const speakIntroMessage = () => {
-      if (isUserCurrentlyActive()) {
-        console.log('🔇 Voice: User is active, not speaking intro');
-        return;
-      }
-
-      const introMessage = `Hi ${userName}! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence.`;
-      
-      const success = speakWithFemaleVoice(introMessage, { language }, 'home-intro');
-      
-      if (success) {
-        setHasSpokenIntro(true);
-        
-        // Schedule suggestion after 60 seconds if user is still inactive
-        messageTimeoutRef.current = setTimeout(() => {
-          if (shouldBeActive && !isUserCurrentlyActive() && !hasSpokenSuggestion) {
-            const suggestionMessage = "Let's start your personalized journey. Sign up and get ready to conquer your exams with PREPZR.";
-            const suggestionSuccess = speakWithFemaleVoice(suggestionMessage, { language }, 'home-suggestion');
-            
-            if (suggestionSuccess) {
-              setHasSpokenSuggestion(true);
+    
+    const handleContextMessage = async () => {
+      switch (currentContext) {
+        case 'home':
+          await speakMessage(`Hi ${userName}! I'm Prep Zer AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`);
+          
+          // Start suggestions after initial message
+          setTimeout(() => {
+            if (!userActive) {
+              startHomeSuggestions();
+            }
+          }, 8000);
+          break;
+          
+        case 'welcome':
+          if (isNewUser && userName !== 'there') {
+            await speakMessage(`Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`);
+          }
+          break;
+          
+        case 'dashboard':
+          if (userName !== 'there') {
+            if (isNewUser) {
+              await speakMessage(`Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`);
+            } else {
+              await speakMessage(`Welcome back, ${userName}! Last time, you worked on your studies. Let's pick up where you left off.`);
             }
           }
-        }, 60000);
+          break;
+          
+        case 'signup':
+          // No voice on signup/login pages as per requirements
+          break;
+          
+        default:
+          // No voice on other pages
+          break;
       }
     };
-
+    
     // Delay initial message slightly
-    const introTimeout = setTimeout(speakIntroMessage, 2000);
+    const timer = setTimeout(handleContextMessage, 1500);
     
-    return () => {
-      clearTimeout(introTimeout);
+    return () => clearTimeout(timer);
+  }, [currentContext, userName, isNewUser, userActive, hasSpoken, language]);
+  
+  // Home page suggestions system
+  const startHomeSuggestions = async () => {
+    if (currentContext !== 'home' || userActive) return;
+    
+    const speakSuggestion = async (index: number) => {
+      if (userActive || currentContext !== 'home') return;
+      
+      if (index < homeSuggestions.length) {
+        await createIntelligentPause(60000); // 60-second pause
+        
+        if (!userActive && currentContext === 'home') {
+          const success = speakWithFemaleVoice(homeSuggestions[index], { language });
+          if (success) {
+            setCurrentSuggestionIndex(index + 1);
+            
+            // Schedule next suggestion
+            setTimeout(() => {
+              speakSuggestion(index + 1);
+            }, 65000); // 65 seconds to account for speech duration
+          }
+        }
+      } else {
+        // After all suggestions, offer to pause
+        await createIntelligentPause(60000);
+        if (!userActive && currentContext === 'home') {
+          speakWithFemaleVoice("I'll pause now. Ask me anything when you're ready.", { language });
+        }
+      }
     };
-  }, [shouldBeActive, hasSpokenIntro, userName, language, hasSpokenSuggestion]);
-
-  // Reset state when page changes
+    
+    speakSuggestion(0);
+  };
+  
+  // Reset when context changes
   useEffect(() => {
-    setHasSpokenIntro(false);
-    setHasSpokenSuggestion(false);
+    setHasSpoken(false);
+    setUserActive(false);
+    setCurrentSuggestionIndex(0);
     
-    // Cleanup speech on navigation
-    cleanupOnNavigation();
-    
-    // Clear timeouts
-    if (messageTimeoutRef.current) {
-      clearTimeout(messageTimeoutRef.current);
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
-  }, [location.pathname]);
-
-  // Cleanup on component unmount
+  }, [currentContext]);
+  
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      cleanupOnNavigation();
-      if (messageTimeoutRef.current) {
-        clearTimeout(messageTimeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (cleanupRef.current) {
+        cleanupRef.current();
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
       }
     };
   }, []);
