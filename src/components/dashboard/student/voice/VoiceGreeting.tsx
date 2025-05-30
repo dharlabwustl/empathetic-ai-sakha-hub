@@ -1,119 +1,89 @@
 
-import React, { useEffect, useRef } from 'react';
-import { speakWithFemaleVoice, createUserActivityDetector, createNavigationCleanup } from '@/utils/voiceConfig';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { 
+  speakWithFemaleVoice, 
+  isUserCurrentlyActive, 
+  cleanupOnNavigation 
+} from '@/utils/voiceConfig';
 
 interface VoiceGreetingProps {
-  isFirstTimeUser: boolean;
-  userName: string;
-  isReturningUser?: boolean;
-  lastActivity?: string;
-  pendingTasks?: string[];
+  isFirstTimeUser?: boolean;
+  userName?: string;
   language?: string;
 }
 
-const VoiceGreeting: React.FC<VoiceGreetingProps> = ({ 
-  isFirstTimeUser, 
-  userName,
-  isReturningUser = false,
-  lastActivity,
-  pendingTasks = [],
+const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
+  isFirstTimeUser = false,
+  userName = 'Student',
   language = 'en-US'
 }) => {
-  const hasSpokenRef = useRef(false);
-  const userActiveRef = useRef(false);
-  const cleanupRef = useRef<(() => void) | null>(null);
+  const [hasSpokenWelcome, setHasSpokenWelcome] = useState(false);
+  const location = useLocation();
+  const greetingTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // Only active on welcome screen after signup
+  const isWelcomeScreen = location.pathname.includes('/welcome') || 
+                         location.pathname.includes('/post-login-welcome');
+  const shouldSpeak = isWelcomeScreen && isFirstTimeUser;
 
+  // Handle welcome message for first-time users only
   useEffect(() => {
-    if (hasSpokenRef.current || userName === 'there') return;
-    
-    // User activity detection - pauses voice immediately on interaction
-    const handleActivity = () => {
-      userActiveRef.current = true;
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+    if (!shouldSpeak || hasSpokenWelcome) {
+      return;
+    }
+
+    const speakWelcomeMessage = () => {
+      if (isUserCurrentlyActive()) {
+        console.log('🔇 Voice: User is active, not speaking welcome');
+        return;
       }
-    };
-    
-    const removeActivityDetector = createUserActivityDetector(handleActivity);
-    const removeNavigationCleanup = createNavigationCleanup();
-    
-    cleanupRef.current = () => {
-      removeActivityDetector();
-      removeNavigationCleanup();
-    };
-    
-    const speakGreeting = () => {
-      if (userActiveRef.current || hasSpokenRef.current) return;
+
+      const welcomeMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
       
-      let greeting = '';
-      
-      // Check if actually returning user (not first-time after signup)
-      const isNewUserSignup = localStorage.getItem('new_user_signup') === 'true';
-      const actuallyReturning = isReturningUser && !isNewUserSignup;
-      
-      if (actuallyReturning) {
-        greeting = `Welcome back, ${userName}! `;
-        
-        if (lastActivity) {
-          greeting += `Last time, you worked on ${lastActivity}. `;
-        }
-        
-        if (pendingTasks.length > 0) {
-          greeting += `You have ${pendingTasks.length} pending activities waiting for you. `;
-        }
-        
-        greeting += `Let's pick up where you left off.`;
-      } else if (isFirstTimeUser || isNewUserSignup) {
-        greeting = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
-      } else {
-        greeting = `Hello ${userName}! Ready to continue your learning journey today.`;
-      }
-      
-      const success = speakWithFemaleVoice(
-        greeting,
-        { 
-          rate: 0.95,
-          pitch: 1.1,
-          volume: 0.8,
-          language
-        },
-        () => {
-          hasSpokenRef.current = true;
-          console.log('🔊 Voice Greeting: Started speaking');
-        },
-        () => {
-          console.log('🔇 Voice Greeting: Finished speaking');
-          // Clear the new user signup flag after first greeting
-          if (isNewUserSignup) {
-            localStorage.removeItem('new_user_signup');
-          }
-        }
-      );
+      const success = speakWithFemaleVoice(welcomeMessage, { language }, 'welcome-greeting');
       
       if (success) {
-        hasSpokenRef.current = true;
+        setHasSpokenWelcome(true);
+        // Mark that user has heard welcome message to prevent repetition
+        localStorage.setItem('hasHeardWelcomeMessage', 'true');
       }
     };
 
-    // Load voices if not already loaded
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.addEventListener('voiceschanged', speakGreeting, { once: true });
-    } else {
-      // Small delay to ensure page is ready
-      setTimeout(speakGreeting, 2000);
+    // Check if user has already heard welcome message
+    const hasHeardWelcome = localStorage.getItem('hasHeardWelcomeMessage') === 'true';
+    if (hasHeardWelcome) {
+      setHasSpokenWelcome(true);
+      return;
     }
-    
-    return cleanupRef.current;
-  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks, language]);
+
+    // Delay welcome message slightly
+    greetingTimeoutRef.current = setTimeout(speakWelcomeMessage, 2000);
+
+    return () => {
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
+    };
+  }, [shouldSpeak, hasSpokenWelcome, userName, language]);
+
+  // Reset when leaving welcome screen
+  useEffect(() => {
+    if (!isWelcomeScreen) {
+      cleanupOnNavigation();
+      
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
+    }
+  }, [isWelcomeScreen]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-      }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+      cleanupOnNavigation();
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
       }
     };
   }, []);

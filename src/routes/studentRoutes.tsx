@@ -39,6 +39,11 @@ const StudentRoutes = () => {
           <AcademicAdvisorView />
         </SidebarLayout>
       } />
+      <Route path="/academic-advisor" element={
+        <SidebarLayout>
+          <AcademicAdvisorView />
+        </SidebarLayout>
+      } />
       <Route path="/concepts" element={
         <SidebarLayout>
           <ConceptsPage />
@@ -74,7 +79,6 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* CRITICAL: INTERACTIVE FLASHCARD ROUTE - MUST BE EXACT MATCH - FIXED TO /1/interactive */}
       <Route path="/flashcards/1/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
@@ -88,6 +92,11 @@ const StudentRoutes = () => {
       <Route path="/practice-exam" element={
         <SidebarLayout>
           <PracticeExamsList />
+        </SidebarLayout>
+      } />
+      <Route path="/practice-exam/2/start" element={
+        <SidebarLayout>
+          <ExamTakingPage />
         </SidebarLayout>
       } />
       <Route path="/practice-exam/:examId/start" element={

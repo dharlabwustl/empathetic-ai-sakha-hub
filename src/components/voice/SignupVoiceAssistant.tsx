@@ -1,7 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { speakWithFemaleVoice } from '@/utils/voiceConfig';
+import { 
+  speakWithFemaleVoice, 
+  isUserCurrentlyActive, 
+  cleanupOnNavigation 
+} from '@/utils/voiceConfig';
 
 interface SignupVoiceAssistantProps {
   userName?: string;
@@ -9,52 +13,72 @@ interface SignupVoiceAssistantProps {
   onSpeakingChange?: (isSpeaking: boolean) => void;
 }
 
-const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
-  userName = "there",
+const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({ 
+  userName,
   language = 'en-US',
   onSpeakingChange
 }) => {
-  const [hasPlayed, setHasPlayed] = useState(false);
+  const [hasSpokenCongrats, setHasSpokenCongrats] = useState(false);
   const location = useLocation();
+  const messageTimeoutRef = useRef<NodeJS.Timeout>();
   
-  const isWelcomeFlow = location.pathname.includes('/welcome');
-  const isNewUser = localStorage.getItem('new_user_signup') === 'true';
-
+  // Check if user just signed up
+  const justSignedUp = localStorage.getItem('justSignedUp') === 'true';
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  
+  // Only speak congratulations once after signup
   useEffect(() => {
-    // Only speak on welcome screen for new users, once only
-    if (!isWelcomeFlow || !isNewUser || hasPlayed || userName === "there") return;
-    
-    const speakWelcome = () => {
-      const welcomeMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
+    if (!justSignedUp || !isLoggedIn || hasSpokenCongrats || !userName) {
+      return;
+    }
+
+    const speakCongratulations = () => {
+      if (isUserCurrentlyActive()) {
+        console.log('🔇 Voice: User is active, not speaking congratulations');
+        return;
+      }
+
+      const congratsMessage = `Congratulations ${userName}! You've officially joined PREPZR – your exam prep companion. Welcome to the family!`;
       
-      const success = speakWithFemaleVoice(
-        welcomeMessage,
-        { language },
+      if (onSpeakingChange) onSpeakingChange(true);
+      
+      const success = speakWithFemaleVoice(congratsMessage, { language }, 'signup-congrats', 
         () => {
           if (onSpeakingChange) onSpeakingChange(true);
         },
         () => {
           if (onSpeakingChange) onSpeakingChange(false);
-          setHasPlayed(true);
-          // Clear the new user flag after welcome
-          localStorage.removeItem('new_user_signup');
         }
       );
       
       if (success) {
-        setHasPlayed(true);
+        setHasSpokenCongrats(true);
+        // Clear the justSignedUp flag so it doesn't repeat
+        localStorage.removeItem('justSignedUp');
       }
     };
-    
-    // Wait for voices to load
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.addEventListener('voiceschanged', speakWelcome, { once: true });
-    } else {
-      setTimeout(speakWelcome, 1500);
-    }
-  }, [isWelcomeFlow, isNewUser, userName, hasPlayed, language, onSpeakingChange]);
 
-  return null;
+    // Slight delay to ensure page is ready
+    messageTimeoutRef.current = setTimeout(speakCongratulations, 1500);
+
+    return () => {
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    };
+  }, [justSignedUp, isLoggedIn, hasSpokenCongrats, userName, language, onSpeakingChange]);
+
+  // Cleanup on navigation
+  useEffect(() => {
+    return () => {
+      cleanupOnNavigation();
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    };
+  }, [location.pathname]);
+
+  return null; // This component only handles voice logic
 };
 
 export default SignupVoiceAssistant;
