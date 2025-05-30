@@ -42,6 +42,14 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     };
   }, [onMoodChange]);
 
+  // Apply mood theme to body when mood changes
+  useEffect(() => {
+    if (currentMood) {
+      document.body.className = document.body.className.replace(/mood-\w+/g, '');
+      document.body.classList.add(`mood-${currentMood}`);
+    }
+  }, [currentMood]);
+
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
   };
@@ -56,7 +64,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       setLastMoodChange(new Date());
       
       // Update study time allocations based on mood
-      updateStudyTimeAllocationsByMood(mood);
+      const adjustedAllocations = updateStudyTimeAllocationsByMood(mood);
       
       // Show toast confirmation with recommendation
       const recommendation = getStudyRecommendationForMood(mood);
@@ -65,6 +73,13 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         title: `Mood Updated: ${getMoodLabel(mood)}`,
         description: recommendation,
         duration: 5000,
+      });
+      
+      // Show allocation adjustment notification
+      toast({
+        title: "Study Plan Adjusted",
+        description: "Your daily study schedule has been optimized based on your current mood.",
+        duration: 4000,
       });
       
       // Analyze mood trends for additional notifications
@@ -95,7 +110,8 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         detail: { 
           mood, 
           timestamp: new Date().toISOString(),
-          recommendation
+          recommendation,
+          adjustedAllocations
         } 
       });
       document.dispatchEvent(moodChangeEvent);
