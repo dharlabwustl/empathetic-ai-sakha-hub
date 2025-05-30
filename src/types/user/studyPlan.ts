@@ -10,8 +10,6 @@ export interface StudyPlanSubject {
   proficiency: "strong" | "medium" | "weak";
   completed: boolean;
   difficulty?: string;
-  status?: "strong" | "weak" | "needs_focus";
-  topics?: string[];
 }
 
 export interface StudyPlan {

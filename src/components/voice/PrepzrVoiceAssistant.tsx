@@ -22,7 +22,6 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   const [messagesSent, setMessagesSent] = useState<Set<string>>(new Set());
   const [lastMessageTime, setLastMessageTime] = useState(0);
   const [isUserActive, setIsUserActive] = useState(false);
-  const [hasShownDashboardWelcome, setHasShownDashboardWelcome] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,12 +31,12 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   // Minimum 60 seconds between messages
   const MESSAGE_COOLDOWN = 60000;
   
-  // Track user activity (mouse, scroll, click, keyboard)
+  // Track user activity (mouse, scroll, click)
   useEffect(() => {
     const handleUserActivity = () => {
       setIsUserActive(true);
       
-      // Stop any current speech immediately
+      // Stop any current speech
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
@@ -47,13 +46,13 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
         clearTimeout(activityTimeoutRef.current);
       }
       
-      // Set user as inactive after 3 seconds of no activity
+      // Set user as inactive after 5 seconds of no activity
       activityTimeoutRef.current = setTimeout(() => {
         setIsUserActive(false);
-      }, 3000);
+      }, 5000);
     };
 
-    const events = ['mousemove', 'mousedown', 'scroll', 'keydown', 'click', 'touchstart', 'touchmove'];
+    const events = ['mousemove', 'mousedown', 'scroll', 'keydown', 'click', 'touchstart'];
     events.forEach(event => {
       document.addEventListener(event, handleUserActivity);
     });
@@ -82,19 +81,13 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
 
   const shouldPlayMessage = () => {
     const now = Date.now();
-    const allowedPages = ['/', '/dashboard', '/welcome', '/dashboard/student'];
+    const allowedPages = ['/', '/dashboard', '/welcome'];
     const isOnAllowedPage = allowedPages.some(page => 
       location.pathname === page || location.pathname.startsWith('/dashboard/student')
     );
     
-    // Never speak on signup/login pages
-    const isOnRestrictedPage = location.pathname.includes('/signup') || 
-                              location.pathname.includes('/login') ||
-                              location.pathname.includes('/auth');
-    
     return (
       isOnAllowedPage &&
-      !isOnRestrictedPage &&
       !isUserActive &&
       (now - lastMessageTime) >= MESSAGE_COOLDOWN
     );
@@ -105,26 +98,28 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       return;
     }
 
-    // Always use student name in personalized messages
-    const personalizedMessage = userName && message.includes('[StudentName]') 
-      ? message.replace('[StudentName]', userName) 
-      : message;
+    const personalizedMessage = userName ? message.replace('[StudentName]', userName) : message;
     
     const success = speakWithFemaleVoice(personalizedMessage, { language });
     if (success) {
       setLastMessageTime(Date.now());
       setMessagesSent(prev => new Set(prev).add(messageKey));
+      
+      // Schedule next message after cooldown
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
     }
   };
 
-  // Home page behavior - only before signup/login
+  // Home page behavior
   useEffect(() => {
-    if (location.pathname === '/' && !hasGreeted && !userName) {
+    if (location.pathname === '/' && !hasGreeted) {
       const messageKey = 'home-intro';
       
       setTimeout(() => {
         speakMessage(
-          "Hi there! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.",
+          `Hi ${userName || 'there'}! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`,
           messageKey
         );
         setHasGreeted(true);
@@ -139,11 +134,11 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
           }
         }, MESSAGE_COOLDOWN);
         
-      }, 2000);
+      }, 1500);
     }
   }, [location.pathname, userName, hasGreeted]);
 
-  // Welcome screen behavior (after signup) - only once
+  // Welcome screen behavior (after signup)
   useEffect(() => {
     if (location.pathname === '/welcome' && isNewUser && userName) {
       const messageKey = 'welcome-congratulation';
@@ -157,24 +152,18 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     }
   }, [location.pathname, isNewUser, userName]);
 
-  // Dashboard behavior - differentiate first-time vs returning users
+  // Dashboard behavior
   useEffect(() => {
     if (location.pathname.startsWith('/dashboard') && userName) {
-      const hasSeenDashboardWelcome = localStorage.getItem('hasSeenDashboardWelcome') === 'true';
-      
-      if (isNewUser && !hasSeenDashboardWelcome) {
-        // First-time dashboard message
+      if (isNewUser) {
         const messageKey = 'dashboard-first-time';
         setTimeout(() => {
           speakMessage(
             `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`,
             messageKey
           );
-          localStorage.setItem('hasSeenDashboardWelcome', 'true');
-          setHasShownDashboardWelcome(true);
         }, 1500);
-      } else if (!isNewUser && !hasSeenDashboardWelcome) {
-        // Returning user message
+      } else {
         const messageKey = 'dashboard-returning';
         setTimeout(() => {
           const message = lastActivity 
@@ -182,30 +171,25 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
             : `Welcome back, ${userName}! Ready to continue your learning journey?`;
           
           speakMessage(message, messageKey);
-          localStorage.setItem('hasSeenDashboardWelcome', 'true');
-          setHasShownDashboardWelcome(true);
         }, 1500);
       }
     }
-  }, [location.pathname, userName, isNewUser, lastActivity, hasShownDashboardWelcome]);
+  }, [location.pathname, userName, isNewUser, lastActivity]);
 
   // Reset context when changing routes
   useEffect(() => {
     if (location.pathname !== currentContext) {
+      setHasGreeted(false);
       setCurrentContext(location.pathname);
+      // Don't clear messagesSent - preserve session memory
       
-      // Cancel any ongoing speech immediately
+      // Cancel any ongoing speech
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
       
       if (messageTimeoutRef.current) {
         clearTimeout(messageTimeoutRef.current);
-      }
-
-      // Reset greetings for different pages
-      if (location.pathname === '/' && currentContext.startsWith('/dashboard')) {
-        setHasGreeted(false);
       }
     }
   }, [location.pathname, currentContext]);
