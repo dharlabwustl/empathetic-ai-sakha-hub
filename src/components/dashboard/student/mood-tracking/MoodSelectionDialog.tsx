@@ -2,7 +2,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MoodType } from "@/types/mood";
+import { MoodType } from "@/types/user/base";
 import { getMoodEmoji, getMoodLabel } from "./moodUtils";
 
 interface MoodSelectionDialogProps {
