@@ -60,13 +60,13 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
   };
 
   return (
-    <Card className="h-full">
+    <Card className="premium-card h-full transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className={`${isMobile ? "text-sm" : "text-base"} font-medium`}>Today's Plan</CardTitle>
         <Button 
           variant="ghost" 
           size={isMobile ? "sm" : "default"}
-          className={isMobile ? "h-7 w-7 p-0" : "h-8 w-8 p-0"} 
+          className={`${isMobile ? "h-7 w-7 p-0" : "h-8 w-8 p-0"} hover:bg-blue-50 transition-colors`} 
           onClick={() => navigate('/dashboard/student/today')}
         >
           <LayoutDashboard className={`h-${isMobile ? "3" : "4"} w-${isMobile ? "3" : "4"}`} />
@@ -81,7 +81,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
           tasks.map((task, i) => (
             <div
               key={i}
-              className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+              className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-all duration-200"
               onClick={() => handleTaskClick(task)}
             >
               <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
             variant="link" 
             size={isMobile ? "sm" : "default"}
             onClick={() => navigate('/dashboard/student/today')}
-            className={`px-0 ${isMobile ? "text-xs" : "text-sm"}`}
+            className={`px-0 ${isMobile ? "text-xs" : "text-sm"} hover:text-blue-600 transition-colors`}
           >
             View All Tasks
           </Button>
