@@ -1,5 +1,5 @@
-
 @import './styles/theme.css';
+@import './styles/mood-themes.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -123,6 +123,15 @@
   
   .tab-scrollbar::-webkit-scrollbar-track {
     @apply bg-transparent;
+  }
+
+  /* Mood-themed components */
+  .mood-themed-button {
+    transition: var(--mood-transition);
+  }
+  
+  .mood-themed-card {
+    @apply transition-all duration-300;
   }
 }
 

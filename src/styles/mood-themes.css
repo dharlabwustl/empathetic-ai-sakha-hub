@@ -1,0 +1,131 @@
+
+/* Mood-based dashboard themes */
+
+/* Base mood theme variables */
+:root {
+  --mood-transition: all 0.3s ease;
+}
+
+/* Happy mood theme */
+.mood-happy {
+  --mood-bg: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #f59e0b 100%);
+  --mood-accent: #f59e0b;
+  --mood-text: #92400e;
+  --mood-card-bg: rgba(254, 243, 199, 0.8);
+  --mood-border: #fbbf24;
+}
+
+/* Motivated mood theme */
+.mood-motivated {
+  --mood-bg: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 50%, #10b981 100%);
+  --mood-accent: #10b981;
+  --mood-text: #065f46;
+  --mood-card-bg: rgba(220, 252, 231, 0.8);
+  --mood-border: #34d399;
+}
+
+/* Focused mood theme */
+.mood-focused {
+  --mood-bg: linear-gradient(135deg, #dbeafe 0%, #93c5fd 50%, #3b82f6 100%);
+  --mood-accent: #3b82f6;
+  --mood-text: #1e40af;
+  --mood-card-bg: rgba(219, 234, 254, 0.8);
+  --mood-border: #60a5fa;
+}
+
+/* Tired mood theme */
+.mood-tired {
+  --mood-bg: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 50%, #6b7280 100%);
+  --mood-accent: #6b7280;
+  --mood-text: #374151;
+  --mood-card-bg: rgba(243, 244, 246, 0.8);
+  --mood-border: #9ca3af;
+}
+
+/* Stressed mood theme */
+.mood-stressed {
+  --mood-bg: linear-gradient(135deg, #fee2e2 0%, #fca5a5 50%, #ef4444 100%);
+  --mood-accent: #ef4444;
+  --mood-text: #991b1b;
+  --mood-card-bg: rgba(254, 226, 226, 0.8);
+  --mood-border: #f87171;
+}
+
+/* Anxious mood theme */
+.mood-anxious {
+  --mood-bg: linear-gradient(135deg, #f3e8ff 0%, #c4b5fd 50%, #8b5cf6 100%);
+  --mood-accent: #8b5cf6;
+  --mood-text: #5b21b6;
+  --mood-card-bg: rgba(243, 232, 255, 0.8);
+  --mood-border: #a78bfa;
+}
+
+/* Neutral/Okay mood theme */
+.mood-neutral, .mood-okay {
+  --mood-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #64748b 100%);
+  --mood-accent: #64748b;
+  --mood-text: #334155;
+  --mood-card-bg: rgba(248, 250, 252, 0.8);
+  --mood-border: #94a3b8;
+}
+
+/* Apply mood themes to dashboard elements */
+.mood-happy, .mood-motivated, .mood-focused, .mood-tired, 
+.mood-stressed, .mood-anxious, .mood-neutral, .mood-okay,
+.mood-sad, .mood-overwhelmed, .mood-curious, .mood-confused {
+  transition: var(--mood-transition);
+}
+
+/* Cards with mood themes */
+.mood-themed-card {
+  background: var(--mood-card-bg);
+  border-color: var(--mood-border);
+  transition: var(--mood-transition);
+}
+
+/* Text with mood themes */
+.mood-themed-text {
+  color: var(--mood-text);
+}
+
+/* Accent elements */
+.mood-themed-accent {
+  color: var(--mood-accent);
+  border-color: var(--mood-accent);
+}
+
+/* Progress bars with mood themes */
+.mood-themed-progress .bg-primary {
+  background-color: var(--mood-accent);
+}
+
+/* Dark mode adjustments */
+.dark .mood-happy {
+  --mood-card-bg: rgba(120, 53, 15, 0.2);
+  --mood-text: #fbbf24;
+}
+
+.dark .mood-motivated {
+  --mood-card-bg: rgba(6, 95, 70, 0.2);
+  --mood-text: #34d399;
+}
+
+.dark .mood-focused {
+  --mood-card-bg: rgba(30, 64, 175, 0.2);
+  --mood-text: #60a5fa;
+}
+
+.dark .mood-tired {
+  --mood-card-bg: rgba(55, 65, 81, 0.2);
+  --mood-text: #9ca3af;
+}
+
+.dark .mood-stressed {
+  --mood-card-bg: rgba(153, 27, 27, 0.2);
+  --mood-text: #f87171;
+}
+
+.dark .mood-anxious {
+  --mood-card-bg: rgba(91, 33, 182, 0.2);
+  --mood-text: #a78bfa;
+}
