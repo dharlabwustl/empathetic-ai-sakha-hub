@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
+import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood, getMoodThemeClass } from './moodUtils';
 import MoodSelectionDialog from './MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -41,6 +41,17 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       document.removeEventListener('mood-changed', handleMoodChangeEvent);
     };
   }, [onMoodChange]);
+
+  // Apply mood theme to body when mood changes
+  useEffect(() => {
+    if (currentMood) {
+      const themeClass = getMoodThemeClass(currentMood);
+      document.body.className = document.body.className.replace(/mood-\w+/g, '');
+      if (themeClass) {
+        document.body.classList.add(themeClass);
+      }
+    }
+  }, [currentMood]);
 
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
@@ -132,6 +143,8 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         return "bg-gradient-to-r from-red-100 to-red-200 hover:from-red-200 hover:to-red-300 dark:from-red-900/30 dark:to-red-800/30";
       case MoodType.SAD:
         return "bg-gradient-to-r from-indigo-100 to-indigo-200 hover:from-indigo-200 hover:to-indigo-300 dark:from-indigo-900/30 dark:to-indigo-800/30";
+      case MoodType.CALM:
+        return "bg-gradient-to-r from-teal-100 to-teal-200 hover:from-teal-200 hover:to-teal-300 dark:from-teal-900/30 dark:to-teal-800/30";
       default:
         return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800/50 dark:to-gray-700/50";
     }

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap } from 'lucide-react';
+import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -27,6 +27,11 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       { name: "Biology", progress: 71, color: "purple" }
     ]
   };
+
+  // Calculate overall progress based on subjects
+  const overallProgress = Math.round(
+    examData.subjects.reduce((sum, subject) => sum + subject.progress, 0) / examData.subjects.length
+  );
 
   return (
     <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
@@ -55,12 +60,35 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
           </Badge>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Overall Progress</span>
-            <span className="font-medium">{examData.progress}%</span>
+        {/* Overall Progress Meter */}
+        <div className="space-y-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-semibold text-blue-800 dark:text-blue-300">Overall Progress</span>
+            </div>
+            <span className="text-lg font-bold text-blue-900 dark:text-blue-200">{overallProgress}%</span>
           </div>
-          <Progress value={examData.progress} className="h-2" />
+          
+          <div className="relative">
+            <Progress value={overallProgress} className="h-3 bg-gray-200 dark:bg-gray-700" />
+            <motion.div 
+              className="absolute top-0 left-0 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${overallProgress}%` }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+            <span>Started</span>
+            <span className="font-medium">
+              {overallProgress >= 75 ? "Excellent!" : 
+               overallProgress >= 50 ? "On Track" : 
+               overallProgress >= 25 ? "Making Progress" : "Getting Started"}
+            </span>
+            <span>Exam Ready</span>
+          </div>
         </div>
 
         <div className="space-y-2">
