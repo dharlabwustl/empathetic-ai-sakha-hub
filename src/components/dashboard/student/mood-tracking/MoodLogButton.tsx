@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood, getMoodThemeClass } from './moodUtils';
+import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
 import MoodSelectionDialog from './MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -26,20 +26,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   const { toast } = useToast();
   
   useEffect(() => {
-    // Apply mood theme to document body
-    if (currentMood) {
-      const themeClass = getMoodThemeClass(currentMood);
-      if (themeClass) {
-        // Remove any existing mood classes
-        document.body.classList.remove(
-          'mood-happy', 'mood-motivated', 'mood-focused', 'mood-tired',
-          'mood-stressed', 'mood-anxious', 'mood-sad', 'mood-neutral'
-        );
-        // Add new mood class
-        document.body.classList.add(themeClass);
-      }
-    }
-    
     // Listen for mood change events from other components
     const handleMoodChangeEvent = (event: Event) => {
       const customEvent = event as CustomEvent;
@@ -54,7 +40,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     return () => {
       document.removeEventListener('mood-changed', handleMoodChangeEvent);
     };
-  }, [onMoodChange, currentMood]);
+  }, [onMoodChange]);
 
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
@@ -71,16 +57,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       
       // Update study time allocations based on mood
       updateStudyTimeAllocationsByMood(mood);
-      
-      // Apply theme immediately
-      const themeClass = getMoodThemeClass(mood);
-      if (themeClass) {
-        document.body.classList.remove(
-          'mood-happy', 'mood-motivated', 'mood-focused', 'mood-tired',
-          'mood-stressed', 'mood-anxious', 'mood-sad', 'mood-neutral'
-        );
-        document.body.classList.add(themeClass);
-      }
       
       // Show toast confirmation with recommendation
       const recommendation = getStudyRecommendationForMood(mood);
