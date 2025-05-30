@@ -22,6 +22,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   const [messagesSent, setMessagesSent] = useState<Set<string>>(new Set());
   const [lastMessageTime, setLastMessageTime] = useState(0);
   const [isUserActive, setIsUserActive] = useState(false);
+  const [isFirstTimeOnDashboard, setIsFirstTimeOnDashboard] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,12 +32,12 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   // Minimum 60 seconds between messages
   const MESSAGE_COOLDOWN = 60000;
   
-  // Track user activity (mouse, scroll, click)
+  // Track user activity (mouse, scroll, click, keyboard)
   useEffect(() => {
     const handleUserActivity = () => {
       setIsUserActive(true);
       
-      // Stop any current speech
+      // Stop any current speech immediately
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
@@ -54,7 +55,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
 
     const events = ['mousemove', 'mousedown', 'scroll', 'keydown', 'click', 'touchstart'];
     events.forEach(event => {
-      document.addEventListener(event, handleUserActivity);
+      document.addEventListener(event, handleUserActivity, { passive: true });
     });
 
     return () => {
@@ -98,14 +99,15 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       return;
     }
 
-    const personalizedMessage = userName ? message.replace('[StudentName]', userName) : message;
+    // Use student name immediately in personalized greetings
+    const personalizedMessage = userName ? message.replace(/\[StudentName\]/g, userName) : message;
     
     const success = speakWithFemaleVoice(personalizedMessage, { language });
     if (success) {
       setLastMessageTime(Date.now());
       setMessagesSent(prev => new Set(prev).add(messageKey));
       
-      // Schedule next message after cooldown
+      // Schedule next message after cooldown (only for home page suggestions)
       if (messageTimeoutRef.current) {
         clearTimeout(messageTimeoutRef.current);
       }
@@ -118,25 +120,26 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       const messageKey = 'home-intro';
       
       setTimeout(() => {
-        speakMessage(
-          `Hi ${userName || 'there'}! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`,
-          messageKey
-        );
-        setHasGreeted(true);
-        
-        // Smart suggestions with 60s delay
-        messageTimeoutRef.current = setTimeout(() => {
-          if (shouldPlayMessage()) {
-            speakMessage(
-              "Want to try PREPZR free before signing up? Just say 'Free trial'.",
-              'suggestion-1'
-            );
-          }
-        }, MESSAGE_COOLDOWN);
-        
+        if (!isUserActive) {
+          speakMessage(
+            `Hi ${userName || 'there'}! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`,
+            messageKey
+          );
+          setHasGreeted(true);
+          
+          // Smart suggestions with 60s delay - only one at a time
+          messageTimeoutRef.current = setTimeout(() => {
+            if (shouldPlayMessage() && !messagesSent.has('suggestion-signup')) {
+              speakMessage(
+                "Let's start your personalized journey. Sign up and get ready to conquer your exams with PREPZR.",
+                'suggestion-signup'
+              );
+            }
+          }, MESSAGE_COOLDOWN);
+        }
       }, 1500);
     }
-  }, [location.pathname, userName, hasGreeted]);
+  }, [location.pathname, userName, hasGreeted, isUserActive]);
 
   // Welcome screen behavior (after signup)
   useEffect(() => {
@@ -144,44 +147,54 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       const messageKey = 'welcome-congratulation';
       
       setTimeout(() => {
-        speakMessage(
-          `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`,
-          messageKey
-        );
-      }, 1500);
-    }
-  }, [location.pathname, isNewUser, userName]);
-
-  // Dashboard behavior
-  useEffect(() => {
-    if (location.pathname.startsWith('/dashboard') && userName) {
-      if (isNewUser) {
-        const messageKey = 'dashboard-first-time';
-        setTimeout(() => {
+        if (!isUserActive) {
           speakMessage(
-            `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`,
+            `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`,
             messageKey
           );
+        }
+      }, 1500);
+    }
+  }, [location.pathname, isNewUser, userName, isUserActive]);
+
+  // Dashboard behavior - check if first time on dashboard
+  useEffect(() => {
+    if (location.pathname.startsWith('/dashboard') && userName) {
+      const hasSeenDashboardWelcome = localStorage.getItem('hasSeenDashboardWelcome') === 'true';
+      
+      if (isNewUser && !hasSeenDashboardWelcome) {
+        // First time on dashboard after signup
+        const messageKey = 'dashboard-first-time';
+        setTimeout(() => {
+          if (!isUserActive) {
+            speakMessage(
+              `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`,
+              messageKey
+            );
+            localStorage.setItem('hasSeenDashboardWelcome', 'true');
+          }
         }, 1500);
-      } else {
+      } else if (!isNewUser) {
+        // Returning user
         const messageKey = 'dashboard-returning';
         setTimeout(() => {
-          const message = lastActivity 
-            ? `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`
-            : `Welcome back, ${userName}! Ready to continue your learning journey?`;
-          
-          speakMessage(message, messageKey);
+          if (!isUserActive) {
+            const message = lastActivity 
+              ? `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`
+              : `Welcome back, ${userName}! Ready to continue your learning journey?`;
+            
+            speakMessage(message, messageKey);
+          }
         }, 1500);
       }
     }
-  }, [location.pathname, userName, isNewUser, lastActivity]);
+  }, [location.pathname, userName, isNewUser, lastActivity, isUserActive]);
 
   // Reset context when changing routes
   useEffect(() => {
     if (location.pathname !== currentContext) {
       setHasGreeted(false);
       setCurrentContext(location.pathname);
-      // Don't clear messagesSent - preserve session memory
       
       // Cancel any ongoing speech
       if (window.speechSynthesis) {
@@ -190,6 +203,11 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       
       if (messageTimeoutRef.current) {
         clearTimeout(messageTimeoutRef.current);
+      }
+
+      // Reset messages for new pages (except session memory)
+      if (location.pathname === '/') {
+        setMessagesSent(new Set());
       }
     }
   }, [location.pathname, currentContext]);
