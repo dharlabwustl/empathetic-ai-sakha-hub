@@ -2,12 +2,10 @@
 import React, { useState } from 'react';
 import { UserProfileType, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
-import NameSectionCard from './dashboard-sections/NameSectionCard';
-import ExamGoalCard from './dashboard-sections/ExamGoalCard';
-import ExamReadinessScoreCard from './dashboard-sections/ExamReadinessScoreCard';
 import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
+import ExamGoalCard from './dashboard-sections/ExamGoalCard';
 import KpiCard from './dashboard-sections/KpiCard';
 import WeakAreasCard from './dashboard-sections/WeakAreasCard';
 import StrongAreasCard from './dashboard-sections/StrongAreasCard';
@@ -39,35 +37,23 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* 1. Name Section Card */}
-      <NameSectionCard 
-        userName={userProfile.name}
-        dailyGoalStreak={12}
-      />
-
-      {/* 2. Exam Goal Card */}
-      <ExamGoalCard 
-        currentMood={currentMood}
-        onMoodChange={handleMoodChange}
-      />
-
-      {/* 3. Exam Readiness Score Card */}
-      <ExamReadinessScoreCard />
-
-      {/* 4. NEET Strategy Card - moved to top as requested */}
-      <NEETStrategyCard />
-
       {/* Top Priority and Today's Plan - Main Focus */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TodaysTopPrioritySection />
         <TodaysPlanSection currentMood={currentMood} />
       </div>
 
-      {/* Mood-based suggestions */}
-      <MoodBasedSuggestions 
-        currentMood={currentMood} 
-        onMoodSelect={handleMoodChange}
-      />
+      {/* Mood and Exam Goal Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MoodBasedSuggestions 
+          currentMood={currentMood} 
+          onMoodSelect={handleMoodChange}
+        />
+        <ExamGoalCard 
+          currentMood={currentMood}
+          onMoodChange={handleMoodChange}
+        />
+      </div>
 
       {/* Weak and Strong Areas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -75,8 +61,11 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         <StrongAreasCard />
       </div>
 
-      {/* AI Coach */}
-      <AICoachCard />
+      {/* AI Coach and NEET Strategy */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AICoachCard />
+        <NEETStrategyCard />
+      </div>
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
