@@ -6,17 +6,10 @@ export interface StudyPlanSubject {
   hoursPerWeek: number;
   weeklyHours: number;
   progress: number;
-  priority: "low" | "medium" | "high";
-  proficiency: "weak" | "medium" | "strong";
+  priority: "high" | "medium" | "low";
+  proficiency: "strong" | "medium" | "weak";
   completed: boolean;
-  topics?: StudyPlanTopic[];
-}
-
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  completed: boolean;
-  difficulty: "easy" | "medium" | "hard";
+  difficulty?: string;
 }
 
 export interface StudyPlan {
@@ -29,10 +22,11 @@ export interface StudyPlan {
   preferredStudyTime: "morning" | "afternoon" | "evening" | "night";
   learningPace: "slow" | "moderate" | "fast";
   weeklyHours: number;
-  examDate: string;
   status: "pending" | "active" | "completed" | "archived";
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  examDate: string;
+  progressPercent?: number;
+  daysLeft?: number;
 }
 
 export interface NewStudyPlan {
@@ -45,19 +39,6 @@ export interface NewStudyPlan {
   preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
   learningPace?: "slow" | "moderate" | "fast";
   weeklyHours?: number;
-  examDate?: string;
   status?: "pending" | "active" | "completed" | "archived";
-}
-
-export interface CreditPack {
-  id: string;
-  name: string;
-  credits: number;
-  price: number;
-  originalPrice?: number;
-  description: string;
-  features: string[];
-  popular?: boolean;
-  bestValue?: boolean;
-  isExamCredits?: boolean;
+  examDate?: string;
 }
