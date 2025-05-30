@@ -1,7 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { speakWithFemaleVoice } from '@/utils/voiceConfig';
+import { getDefaultVoiceConfig } from '@/utils/voiceConfig';
+import { 
+  signupCongratulationMessages, 
+  speakMessagesWithBreaks 
+} from '@/utils/voiceMessages';
 
 interface SignupVoiceAssistantProps {
   userName?: string;
@@ -15,44 +19,40 @@ const SignupVoiceAssistant: React.FC<SignupVoiceAssistantProps> = ({
   onSpeakingChange
 }) => {
   const [hasPlayed, setHasPlayed] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const location = useLocation();
   
-  const isWelcomeFlow = location.pathname.includes('/welcome');
-  const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+  const isSignupSuccess = location.pathname.includes('/signup') && 
+                         location.search.includes('success=true');
 
-  useEffect(() => {
-    // Only speak on welcome screen for new users, once only
-    if (!isWelcomeFlow || !isNewUser || hasPlayed || userName === "there") return;
+  const playCongratulations = async () => {
+    if (hasPlayed || !userName || userName === "there") return;
     
-    const speakWelcome = () => {
-      const welcomeMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
-      
-      const success = speakWithFemaleVoice(
-        welcomeMessage,
-        { language },
-        () => {
-          if (onSpeakingChange) onSpeakingChange(true);
-        },
-        () => {
-          if (onSpeakingChange) onSpeakingChange(false);
-          setHasPlayed(true);
-          // Clear the new user flag after welcome
-          localStorage.removeItem('new_user_signup');
-        }
-      );
-      
-      if (success) {
+    const voiceConfig = getDefaultVoiceConfig();
+    const messages = signupCongratulationMessages(userName);
+    
+    await speakMessagesWithBreaks(
+      messages,
+      { ...voiceConfig, language },
+      () => {
+        setIsSpeaking(true);
+        if (onSpeakingChange) onSpeakingChange(true);
+      },
+      () => {
+        setIsSpeaking(false);
+        if (onSpeakingChange) onSpeakingChange(false);
         setHasPlayed(true);
       }
-    };
-    
-    // Wait for voices to load
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.addEventListener('voiceschanged', speakWelcome, { once: true });
-    } else {
-      setTimeout(speakWelcome, 1500);
+    );
+  };
+
+  useEffect(() => {
+    if (isSignupSuccess && userName && userName !== "there" && !hasPlayed) {
+      setTimeout(() => {
+        playCongratulations();
+      }, 1500);
     }
-  }, [isWelcomeFlow, isNewUser, userName, hasPlayed, language, onSpeakingChange]);
+  }, [isSignupSuccess, userName, hasPlayed]);
 
   return null;
 };
