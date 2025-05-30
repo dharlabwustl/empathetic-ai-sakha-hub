@@ -1,0 +1,104 @@
+
+/* Mood-based themes for dashboard */
+.mood-happy {
+  --mood-bg: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+  --mood-accent: #f59e0b;
+  --mood-text: #92400e;
+}
+
+.mood-motivated {
+  --mood-bg: linear-gradient(135deg, #d1fae5 0%, #10b981 100%);
+  --mood-accent: #059669;
+  --mood-text: #065f46;
+}
+
+.mood-focused {
+  --mood-bg: linear-gradient(135deg, #dbeafe 0%, #3b82f6 100%);
+  --mood-accent: #2563eb;
+  --mood-text: #1e40af;
+}
+
+.mood-neutral {
+  --mood-bg: linear-gradient(135deg, #f3f4f6 0%, #9ca3af 100%);
+  --mood-accent: #6b7280;
+  --mood-text: #374151;
+}
+
+.mood-tired {
+  --mood-bg: linear-gradient(135deg, #fed7aa 0%, #ea580c 100%);
+  --mood-accent: #dc2626;
+  --mood-text: #7c2d12;
+}
+
+.mood-anxious {
+  --mood-bg: linear-gradient(135deg, #e9d5ff 0%, #8b5cf6 100%);
+  --mood-accent: #7c3aed;
+  --mood-text: #5b21b6;
+}
+
+.mood-stressed {
+  --mood-bg: linear-gradient(135deg, #fecaca 0%, #ef4444 100%);
+  --mood-accent: #dc2626;
+  --mood-text: #991b1b;
+}
+
+.mood-sad {
+  --mood-bg: linear-gradient(135deg, #bfdbfe 0%, #3b82f6 100%);
+  --mood-accent: #1d4ed8;
+  --mood-text: #1e3a8a;
+}
+
+/* Apply mood theming to dashboard elements */
+body.mood-happy .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+body.mood-motivated .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+body.mood-focused .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+body.mood-neutral .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+body.mood-tired .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+body.mood-anxious .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+body.mood-stressed .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+body.mood-sad .mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+}
+
+/* Mood-based card styling */
+.mood-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mood-card.mood-themed {
+  background: var(--mood-bg);
+  color: var(--mood-text);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}

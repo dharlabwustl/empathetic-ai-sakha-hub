@@ -2,7 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
+import { 
+  getMoodEmoji, 
+  getMoodLabel, 
+  getStudyRecommendationForMood, 
+  analyzeMoodTrends, 
+  updateStudyTimeAllocationsByMood,
+  storeMoodInLocalStorage,
+  applyMoodTheme
+} from './moodUtils';
 import MoodSelectionDialog from './MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -42,6 +50,13 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     };
   }, [onMoodChange]);
 
+  useEffect(() => {
+    // Apply mood theme when current mood changes
+    if (currentMood) {
+      applyMoodTheme(currentMood);
+    }
+  }, [currentMood]);
+
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
   };
@@ -54,6 +69,10 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     if (onMoodChange) {
       onMoodChange(mood);
       setLastMoodChange(new Date());
+      
+      // Store mood and apply theme
+      storeMoodInLocalStorage(mood);
+      applyMoodTheme(mood);
       
       // Update study time allocations based on mood
       updateStudyTimeAllocationsByMood(mood);
@@ -143,7 +162,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         variant="outline"
         size={size}
         onClick={handleOpenDialog}
-        className={`flex items-center gap-1.5 shadow-sm border ${getBgColorClass()} transition-all duration-300 ${className}`}
+        className={`flex items-center gap-1.5 shadow-sm border ${getBgColorClass()} transition-all duration-300 mood-themed ${className}`}
       >
         <span className="text-lg">{moodEmoji}</span>
         {showLabel && (
