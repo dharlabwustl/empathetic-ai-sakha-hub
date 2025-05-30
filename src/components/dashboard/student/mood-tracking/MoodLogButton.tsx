@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
+import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood, getMoodThemeClass } from './moodUtils';
 import MoodSelectionDialog from './MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -57,6 +57,12 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       
       // Update study time allocations based on mood
       updateStudyTimeAllocationsByMood(mood);
+      
+      // Apply theme immediately
+      const moodClass = getMoodThemeClass(mood);
+      if (moodClass) {
+        document.body.classList.add(moodClass);
+      }
       
       // Show toast confirmation with recommendation
       const recommendation = getStudyRecommendationForMood(mood);

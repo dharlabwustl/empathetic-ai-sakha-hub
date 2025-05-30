@@ -1,0 +1,114 @@
+
+/* Mood-based theme colors */
+.mood-happy {
+  --mood-bg: rgba(255, 235, 59, 0.1);
+  --mood-accent: #fdd835;
+  --mood-text: #f57f17;
+}
+
+.mood-motivated {
+  --mood-bg: rgba(76, 175, 80, 0.1);
+  --mood-accent: #66bb6a;
+  --mood-text: #2e7d32;
+}
+
+.mood-focused {
+  --mood-bg: rgba(33, 150, 243, 0.1);
+  --mood-accent: #42a5f5;
+  --mood-text: #1565c0;
+}
+
+.mood-neutral, .mood-okay {
+  --mood-bg: rgba(158, 158, 158, 0.1);
+  --mood-accent: #9e9e9e;
+  --mood-text: #424242;
+}
+
+.mood-tired {
+  --mood-bg: rgba(255, 152, 0, 0.1);
+  --mood-accent: #ffa726;
+  --mood-text: #ef6c00;
+}
+
+.mood-anxious {
+  --mood-bg: rgba(156, 39, 176, 0.1);
+  --mood-accent: #ab47bc;
+  --mood-text: #7b1fa2;
+}
+
+.mood-stressed {
+  --mood-bg: rgba(244, 67, 54, 0.1);
+  --mood-accent: #ef5350;
+  --mood-text: #c62828;
+}
+
+.mood-sad {
+  --mood-bg: rgba(63, 81, 181, 0.1);
+  --mood-accent: #5c6bc0;
+  --mood-text: #303f9f;
+}
+
+.mood-overwhelmed {
+  --mood-bg: rgba(255, 87, 34, 0.1);
+  --mood-accent: #ff7043;
+  --mood-text: #d84315;
+}
+
+.mood-curious {
+  --mood-bg: rgba(0, 188, 212, 0.1);
+  --mood-accent: #26c6da;
+  --mood-text: #0097a7;
+}
+
+.mood-confused {
+  --mood-bg: rgba(121, 85, 72, 0.1);
+  --mood-accent: #8d6e63;
+  --mood-text: #5d4037;
+}
+
+.mood-calm {
+  --mood-bg: rgba(139, 195, 74, 0.1);
+  --mood-accent: #9ccc65;
+  --mood-text: #689f38;
+}
+
+/* Apply mood themes */
+body.mood-happy,
+body.mood-motivated,
+body.mood-focused,
+body.mood-neutral,
+body.mood-tired,
+body.mood-anxious,
+body.mood-stressed,
+body.mood-sad,
+body.mood-overwhelmed,
+body.mood-curious,
+body.mood-confused,
+body.mood-calm,
+body.mood-okay {
+  background: linear-gradient(135deg, var(--mood-bg) 0%, transparent 100%);
+  transition: background 0.3s ease;
+}
+
+/* Mood-aware card styling */
+.mood-card {
+  border-left: 4px solid var(--mood-accent, #9e9e9e);
+  background: var(--mood-bg, rgba(158, 158, 158, 0.1));
+}
+
+.mood-text {
+  color: var(--mood-text, #424242);
+}
+
+.mood-accent {
+  color: var(--mood-accent, #9e9e9e);
+}
+
+/* Dark mode adjustments */
+.dark .mood-card {
+  background: rgba(var(--mood-accent), 0.05);
+}
+
+.dark .mood-text {
+  color: var(--mood-accent, #9e9e9e);
+}
