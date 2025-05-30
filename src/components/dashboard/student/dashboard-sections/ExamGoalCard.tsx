@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap, Clock, TrendingUp, Award } from 'lucide-react';
+import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -27,38 +27,6 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       { name: "Biology", progress: 71, color: "purple" }
     ]
   };
-
-  // Overall progress meters
-  const progressMeters = [
-    { 
-      label: "Exam Readiness", 
-      value: 78, 
-      icon: Award, 
-      color: "from-emerald-500 to-teal-600",
-      description: "Overall preparation level"
-    },
-    { 
-      label: "Time Management", 
-      value: 85, 
-      icon: Clock, 
-      color: "from-blue-500 to-indigo-600",
-      description: "Study schedule adherence"
-    },
-    { 
-      label: "Study Consistency", 
-      value: 92, 
-      icon: TrendingUp, 
-      color: "from-purple-500 to-violet-600",
-      description: "Daily study streak"
-    },
-    { 
-      label: "Subject Balance", 
-      value: 76, 
-      icon: Target, 
-      color: "from-orange-500 to-red-600",
-      description: "Balanced subject coverage"
-    }
-  ];
 
   return (
     <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
@@ -93,42 +61,6 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             <span className="font-medium">{examData.progress}%</span>
           </div>
           <Progress value={examData.progress} className="h-2" />
-        </div>
-
-        {/* Overall Progress Meters */}
-        <div className="space-y-3 pt-2 border-t">
-          <h4 className="text-sm font-medium">Progress Meters</h4>
-          <div className="grid grid-cols-2 gap-3">
-            {progressMeters.map((meter, index) => (
-              <motion.div
-                key={meter.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center gap-2">
-                  <div className={`p-1 rounded-full bg-gradient-to-r ${meter.color}`}>
-                    <meter.icon className="h-3 w-3 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium truncate">{meter.label}</span>
-                      <span className="text-xs font-bold">{meter.value}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <motion.div 
-                        className={`h-1.5 rounded-full bg-gradient-to-r ${meter.color}`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${meter.value}%` }}
-                        transition={{ duration: 1, delay: index * 0.2 }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
 
         <div className="space-y-2">

@@ -2,16 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { 
-  getMoodEmoji, 
-  getMoodLabel, 
-  getStudyRecommendationForMood, 
-  analyzeMoodTrends, 
-  updateStudyTimeAllocationsByMood,
-  applyMoodTheme,
-  storeMoodInLocalStorage,
-  getMoodAdjustedStudyPlan
-} from './moodUtils';
+import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
 import MoodSelectionDialog from './MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -33,13 +24,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [lastMoodChange, setLastMoodChange] = useState<Date | null>(null);
   const { toast } = useToast();
-  
-  useEffect(() => {
-    // Apply mood theme on component mount and mood change
-    if (currentMood) {
-      applyMoodTheme(currentMood);
-    }
-  }, [currentMood]);
   
   useEffect(() => {
     // Listen for mood change events from other components
@@ -71,25 +55,16 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       onMoodChange(mood);
       setLastMoodChange(new Date());
       
-      // Store mood in localStorage
-      storeMoodInLocalStorage(mood);
-      
-      // Apply mood theme to dashboard
-      applyMoodTheme(mood);
-      
       // Update study time allocations based on mood
       updateStudyTimeAllocationsByMood(mood);
       
-      // Get mood-adjusted study plan
-      const adjustedPlan = getMoodAdjustedStudyPlan(mood);
-      
-      // Show toast confirmation with recommendation and plan adjustment
+      // Show toast confirmation with recommendation
       const recommendation = getStudyRecommendationForMood(mood);
       
       toast({
-        title: `Mood Updated: ${getMoodLabel(mood)} ${getMoodEmoji(mood)}`,
-        description: `${recommendation} Your study plan has been adjusted for ${adjustedPlan.focus} with ${adjustedPlan.duration} sessions.`,
-        duration: 6000,
+        title: `Mood Updated: ${getMoodLabel(mood)}`,
+        description: recommendation,
+        duration: 5000,
       });
       
       // Analyze mood trends for additional notifications
@@ -98,21 +73,21 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       if (trends.stressSignals) {
         setTimeout(() => {
           toast({
-            title: "Stress Pattern Detected 🫂",
-            description: "You've been feeling stressed lately. Your study plan has been adjusted to lighter topics. Consider taking a break or trying our Feel Good Corner.",
+            title: "Stress Pattern Detected",
+            description: "You've been feeling stressed lately. Consider taking a break or trying our Feel Good Corner.",
             variant: "destructive",
-            duration: 8000,
+            duration: 7000,
           });
-        }, 1500);
+        }, 1000);
       } else if (trends.improved) {
         setTimeout(() => {
           toast({
-            title: "Your mood is improving! 🌟",
-            description: "Great progress! Your study plan has been optimized for your positive mindset.",
+            title: "Your mood is improving!",
+            description: "Great progress! Keep up the good work.",
             variant: "default",
-            duration: 6000,
+            duration: 5000,
           });
-        }, 1500);
+        }, 1000);
       }
       
       // Trigger custom event for other components to react to
@@ -120,9 +95,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         detail: { 
           mood, 
           timestamp: new Date().toISOString(),
-          recommendation,
-          adjustedPlan,
-          trends
+          recommendation
         } 
       });
       document.dispatchEvent(moodChangeEvent);

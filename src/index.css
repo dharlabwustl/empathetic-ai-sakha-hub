@@ -1,6 +1,5 @@
 
 @import './styles/theme.css';
-@import './styles/mood-themes.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -124,11 +123,6 @@
   
   .tab-scrollbar::-webkit-scrollbar-track {
     @apply bg-transparent;
-  }
-  
-  /* Progress bar component with mood theming */
-  .progress-bar {
-    @apply transition-all duration-300;
   }
 }
 
