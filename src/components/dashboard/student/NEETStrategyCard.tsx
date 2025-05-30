@@ -1,15 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Calendar, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const urgencyLevel = "MODERATE";
+  const [showSubjects, setShowSubjects] = useState(false);
+  
   const strategy = "Foundation Building + Practice";
   
   const subjects = [
@@ -48,35 +49,47 @@ const NEETStrategyCard: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <Card className="shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-          <CardTitle className="flex items-center gap-2">
-            <motion.div
-              animate={{ 
-                rotate: [0, 10, -10, 0],
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 pb-3">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ 
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Target className="h-5 w-5 text-blue-600" />
+              </motion.div>
+              <motion.span
+                animate={{ 
+                  color: ["#2563eb", "#7c3aed", "#2563eb"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                NEET Strategy Card
+              </motion.span>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSubjects(!showSubjects)}
+              className="text-blue-600 hover:text-blue-800"
             >
-              <Target className="h-5 w-5 text-blue-600" />
-            </motion.div>
-            <motion.span
-              animate={{ 
-                color: ["#2563eb", "#7c3aed", "#2563eb"]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="font-bold"
-            >
-              NEET Strategy Card
-            </motion.span>
+              {showSubjects ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {showSubjects ? 'Hide' : 'Subjects'}
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
@@ -89,7 +102,6 @@ const NEETStrategyCard: React.FC = () => {
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
                   Adaptive Plan
-                  <ArrowRight className="h-4 w-4 ml-auto" />
                 </Button>
               </Link>
             </motion.div>
@@ -145,22 +157,33 @@ const NEETStrategyCard: React.FC = () => {
               </motion.p>
             </div>
             
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Subject Status</h4>
-              {subjects.map((subject, index) => (
-                <motion.div 
-                  key={index} 
-                  className="flex items-center justify-between text-xs p-2 rounded-lg bg-gray-50 dark:bg-gray-800"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02, backgroundColor: subject.status === "weak" ? "rgb(254 242 242)" : "rgb(240 253 244)" }}
+            {/* Subject Status (Collapsible) */}
+            <AnimatePresence>
+              {showSubjects && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-2 border-t pt-3"
                 >
-                  <span className="font-medium">{subject.name}</span>
-                  {getSubjectBadge(subject)}
+                  <h4 className="text-sm font-medium">Subject Status</h4>
+                  {subjects.map((subject, index) => (
+                    <motion.div 
+                      key={index} 
+                      className="flex items-center justify-between text-xs p-2 rounded-lg bg-gray-50 dark:bg-gray-800"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02, backgroundColor: subject.status === "weak" ? "rgb(254 242 242)" : "rgb(240 253 244)" }}
+                    >
+                      <span className="font-medium">{subject.name}</span>
+                      {getSubjectBadge(subject)}
+                    </motion.div>
+                  ))}
                 </motion.div>
-              ))}
-            </div>
+              )}
+            </AnimatePresence>
             
             <div className="space-y-1">
               <h4 className="text-sm font-medium mb-2">Key Objectives</h4>
@@ -191,7 +214,7 @@ const NEETStrategyCard: React.FC = () => {
               ))}
             </div>
 
-            {/* Enhanced CTA buttons */}
+            {/* CTA buttons */}
             <div className="grid grid-cols-2 gap-2 pt-2">
               <Link to="/dashboard/student/study-plan">
                 <motion.div
