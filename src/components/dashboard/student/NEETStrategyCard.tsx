@@ -1,154 +1,249 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Brain, Target, TrendingUp, Zap, BookOpen, Calculator } from 'lucide-react';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import HighlightArrow from './dashboard-sections/HighlightArrow';
+import { useNavigate, Link } from 'react-router-dom';
 
 const NEETStrategyCard: React.FC = () => {
-  const strategyData = {
-    currentPhase: "Intensive Preparation",
-    nextMilestone: "Mock Test Series",
-    daysToNext: 15,
-    focusAreas: [
-      { subject: "Chemistry", focus: "Organic Reactions", priority: "High" },
-      { subject: "Physics", focus: "Modern Physics", priority: "Medium" },
-      { subject: "Biology", focus: "Genetics", priority: "Medium" }
-    ],
-    weeklyPlan: {
-      conceptStudy: "40%",
-      practiceTests: "35%", 
-      revision: "25%"
-    },
-    adaptiveChanges: 3
-  };
+  const navigate = useNavigate();
+  const [showSubjects, setShowSubjects] = useState(true);
+  const urgencyLevel = "MODERATE";
+  const strategy = "Foundation Building + Practice";
+  
+  const subjects = [
+    { name: "Physics", progress: 75, status: "strong", color: "blue" },
+    { name: "Chemistry", progress: 45, status: "weak", color: "red" },
+    { name: "Biology", progress: 55, status: "weak", color: "orange" }
+  ];
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'bg-red-100 text-red-800 border-red-300';
-      case 'Medium': return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'Low': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+  const objectives = [
+    "Complete syllabus",
+    "Concept clarity", 
+    "Regular practice"
+  ];
+
+  const getSubjectBadge = (subject: any) => {
+    if (subject.status === "weak") {
+      return (
+        <div className="flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3 text-orange-600" />
+          <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300 text-xs">
+            Needs Focus
+          </Badge>
+        </div>
+      );
     }
+    return (
+      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+        Strong
+      </Badge>
+    );
   };
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.7 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
     >
-      {/* Highlight Arrow */}
-      <HighlightArrow 
-        message="Your dynamic plan based on your profile, it will keep changing based on your learning performance"
-        position="top"
-        variant="info"
-      />
-
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-800 dark:to-pink-800 overflow-hidden h-full">
-        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 pb-3">
-          <CardTitle className="flex items-center gap-2">
-            <motion.div
-              animate={{ 
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 pb-3">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ 
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Target className="h-5 w-5 text-blue-600" />
+              </motion.div>
+              <motion.span
+                animate={{ 
+                  color: ["#2563eb", "#7c3aed", "#2563eb"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                NEET Strategy Card
+              </motion.span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSubjects(!showSubjects)}
+              className="h-6 w-6 p-0"
             >
-              <Brain className="h-5 w-5 text-purple-600" />
-            </motion.div>
-            <motion.span
-              animate={{ 
-                color: ["#7c3aed", "#ec4899", "#7c3aed"]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="font-bold"
-            >
-              NEET Strategy
-            </motion.span>
+              {showSubjects ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4 pb-4 space-y-4">
-          {/* Current Phase */}
-          <div className="text-center">
-            <h3 className="text-lg font-bold text-purple-700">{strategyData.currentPhase}</h3>
-            <p className="text-sm text-gray-600">
-              Next: {strategyData.nextMilestone} in {strategyData.daysToNext} days
-            </p>
-          </div>
-
-          {/* Weekly Distribution */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-800">This Week's Focus</h4>
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="flex items-center gap-1">
-                  <BookOpen className="h-3 w-3" />
-                  Concept Study
-                </span>
-                <span className="font-medium">{strategyData.weeklyPlan.conceptStudy}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="flex items-center gap-1">
-                  <Calculator className="h-3 w-3" />
-                  Practice Tests
-                </span>
-                <span className="font-medium">{strategyData.weeklyPlan.practiceTests}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3" />
-                  Revision
-                </span>
-                <span className="font-medium">{strategyData.weeklyPlan.revision}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Focus Areas */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-800">Priority Focus Areas</h4>
-            {strategyData.focusAreas.map((area, index) => (
-              <div key={index} className="flex items-center justify-between text-xs">
-                <span className="text-gray-700">{area.subject}: {area.focus}</span>
-                <Badge className={getPriorityColor(area.priority)}>
-                  {area.priority}
-                </Badge>
-              </div>
-            ))}
-          </div>
-
-          {/* Adaptive Changes */}
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 text-xs text-purple-600">
-              <Zap className="h-3 w-3" />
-              <span>{strategyData.adaptiveChanges} strategy updates this week</span>
-            </div>
-          </div>
-
-          {/* Action Button */}
-          <div className="text-center pt-2">
-            <Link to="/dashboard/student/academic">
-              <Button 
-                size="sm" 
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+        <CardContent className="pt-4 pb-4">
+          <div className="space-y-4">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Link to="/dashboard/student/study-plan">
+                <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Adaptive Plan
+                  <ArrowRight className="h-4 w-4 ml-auto" />
+                </Button>
+              </Link>
+            </motion.div>
+            
+            <motion.div
+              animate={{ 
+                backgroundColor: ["rgb(239 246 255)", "rgb(245 243 255)", "rgb(239 246 255)"]
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Badge className="w-full justify-center bg-blue-100 text-blue-800 py-2">
+                <motion.span
+                  animate={{ 
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  Personalized Strategy
+                </motion.span>
+              </Badge>
+            </motion.div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium flex items-center gap-2">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                >
+                  <Brain className="h-4 w-4 text-purple-600" />
+                </motion.div>
+                Current Focus
+              </h4>
+              <motion.p 
+                className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg"
+                animate={{ 
+                  borderColor: ["rgb(147 51 234)", "rgb(59 130 246)", "rgb(147 51 234)"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity
+                }}
+                style={{ border: "2px solid" }}
               >
-                <Target className="h-4 w-4 mr-2" />
-                View Full Strategy
-              </Button>
-            </Link>
+                {strategy}
+              </motion.p>
+            </div>
+            
+            {/* Subject Status with hide option */}
+            {showSubjects && (
+              <motion.div 
+                className="space-y-2"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h4 className="text-sm font-medium">Subject Status</h4>
+                {subjects.map((subject, index) => (
+                  <motion.div 
+                    key={index} 
+                    className="flex items-center justify-between text-xs p-2 rounded-lg bg-gray-50 dark:bg-gray-800"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02, backgroundColor: subject.status === "weak" ? "rgb(254 242 242)" : "rgb(240 253 244)" }}
+                  >
+                    <span className="font-medium">{subject.name}</span>
+                    {getSubjectBadge(subject)}
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+            
+            <div className="space-y-1">
+              <h4 className="text-sm font-medium mb-2">Key Objectives</h4>
+              {objectives.map((objective, index) => (
+                <motion.div 
+                  key={index} 
+                  className="flex items-center gap-2 text-xs p-2 rounded-lg bg-green-50 dark:bg-green-900/20"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <motion.div
+                    animate={{ 
+                      rotate: [0, 360]
+                    }}
+                    transition={{ 
+                      duration: 2, 
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: index * 0.2
+                    }}
+                  >
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                  </motion.div>
+                  <span className="text-gray-700 dark:text-gray-300">{objective}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Enhanced CTA buttons */}
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Link to="/dashboard/student/study-plan">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  >
+                    <Calendar className="h-3 w-3 mr-1" />
+                    View Plan
+                  </Button>
+                </motion.div>
+              </Link>
+              
+              <Link to="/dashboard/student/academic-advisor">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full hover:bg-purple-50 border-purple-300"
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Optimize
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>
