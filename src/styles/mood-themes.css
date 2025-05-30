@@ -1,0 +1,151 @@
+
+/* Mood-based dashboard themes */
+.mood-happy {
+  --mood-primary: #fef3c7;
+  --mood-secondary: #fde68a;
+  --mood-accent: #f59e0b;
+  --mood-text: #92400e;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.mood-motivated {
+  --mood-primary: #fee2e2;
+  --mood-secondary: #fecaca;
+  --mood-accent: #ef4444;
+  --mood-text: #991b1b;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+}
+
+.mood-focused {
+  --mood-primary: #dbeafe;
+  --mood-secondary: #bfdbfe;
+  --mood-accent: #3b82f6;
+  --mood-text: #1e40af;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
+.mood-neutral {
+  --mood-primary: #f3f4f6;
+  --mood-secondary: #e5e7eb;
+  --mood-accent: #6b7280;
+  --mood-text: #374151;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.mood-tired {
+  --mood-primary: #f3e8ff;
+  --mood-secondary: #e9d5ff;
+  --mood-accent: #8b5cf6;
+  --mood-text: #5b21b6;
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+}
+
+.mood-anxious {
+  --mood-primary: #fdf2f8;
+  --mood-secondary: #fce7f3;
+  --mood-accent: #ec4899;
+  --mood-text: #be185d;
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+}
+
+.mood-stressed {
+  --mood-primary: #fef2f2;
+  --mood-secondary: #fecaca;
+  --mood-accent: #dc2626;
+  --mood-text: #991b1b;
+  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+}
+
+.mood-sad {
+  --mood-primary: #eff6ff;
+  --mood-secondary: #dbeafe;
+  --mood-accent: #2563eb;
+  --mood-text: #1d4ed8;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.mood-okay {
+  --mood-primary: #ecfdf5;
+  --mood-secondary: #d1fae5;
+  --mood-accent: #10b981;
+  --mood-text: #047857;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+}
+
+.mood-overwhelmed {
+  --mood-primary: #fefce8;
+  --mood-secondary: #fef3c7;
+  --mood-accent: #f59e0b;
+  --mood-text: #92400e;
+  background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+}
+
+.mood-curious {
+  --mood-primary: #f0f9ff;
+  --mood-secondary: #e0f2fe;
+  --mood-accent: #0ea5e9;
+  --mood-text: #0c4a6e;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.mood-confused {
+  --mood-primary: #faf5ff;
+  --mood-secondary: #f3e8ff;
+  --mood-accent: #a855f7;
+  --mood-text: #6b21a8;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+}
+
+/* Apply mood themes to dashboard */
+[class*="mood-"] {
+  transition: background 0.5s ease-in-out;
+}
+
+/* Dark mode adjustments */
+.dark .mood-happy {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.1) 0%, rgba(253, 230, 138, 0.1) 100%);
+}
+
+.dark .mood-motivated {
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.1) 0%, rgba(254, 202, 202, 0.1) 100%);
+}
+
+.dark .mood-focused {
+  background: linear-gradient(135deg, rgba(219, 234, 254, 0.1) 0%, rgba(191, 219, 254, 0.1) 100%);
+}
+
+.dark .mood-neutral {
+  background: linear-gradient(135deg, rgba(243, 244, 246, 0.05) 0%, rgba(229, 231, 235, 0.05) 100%);
+}
+
+.dark .mood-tired {
+  background: linear-gradient(135deg, rgba(243, 232, 255, 0.1) 0%, rgba(233, 213, 255, 0.1) 100%);
+}
+
+.dark .mood-anxious {
+  background: linear-gradient(135deg, rgba(253, 242, 248, 0.1) 0%, rgba(252, 231, 243, 0.1) 100%);
+}
+
+.dark .mood-stressed {
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.1) 0%, rgba(254, 202, 202, 0.1) 100%);
+}
+
+.dark .mood-sad {
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.1) 0%, rgba(219, 234, 254, 0.1) 100%);
+}
+
+.dark .mood-okay {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.1) 0%, rgba(209, 250, 229, 0.1) 100%);
+}
+
+.dark .mood-overwhelmed {
+  background: linear-gradient(135deg, rgba(254, 252, 232, 0.1) 0%, rgba(254, 243, 199, 0.1) 100%);
+}
+
+.dark .mood-curious {
+  background: linear-gradient(135deg, rgba(240, 249, 255, 0.1) 0%, rgba(224, 242, 254, 0.1) 100%);
+}
+
+.dark .mood-confused {
+  background: linear-gradient(135deg, rgba(250, 245, 255, 0.1) 0%, rgba(243, 232, 255, 0.1) 100%);
+}
