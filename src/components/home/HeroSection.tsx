@@ -81,7 +81,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-4">
         <div className="text-center max-w-6xl mx-auto space-y-3">
-          {/* India's #1 Platform Text */}
+          {/* India's #1 Platform Text - with reduced top spacing */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +97,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Main Headline - Updated to one row */}
+          {/* Main Headline - Enhanced with better spacing and proper line breaking */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -105,13 +105,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             className="mb-3"
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                Master Exam Preparation with AI-Powered Precision
+              <span className="block bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
+                Master Exam Preparation with
+              </span>
+              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent break-words">
+                AI-Powered Precision
               </span>
             </h1>
           </motion.div>
 
-          {/* Enhanced Subtitle */}
+          {/* Enhanced Subtitle - reduced spacing */}
           <motion.div
             className="mb-3"
             initial={{ opacity: 0, y: 20 }}
@@ -126,7 +129,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </p>
           </motion.div>
 
-          {/* Enhanced NEET 2026 Banner */}
+          {/* Enhanced NEET 2026 Banner with vibrant purple and smaller text */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -193,7 +196,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Animated Key Benefits */}
+          {/* Animated Key Benefits - compact design */}
           <motion.div
             className="mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -204,7 +207,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
               7 Key Benefits That Transform Your Journey
             </h3>
             
-            {/* Dynamic Benefit Display */}
+            {/* Dynamic Benefit Display - reduced height */}
             <div className="min-h-[60px] flex items-center justify-center">
               <motion.div
                 key={currentBenefitIndex}
@@ -225,7 +228,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
               </motion.div>
             </div>
 
-            {/* Progress Dots */}
+            {/* Progress Dots - enhanced */}
             <div className="flex justify-center gap-3 mt-3">
               {benefits.map((_, index) => (
                 <motion.div
@@ -241,7 +244,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Premium CTA Buttons */}
+          {/* Premium CTA Buttons - ensured visibility */}
           <motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-1"
             initial={{ opacity: 0, y: 20 }}

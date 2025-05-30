@@ -1,6 +1,5 @@
 
 @import './styles/theme.css';
-@import './styles/mood-themes.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -26,7 +25,6 @@
     line-height: 1.5;
     overflow-x: hidden;
     width: 100%;
-    transition: background 0.5s ease-in-out;
   }
   
   /* Reset headings to appropriate sizes */
@@ -125,11 +123,6 @@
   
   .tab-scrollbar::-webkit-scrollbar-track {
     @apply bg-transparent;
-  }
-
-  /* Mood-based dashboard transitions */
-  .mood-transition {
-    @apply transition-all duration-500 ease-in-out;
   }
 }
 
