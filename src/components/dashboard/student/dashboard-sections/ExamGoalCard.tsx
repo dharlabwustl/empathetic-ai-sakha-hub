@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap } from 'lucide-react';
+import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap, Clock, TrendingUp, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -26,6 +26,14 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       { name: "Chemistry", progress: 65, color: "green" },
       { name: "Biology", progress: 71, color: "purple" }
     ]
+  };
+
+  // Overall progress metrics
+  const progressMetrics = {
+    examReadiness: 68,
+    timeProgress: 75, // (365 - 145) / 365 * 100
+    studyStreak: 85,
+    subjectMastery: 69
   };
 
   return (
@@ -53,6 +61,64 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
           <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
             {examData.daysLeft} days left
           </Badge>
+        </div>
+
+        {/* Overall Progress Meters Section */}
+        <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
+          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Overall Progress Meters
+          </h4>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {/* Exam Readiness */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1">
+                  <Award className="h-3 w-3 text-blue-600" />
+                  Readiness
+                </span>
+                <span className="font-medium text-blue-600">{progressMetrics.examReadiness}%</span>
+              </div>
+              <Progress value={progressMetrics.examReadiness} className="h-1.5" />
+            </div>
+
+            {/* Time Progress */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3 text-green-600" />
+                  Time
+                </span>
+                <span className="font-medium text-green-600">{progressMetrics.timeProgress}%</span>
+              </div>
+              <Progress value={progressMetrics.timeProgress} className="h-1.5" />
+            </div>
+
+            {/* Study Streak */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1">
+                  <Trophy className="h-3 w-3 text-orange-600" />
+                  Streak
+                </span>
+                <span className="font-medium text-orange-600">{progressMetrics.studyStreak}%</span>
+              </div>
+              <Progress value={progressMetrics.studyStreak} className="h-1.5" />
+            </div>
+
+            {/* Subject Mastery */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1">
+                  <BookOpen className="h-3 w-3 text-purple-600" />
+                  Mastery
+                </span>
+                <span className="font-medium text-purple-600">{progressMetrics.subjectMastery}%</span>
+              </div>
+              <Progress value={progressMetrics.subjectMastery} className="h-1.5" />
+            </div>
+          </div>
         </div>
 
         <div className="space-y-2">
