@@ -1,0 +1,143 @@
+
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Crown, Clock, Flame } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { UserProfileType } from '@/types/user/base';
+
+interface NameSectionCardProps {
+  userProfile: UserProfileType;
+}
+
+const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
+  const navigate = useNavigate();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  const handleUpgradeClick = () => {
+    navigate('/dashboard/student/subscription');
+  };
+
+  const dailyStreak = userProfile.studyStreak || 12;
+  const userName = userProfile.name || userProfile.firstName || 'Student';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-purple-200 to-blue-200 dark:from-purple-800 dark:to-blue-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 border-2 border-white dark:border-gray-700 shadow-sm">
+                <AvatarImage src={userProfile.avatar} alt={userName} />
+                <AvatarFallback className="text-lg bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                  {getInitials(userName)}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div>
+                <motion.h2 
+                  className="text-2xl font-bold text-gray-900 dark:text-white"
+                  animate={{ 
+                    color: ["#1f2937", "#7c3aed", "#1f2937"]
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  {getGreeting()}, {userName}!
+                </motion.h2>
+                
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Clock className="h-4 w-4" />
+                    <motion.span
+                      key={formatTime(currentTime)}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="font-mono font-medium"
+                    >
+                      {formatTime(currentTime)}
+                    </motion.span>
+                  </div>
+                  
+                  <motion.div 
+                    className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 px-3 py-1 rounded-full"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      <Flame className="h-4 w-4 text-orange-600" />
+                    </motion.div>
+                    <span className="text-sm font-bold text-orange-700 dark:text-orange-300">
+                      {dailyStreak} day streak!
+                    </span>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+            
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                onClick={handleUpgradeClick}
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-lg"
+              >
+                <Crown className="h-4 w-4 mr-2" />
+                Upgrade Plan
+              </Button>
+            </motion.div>
+          </CardTitle>
+        </CardHeader>
+      </Card>
+    </motion.div>
+  );
+};
+
+export default NameSectionCard;

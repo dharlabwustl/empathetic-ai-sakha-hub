@@ -2,15 +2,18 @@
 import React, { useState } from 'react';
 import { UserProfileType, MoodType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
+import NameSectionCard from './dashboard-sections/NameSectionCard';
+import ExamGoalCard from './dashboard-sections/ExamGoalCard';
+import ExamReadinessScoreCard from './dashboard-sections/ExamReadinessScoreCard';
+import NEETStrategyCard from './NEETStrategyCard';
+import DailySmartSuggestions from './dashboard-sections/DailySmartSuggestions';
 import TodaysTopPrioritySection from './dashboard-sections/TodaysTopPrioritySection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
-import ExamGoalCard from './dashboard-sections/ExamGoalCard';
 import KpiCard from './dashboard-sections/KpiCard';
 import WeakAreasCard from './dashboard-sections/WeakAreasCard';
 import StrongAreasCard from './dashboard-sections/StrongAreasCard';
 import AICoachCard from './dashboard-sections/AICoachCard';
-import NEETStrategyCard from './NEETStrategyCard';
 import { motion } from 'framer-motion';
 
 interface RedesignedDashboardOverviewProps {
@@ -26,7 +29,6 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
 
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
-    // Store mood in localStorage or send to backend
     localStorage.setItem('userMood', mood);
   };
 
@@ -37,34 +39,44 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Top Priority and Today's Plan - Main Focus */}
+      {/* 1. Name Section Card */}
+      <NameSectionCard userProfile={userProfile} />
+
+      {/* 2. Exam Goal Card */}
+      <ExamGoalCard 
+        currentMood={currentMood}
+        onMoodChange={handleMoodChange}
+      />
+
+      {/* 3. Exam Readiness Score Card */}
+      <ExamReadinessScoreCard />
+
+      {/* 4. NEET Strategy Card - Moved to top as requested */}
+      <NEETStrategyCard />
+
+      {/* 5. Daily Smart Suggestions */}
+      <DailySmartSuggestions />
+
+      {/* 6. Rest of the cards - Maintained in existing order */}
+      {/* Top Priority and Today's Plan */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TodaysTopPrioritySection />
         <TodaysPlanSection currentMood={currentMood} />
       </div>
 
-      {/* Mood and Exam Goal Cards */}
+      {/* Mood and AI Coach Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MoodBasedSuggestions 
           currentMood={currentMood} 
           onMoodSelect={handleMoodChange}
         />
-        <ExamGoalCard 
-          currentMood={currentMood}
-          onMoodChange={handleMoodChange}
-        />
+        <AICoachCard />
       </div>
 
       {/* Weak and Strong Areas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WeakAreasCard />
         <StrongAreasCard />
-      </div>
-
-      {/* AI Coach and NEET Strategy */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AICoachCard />
-        <NEETStrategyCard />
       </div>
 
       {/* KPI Cards Grid */}
