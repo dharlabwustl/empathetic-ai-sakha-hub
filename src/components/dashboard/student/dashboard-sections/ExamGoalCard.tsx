@@ -37,47 +37,23 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 pb-3">
+      <Card className="premium-card shadow-lg overflow-hidden">
+        <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <motion.div
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 5, -5, 0]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <Target className="h-5 w-5 text-green-600" />
-              </motion.div>
-              <motion.span
-                animate={{ 
-                  color: ["#059669", "#0d9488", "#059669"]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="font-bold"
-              >
-                Current Exam Goal
-              </motion.span>
+              <Target className="h-5 w-5 text-green-600" />
+              <span className="text-green-700 font-bold">Current Exam Goal</span>
             </div>
             <Badge className={getStatusColor(currentGoal.status)}>
               {currentGoal.status}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4 pb-4">
+        <CardContent className="pt-0 pb-4">
           <div className="space-y-4">
-            {/* Goal Overview */}
+            {/* Goal Overview - Grid Layout */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Target Exam</p>
@@ -113,12 +89,13 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Simple Action Buttons */}
             <div className="flex gap-2">
               <Link to="/dashboard/student/academic" className="flex-1">
                 <Button 
                   size="sm" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="outline"
+                  className="w-full text-xs"
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />
                   Switch Plan
@@ -128,7 +105,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 <Button 
                   size="sm" 
                   variant="outline"
-                  className="w-full hover:bg-green-50"
+                  className="w-full text-xs"
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   New Plan

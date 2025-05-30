@@ -9,7 +9,15 @@ export interface StudyPlanSubject {
   priority: "high" | "medium" | "low";
   proficiency: "strong" | "medium" | "weak";
   completed: boolean;
-  difficulty?: string;
+  status?: "active" | "paused" | "completed";
+  topics?: StudyPlanTopic[];
+}
+
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  completed: boolean;
+  progress: number;
 }
 
 export interface StudyPlan {
@@ -18,15 +26,14 @@ export interface StudyPlan {
   goal: string;
   examGoal: string;
   subjects: StudyPlanSubject[];
+  examDate: string;
   studyHoursPerDay: number;
   preferredStudyTime: "morning" | "afternoon" | "evening" | "night";
-  learningPace: "slow" | "moderate" | "fast";
+  learningPace: "slow" | "medium" | "fast";
   weeklyHours: number;
   status: "pending" | "active" | "completed" | "archived";
   createdAt: string;
-  examDate: string;
-  progressPercent?: number;
-  daysLeft?: number;
+  updatedAt: string;
 }
 
 export interface NewStudyPlan {
@@ -35,10 +42,10 @@ export interface NewStudyPlan {
   goal?: string;
   examGoal?: string;
   subjects?: StudyPlanSubject[];
+  examDate: string;
   studyHoursPerDay?: number;
   preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
-  learningPace?: "slow" | "moderate" | "fast";
+  learningPace?: "slow" | "medium" | "fast";
   weeklyHours?: number;
   status?: "pending" | "active" | "completed" | "archived";
-  examDate?: string;
 }
