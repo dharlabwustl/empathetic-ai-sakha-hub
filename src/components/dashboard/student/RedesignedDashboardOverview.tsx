@@ -54,7 +54,7 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         <NEETStrategyCard />
       </div>
 
-      {/* 4. Today's Priority and Live Plan Cards - Above Daily Suggestions */}
+      {/* 4. Today's Priority and Live Plan Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TodaysTopPrioritySection />
         <TodaysPlanSection currentMood={currentMood} />
@@ -85,18 +85,7 @@ const RedesignedDashboardOverview: React.FC<RedesignedDashboardOverviewProps> = 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.2 }}
       >
-        <motion.h3 
-          className="text-lg font-bold text-gray-900 dark:text-white mb-4"
-          animate={{
-            color: ["#111827", "#3b82f6", "#111827"]
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity
-          }}
-        >
-          📊 Performance Metrics Dashboard
-        </motion.h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Performance Metrics</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <KpiCard
             title="Study Streak"

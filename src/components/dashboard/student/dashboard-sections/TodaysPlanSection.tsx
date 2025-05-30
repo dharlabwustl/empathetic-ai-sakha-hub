@@ -41,6 +41,15 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
       type: "revision",
       completed: false,
       priority: "medium"
+    },
+    {
+      time: "2:00 PM",
+      subject: "Mock Test",
+      topic: "Full Length Test",
+      duration: "180 min", 
+      type: "exam",
+      completed: false,
+      priority: "high"
     }
   ];
 
@@ -74,21 +83,8 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.8 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden relative">
-        {/* Animated Background */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-blue-50/30 to-indigo-50/30"
-          animate={{
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 relative z-10">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <motion.div
@@ -105,8 +101,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
               </motion.div>
               <motion.span
                 animate={{ 
-                  color: ["#2563eb", "#4f46e5", "#2563eb"],
-                  textShadow: ["0 0 0px rgba(37, 99, 235, 0)", "0 0 8px rgba(37, 99, 235, 0.4)", "0 0 0px rgba(37, 99, 235, 0)"]
+                  color: ["#2563eb", "#4f46e5", "#2563eb"]
                 }}
                 transition={{ 
                   duration: 2, 
@@ -115,35 +110,23 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
                 }}
                 className="font-bold"
               >
-                ⚡ Live Daily NEET Plan
+                Live Daily NEET Plan
               </motion.span>
             </div>
             
             <div className="text-right">
-              <motion.div 
-                className="text-sm font-bold text-blue-700"
-                animate={{
-                  scale: [1, 1.1, 1]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity
-                }}
-              >
-                {completedTasks}/{totalTasks}
-              </motion.div>
+              <div className="text-sm font-bold text-blue-700">{completedTasks}/{totalTasks}</div>
               <div className="text-xs text-gray-600">Tasks Done</div>
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4 relative z-10">
+        <CardContent className="pt-4">
           <div className="space-y-4">
             {/* Progress Overview */}
             <motion.div 
               className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg"
               animate={{ 
-                backgroundColor: ["rgb(239 246 255)", "rgb(238 242 255)", "rgb(239 246 255)"],
-                boxShadow: ["0 0 0px rgba(37, 99, 235, 0)", "0 0 15px rgba(37, 99, 235, 0.2)", "0 0 0px rgba(37, 99, 235, 0)"]
+                backgroundColor: ["rgb(239 246 255)", "rgb(238 242 255)", "rgb(239 246 255)"]
               }}
               transition={{ 
                 duration: 2, 
@@ -153,18 +136,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Today's Progress</span>
-                <motion.span 
-                  className="text-sm font-bold text-blue-700"
-                  animate={{
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity
-                  }}
-                >
-                  {Math.round(progressPercentage)}%
-                </motion.span>
+                <span className="text-sm font-bold text-blue-700">{Math.round(progressPercentage)}%</span>
               </div>
               <Progress value={progressPercentage} className="h-2" />
             </motion.div>
@@ -179,47 +151,20 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  animate-active={!task.completed ? {
-                    borderColor: ["rgb(156 163 175)", "rgb(59 130 246)", "rgb(156 163 175)"]
-                  } : {}}
-                  transition-active={!task.completed ? {
-                    duration: 2,
-                    repeat: Infinity
-                  } : {}}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <motion.div 
-                        className={`p-2 rounded-full ${task.completed ? 'bg-green-100' : 'bg-blue-100'}`}
-                        animate={!task.completed ? {
-                          scale: [1, 1.1, 1]
-                        } : {}}
-                        transition={!task.completed ? {
-                          duration: 2,
-                          repeat: Infinity
-                        } : {}}
-                      >
+                      <div className={`p-2 rounded-full ${task.completed ? 'bg-green-100' : 'bg-blue-100'}`}>
                         {task.completed ? (
                           <CheckCircle className="h-4 w-4 text-green-600" />
                         ) : (
                           getTypeIcon(task.type)
                         )}
-                      </motion.div>
+                      </div>
                       
                       <div>
                         <div className="flex items-center gap-2">
-                          <motion.span 
-                            className="font-medium text-gray-900"
-                            animate={!task.completed ? {
-                              color: ["#111827", "#2563eb", "#111827"]
-                            } : {}}
-                            transition={!task.completed ? {
-                              duration: 2,
-                              repeat: Infinity
-                            } : {}}
-                          >
-                            {task.subject}
-                          </motion.span>
+                          <span className="font-medium text-gray-900">{task.subject}</span>
                           <Badge className={getTypeColor(task.type)} variant="outline">
                             {task.type}
                           </Badge>
@@ -237,13 +182,6 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
                         <motion.div
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          animate={{
-                            boxShadow: ["0 0 0px rgba(37, 99, 235, 0)", "0 0 10px rgba(37, 99, 235, 0.3)", "0 0 0px rgba(37, 99, 235, 0)"]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity
-                          }}
                         >
                           <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
                             <PlayCircle className="h-3 w-3 mr-1" />
