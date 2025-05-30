@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, Target, CheckCircle, PlayCircle, Zap } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Target, CheckCircle, PlayCircle, Zap, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -83,8 +83,21 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.8 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
+        {/* Animated background for active status */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50"
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 relative z-10">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <motion.div
@@ -112,6 +125,19 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
               >
                 Live Daily NEET Plan
               </motion.span>
+              {/* Active indicator */}
+              <motion.div
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 1, 0.5]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="w-3 h-3 bg-green-500 rounded-full"
+              />
             </div>
             
             <div className="text-right">
@@ -120,7 +146,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
+        <CardContent className="pt-4 relative z-10">
           <div className="space-y-4">
             {/* Progress Overview */}
             <motion.div 
@@ -197,12 +223,12 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-2 pt-2">
-              <Link to="/dashboard/student/study-plan">
+              <Link to="/dashboard/student/today">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button size="sm" variant="outline" className="w-full">
+                  <Button size="sm" variant="outline" className="w-full hover:bg-blue-50">
                     <Calendar className="h-3 w-3 mr-1" />
                     View Full Plan
                   </Button>
@@ -214,7 +240,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button size="sm" variant="outline" className="w-full">
+                  <Button size="sm" variant="outline" className="w-full hover:bg-purple-50">
                     <Target className="h-3 w-3 mr-1" />
                     Customize Plan
                   </Button>

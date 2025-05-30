@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { TrendingUp, Calendar, Trophy, Target, ChevronDown, ChevronUp, Brain, BookOpen, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Target, TrendingUp, Calendar, Award, ChevronDown, ChevronUp, Brain, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const ExamReadinessScoreCard: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -17,31 +18,79 @@ const ExamReadinessScoreCard: React.FC = () => {
     maxScore: 720,
     daysRemaining: 338,
     targetExam: "NEET 2026",
-    subjectBreakdown: {
-      physics: 75,
-      chemistry: 65,
-      biology: 78
-    },
-    weakAreas: ["Chemical Bonding", "Thermodynamics", "Ecology"],
-    strongAreas: ["Mechanics", "Organic Chemistry", "Human Physiology"],
-    recentImprovement: 8,
-    studyStreak: 12
+    subjectBreakdown: [
+      { subject: "Physics", score: 68, color: "blue" },
+      { subject: "Chemistry", score: 74, color: "green" },
+      { subject: "Biology", score: 76, color: "purple" }
+    ],
+    strengths: ["Organic Chemistry", "Human Physiology", "Mechanics"],
+    improvements: ["Inorganic Chemistry", "Plant Biology", "Thermodynamics"]
+  };
+
+  const CircularProgress = ({ value, size = 120, strokeWidth = 8 }: { value: number; size?: number; strokeWidth?: number }) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (value / 100) * circumference;
+
+    return (
+      <div className="relative">
+        <svg width={size} height={size} className="transform -rotate-90">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            className="text-gray-200"
+          />
+          <motion.circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            className="text-blue-600"
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: offset }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <motion.div 
+              className="text-2xl font-bold text-blue-700"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
+            >
+              {value}%
+            </motion.div>
+            <div className="text-xs text-gray-600">Ready</div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
+      transition={{ duration: 0.6, delay: 0.6 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <motion.div
                 animate={{ 
-                  rotate: [0, 10, -10, 0],
-                  scale: [1, 1.1, 1]
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, -5, 0]
                 }}
                 transition={{ 
                   duration: 2, 
@@ -49,11 +98,11 @@ const ExamReadinessScoreCard: React.FC = () => {
                   ease: "easeInOut"
                 }}
               >
-                <TrendingUp className="h-5 w-5 text-blue-600" />
+                <Award className="h-5 w-5 text-blue-600" />
               </motion.div>
               <motion.span
                 animate={{ 
-                  color: ["#2563eb", "#7c3aed", "#2563eb"]
+                  color: ["#2563eb", "#4338ca", "#2563eb"]
                 }}
                 transition={{ 
                   duration: 2, 
@@ -62,138 +111,100 @@ const ExamReadinessScoreCard: React.FC = () => {
                 }}
                 className="font-bold"
               >
-                Exam Readiness Analysis
+                Exam Readiness Score
               </motion.span>
             </div>
-            
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowDetails(!showDetails)}
-              className="text-blue-600 hover:text-blue-800"
+              className="h-6 w-6 p-0"
             >
               {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              {showDetails ? 'Hide' : 'Details'}
             </Button>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
+        <CardContent className="pt-4 pb-4">
           <div className="space-y-4">
-            {/* Overall Readiness - Big, Bold, Highlighted */}
-            <motion.div 
-              className="text-center p-4 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg border-2 border-blue-300 dark:border-blue-700"
-              animate={{ 
-                backgroundColor: ["rgb(219 234 254)", "rgb(237 233 254)", "rgb(219 234 254)"],
-                boxShadow: ["0 0 15px rgba(59, 130, 246, 0.3)", "0 0 25px rgba(124, 58, 237, 0.4)", "0 0 15px rgba(59, 130, 246, 0.3)"]
-              }}
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <h3 className="text-4xl font-black text-blue-900 dark:text-blue-100 mb-2">
-                  {readinessData.overallReadiness}%
-                </h3>
-                <Badge className="bg-green-100 text-green-800 border-green-300 text-sm font-bold px-3 py-1">
-                  READY TO EXCEL
-                </Badge>
-                <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mt-2">
-                  Overall Readiness
-                </p>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <TrendingUp className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-green-600 font-medium">+{readinessData.recentImprovement}% this week</span>
+            {/* Main Score Display */}
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Confidence Level</p>
+                    <p className="font-bold text-lg text-blue-700">{readinessData.confidenceLevel}%</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Predicted Score</p>
+                    <p className="font-bold text-lg text-blue-700">{readinessData.predictedScore}/{readinessData.maxScore}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Days Remaining</p>
+                    <p className="font-bold text-lg text-blue-700">{readinessData.daysRemaining}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Target Exam</p>
+                    <p className="font-bold text-sm text-blue-700">{readinessData.targetExam}</p>
+                  </div>
                 </div>
-              </motion.div>
-            </motion.div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                <Trophy className="h-4 w-4 text-green-600 mx-auto mb-1" />
-                <p className="text-lg font-bold text-green-700 dark:text-green-400">
-                  {readinessData.confidenceLevel}%
-                </p>
-                <p className="text-xs text-green-600">Confidence</p>
-              </div>
-
-              <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
-                <Target className="h-4 w-4 text-purple-600 mx-auto mb-1" />
-                <p className="text-lg font-bold text-purple-700 dark:text-purple-400">
-                  {readinessData.predictedScore}
-                </p>
-                <p className="text-xs text-purple-600">Predicted Score</p>
               </div>
               
-              <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                <Calendar className="h-4 w-4 text-amber-600 mx-auto mb-1" />
-                <p className="text-lg font-bold text-amber-700 dark:text-amber-400">
-                  {readinessData.daysRemaining}
-                </p>
-                <p className="text-xs text-amber-600">Days Left</p>
+              {/* Dynamic Circle */}
+              <div className="ml-4">
+                <CircularProgress value={readinessData.overallReadiness} />
               </div>
             </div>
 
-            {/* Detailed Analysis (Collapsible) */}
-            <AnimatePresence>
-              {showDetails && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-4 border-t pt-4"
-                >
-                  {/* Subject Breakdown */}
+            {/* Detailed Analysis - Collapsible */}
+            {showDetails && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4 border-t pt-4"
+              >
+                {/* Subject Breakdown */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-blue-600" />
+                    Subject Breakdown
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {readinessData.subjectBreakdown.map((subject, index) => (
+                      <div key={index} className="text-center p-2 bg-gray-50 rounded">
+                        <p className="text-xs font-medium">{subject.subject}</p>
+                        <p className="text-sm font-bold text-blue-700">{subject.score}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Strengths & Improvements */}
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                      <BookOpen className="h-4 w-4 text-blue-600" />
-                      Subject Performance
-                    </h4>
-                    <div className="space-y-2">
-                      {Object.entries(readinessData.subjectBreakdown).map(([subject, score]) => (
-                        <div key={subject} className="flex items-center justify-between">
-                          <span className="text-sm capitalize">{subject}</span>
-                          <div className="flex items-center gap-2">
-                            <Progress value={score} className="h-2 w-16" />
-                            <span className="text-sm font-medium w-8">{score}%</span>
-                          </div>
-                        </div>
+                    <h5 className="text-xs font-semibold text-green-700 mb-2">Strengths</h5>
+                    <div className="space-y-1">
+                      {readinessData.strengths.slice(0, 2).map((strength, index) => (
+                        <Badge key={index} variant="outline" className="text-xs bg-green-50 text-green-700">
+                          {strength}
+                        </Badge>
                       ))}
                     </div>
                   </div>
-
-                  {/* Weak and Strong Areas */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2 text-red-700">Focus Areas</h4>
-                      <div className="space-y-1">
-                        {readinessData.weakAreas.map((area, index) => (
-                          <Badge key={index} variant="outline" className="bg-red-50 text-red-700 border-red-300 text-xs mr-1 mb-1">
-                            {area}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2 text-green-700">Strong Areas</h4>
-                      <div className="space-y-1">
-                        {readinessData.strongAreas.map((area, index) => (
-                          <Badge key={index} variant="outline" className="bg-green-50 text-green-700 border-green-300 text-xs mr-1 mb-1">
-                            {area}
-                          </Badge>
-                        ))}
-                      </div>
+                  <div>
+                    <h5 className="text-xs font-semibold text-orange-700 mb-2">Focus Areas</h5>
+                    <div className="space-y-1">
+                      {readinessData.improvements.slice(0, 2).map((improvement, index) => (
+                        <Badge key={index} variant="outline" className="text-xs bg-orange-50 text-orange-700">
+                          {improvement}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
           </div>
         </CardContent>
       </Card>

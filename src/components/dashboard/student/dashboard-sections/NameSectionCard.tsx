@@ -3,10 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Crown, Clock, Flame } from 'lucide-react';
+import { Crown, Clock, Flame, Bell, LogOut, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { UserProfileType } from '@/types/user/base';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NameSectionCardProps {
   userProfile: UserProfileType;
@@ -38,6 +45,15 @@ const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
     });
   };
 
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -51,8 +67,17 @@ const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
     navigate('/dashboard/student/subscription');
   };
 
+  const handleLogout = () => {
+    // Clear any stored auth data
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('user_profile_image');
+    navigate('/auth/login');
+  };
+
   const dailyStreak = userProfile.studyStreak || 12;
   const userName = userProfile.name || userProfile.firstName || 'Student';
+  const currentPlan = "Free Plan";
+  const expiryDate = "No expiry";
 
   return (
     <motion.div
@@ -71,7 +96,7 @@ const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
                 </AvatarFallback>
               </Avatar>
               
-              <div>
+              <div className="flex-1">
                 <motion.h2 
                   className="text-2xl font-bold text-gray-900 dark:text-white"
                   animate={{ 
@@ -86,7 +111,12 @@ const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
                   {getGreeting()}, {userName}!
                 </motion.h2>
                 
-                <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-3 mt-1 flex-wrap">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Calendar className="h-4 w-4" />
+                    <span className="font-medium">{formatDate(currentTime)}</span>
+                  </div>
+                  
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Clock className="h-4 w-4" />
                     <motion.span
@@ -118,21 +148,76 @@ const NameSectionCard: React.FC<NameSectionCardProps> = ({ userProfile }) => {
                     </span>
                   </motion.div>
                 </div>
+                
+                {/* Subscription Info */}
+                <div className="mt-2 flex items-center gap-2 text-xs">
+                  <span className="text-gray-600 dark:text-gray-400">Plan:</span>
+                  <span className="font-semibold text-purple-700 dark:text-purple-300">{currentPlan}</span>
+                  <span className="text-gray-500">•</span>
+                  <span className="text-gray-600 dark:text-gray-400">{expiryDate}</span>
+                </div>
               </div>
             </div>
             
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={handleUpgradeClick}
-                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-lg"
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              {/* Notifications */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative hover:bg-blue-50"
+                  >
+                    <Bell className="h-4 w-4" />
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs"></span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 z-50">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard/student/notifications')}>
+                    <Bell className="h-4 w-4 mr-2" />
+                    View All Notifications
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {/* User Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hover:bg-gray-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-gray-800 z-50">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard/student/profile')}>
+                    Profile Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {/* Upgrade Button */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Crown className="h-4 w-4 mr-2" />
-                Upgrade Plan
-              </Button>
-            </motion.div>
+                <Button
+                  onClick={handleUpgradeClick}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-lg"
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Upgrade Plan
+                </Button>
+              </motion.div>
+            </div>
           </CardTitle>
         </CardHeader>
       </Card>

@@ -32,8 +32,8 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-emerald-200 dark:from-green-800 dark:to-emerald-800 overflow-hidden h-[200px]">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 pb-3">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-emerald-200 dark:from-green-800 dark:to-emerald-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 pb-4">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <motion.div
@@ -73,15 +73,15 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-3 pb-3">
-          <div className="space-y-3">
-            {/* Goal Info */}
+        <CardContent className="pt-4 pb-4">
+          <div className="space-y-4">
+            {/* Goal Info with inline buttons */}
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-xl text-green-900 dark:text-green-100">
+              <div className="flex-1">
+                <h3 className="font-bold text-xl text-green-900 dark:text-green-100 mb-2">
                   Goal - {examGoal.name}
                 </h3>
-                <div className="flex items-center gap-4 mt-1">
+                <div className="flex items-center gap-4 flex-wrap">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4 text-green-600" />
                     <span className="text-lg font-bold text-green-700">{examGoal.daysLeft}</span>
@@ -93,49 +93,49 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                   <Badge className="bg-purple-100 text-purple-800 border-purple-300">
                     Style: {examGoal.style}
                   </Badge>
+                  
+                  {/* Inline Action Buttons */}
+                  <div className="flex gap-2 ml-auto">
+                    <Link to="/dashboard/student/academic-advisor">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="hover:bg-blue-50 border-blue-300"
+                        >
+                          <Target className="h-3 w-3 mr-1" />
+                          Switch Plan
+                        </Button>
+                      </motion.div>
+                    </Link>
+                    
+                    <Link to="/dashboard/student/academic-advisor">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="hover:bg-purple-50 border-purple-300"
+                        >
+                          <Zap className="h-3 w-3 mr-1" />
+                          New Plan
+                        </Button>
+                      </motion.div>
+                    </Link>
+                  </div>
                 </div>
               </div>
               
-              <div className="text-center">
+              <div className="text-center ml-4">
                 <div className="text-2xl font-bold text-green-700">{examGoal.overallProgress}%</div>
                 <div className="text-xs text-gray-600">Progress</div>
                 <Progress value={examGoal.overallProgress} className="h-2 mt-1 w-16" />
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2">
-              <Link to="/dashboard/student/academic-advisor">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full hover:bg-blue-50 border-blue-300"
-                  >
-                    <Target className="h-3 w-3 mr-1" />
-                    Switch Exam
-                  </Button>
-                </motion.div>
-              </Link>
-              
-              <Link to="/dashboard/student/academic-advisor">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full hover:bg-purple-50 border-purple-300"
-                  >
-                    <Zap className="h-3 w-3 mr-1" />
-                    New Plan
-                  </Button>
-                </motion.div>
-              </Link>
             </div>
           </div>
         </CardContent>
