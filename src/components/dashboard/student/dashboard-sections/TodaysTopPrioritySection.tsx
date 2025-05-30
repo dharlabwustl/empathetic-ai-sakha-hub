@@ -1,13 +1,12 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Clock, BookOpen, RotateCcw, Zap, Trophy, ArrowRight, X } from 'lucide-react';
+import { Target, Clock, BookOpen, TrendingUp, AlertTriangle, Sparkles, X, RotateCcw, Zap, Trophy, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
+import UrgencyArrow from './UrgencyArrow';
 
 interface TodaysTopPrioritySectionProps {
   onClose?: () => void;
@@ -15,7 +14,6 @@ interface TodaysTopPrioritySectionProps {
 
 const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onClose }) => {
   const navigate = useNavigate();
-  const [showHighlight, setShowHighlight] = useState(true);
 
   const priorityTopics = [
     {
@@ -56,16 +54,6 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
       transition={{ duration: 0.6 }}
       data-tour="top-priority"
     >
-      {/* Animated Highlight */}
-      {showHighlight && (
-        <AnimatedHighlight
-          message="URGENT - Take Action!"
-          position="top-center"
-          color="red"
-          onClose={() => setShowHighlight(false)}
-        />
-      )}
-
       <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-red-200 to-orange-200 dark:from-red-800 dark:to-orange-800 overflow-hidden">
         {/* Animated background pulse */}
         <motion.div
