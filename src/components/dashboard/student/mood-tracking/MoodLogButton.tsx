@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood, storeMoodInLocalStorage, getMoodTheme } from './moodUtils';
+import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
 import MoodSelectionDialog from './MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -55,9 +55,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       onMoodChange(mood);
       setLastMoodChange(new Date());
       
-      // Store mood in localStorage
-      storeMoodInLocalStorage(mood);
-      
       // Update study time allocations based on mood
       updateStudyTimeAllocationsByMood(mood);
       
@@ -98,8 +95,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         detail: { 
           mood, 
           timestamp: new Date().toISOString(),
-          recommendation,
-          themeClass: getMoodTheme(mood)
+          recommendation
         } 
       });
       document.dispatchEvent(moodChangeEvent);
@@ -107,7 +103,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     handleCloseDialog();
   };
   
-  // Get emoji with fallback
+  // Get emoji and mood color with fallback
   const moodEmoji = getMoodEmoji(currentMood);
   
   // Get mood label text
@@ -127,7 +123,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       case MoodType.FOCUSED:
         return "bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 dark:from-blue-900/30 dark:to-blue-800/30";
       case MoodType.NEUTRAL:
-      case MoodType.OKAY:
         return "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800/50 dark:to-gray-700/50";
       case MoodType.TIRED:
         return "bg-gradient-to-r from-orange-100 to-orange-200 hover:from-orange-200 hover:to-orange-300 dark:from-orange-900/30 dark:to-orange-800/30";
@@ -148,7 +143,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         variant="outline"
         size={size}
         onClick={handleOpenDialog}
-        className={`flex items-center gap-1.5 shadow-sm border ${getBgColorClass()} transition-all duration-300 mood-themed-button ${className}`}
+        className={`flex items-center gap-1.5 shadow-sm border ${getBgColorClass()} transition-all duration-300 ${className}`}
       >
         <span className="text-lg">{moodEmoji}</span>
         {showLabel && (
