@@ -1,117 +1,113 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useSmartVoiceAssistant } from '@/hooks/useSmartVoiceAssistant';
+import { 
+  speakWithFemaleVoice, 
+  isUserCurrentlyActive, 
+  cleanupOnNavigation 
+} from '@/utils/voiceConfig';
 
 interface DashboardVoiceAssistantProps {
   userName?: string;
-  userProgress?: {
-    overallProgress: number;
-    studyStreak: number;
-    completedLessons: number;
-    examReadinessScore: number;
-  };
-  onSpeakingChange?: (isSpeaking: boolean) => void;
+  language?: string;
+  userMood?: string;
+  userProgress?: any;
+  studyStreak?: number;
+  lastActivity?: string;
 }
 
 const DashboardVoiceAssistant: React.FC<DashboardVoiceAssistantProps> = ({ 
-  userName,
-  userProgress,
-  onSpeakingChange 
+  userName = 'Student',
+  language = 'en-US',
+  lastActivity
 }) => {
+  const [hasSpokenGreeting, setHasSpokenGreeting] = useState(false);
   const location = useLocation();
-  const isDashboard = location.pathname.includes('/dashboard');
-  const [isInvoked, setIsInvoked] = useState(false);
-  
-  const { isSpeaking, speak, processCommand } = useSmartVoiceAssistant({
-    context: 'dashboard',
-    userName,
-    inactivityTimeout: 60000, // 60 seconds for dashboard
-    enableInactivityPrompts: false // Silent unless invoked
-  });
-  
-  // Notify parent component of speaking state changes
+  const messageTimeoutRef = useRef<NodeJS.Timeout>();
+  const sessionStartRef = useRef(Date.now());
+
+  // Check if user is logged in and on dashboard
+  const isUserLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const isOnDashboard = location.pathname.includes('/dashboard/student');
+  const shouldBeActive = isUserLoggedIn && isOnDashboard;
+
+  // Check if this is first time user or returning user
+  const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+  const hasSeenDashboardWelcome = localStorage.getItem('hasSeenDashboardWelcome') === 'true';
+
+  // Handle dashboard greeting
   useEffect(() => {
-    if (onSpeakingChange) {
-      onSpeakingChange(isSpeaking);
+    if (!shouldBeActive || hasSpokenGreeting) {
+      return;
     }
-  }, [isSpeaking, onSpeakingChange]);
-  
-  // Enhanced command processing for dashboard
-  const processDashboardCommand = (command: string): boolean => {
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('progress') || lowerCommand.includes('how am i doing')) {
-      if (userProgress) {
-        speak(`You're doing great, ${userName}! Your overall progress is at ${userProgress.overallProgress}%, and you have a ${userProgress.studyStreak}-day study streak. Keep it up!`);
-      } else {
-        speak("You're making good progress in your studies. Keep maintaining consistency for better results!");
+
+    // Only speak if within first few seconds of session
+    const sessionDuration = Date.now() - sessionStartRef.current;
+    if (sessionDuration > 5000) {
+      return;
+    }
+
+    const speakDashboardGreeting = () => {
+      if (isUserCurrentlyActive()) {
+        console.log('🔇 Voice: User is active, not speaking dashboard greeting');
+        return;
       }
-      return true;
-    }
-    
-    if (lowerCommand.includes('motivation') || lowerCommand.includes('encourage')) {
-      const motivationalMessages = [
-        `${userName}, every expert was once a beginner. Your consistent effort is building towards success!`,
-        "Remember, each study session brings you closer to your goal. You're investing in your future!",
-        "Your dedication today determines your success tomorrow. Keep pushing forward!",
-        "Challenges are what make life interesting. Overcoming them is what makes life meaningful!"
-      ];
-      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      speak(randomMessage);
-      return true;
-    }
-    
-    if (lowerCommand.includes('next topic') || lowerCommand.includes('what should i study')) {
-      speak("Based on your progress, I recommend focusing on your weakest subjects first, then reinforcing your strong areas. Check your personalized study plan for specific recommendations.");
-      return true;
-    }
-    
-    if (lowerCommand.includes('streak') || lowerCommand.includes('consistency')) {
-      if (userProgress?.studyStreak) {
-        speak(`Amazing! You have a ${userProgress.studyStreak}-day study streak. Consistency is key to exam success!`);
-      } else {
-        speak("Building a study streak is crucial for success. Try to study a little bit every day to maintain momentum!");
-      }
-      return true;
-    }
-    
-    return processCommand(command);
-  };
-  
-  // Handle voice commands and invocation
-  useEffect(() => {
-    const handleVoiceCommand = (event: CustomEvent) => {
-      const command = event.detail.command;
-      if (command && isDashboard) {
-        setIsInvoked(true);
-        const handled = processDashboardCommand(command);
-        if (!handled) {
-          // Default response for unrecognized commands
-          speak("I can help you with your study progress, motivation, or suggest what to study next. What would you like to know?");
+
+      let greetingMessage = '';
+      
+      // First-time user message
+      if (isFirstTimeUser && !hasSeenDashboardWelcome) {
+        greetingMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
+        localStorage.setItem('hasSeenDashboardWelcome', 'true');
+      } 
+      // Returning user message
+      else {
+        if (lastActivity) {
+          greetingMessage = `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`;
+        } else {
+          greetingMessage = `Welcome back, ${userName}! Ready to continue your exam preparation?`;
         }
       }
+
+      const success = speakWithFemaleVoice(greetingMessage, { language }, 'dashboard-greeting');
+      
+      if (success) {
+        setHasSpokenGreeting(true);
+        
+        // No additional messages - single message only as per requirements
+      }
     };
-    
-    const handleVoiceInvoke = () => {
-      setIsInvoked(true);
-      speak(`Hi ${userName}! I'm here to help with your studies. You can ask about your progress, get motivation, or ask what to study next.`);
-    };
-    
-    window.addEventListener('voice-command', handleVoiceCommand as EventListener);
-    window.addEventListener('invoke-dashboard-voice', handleVoiceInvoke);
-    
+
+    // Delay greeting to avoid conflicts
+    const greetingTimeout = setTimeout(speakDashboardGreeting, 2000);
+
     return () => {
-      window.removeEventListener('voice-command', handleVoiceCommand as EventListener);
-      window.removeEventListener('invoke-dashboard-voice', handleVoiceInvoke);
+      clearTimeout(greetingTimeout);
     };
-  }, [isDashboard, userName, userProgress]);
-  
-  // Don't render anything if not on dashboard
-  if (!isDashboard) {
-    return null;
-  }
-  
+  }, [shouldBeActive, hasSpokenGreeting, userName, language, lastActivity, isFirstTimeUser, hasSeenDashboardWelcome]);
+
+  // Reset state when navigating away from dashboard
+  useEffect(() => {
+    if (!shouldBeActive) {
+      setHasSpokenGreeting(false);
+      cleanupOnNavigation();
+      
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    }
+  }, [shouldBeActive]);
+
+  // Cleanup on route change
+  useEffect(() => {
+    return () => {
+      cleanupOnNavigation();
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    };
+  }, [location.pathname]);
+
   return null; // This component only handles voice logic
 };
 

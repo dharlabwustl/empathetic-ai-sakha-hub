@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap, TrendingUp, Clock, Brain, Award } from 'lucide-react';
+import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -28,21 +28,8 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     ]
   };
 
-  // Calculate overall progress based on subjects
-  const overallProgress = Math.round(
-    examData.subjects.reduce((sum, subject) => sum + subject.progress, 0) / examData.subjects.length
-  );
-
-  // Calculate different progress metrics
-  const progressMetrics = {
-    examReadiness: overallProgress,
-    timeProgress: Math.round(((365 - examData.daysLeft) / 365) * 100),
-    studyConsistency: 78,
-    subjectBalance: Math.round((100 - Math.abs(Math.max(...examData.subjects.map(s => s.progress)) - Math.min(...examData.subjects.map(s => s.progress)))))
-  };
-
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-xl">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -68,105 +55,12 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
           </Badge>
         </div>
 
-        {/* Overall Progress Meters */}
-        <div className="space-y-4 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-100/50 dark:border-blue-800/30">
-          <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2">
-            <Award className="h-4 w-4" />
-            Overall Progress Metrics
-          </h4>
-          
-          {/* Exam Readiness */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-300">Exam Readiness</span>
-              </div>
-              <span className="text-lg font-bold text-blue-900 dark:text-blue-200">{progressMetrics.examReadiness}%</span>
-            </div>
-            
-            <div className="relative">
-              <Progress value={progressMetrics.examReadiness} className="h-3 bg-gray-200 dark:bg-gray-700" />
-              <motion.div 
-                className="absolute top-0 left-0 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${progressMetrics.examReadiness}%` }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-              />
-            </div>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Overall Progress</span>
+            <span className="font-medium">{examData.progress}%</span>
           </div>
-
-          {/* Time Progress */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-orange-600" />
-                <span className="text-sm font-medium text-orange-800 dark:text-orange-300">Time Progress</span>
-              </div>
-              <span className="text-sm font-bold text-orange-900 dark:text-orange-200">{progressMetrics.timeProgress}%</span>
-            </div>
-            
-            <div className="relative">
-              <Progress value={progressMetrics.timeProgress} className="h-2 bg-gray-200 dark:bg-gray-700" />
-              <motion.div 
-                className="absolute top-0 left-0 h-2 bg-gradient-to-r from-orange-400 to-red-500 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${progressMetrics.timeProgress}%` }}
-                transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-              />
-            </div>
-          </div>
-
-          {/* Study Consistency */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Brain className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium text-green-800 dark:text-green-300">Study Consistency</span>
-              </div>
-              <span className="text-sm font-bold text-green-900 dark:text-green-200">{progressMetrics.studyConsistency}%</span>
-            </div>
-            
-            <div className="relative">
-              <Progress value={progressMetrics.studyConsistency} className="h-2 bg-gray-200 dark:bg-gray-700" />
-              <motion.div 
-                className="absolute top-0 left-0 h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${progressMetrics.studyConsistency}%` }}
-                transition={{ duration: 1.0, ease: "easeOut", delay: 0.6 }}
-              />
-            </div>
-          </div>
-
-          {/* Subject Balance */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium text-purple-800 dark:text-purple-300">Subject Balance</span>
-              </div>
-              <span className="text-sm font-bold text-purple-900 dark:text-purple-200">{progressMetrics.subjectBalance}%</span>
-            </div>
-            
-            <div className="relative">
-              <Progress value={progressMetrics.subjectBalance} className="h-2 bg-gray-200 dark:bg-gray-700" />
-              <motion.div 
-                className="absolute top-0 left-0 h-2 bg-gradient-to-r from-purple-400 to-violet-500 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${progressMetrics.subjectBalance}%` }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.9 }}
-              />
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mt-3 pt-2 border-t border-blue-100/50">
-            <span>Overall Status:</span>
-            <span className="font-medium">
-              {progressMetrics.examReadiness >= 85 ? "Excellent Progress!" : 
-               progressMetrics.examReadiness >= 70 ? "On Track" : 
-               progressMetrics.examReadiness >= 50 ? "Making Progress" : "Needs Focus"}
-            </span>
-          </div>
+          <Progress value={examData.progress} className="h-2" />
         </div>
 
         <div className="space-y-2">

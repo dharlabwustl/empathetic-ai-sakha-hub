@@ -97,7 +97,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             </div>
           </motion.div>
 
-          {/* Main Headline - Fixed to be in one row */}
+          {/* Main Headline - Enhanced with better spacing and proper line breaking */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -105,8 +105,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onAnalyzeClick }) => {
             className="mb-3"
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                Master Exam Preparation with AI-Powered Precision
+              <span className="block bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
+                Master Exam Preparation with
+              </span>
+              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent break-words">
+                AI-Powered Precision
               </span>
             </h1>
           </motion.div>

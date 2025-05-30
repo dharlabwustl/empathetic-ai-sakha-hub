@@ -1,74 +1,66 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { speakWithFemaleVoice, createUserActivityDetector, createNavigationCleanup } from '@/utils/voiceConfig';
+import { 
+  speakWithFemaleVoice, 
+  isUserCurrentlyActive, 
+  cleanupOnNavigation 
+} from '@/utils/voiceConfig';
 
 interface DashboardVoiceGreetingProps {
-  userName: string;
-  isFirstTimeUser: boolean;
-  lastActivity?: string;
+  userName?: string;
+  isFirstTimeUser?: boolean;
   language?: string;
   onSpeakingChange?: (isSpeaking: boolean) => void;
 }
 
 const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
-  userName,
-  isFirstTimeUser,
-  lastActivity,
+  userName = 'Student',
+  isFirstTimeUser = false,
   language = 'en-US',
   onSpeakingChange
 }) => {
+  const [hasGreeted, setHasGreeted] = useState(false);
   const location = useLocation();
-  const hasSpokenRef = useRef(false);
-  const userActiveRef = useRef(false);
-  const cleanupRef = useRef<(() => void) | null>(null);
+  const greetingTimeoutRef = useRef<NodeJS.Timeout>();
   
-  const isDashboard = location.pathname.includes('/dashboard');
-  
+  // Only active on dashboard
+  const isOnDashboard = location.pathname.includes('/dashboard/student');
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const shouldGreet = isOnDashboard && isLoggedIn;
+
+  // Handle dashboard greeting based on user type
   useEffect(() => {
-    if (!isDashboard || hasSpokenRef.current || userName === 'there') return;
-    
-    // User activity detection
-    const handleActivity = () => {
-      userActiveRef.current = true;
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-      if (onSpeakingChange) {
-        onSpeakingChange(false);
-      }
-    };
-    
-    const removeActivityDetector = createUserActivityDetector(handleActivity);
-    const removeNavigationCleanup = createNavigationCleanup();
-    
-    cleanupRef.current = () => {
-      removeActivityDetector();
-      removeNavigationCleanup();
-    };
-    
-    // Dashboard greeting logic
+    if (!shouldGreet || hasGreeted || !userName) {
+      return;
+    }
+
     const speakDashboardGreeting = () => {
-      if (userActiveRef.current || hasSpokenRef.current) return;
-      
+      if (isUserCurrentlyActive()) {
+        console.log('🔇 Voice: User is active, not speaking dashboard greeting');
+        return;
+      }
+
       let greetingMessage = '';
       
-      if (isFirstTimeUser) {
-        greetingMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
-      } else {
-        if (lastActivity) {
-          greetingMessage = `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`;
-        } else {
-          greetingMessage = `Welcome back, ${userName}! Let's continue your learning journey.`;
-        }
-      }
+      // Check if this is truly first time on dashboard
+      const hasSeenDashboard = localStorage.getItem('hasSeenDashboard') === 'true';
       
-      const success = speakWithFemaleVoice(
-        greetingMessage,
-        { language },
+      if (isFirstTimeUser && !hasSeenDashboard) {
+        greetingMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
+        localStorage.setItem('hasSeenDashboard', 'true');
+      } else {
+        // Returning user message
+        const hour = new Date().getHours();
+        const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        greetingMessage = `${timeGreeting}, ${userName}! Ready to continue your exam preparation?`;
+      }
+
+      if (onSpeakingChange) onSpeakingChange(true);
+      
+      const success = speakWithFemaleVoice(greetingMessage, { language }, 'dashboard-greeting',
         () => {
           if (onSpeakingChange) onSpeakingChange(true);
-          hasSpokenRef.current = true;
         },
         () => {
           if (onSpeakingChange) onSpeakingChange(false);
@@ -76,34 +68,42 @@ const DashboardVoiceGreeting: React.FC<DashboardVoiceGreetingProps> = ({
       );
       
       if (success) {
-        hasSpokenRef.current = true;
+        setHasGreeted(true);
       }
     };
-    
-    // Wait for voices to load, then speak
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.addEventListener('voiceschanged', speakDashboardGreeting, { once: true });
-    } else {
-      setTimeout(speakDashboardGreeting, 2000);
+
+    // Delay greeting to avoid conflicts with other voice assistants
+    greetingTimeoutRef.current = setTimeout(speakDashboardGreeting, 3000);
+
+    return () => {
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
+    };
+  }, [shouldGreet, hasGreeted, userName, isFirstTimeUser, language, onSpeakingChange]);
+
+  // Reset when leaving dashboard
+  useEffect(() => {
+    if (!isOnDashboard) {
+      setHasGreeted(false);
+      cleanupOnNavigation();
+      
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
+      }
     }
-    
-    return cleanupRef.current;
-  }, [isDashboard, userName, isFirstTimeUser, lastActivity, language, onSpeakingChange]);
-  
+  }, [isOnDashboard]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-      }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+      cleanupOnNavigation();
+      if (greetingTimeoutRef.current) {
+        clearTimeout(greetingTimeoutRef.current);
       }
     };
   }, []);
-  
-  if (!isDashboard) return null;
-  
+
   return null;
 };
 
