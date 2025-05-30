@@ -19,7 +19,7 @@ interface SharedPageLayoutProps {
   showQuickAccess?: boolean;
 }
 
-export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
+const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
   children,
@@ -76,3 +76,5 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
     </div>
   );
 };
+
+export default SharedPageLayout;

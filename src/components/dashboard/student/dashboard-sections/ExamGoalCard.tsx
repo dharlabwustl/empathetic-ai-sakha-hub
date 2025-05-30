@@ -26,11 +26,10 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       { name: "Chemistry", progress: 65, color: "green" },
       { name: "Biology", progress: 71, color: "purple" }
     ],
-    // Overall progress meters
     overallReadiness: 78,
-    timeProgress: 65, // Days passed vs total prep time
-    studyProgress: 68, // Study hours completed vs planned
-    subjectBalance: 69 // How balanced the progress is across subjects
+    timeProgress: 65,
+    studyProgress: 68,
+    subjectBalance: 69
   };
 
   const getProgressColor = (progress: number) => {
@@ -48,19 +47,21 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
   };
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
+    <Card className="relative overflow-hidden premium-card exam-goal-card bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Target className="h-5 w-5 text-blue-600" />
             Exam Goal: {examData.name}
           </CardTitle>
-          <MoodLogButton 
-            currentMood={currentMood}
-            onMoodChange={onMoodChange}
-            size="sm"
-            showLabel={false}
-          />
+          {onMoodChange && (
+            <MoodLogButton 
+              currentMood={currentMood}
+              onMoodChange={onMoodChange}
+              size="sm"
+              showLabel={false}
+            />
+          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -69,13 +70,13 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             <Calendar className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">{examData.date}</span>
           </div>
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 premium-badge">
             {examData.daysLeft} days left
           </Badge>
         </div>
 
         {/* Overall Progress Meters */}
-        <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
+        <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30 premium-card">
           <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
             Overall Progress Meters
@@ -92,7 +93,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 {examData.overallReadiness}% - {getProgressLabel(examData.overallReadiness)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
               <motion.div 
                 className={`h-2 rounded-full ${getProgressColor(examData.overallReadiness)}`}
                 initial={{ width: 0 }}
@@ -113,7 +114,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 {examData.timeProgress}% - {getProgressLabel(examData.timeProgress)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
               <motion.div 
                 className={`h-2 rounded-full ${getProgressColor(examData.timeProgress)}`}
                 initial={{ width: 0 }}
@@ -134,7 +135,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 {examData.studyProgress}% - {getProgressLabel(examData.studyProgress)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
               <motion.div 
                 className={`h-2 rounded-full ${getProgressColor(examData.studyProgress)}`}
                 initial={{ width: 0 }}
@@ -155,7 +156,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 {examData.subjectBalance}% - {getProgressLabel(examData.subjectBalance)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
               <motion.div 
                 className={`h-2 rounded-full ${getProgressColor(examData.subjectBalance)}`}
                 initial={{ width: 0 }}
@@ -172,7 +173,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             <span>Overall Progress</span>
             <span className="font-medium">{examData.progress}%</span>
           </div>
-          <Progress value={examData.progress} className="h-2" />
+          <Progress value={examData.progress} className="h-2 premium-progress" />
         </div>
 
         {/* Subject Progress */}
@@ -182,7 +183,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             <div key={index} className="flex items-center justify-between text-xs">
               <span>{subject.name}</span>
               <div className="flex items-center gap-2">
-                <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                <div className="w-16 bg-gray-200 rounded-full h-1.5 premium-progress">
                   <div 
                     className={`bg-${subject.color}-500 h-1.5 rounded-full`}
                     style={{ width: `${subject.progress}%` }}
@@ -196,13 +197,13 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
 
         <div className="grid grid-cols-2 gap-2 pt-2">
           <Link to="/dashboard/student/flashcards/1/interactive">
-            <Button size="sm" variant="outline" className="w-full text-xs">
+            <Button size="sm" variant="outline" className="w-full text-xs premium-button">
               <RotateCcw className="h-3 w-3 mr-1" />
               Recall Practice
             </Button>
           </Link>
           <Link to="/dashboard/student/practice-exam/2/start">
-            <Button size="sm" className="w-full text-xs bg-blue-600 hover:bg-blue-700">
+            <Button size="sm" className="w-full text-xs bg-blue-600 hover:bg-blue-700 premium-button">
               <Trophy className="h-3 w-3 mr-1" />
               Take Exam
             </Button>
@@ -211,7 +212,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
 
         <div className="pt-2 border-t">
           <Link to="/dashboard/student/academic">
-            <Button size="sm" variant="ghost" className="w-full text-xs">
+            <Button size="sm" variant="ghost" className="w-full text-xs premium-button">
               <Zap className="h-3 w-3 mr-1" />
               Switch Exam & New Plan
             </Button>

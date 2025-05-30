@@ -40,12 +40,11 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
   const getTaskRoute = (task: Task) => {
     switch (task.type) {
       case 'concept':
-        // Update route to use the enhanced concept detail page
-        return `/dashboard/student/concepts/study/${task.id}`;
+        return `/dashboard/student/concepts/${task.id}`;
       case 'flashcard':
         return `/dashboard/student/flashcards/1/interactive`;
       case 'exam':
-        return `/dashboard/student/practice-exam`;
+        return `/dashboard/student/practice-exam/2/start`;
       default:
         return `/dashboard/student`;
     }
@@ -65,7 +64,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
   };
 
   return (
-    <Card>
+    <Card className="premium-card">
       <CardHeader>
         <CardTitle>Upcoming Tasks</CardTitle>
       </CardHeader>
@@ -74,7 +73,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
           {tasks.map(task => (
             <div 
               key={task.id} 
-              className={cn("border rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer", 
+              className={cn("border rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer premium-card", 
                 getPriorityClass(task.priority)
               )}
               onClick={() => navigate(getTaskRoute(task))}
@@ -87,7 +86,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
                     <p className="text-sm text-gray-500">{task.subject}</p>
                   </div>
                 </div>
-                <Badge variant="outline">{task.type}</Badge>
+                <Badge variant="outline" className="premium-badge">{task.type}</Badge>
               </div>
               
               <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
@@ -97,7 +96,7 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks }) => {
               </div>
               
               <Button 
-                className="w-full mt-3" 
+                className="w-full mt-3 premium-button" 
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
