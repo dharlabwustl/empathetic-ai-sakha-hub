@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood, getMoodThemeClass } from './moodUtils';
+import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './moodUtils';
 import MoodSelectionDialog from './MoodSelectionDialog';
-import MoodBasedPlanAdjuster from './MoodBasedPlanAdjuster';
 import { useToast } from '@/hooks/use-toast';
 
 interface MoodLogButtonProps {
@@ -56,6 +55,9 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       onMoodChange(mood);
       setLastMoodChange(new Date());
       
+      // Update study time allocations based on mood
+      updateStudyTimeAllocationsByMood(mood);
+      
       // Show toast confirmation with recommendation
       const recommendation = getStudyRecommendationForMood(mood);
       
@@ -88,13 +90,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         }, 1000);
       }
       
-      // Apply dashboard theme based on mood
-      const themeClass = getMoodThemeClass(mood);
-      document.body.className = document.body.className.replace(/mood-\w+/g, '');
-      if (themeClass) {
-        document.body.classList.add(themeClass);
-      }
-      
       // Trigger custom event for other components to react to
       const moodChangeEvent = new CustomEvent('mood-changed', { 
         detail: { 
@@ -106,11 +101,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
       document.dispatchEvent(moodChangeEvent);
     }
     handleCloseDialog();
-  };
-
-  const handlePlanAdjusted = (adjustments: Record<string, number>) => {
-    console.log('Study plan adjusted:', adjustments);
-    // You can add additional logic here if needed
   };
   
   // Get emoji and mood color with fallback
@@ -168,11 +158,6 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
         onClose={handleCloseDialog}
         selectedMood={currentMood}
         onSelectMood={handleMoodChange}
-      />
-
-      <MoodBasedPlanAdjuster
-        currentMood={currentMood}
-        onPlanAdjusted={handlePlanAdjusted}
       />
     </>
   );
