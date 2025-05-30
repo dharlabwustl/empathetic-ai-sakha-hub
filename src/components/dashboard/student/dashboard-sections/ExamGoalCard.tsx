@@ -3,7 +3,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Target, Calendar, Zap, BookOpen } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Target, Calendar, Zap, BookOpen, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -19,7 +20,10 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     name: "NEET 2026",
     daysLeft: 338,
     pace: "Moderate",
-    style: "Visual"
+    style: "Visual",
+    overallProgress: 72,
+    weeklyProgress: 85,
+    monthlyProgress: 68
   };
 
   return (
@@ -28,8 +32,8 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-emerald-200 dark:from-green-800 dark:to-emerald-800 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-emerald-200 dark:from-green-800 dark:to-emerald-800 overflow-hidden h-[200px]">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <motion.div
@@ -69,45 +73,35 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
-          <div className="space-y-4">
+        <CardContent className="pt-3 pb-3">
+          <div className="space-y-3">
             {/* Goal Info */}
-            <motion.div 
-              className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-700"
-              animate={{ 
-                boxShadow: ["0 0 10px rgba(16, 185, 129, 0.3)", "0 0 20px rgba(16, 185, 129, 0.5)", "0 0 10px rgba(16, 185, 129, 0.3)"]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <h3 className="font-bold text-2xl text-green-900 dark:text-green-100 mb-2">
-                Goal - {examGoal.name}
-              </h3>
-              
-              <div className="grid grid-cols-2 gap-4 mt-3">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-xl text-green-900 dark:text-green-100">
+                  Goal - {examGoal.name}
+                </h3>
+                <div className="flex items-center gap-4 mt-1">
+                  <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4 text-green-600" />
-                    <span className="text-2xl font-bold text-green-700">{examGoal.daysLeft}</span>
+                    <span className="text-lg font-bold text-green-700">{examGoal.daysLeft}</span>
+                    <span className="text-xs text-gray-600">Days Left</span>
                   </div>
-                  <p className="text-xs text-gray-600">Days Left</p>
-                </div>
-                
-                <div className="text-center">
-                  <p className="text-lg font-bold text-green-900">{examGoal.pace}</p>
-                  <p className="text-xs text-gray-600">Pace</p>
+                  <Badge className="bg-green-100 text-green-800 border-green-300">
+                    Pace: {examGoal.pace}
+                  </Badge>
+                  <Badge className="bg-purple-100 text-purple-800 border-purple-300">
+                    Style: {examGoal.style}
+                  </Badge>
                 </div>
               </div>
               
-              <div className="mt-3">
-                <Badge className="bg-purple-100 text-purple-800 border-purple-300">
-                  Learning Style: {examGoal.style}
-                </Badge>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-700">{examGoal.overallProgress}%</div>
+                <div className="text-xs text-gray-600">Progress</div>
+                <Progress value={examGoal.overallProgress} className="h-2 mt-1 w-16" />
               </div>
-            </motion.div>
+            </div>
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-2">

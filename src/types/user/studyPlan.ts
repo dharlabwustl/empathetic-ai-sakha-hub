@@ -1,62 +1,28 @@
 
-// Study Plan Types
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-  status: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  priority: 'high' | 'medium' | 'low';
-}
-
 export interface StudyPlanSubject {
   id: string;
   name: string;
   color?: string;
   hoursPerWeek: number;
-  weeklyHours: number;
-  priority: 'high' | 'medium' | 'low';
-  proficiency: 'weak' | 'medium' | 'strong' | string | number;
+  weeklyHours: number; // Added missing property
+  progress: number; // Added missing property
+  priority: "high" | "medium" | "low";
+  proficiency: string | number;
   completed: boolean;
-  status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
-  difficulty?: 'easy' | 'medium' | 'hard';
-  topics?: StudyPlanTopic[];
-  progress: number;
-}
-
-export interface StudyPlan {
-  id: string;
-  title?: string;
-  goal?: string;
-  examGoal: string;
-  examDate: string | Date;
-  status: 'active' | 'completed' | 'archived' | 'pending';
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
-  createdAt: string;
-  updatedAt?: string;
-  progressPercent?: number;
-  progressPercentage?: number;
-  progress?: number;
-  daysLeft?: number;
-  weeklyHours?: number;
-  userId?: string;
+  difficulty?: "easy" | "medium" | "hard";
+  status?: "pending" | "in-progress" | "completed";
 }
 
 export interface NewStudyPlan {
   id?: string;
   title?: string;
   goal?: string;
-  examGoal: string;
-  examDate: string;
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
+  examGoal?: string;
+  subjects?: StudyPlanSubject[];
+  studyHoursPerDay?: number;
+  preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
+  learningPace?: "slow" | "fast";
   weeklyHours?: number;
-  status?: 'active' | 'completed' | 'archived' | 'pending';
+  examDate: string; // Changed from Date to string
+  status?: "pending" | "active" | "completed" | "archived";
 }
-
-export type { StudyPlan, StudyPlanSubject, NewStudyPlan, StudyPlanTopic };

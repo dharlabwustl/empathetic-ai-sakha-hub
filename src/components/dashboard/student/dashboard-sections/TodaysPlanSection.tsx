@@ -4,83 +4,104 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, CheckCircle, Target, Sparkles, X, RotateCcw, Trophy, Zap } from 'lucide-react';
+import { Calendar, Clock, BookOpen, Target, CheckCircle, PlayCircle, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
 
 interface TodaysPlanSectionProps {
   currentMood?: MoodType;
-  onClose?: () => void;
 }
 
-const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onClose }) => {
-  const navigate = useNavigate();
-
-  const todaysPlan = {
-    totalSessions: 4,
-    completedSessions: 1,
-    currentSession: "Chemistry - Organic Compounds",
-    nextSession: "Physics - Wave Optics",
-    studyTime: "6 hours",
-    progress: 25
-  };
-
-  const sessions = [
-    { subject: "Chemistry", topic: "Organic Compounds", time: "9:00 AM", status: "completed", difficulty: "Medium" },
-    { subject: "Physics", topic: "Wave Optics", time: "11:00 AM", status: "current", difficulty: "High" },
-    { subject: "Biology", topic: "Genetics", time: "2:00 PM", status: "pending", difficulty: "Medium" },
-    { subject: "Mathematics", topic: "Integration", time: "4:00 PM", status: "pending", difficulty: "Easy" }
+const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) => {
+  const todaysPlan = [
+    {
+      time: "9:00 AM",
+      subject: "Physics",
+      topic: "Newton's Laws",
+      duration: "45 min",
+      type: "concept",
+      completed: true,
+      priority: "high"
+    },
+    {
+      time: "10:00 AM", 
+      subject: "Chemistry",
+      topic: "Chemical Bonding",
+      duration: "60 min",
+      type: "practice",
+      completed: false,
+      priority: "high"
+    },
+    {
+      time: "11:30 AM",
+      subject: "Biology", 
+      topic: "Ecology Review",
+      duration: "30 min",
+      type: "revision",
+      completed: false,
+      priority: "medium"
+    },
+    {
+      time: "2:00 PM",
+      subject: "Mock Test",
+      topic: "Full Length Test",
+      duration: "180 min", 
+      type: "exam",
+      completed: false,
+      priority: "high"
+    }
   ];
 
-  const getMoodEmoji = () => {
-    switch (currentMood) {
-      case MoodType.MOTIVATED: return "🚀";
-      case MoodType.FOCUSED: return "🎯";
-      case MoodType.STRESSED: return "😰";
-      case MoodType.CONFUSED: return "🤔";
-      case MoodType.CONFIDENT: return "💪";
-      case MoodType.TIRED: return "😴";
-      default: return "📚";
+  const completedTasks = todaysPlan.filter(task => task.completed).length;
+  const totalTasks = todaysPlan.length;
+  const progressPercentage = (completedTasks / totalTasks) * 100;
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'concept': return <BookOpen className="h-4 w-4" />;
+      case 'practice': return <Target className="h-4 w-4" />;
+      case 'revision': return <Clock className="h-4 w-4" />;
+      case 'exam': return <Zap className="h-4 w-4" />;
+      default: return <BookOpen className="h-4 w-4" />;
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300';
-      case 'current': return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300';
-      default: return 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400';
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'concept': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'practice': return 'bg-green-100 text-green-800 border-green-300';
+      case 'revision': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'exam': return 'bg-purple-100 text-purple-800 border-purple-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.1 }}
-      data-tour="study-plan"
+      transition={{ duration: 0.6, delay: 0.8 }}
     >
-      <Card className="relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
-        <CardHeader className="pb-3 relative z-10">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <motion.div
                 animate={{ 
-                  rotate: [0, 360],
-                  scale: [1, 1.1, 1]
+                  rotate: [0, 360]
                 }}
                 transition={{ 
-                  duration: 3, 
+                  duration: 4, 
                   repeat: Infinity,
-                  ease: "easeInOut"
+                  ease: "linear"
                 }}
               >
                 <Calendar className="h-5 w-5 text-blue-600" />
               </motion.div>
               <motion.span
                 animate={{ 
-                  color: ["#2563eb", "#3b82f6", "#2563eb"]
+                  color: ["#2563eb", "#4f46e5", "#2563eb"]
                 }}
                 transition={{ 
                   duration: 2, 
@@ -91,162 +112,116 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
               >
                 Live Daily NEET Plan
               </motion.span>
-              <motion.span 
-                className="text-xl ml-2"
-                animate={{ 
-                  scale: [1, 1.2, 1]
-                }}
-                transition={{ 
-                  duration: 1.5, 
-                  repeat: Infinity
-                }}
-              >
-                {getMoodEmoji()}
-              </motion.span>
-            </CardTitle>
-            {onClose && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              </Button>
-            )}
-          </div>
+            </div>
+            
+            <div className="text-right">
+              <div className="text-sm font-bold text-blue-700">{completedTasks}/{totalTasks}</div>
+              <div className="text-xs text-gray-600">Tasks Done</div>
+            </div>
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 relative z-10">
-          <motion.div 
-            className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200 dark:border-blue-700"
-            animate={{ 
-              boxShadow: ["0 0 10px rgba(59, 130, 246, 0.3)", "0 0 20px rgba(59, 130, 246, 0.5)", "0 0 10px rgba(59, 130, 246, 0.3)"]
-            }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Daily Progress</span>
-              <span className="text-sm font-bold text-blue-900 dark:text-blue-100">
-                {todaysPlan.completedSessions}/{todaysPlan.totalSessions} sessions
-              </span>
-            </div>
-            <Progress value={todaysPlan.progress} className="h-2 mb-2" />
-            <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span>{todaysPlan.studyTime} planned</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Target className="h-3 w-3" />
-                <span>On track</span>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="space-y-2">
-            <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-3">Study Sessions</h4>
-            {sessions.map((session, index) => (
-              <motion.div
-                key={index}
-                className={`p-3 rounded-lg border ${
-                  session.status === 'completed' 
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
-                    : session.status === 'current'
-                    ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
-                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800/50 dark:border-gray-700'
-                }`}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {session.status === 'completed' && <CheckCircle className="h-4 w-4 text-green-600" />}
-                    {session.status === 'current' && (
-                      <motion.div
-                        animate={{ 
-                          scale: [1, 1.2, 1],
-                          rotate: [0, 180, 360]
-                        }}
-                        transition={{ 
-                          duration: 2, 
-                          repeat: Infinity
-                        }}
-                      >
-                        <Clock className="h-4 w-4 text-blue-600" />
-                      </motion.div>
-                    )}
-                    {session.status === 'pending' && <BookOpen className="h-4 w-4 text-gray-500" />}
-                    <div>
-                      <p className="font-medium text-sm text-gray-900 dark:text-white">
-                        {session.subject}: {session.topic}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {session.time} • {session.difficulty} level
-                      </p>
-                    </div>
-                  </div>
-                  <Badge className={getStatusColor(session.status)}>
-                    {session.status}
-                  </Badge>
-                </div>
-                
-                {session.status !== 'completed' && (
-                  <div className="flex gap-1 mt-2">
-                    <Link to={`/dashboard/student/concepts/${session.subject.toLowerCase()}`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
-                        <BookOpen className="h-2 w-2 mr-1" />
-                        Study
-                      </Button>
-                    </Link>
-                    <Link to="/dashboard/student/flashcards/1/interactive">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
-                        <RotateCcw className="h-2 w-2 mr-1" />
-                        Recall
-                      </Button>
-                    </Link>
-                    <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
-                        <Zap className="h-2 w-2 mr-1" />
-                        Formula
-                      </Button>
-                    </Link>
-                    <Link to="/dashboard/student/practice-exam/2/start">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
-                        <Trophy className="h-2 w-2 mr-1" />
-                        Exam
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-          
-          <motion.div
-            animate={{ 
-              scale: [1, 1.05, 1],
-            }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <Button 
-              size="sm" 
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold"
-              onClick={() => navigate('/dashboard/student/study-plan')}
+        <CardContent className="pt-4">
+          <div className="space-y-4">
+            {/* Progress Overview */}
+            <motion.div 
+              className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg"
+              animate={{ 
+                backgroundColor: ["rgb(239 246 255)", "rgb(238 242 255)", "rgb(239 246 255)"]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
             >
-              <Calendar className="h-4 w-4 mr-2" />
-              Continue Live Plan
-            </Button>
-          </motion.div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Today's Progress</span>
+                <span className="text-sm font-bold text-blue-700">{Math.round(progressPercentage)}%</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2" />
+            </motion.div>
+
+            {/* Today's Tasks */}
+            <div className="space-y-3">
+              {todaysPlan.map((task, index) => (
+                <motion.div
+                  key={index}
+                  className={`p-3 rounded-lg border-2 ${task.completed ? 'bg-green-50 border-green-200 opacity-75' : 'bg-white border-gray-200'}`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-full ${task.completed ? 'bg-green-100' : 'bg-blue-100'}`}>
+                        {task.completed ? (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        ) : (
+                          getTypeIcon(task.type)
+                        )}
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">{task.subject}</span>
+                          <Badge className={getTypeColor(task.type)} variant="outline">
+                            {task.type}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600">{task.topic}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Clock className="h-3 w-3 text-gray-500" />
+                          <span className="text-xs text-gray-500">{task.time} • {task.duration}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {!task.completed && (
+                      <Link to="/dashboard/student/concepts">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                            <PlayCircle className="h-3 w-3 mr-1" />
+                            Start
+                          </Button>
+                        </motion.div>
+                      </Link>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Link to="/dashboard/student/study-plan">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button size="sm" variant="outline" className="w-full">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    View Full Plan
+                  </Button>
+                </motion.div>
+              </Link>
+              
+              <Link to="/dashboard/student/academic-advisor">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button size="sm" variant="outline" className="w-full">
+                    <Target className="h-3 w-3 mr-1" />
+                    Customize Plan
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </motion.div>
