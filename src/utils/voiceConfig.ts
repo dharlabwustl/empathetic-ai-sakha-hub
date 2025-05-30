@@ -64,10 +64,10 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
   };
 };
 
-// Session-based message tracking with 60-second minimum intervals
-const SESSION_ID = Date.now().toString();
+// Enhanced message tracking with session-based prevention
 const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
-const MIN_MESSAGE_INTERVAL = 60000; // 60 seconds minimum between messages
+const SESSION_ID = Date.now().toString();
+const MESSAGE_COOLDOWN = 300000; // 5 minutes cooldown for same message
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -75,11 +75,14 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   const utterance = new SpeechSynthesisUtterance();
   
-  // Fix PREPZR pronunciation as specified
+  // Enhanced pronunciation fixes for better clarity - FIXED PREPZR pronunciation
   const correctedText = text
-    .replace(/PREPZR/gi, 'Prep-Zer')
+    .replace(/PREPZR/gi, 'Prep-Zer')  // Main brand pronunciation - FIXED
     .replace(/prepzr/gi, 'prep-zer')
-    .replace(/Prepzr/g, 'Prep-Zer');
+    .replace(/Prepzr/g, 'Prep-Zer')
+    .replace(/NEET/gi, 'N-E-E-T')    // Spell out NEET for clarity
+    .replace(/JEE/gi, 'J-E-E')       // Spell out JEE for clarity
+    .replace(/AI/gi, 'A-I');         // Spell out AI for clarity
   
   utterance.text = correctedText;
   utterance.lang = finalConfig.language;
@@ -102,15 +105,15 @@ export const speakWithFemaleVoice = (
 ): boolean => {
   if (!('speechSynthesis' in window)) return false;
   
-  // Enhanced anti-repetition with 60-second minimum interval
-  const messageKey = text.toLowerCase().trim().substring(0, 50);
+  // Enhanced repetition prevention
+  const messageKey = text.toLowerCase().trim().substring(0, 50); // Use first 50 chars as key
   const now = Date.now();
   const messageInfo = spokenMessages.get(messageKey);
   
   if (messageInfo && 
       messageInfo.sessionId === SESSION_ID && 
-      (now - messageInfo.timestamp) < MIN_MESSAGE_INTERVAL) {
-    console.log('🔇 Voice: 60-second interval not met for message:', text.substring(0, 30) + '...');
+      (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
+    console.log('🔇 Voice: Preventing repetition of message:', text.substring(0, 50) + '...');
     return false;
   }
   
@@ -127,49 +130,14 @@ export const speakWithFemaleVoice = (
     utterance.onend = onEnd;
   }
   
-  // Store the timestamp when we start speaking
+  // Store the timestamp and session when we start speaking
   spokenMessages.set(messageKey, { timestamp: now, sessionId: SESSION_ID });
   
   window.speechSynthesis.speak(utterance);
   return true;
 };
 
-// User activity detection for pausing voice
-export const createUserActivityDetector = (onActivity: () => void) => {
-  const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-  
-  const activityHandler = () => {
-    onActivity();
-  };
-  
-  events.forEach(event => {
-    document.addEventListener(event, activityHandler, { passive: true });
-  });
-  
-  return () => {
-    events.forEach(event => {
-      document.removeEventListener(event, activityHandler);
-    });
-  };
-};
-
-// Page navigation cleanup
-export const createNavigationCleanup = () => {
-  const cleanup = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-  };
-  
-  window.addEventListener('beforeunload', cleanup);
-  window.addEventListener('popstate', cleanup);
-  
-  return () => {
-    window.removeEventListener('beforeunload', cleanup);
-    window.removeEventListener('popstate', cleanup);
-  };
-};
-
-export const createIntelligentPause = (duration: number = 60000): Promise<void> => {
+// Smart breaks between messages
+export const createIntelligentPause = (duration: number = 3000): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, duration));
 };

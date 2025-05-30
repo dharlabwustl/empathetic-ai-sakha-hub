@@ -43,177 +43,191 @@ const NEETStrategyCard: React.FC = () => {
   };
 
   return (
-    <Card className="bg-gradient-to-br from-purple-50/80 via-white to-blue-100/60 dark:from-purple-950/30 dark:via-gray-900 dark:to-blue-900/20 border border-purple-200/50 dark:border-purple-800/30 shadow-lg">
-      <CardHeader className="border-b border-purple-100/50 dark:border-purple-800/30">
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-purple-600" />
-          <motion.span
-            animate={{ 
-              color: ["#7c3aed", "#2563eb", "#7c3aed"]
-            }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="font-bold"
-          >
-            NEET Strategy Card
-          </motion.span>
-          <motion.div
-            animate={{ 
-              x: [0, 5, 0],
-              opacity: [0.7, 1, 0.7]
-            }}
-            transition={{ 
-              duration: 1.5, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold animate-pulse">
-              PRIORITY
-            </Badge>
-          </motion.div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <motion.div
-            className="bg-gradient-to-r from-purple-100/80 to-blue-100/60 dark:from-purple-900/30 dark:to-blue-900/20 p-3 rounded-lg border border-purple-200/50 dark:border-purple-800/30"
-            animate={{ 
-              boxShadow: ["0 0 10px rgba(139, 92, 246, 0.3)", "0 0 20px rgba(139, 92, 246, 0.5)", "0 0 10px rgba(139, 92, 246, 0.3)"]
-            }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <Link to="/dashboard/student/study-plan">
-              <Button variant="outline" className="w-full justify-start hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-200 dark:border-purple-700">
-                <BookOpen className="h-4 w-4 mr-2" />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
+    >
+      <Card className="shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+          <CardTitle className="flex items-center gap-2">
+            <motion.div
+              animate={{ 
+                rotate: [0, 10, -10, 0],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Target className="h-5 w-5 text-blue-600" />
+            </motion.div>
+            <motion.span
+              animate={{ 
+                color: ["#2563eb", "#7c3aed", "#2563eb"]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="font-bold"
+            >
+              NEET Strategy Card
+            </motion.span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="space-y-4">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Link to="/dashboard/student/study-plan">
+                <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Adaptive Plan
+                  <ArrowRight className="h-4 w-4 ml-auto" />
+                </Button>
+              </Link>
+            </motion.div>
+            
+            <motion.div
+              animate={{ 
+                backgroundColor: ["rgb(239 246 255)", "rgb(245 243 255)", "rgb(239 246 255)"]
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Badge className="w-full justify-center bg-blue-100 text-blue-800 py-2">
                 <motion.span
                   animate={{ 
-                    color: ["#1d4ed8", "#7c2d12", "#1d4ed8"]
+                    scale: [1, 1.05, 1]
                   }}
                   transition={{ 
-                    duration: 1.5, 
+                    duration: 2, 
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
                 >
-                  Adaptive Plan
+                  Personalized Strategy
                 </motion.span>
+              </Badge>
+            </motion.div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium flex items-center gap-2">
                 <motion.div
-                  animate={{ 
-                    x: [0, 5, 0]
-                  }}
-                  transition={{ 
-                    duration: 1, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="ml-auto"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                 >
-                  <ArrowRight className="h-4 w-4 text-purple-600" />
+                  <Brain className="h-4 w-4 text-purple-600" />
                 </motion.div>
-              </Button>
-            </Link>
-          </motion.div>
-          
-          <motion.div
-            animate={{ 
-              backgroundColor: ["#e0e7ff", "#ddd6fe", "#e0e7ff"]
-            }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="p-3 rounded-lg"
-          >
-            <Badge className="w-full justify-center text-purple-800 dark:text-purple-200 bg-purple-100/80 dark:bg-purple-900/30">
-              <motion.span
+                Current Focus
+              </h4>
+              <motion.p 
+                className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg"
                 animate={{ 
-                  scale: [1, 1.05, 1]
+                  borderColor: ["rgb(147 51 234)", "rgb(59 130 246)", "rgb(147 51 234)"]
                 }}
                 transition={{ 
                   duration: 2, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
+                  repeat: Infinity
                 }}
+                style={{ border: "2px solid" }}
               >
-                Personalized Strategy
-              </motion.span>
-            </Badge>
-          </motion.div>
-          
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Current Focus</h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400">{strategy}</p>
-          </div>
-          
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Subject Status</h4>
-            {subjects.map((subject, index) => (
-              <div key={index} className="flex items-center justify-between text-xs">
-                <span>{subject.name}</span>
-                {getSubjectBadge(subject)}
-              </div>
-            ))}
-          </div>
-          
-          <div className="space-y-1">
-            {objectives.map((objective, index) => (
-              <div key={index} className="flex items-center gap-2 text-xs">
-                <CheckCircle className="h-3 w-3 text-green-600" />
-                <span className="text-gray-700 dark:text-gray-300">{objective}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-2 border-t border-purple-100/50 dark:border-purple-800/30">
-            <Link to="/dashboard/student/study-plan">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button 
-                  size="sm" 
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold shadow-lg"
+                {strategy}
+              </motion.p>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Subject Status</h4>
+              {subjects.map((subject, index) => (
+                <motion.div 
+                  key={index} 
+                  className="flex items-center justify-between text-xs p-2 rounded-lg bg-gray-50 dark:bg-gray-800"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02, backgroundColor: subject.status === "weak" ? "rgb(254 242 242)" : "rgb(240 253 244)" }}
+                >
+                  <span className="font-medium">{subject.name}</span>
+                  {getSubjectBadge(subject)}
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="space-y-1">
+              <h4 className="text-sm font-medium mb-2">Key Objectives</h4>
+              {objectives.map((objective, index) => (
+                <motion.div 
+                  key={index} 
+                  className="flex items-center gap-2 text-xs p-2 rounded-lg bg-green-50 dark:bg-green-900/20"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
                 >
                   <motion.div
                     animate={{ 
                       rotate: [0, 360]
                     }}
                     transition={{ 
-                      duration: 3, 
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                  </motion.div>
-                  <motion.span
-                    animate={{ 
-                      color: ["#ffffff", "#fef3c7", "#ffffff"]
-                    }}
-                    transition={{ 
                       duration: 2, 
                       repeat: Infinity,
-                      ease: "easeInOut"
+                      ease: "linear",
+                      delay: index * 0.2
                     }}
                   >
-                    View Study Plan
-                  </motion.span>
-                </Button>
-              </motion.div>
-            </Link>
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                  </motion.div>
+                  <span className="text-gray-700 dark:text-gray-300">{objective}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Enhanced CTA buttons */}
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Link to="/dashboard/student/study-plan">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  >
+                    <Calendar className="h-3 w-3 mr-1" />
+                    View Plan
+                  </Button>
+                </motion.div>
+              </Link>
+              
+              <Link to="/dashboard/student/academic-advisor">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full hover:bg-purple-50 border-purple-300"
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Optimize
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

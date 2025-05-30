@@ -1,185 +1,189 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import { speakWithFemaleVoice, createUserActivityDetector, createNavigationCleanup, createIntelligentPause } from '@/utils/voiceConfig';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { speakWithFemaleVoice, createIntelligentPause } from '@/utils/voiceConfig';
 
 interface PrepzrVoiceAssistantProps {
   userName?: string;
   language?: string;
   isNewUser?: boolean;
-  context?: 'home' | 'signup' | 'welcome' | 'dashboard';
+  lastActivity?: string;
 }
 
 const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({ 
   userName = 'there',
   language = 'en-US',
   isNewUser = false,
-  context
+  lastActivity
 }) => {
-  const [hasSpoken, setHasSpoken] = useState(false);
-  const [userActive, setUserActive] = useState(false);
-  const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
+  const [hasGreeted, setHasGreeted] = useState(false);
+  const [currentContext, setCurrentContext] = useState<string>('');
+  const [messagesSent, setMessagesSent] = useState<Set<string>>(new Set());
+  const { toast } = useToast();
   const location = useLocation();
-  const timeoutRef = useRef<number | null>(null);
-  const cleanupRef = useRef<(() => void) | null>(null);
+  const navigate = useNavigate();
+  const messageCountRef = useRef(0);
+  const lastMessageTimeRef = useRef(0);
   
-  // Determine context from URL if not provided
-  const getContextFromPath = (path: string): string => {
-    if (path === '/' || path === '/home') return 'home';
-    if (path.includes('/signup') || path.includes('/login')) return 'signup';
-    if (path.includes('/welcome')) return 'welcome';
-    if (path.includes('/dashboard')) return 'dashboard';
-    return 'other';
-  };
+  // Track which messages have been spoken for this session
+  const spokenInSessionRef = useRef(new Set<string>());
   
-  const currentContext = context || getContextFromPath(location.pathname);
-  
-  // Smart suggestions for home page
-  const homeSuggestions = [
-    "Want to try PREPZR free before signing up? Just say 'Free trial'.",
-    "Curious how PREPZR is different from coaching centers? Ask me – I'll explain.",
-    "Looking for scholarships or readiness tests? I'll help you get started."
-  ];
-  
-  // User activity detection
-  useEffect(() => {
-    const handleActivity = () => {
-      setUserActive(true);
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+  const shouldPlayGreeting = location.pathname === '/' || 
+                            location.pathname.includes('/signup') ||
+                            location.pathname.includes('/welcome') ||
+                            location.pathname.includes('/dashboard');
+
+  // Get contextual message based on current page
+  const getContextMessage = (path: string, userName: string, isNewUser: boolean) => {
+    if (path === '/') {
+      const messageKey = 'home-intro';
+      if (!messagesSent.has(messageKey)) {
+        setMessagesSent(prev => new Set(prev).add(messageKey));
+        return `Hi ${userName}! I'm Prep Zer AI, your personal exam prep guide. Prep Zer isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`;
       }
-      
-      // Reset activity after a brief pause
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      return null;
+    } else if (path.includes('/signup')) {
+      const messageKey = 'signup-help';
+      if (!messagesSent.has(messageKey)) {
+        setMessagesSent(prev => new Set(prev).add(messageKey));
+        return `Sign up to unlock a customized study journey. Prep Zer will guide you at every step.`;
       }
-      timeoutRef.current = window.setTimeout(() => {
-        setUserActive(false);
-      }, 5000);
-    };
-    
-    const removeActivityDetector = createUserActivityDetector(handleActivity);
-    const removeNavigationCleanup = createNavigationCleanup();
-    
-    cleanupRef.current = () => {
-      removeActivityDetector();
-      removeNavigationCleanup();
-    };
-    
-    return cleanupRef.current;
-  }, []);
-  
-  // Main voice logic based on context
-  useEffect(() => {
-    if (userActive || hasSpoken) return;
-    
-    const speakMessage = async (message: string) => {
-      if (userActive) return;
-      
-      const success = speakWithFemaleVoice(message, { language });
-      if (success) {
-        setHasSpoken(true);
-      }
-    };
-    
-    const handleContextMessage = async () => {
-      switch (currentContext) {
-        case 'home':
-          await speakMessage(`Hi ${userName}! I'm Prep Zer AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`);
-          
-          // Start suggestions after initial message
-          setTimeout(() => {
-            if (!userActive) {
-              startHomeSuggestions();
-            }
-          }, 8000);
-          break;
-          
-        case 'welcome':
-          if (isNewUser && userName !== 'there') {
-            await speakMessage(`Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`);
-          }
-          break;
-          
-        case 'dashboard':
-          if (userName !== 'there') {
-            if (isNewUser) {
-              await speakMessage(`Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`);
-            } else {
-              await speakMessage(`Welcome back, ${userName}! Last time, you worked on your studies. Let's pick up where you left off.`);
-            }
-          }
-          break;
-          
-        case 'signup':
-          // No voice on signup/login pages as per requirements
-          break;
-          
-        default:
-          // No voice on other pages
-          break;
-      }
-    };
-    
-    // Delay initial message slightly
-    const timer = setTimeout(handleContextMessage, 1500);
-    
-    return () => clearTimeout(timer);
-  }, [currentContext, userName, isNewUser, userActive, hasSpoken, language]);
-  
-  // Home page suggestions system
-  const startHomeSuggestions = async () => {
-    if (currentContext !== 'home' || userActive) return;
-    
-    const speakSuggestion = async (index: number) => {
-      if (userActive || currentContext !== 'home') return;
-      
-      if (index < homeSuggestions.length) {
-        await createIntelligentPause(60000); // 60-second pause
-        
-        if (!userActive && currentContext === 'home') {
-          const success = speakWithFemaleVoice(homeSuggestions[index], { language });
-          if (success) {
-            setCurrentSuggestionIndex(index + 1);
-            
-            // Schedule next suggestion
-            setTimeout(() => {
-              speakSuggestion(index + 1);
-            }, 65000); // 65 seconds to account for speech duration
-          }
+      return null;
+    } else if (path.includes('/dashboard')) {
+      if (isNewUser) {
+        const messageKey = 'dashboard-welcome';
+        if (!messagesSent.has(messageKey)) {
+          setMessagesSent(prev => new Set(prev).add(messageKey));
+          return `Congratulations, ${userName}! You've officially joined Prep Zer – your ultimate prep companion. Together, we'll build your confidence, track your progress, and make sure you're fully exam-ready.`;
         }
       } else {
-        // After all suggestions, offer to pause
-        await createIntelligentPause(60000);
-        if (!userActive && currentContext === 'home') {
-          speakWithFemaleVoice("I'll pause now. Ask me anything when you're ready.", { language });
+        const messageKey = 'dashboard-return';
+        if (!messagesSent.has(messageKey)) {
+          setMessagesSent(prev => new Set(prev).add(messageKey));
+          return lastActivity 
+            ? `Welcome back, ${userName}! Last time you were working on ${lastActivity}. Ready to pick up where you left off?`
+            : `Welcome back, ${userName}! Ready to continue your learning journey?`;
+        }
+      }
+      return null;
+    }
+    
+    return null;
+  };
+
+  // Smart suggestion system with intelligent breaks
+  const getSmartSuggestion = (path: string) => {
+    if (path === '/') {
+      const suggestions = [
+        { key: 'free-trial', text: "Want to try Prep Zer free before signing up? Just say 'Free trial'." },
+        { key: 'explain-prepzr', text: "Curious how Prep Zer is different from coaching centers? Ask me – I'll explain." },
+        { key: 'scholarship', text: "Looking for scholarships or readiness tests? I'll help you get started." }
+      ];
+      
+      const unspokenSuggestions = suggestions.filter(s => 
+        !messagesSent.has(`suggestion-${s.key}`)
+      );
+      
+      if (unspokenSuggestions.length > 0) {
+        const suggestion = unspokenSuggestions[0];
+        setMessagesSent(prev => new Set(prev).add(`suggestion-${suggestion.key}`));
+        return suggestion.text;
+      }
+      
+      // After all suggestions, offer to pause
+      const pauseKey = 'pause-offer';
+      if (!messagesSent.has(pauseKey)) {
+        setMessagesSent(prev => new Set(prev).add(pauseKey));
+        return "I'll pause now. Ask me anything when you're ready.";
+      }
+    }
+    
+    return null;
+  };
+
+  // Speak with intelligent timing and prevent repetition
+  const speakMessage = async (message: string) => {
+    const now = Date.now();
+    
+    // Prevent too frequent messages (minimum 5 seconds between messages)
+    if (now - lastMessageTimeRef.current < 5000) {
+      return;
+    }
+    
+    // Prevent repetition by checking if message was already sent
+    const messageKey = message.toLowerCase().trim();
+    if (messagesSent.has(messageKey)) {
+      return;
+    }
+    
+    const success = speakWithFemaleVoice(message, { language });
+    if (success) {
+      lastMessageTimeRef.current = now;
+      messageCountRef.current++;
+      setMessagesSent(prev => new Set(prev).add(messageKey));
+      
+      // After speaking, create an intelligent pause before next message
+      await createIntelligentPause(4000);
+    }
+  };
+
+  // Handle greetings and context-aware messages
+  useEffect(() => {
+    if (!shouldPlayGreeting || hasGreeted) return;
+    
+    const handleContextualGreeting = async () => {
+      const contextMessage = getContextMessage(location.pathname, userName, isNewUser);
+      
+      if (contextMessage) {
+        await speakMessage(contextMessage);
+        setHasGreeted(true);
+        setCurrentContext(location.pathname);
+        
+        // After greeting, provide smart suggestions with delay
+        if (location.pathname === '/') {
+          setTimeout(async () => {
+            const suggestion = getSmartSuggestion(location.pathname);
+            if (suggestion) {
+              await speakMessage(suggestion);
+            }
+          }, 6000);
         }
       }
     };
     
-    speakSuggestion(0);
-  };
-  
-  // Reset when context changes
+    // Delay initial greeting slightly
+    setTimeout(handleContextualGreeting, 1500);
+  }, [location.pathname, userName, isNewUser, hasGreeted, shouldPlayGreeting]);
+
+  // Reset context when changing routes but preserve message history
   useEffect(() => {
-    setHasSpoken(false);
-    setUserActive(false);
-    setCurrentSuggestionIndex(0);
-    
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+    if (location.pathname !== currentContext) {
+      setHasGreeted(false);
+      setCurrentContext('');
+      // Don't clear spoken messages - let them persist for the session
     }
-  }, [currentContext]);
-  
+  }, [location.pathname, currentContext]);
+
+  // Process voice commands (this would integrate with speech recognition)
+  const processVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('free trial')) {
+      speakMessage("Starting your free trial!");
+      navigate('/signup?trial=true');
+    } else if (lowerCommand.includes('explain prepzr') || lowerCommand.includes('how different')) {
+      speakMessage("Prep Zer is the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. Unlike traditional coaching centers, we understand your mindset, not just the exam content.");
+    } else if (lowerCommand.includes('scholarship') || lowerCommand.includes('readiness test')) {
+      speakMessage("Let's check your exam readiness!");
+      // Trigger exam analyzer
+      window.dispatchEvent(new Event('open-exam-analyzer'));
+    }
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      if (cleanupRef.current) {
-        cleanupRef.current();
-      }
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }

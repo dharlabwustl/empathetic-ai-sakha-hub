@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Clock, BookOpen, TrendingUp, AlertTriangle, Sparkles, X, RotateCcw, Zap, ArrowRight, Bell } from 'lucide-react';
+import { Target, Clock, BookOpen, TrendingUp, AlertTriangle, Sparkles, X, RotateCcw, Zap, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -64,26 +64,10 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
       transition={{ duration: 0.6 }}
       data-tour="top-priority"
     >
-      <Card className="relative shadow-xl border-2 bg-gradient-to-br from-red-50/90 via-white to-orange-100/70 dark:from-red-950/40 dark:via-gray-900 dark:to-orange-900/30 border-red-200/60 dark:border-red-800/40 overflow-hidden">
-        {/* Urgent animated background pattern */}
-        <div className="absolute inset-0 opacity-10 dark:opacity-5">
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500"
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1],
-              scale: [1, 1.02, 1]
-            }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        </div>
-        
-        <CardHeader className="pb-3 relative z-10 border-b border-red-100/50 dark:border-red-800/30">
+      <Card className="relative shadow-lg border-2 border-gradient-to-r from-red-200 to-orange-200 dark:from-red-800 dark:to-orange-800 overflow-hidden">
+        <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
               <motion.div
                 animate={{ 
                   scale: [1, 1.2, 1],
@@ -95,87 +79,43 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                   ease: "easeInOut"
                 }}
               >
-                <Target className="h-6 w-6 text-red-600" />
+                <Target className="h-5 w-5 text-red-600" />
               </motion.div>
-              <div>
-                <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
-                  <motion.span
-                    animate={{ 
-                      color: ["#dc2626", "#ea580c", "#dc2626"]
-                    }}
-                    transition={{ 
-                      duration: 1.5, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="font-bold"
-                  >
-                    Today's Top Priority
-                  </motion.span>
-                  <motion.div
-                    animate={{ 
-                      x: [0, 5, 0],
-                      opacity: [0.7, 1, 0.7]
-                    }}
-                    transition={{ 
-                      duration: 1, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <Badge className="bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-bold animate-pulse">
-                      URGENT
-                    </Badge>
-                  </motion.div>
-                </CardTitle>
-                <motion.p 
-                  className="text-sm text-red-700 dark:text-red-300 flex items-center gap-2"
-                  animate={{ 
-                    opacity: [0.8, 1, 0.8]
-                  }}
-                  transition={{ 
-                    duration: 1.5, 
-                    repeat: Infinity
-                  }}
-                >
-                  <Bell className="h-4 w-4" />
-                  <span className="font-medium">Take Action Now!</span>
-                  <motion.div
-                    animate={{ 
-                      x: [0, 10, 0]
-                    }}
-                    transition={{ 
-                      duration: 1.5, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <ArrowRight className="h-4 w-4 text-red-600" />
-                  </motion.div>
-                </motion.p>
-              </div>
-            </div>
+              <motion.span
+                animate={{ 
+                  color: ["#dc2626", "#ea580c", "#dc2626"]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                Today's Top Priority - Take Action!
+              </motion.span>
+            </CardTitle>
             {onClose && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               </Button>
             )}
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 relative z-10 p-4">
+        <CardContent className="space-y-4 relative z-10">
           {priorityTopics.map((topic, index) => (
             <motion.div
               key={index}
-              className="border-2 rounded-lg p-4 bg-white/95 dark:bg-gray-800/95 shadow-md border-red-100/60 dark:border-red-800/40"
+              className="border rounded-lg p-4 bg-white/90 dark:bg-gray-800/90"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,0,0,0.1)" }}
+              whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-center justify-between mb-3">
                 <div>
@@ -193,17 +133,16 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                 </div>
                 <motion.div
                   animate={{ 
-                    borderColor: ["#dc2626", "#ea580c", "#dc2626"],
-                    boxShadow: ["0 0 5px rgba(220, 38, 38, 0.3)", "0 0 15px rgba(234, 88, 12, 0.5)", "0 0 5px rgba(220, 38, 38, 0.3)"]
+                    borderColor: ["#dc2626", "#ea580c", "#dc2626"]
                   }}
                   transition={{ 
                     duration: 1, 
                     repeat: Infinity
                   }}
-                  className="text-right border-2 rounded-lg p-2 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/50 dark:to-orange-950/50"
+                  className="text-right border-2 rounded-lg p-2"
                 >
                   <p className="text-xs text-gray-600 dark:text-gray-400">Days Left</p>
-                  <p className="font-bold text-red-900 dark:text-red-100 text-lg">{topic.daysLeft}</p>
+                  <p className="font-bold text-red-900 dark:text-red-100">{topic.daysLeft}</p>
                 </motion.div>
               </div>
 
@@ -219,7 +158,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                 <Link to={`/dashboard/student/concepts/${topic.subject.toLowerCase()}`} className="flex-1">
                   <Button 
                     size="sm" 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <BookOpen className="h-3 w-3 mr-1" />
                     Study Concept
@@ -229,10 +168,30 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="w-full hover:bg-green-50 border-green-200 hover:border-green-300"
+                    className="w-full hover:bg-green-50"
                   >
                     <RotateCcw className="h-3 w-3 mr-1" />
                     Practice Recall
+                  </Button>
+                </Link>
+                <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full hover:bg-purple-50"
+                  >
+                    <Zap className="h-3 w-3 mr-1" />
+                    Formula Lab
+                  </Button>
+                </Link>
+                <Link to="/dashboard/student/practice-exam/2/start" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full hover:bg-yellow-50"
+                  >
+                    <Trophy className="h-3 w-3 mr-1" />
+                    Take Exam
                   </Button>
                 </Link>
               </div>
@@ -252,7 +211,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
           >
             <Button 
               size="sm" 
-              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold shadow-lg"
+              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold"
               onClick={() => navigate('/dashboard/student/concepts')}
             >
               <Zap className="h-4 w-4 mr-2" />

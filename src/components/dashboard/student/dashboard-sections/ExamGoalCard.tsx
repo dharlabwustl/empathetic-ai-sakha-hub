@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap, Clock, TrendingUp, Brain } from 'lucide-react';
+import { Target, Calendar, Clock, TrendingUp, Zap, ArrowRight, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -16,210 +16,197 @@ interface ExamGoalCardProps {
 }
 
 const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }) => {
-  const examData = {
-    name: "NEET 2026",
-    date: "May 5, 2026",
-    daysLeft: 145,
-    progress: 68,
-    subjects: [
-      { name: "Physics", progress: 72, color: "blue" },
-      { name: "Chemistry", progress: 65, color: "green" },
-      { name: "Biology", progress: 71, color: "purple" }
-    ],
-    overallReadiness: 78,
-    timeProgress: 65,
-    studyProgress: 68,
-    subjectBalance: 69
+  const examGoal = {
+    name: "NEET 2024",
+    targetScore: 650,
+    currentEstimate: 580,
+    daysLeft: 85,
+    progress: 78,
+    lastAssessment: "2 days ago"
   };
 
-  const getProgressColor = (progress: number) => {
-    if (progress >= 80) return "bg-green-500";
-    if (progress >= 60) return "bg-blue-500";
-    if (progress >= 40) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
-  const getProgressLabel = (progress: number) => {
-    if (progress >= 80) return "Excellent";
-    if (progress >= 60) return "Good";
-    if (progress >= 40) return "Fair";
-    return "Needs Focus";
-  };
+  const progressPercentage = (examGoal.currentEstimate / examGoal.targetScore) * 100;
 
   return (
-    <Card className="relative overflow-hidden premium-card exam-goal-card bg-gradient-to-br from-blue-50/80 via-white to-purple-100/60 dark:from-blue-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/30 shadow-lg">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Target className="h-5 w-5 text-blue-600" />
-            Exam Goal: {examData.name}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+    >
+      <Card className="shadow-lg border-2 border-gradient-to-r from-green-200 to-emerald-200 dark:from-green-800 dark:to-emerald-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 10, -10, 0]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Target className="h-5 w-5 text-green-600" />
+              </motion.div>
+              <motion.span
+                animate={{ 
+                  color: ["#059669", "#10b981", "#059669"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                Exam Goal Tracker
+              </motion.span>
+            </div>
+            {onMoodChange && (
+              <MoodLogButton 
+                currentMood={currentMood} 
+                onMoodChange={onMoodChange} 
+                size="sm" 
+                showLabel={false}
+              />
+            )}
           </CardTitle>
-          {onMoodChange && (
-            <MoodLogButton 
-              currentMood={currentMood}
-              onMoodChange={onMoodChange}
-              size="sm"
-              showLabel={false}
-            />
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">{examData.date}</span>
-          </div>
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 premium-badge">
-            {examData.daysLeft} days left
-          </Badge>
-        </div>
-
-        {/* Overall Progress Meters */}
-        <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30 premium-card">
-          <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Overall Progress Meters
-          </h4>
-          
-          {/* Exam Readiness */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <Brain className="h-3 w-3 text-purple-600" />
-                Exam Readiness
-              </span>
-              <span className="font-medium text-purple-700">
-                {examData.overallReadiness}% - {getProgressLabel(examData.overallReadiness)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.overallReadiness)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.overallReadiness}%` }}
-                transition={{ duration: 1, delay: 0.2 }}
-              />
-            </div>
-          </div>
-
-          {/* Time Progress */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3 text-blue-600" />
-                Time Progress
-              </span>
-              <span className="font-medium text-blue-700">
-                {examData.timeProgress}% - {getProgressLabel(examData.timeProgress)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.timeProgress)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.timeProgress}%` }}
-                transition={{ duration: 1, delay: 0.4 }}
-              />
-            </div>
-          </div>
-
-          {/* Study Progress */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3 text-green-600" />
-                Study Progress
-              </span>
-              <span className="font-medium text-green-700">
-                {examData.studyProgress}% - {getProgressLabel(examData.studyProgress)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.studyProgress)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.studyProgress}%` }}
-                transition={{ duration: 1, delay: 0.6 }}
-              />
-            </div>
-          </div>
-
-          {/* Subject Balance */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="flex items-center gap-1">
-                <Target className="h-3 w-3 text-orange-600" />
-                Subject Balance
-              </span>
-              <span className="font-medium text-orange-700">
-                {examData.subjectBalance}% - {getProgressLabel(examData.subjectBalance)}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 premium-progress">
-              <motion.div 
-                className={`h-2 rounded-full ${getProgressColor(examData.subjectBalance)}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${examData.subjectBalance}%` }}
-                transition={{ duration: 1, delay: 0.8 }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Overall Progress Summary */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Overall Progress</span>
-            <span className="font-medium">{examData.progress}%</span>
-          </div>
-          <Progress value={examData.progress} className="h-2 premium-progress" />
-        </div>
-
-        {/* Subject Progress */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium">Subject Progress</h4>
-          {examData.subjects.map((subject, index) => (
-            <div key={index} className="flex items-center justify-between text-xs">
-              <span>{subject.name}</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-gray-200 rounded-full h-1.5 premium-progress">
-                  <div 
-                    className={`bg-${subject.color}-500 h-1.5 rounded-full`}
-                    style={{ width: `${subject.progress}%` }}
-                  />
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="space-y-4">
+            {/* Exam Goal Info */}
+            <motion.div 
+              className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-700"
+              animate={{ 
+                boxShadow: ["0 0 10px rgba(16, 185, 129, 0.3)", "0 0 20px rgba(16, 185, 129, 0.5)", "0 0 10px rgba(16, 185, 129, 0.3)"]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <h3 className="font-bold text-lg text-green-900 dark:text-green-100">{examGoal.name}</h3>
+              <div className="flex justify-center items-center gap-4 mt-2">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-700">{examGoal.currentEstimate}</p>
+                  <p className="text-xs text-gray-600">Current Score</p>
                 </div>
-                <span className="font-medium w-8">{subject.progress}%</span>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-900">{examGoal.targetScore}</p>
+                  <p className="text-xs text-gray-600">Target Score</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Progress Section */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Goal Progress</span>
+                <Badge className="bg-green-100 text-green-800 border-green-300">
+                  {Math.round(progressPercentage)}%
+                </Badge>
+              </div>
+              <Progress value={progressPercentage} className="h-3" />
+              <div className="flex justify-between text-xs text-gray-600">
+                <span>Score gap: {examGoal.targetScore - examGoal.currentEstimate} points</span>
+                <span>Assessment: {examGoal.lastAssessment}</span>
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-2">
-          <Link to="/dashboard/student/flashcards/1/interactive">
-            <Button size="sm" variant="outline" className="w-full text-xs premium-button">
-              <RotateCcw className="h-3 w-3 mr-1" />
-              Recall Practice
-            </Button>
-          </Link>
-          <Link to="/dashboard/student/practice-exam/2/start">
-            <Button size="sm" className="w-full text-xs bg-blue-600 hover:bg-blue-700 premium-button">
-              <Trophy className="h-3 w-3 mr-1" />
-              Take Exam
-            </Button>
-          </Link>
-        </div>
+            {/* Days Left Counter */}
+            <motion.div 
+              className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700"
+              animate={{ 
+                backgroundColor: ["rgb(255 251 235)", "rgb(254 243 199)", "rgb(255 251 235)"]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Calendar className="h-4 w-4 text-amber-600" />
+                <span className="font-bold text-lg text-amber-900">{examGoal.daysLeft}</span>
+                <span className="text-sm text-amber-700">days left</span>
+              </div>
+            </motion.div>
 
-        <div className="pt-2 border-t">
-          <Link to="/dashboard/student/academic">
-            <Button size="sm" variant="ghost" className="w-full text-xs premium-button">
-              <Zap className="h-3 w-3 mr-1" />
-              Switch Exam & New Plan
-            </Button>
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-2">
+              <Link to="/dashboard/student/practice-exam/2/start">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  >
+                    <Trophy className="h-3 w-3 mr-1" />
+                    Take Mock Test
+                  </Button>
+                </motion.div>
+              </Link>
+              
+              <Link to="/dashboard/student/academic-advisor">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full hover:bg-green-50 border-green-300"
+                  >
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    Optimize Plan
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
+
+            {/* Switch Exam / New Plan */}
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Link to="/dashboard/student/academic-advisor">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full text-xs hover:bg-blue-50 border-blue-300"
+                  >
+                    <Target className="h-3 w-3 mr-1" />
+                    Switch Exam
+                  </Button>
+                </motion.div>
+              </Link>
+              
+              <Link to="/dashboard/student/academic-advisor">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full text-xs hover:bg-purple-50 border-purple-300"
+                  >
+                    <Zap className="h-3 w-3 mr-1" />
+                    New Plan
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

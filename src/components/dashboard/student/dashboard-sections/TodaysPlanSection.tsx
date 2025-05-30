@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, BookOpen, CheckCircle, Target, Sparkles, X, RotateCcw, Trophy, Zap, ArrowRight, Radio } from 'lucide-react';
+import { Calendar, Clock, BookOpen, CheckCircle, Target, Sparkles, X, RotateCcw, Trophy, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -61,26 +61,10 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
       transition={{ duration: 0.6, delay: 0.1 }}
       data-tour="study-plan"
     >
-      <Card className="relative shadow-xl border-2 bg-gradient-to-br from-blue-50/90 via-white to-indigo-100/70 dark:from-blue-950/40 dark:via-gray-900 dark:to-indigo-900/30 border-blue-200/60 dark:border-blue-800/40 overflow-hidden">
-        {/* Live animated background pattern */}
-        <div className="absolute inset-0 opacity-10 dark:opacity-5">
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500"
-            animate={{ 
-              opacity: [0.1, 0.2, 0.1],
-              scale: [1, 1.01, 1]
-            }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        </div>
-        
-        <CardHeader className="pb-3 relative z-10 border-b border-blue-100/50 dark:border-blue-800/30">
+      <Card className="relative shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
+        <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
               <motion.div
                 animate={{ 
                   rotate: [0, 360],
@@ -92,92 +76,49 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                   ease: "easeInOut"
                 }}
               >
-                <Calendar className="h-6 w-6 text-blue-600" />
+                <Calendar className="h-5 w-5 text-blue-600" />
               </motion.div>
-              <div>
-                <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
-                  <motion.span
-                    animate={{ 
-                      color: ["#2563eb", "#3b82f6", "#2563eb"]
-                    }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="font-bold"
-                  >
-                    Live Daily NEET Plan
-                  </motion.span>
-                  <motion.div
-                    animate={{ 
-                      opacity: [0.7, 1, 0.7],
-                      scale: [1, 1.1, 1]
-                    }}
-                    transition={{ 
-                      duration: 1.5, 
-                      repeat: Infinity
-                    }}
-                  >
-                    <Badge className="bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs font-bold">
-                      <Radio className="h-3 w-3 mr-1" />
-                      ACTIVE
-                    </Badge>
-                  </motion.div>
-                  <motion.span 
-                    className="text-xl ml-2"
-                    animate={{ 
-                      scale: [1, 1.2, 1]
-                    }}
-                    transition={{ 
-                      duration: 1.5, 
-                      repeat: Infinity
-                    }}
-                  >
-                    {getMoodEmoji()}
-                  </motion.span>
-                </CardTitle>
-                <motion.p 
-                  className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2"
-                  animate={{ 
-                    opacity: [0.8, 1, 0.8]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity
-                  }}
-                >
-                  <span className="font-medium">Real-time adaptation</span>
-                  <motion.div
-                    animate={{ 
-                      x: [0, 5, 0]
-                    }}
-                    transition={{ 
-                      duration: 1.5, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <ArrowRight className="h-4 w-4 text-blue-600" />
-                  </motion.div>
-                </motion.p>
-              </div>
-            </div>
+              <motion.span
+                animate={{ 
+                  color: ["#2563eb", "#3b82f6", "#2563eb"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                Live Daily NEET Plan
+              </motion.span>
+              <motion.span 
+                className="text-xl ml-2"
+                animate={{ 
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity
+                }}
+              >
+                {getMoodEmoji()}
+              </motion.span>
+            </CardTitle>
             {onClose && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="h-6 w-6 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               </Button>
             )}
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 relative z-10 p-4">
+        <CardContent className="space-y-4 relative z-10">
           <motion.div 
-            className="bg-white/90 dark:bg-gray-800/90 p-4 rounded-lg border-2 border-blue-200/60 dark:border-blue-700/40 shadow-md"
+            className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-lg border border-blue-200 dark:border-blue-700"
             animate={{ 
               boxShadow: ["0 0 10px rgba(59, 130, 246, 0.3)", "0 0 20px rgba(59, 130, 246, 0.5)", "0 0 10px rgba(59, 130, 246, 0.3)"]
             }}
@@ -211,17 +152,17 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
             {sessions.map((session, index) => (
               <motion.div
                 key={index}
-                className={`p-3 rounded-lg border-2 shadow-sm ${
+                className={`p-3 rounded-lg border ${
                   session.status === 'completed' 
-                    ? 'bg-green-50/90 border-green-200/60 dark:bg-green-900/20 dark:border-green-700/40'
+                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
                     : session.status === 'current'
-                    ? 'bg-blue-50/90 border-blue-200/60 dark:bg-blue-900/20 dark:border-blue-700/40'
-                    : 'bg-gray-50/90 border-gray-200/60 dark:bg-gray-800/50 dark:border-gray-700/40'
+                    ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
+                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800/50 dark:border-gray-700'
                 }`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                whileHover={{ scale: 1.02 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -258,25 +199,25 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
                 {session.status !== 'completed' && (
                   <div className="flex gap-1 mt-2">
                     <Link to={`/dashboard/student/concepts/${session.subject.toLowerCase()}`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 border-blue-200 hover:bg-blue-50">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <BookOpen className="h-2 w-2 mr-1" />
                         Study
                       </Button>
                     </Link>
                     <Link to="/dashboard/student/flashcards/1/interactive">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 border-green-200 hover:bg-green-50">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <RotateCcw className="h-2 w-2 mr-1" />
                         Recall
                       </Button>
                     </Link>
-                    <Link to={`/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab`}>
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 border-purple-200 hover:bg-purple-50">
+                    <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Zap className="h-2 w-2 mr-1" />
                         Formula
                       </Button>
                     </Link>
                     <Link to="/dashboard/student/practice-exam/2/start">
-                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7 border-orange-200 hover:bg-orange-50">
+                      <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-7">
                         <Trophy className="h-2 w-2 mr-1" />
                         Exam
                       </Button>
@@ -299,7 +240,7 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood, onCl
           >
             <Button 
               size="sm" 
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold"
               onClick={() => navigate('/dashboard/student/study-plan')}
             >
               <Calendar className="h-4 w-4 mr-2" />

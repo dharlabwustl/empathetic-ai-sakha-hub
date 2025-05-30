@@ -16,7 +16,7 @@ export interface StudyPlanSubject {
   hoursPerWeek: number;
   weeklyHours: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency: 'weak' | 'medium' | 'strong';
+  proficiency: 'weak' | 'medium' | 'strong' | string | number;
   completed: boolean;
   status?: 'completed' | 'in-progress' | 'pending' | 'skipped';
   difficulty?: 'easy' | 'medium' | 'hard';
@@ -29,7 +29,7 @@ export interface StudyPlan {
   title?: string;
   goal?: string;
   examGoal: string;
-  examDate: string;
+  examDate: string | Date;
   status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;

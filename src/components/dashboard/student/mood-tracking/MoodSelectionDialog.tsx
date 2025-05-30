@@ -71,11 +71,9 @@ const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-white/90 dark:bg-gray-900/90 backdrop-blur-md premium-card">
+      <DialogContent className="sm:max-w-md bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500 pb-1">
-            How are you feeling today?
-          </DialogTitle>
+          <DialogTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500 pb-1">How are you feeling today?</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
@@ -86,7 +84,7 @@ const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
               <Button
                 key={mood.value}
                 variant="outline"
-                className={`flex flex-col items-center px-2 py-3 h-auto shadow-sm premium-button ${mood.bgColor} ${
+                className={`flex flex-col items-center px-2 py-3 h-auto shadow-sm ${mood.bgColor} ${
                   selectedMood === mood.value ? "border-primary ring-2 ring-primary dark:ring-primary/70" : "border-transparent"
                 } hover:scale-105 transform transition-all duration-200`}
                 onClick={() => onSelectMood(mood.value)}
@@ -98,7 +96,7 @@ const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
           </div>
           
           <div className="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50 premium-card">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50">
               <p className="text-xs text-blue-600 dark:text-blue-300 font-medium mb-2">
                 Benefits of mood tracking:
               </p>

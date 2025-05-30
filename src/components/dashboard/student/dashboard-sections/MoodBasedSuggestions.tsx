@@ -5,7 +5,7 @@ import { MoodType } from '@/types/user/base';
 import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood } from '../mood-tracking/moodUtils';
 import MoodLogButton from '../mood-tracking/MoodLogButton';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, TrendingUp, Clock } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock, Calendar, BookOpen, RotateCcw, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -18,99 +18,138 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
   // Get recommendations based on current mood
   const recommendation = currentMood ? getStudyRecommendationForMood(currentMood) : "";
   
-  // Get study action based on mood
+  // Get study action based on mood with proper routing
   const getStudyAction = () => {
     if (!currentMood) return { text: "Start Today's Plan", link: "/dashboard/student/today" };
     
     switch (currentMood) {
       case MoodType.HAPPY:
         return { 
-          text: "Take on a Challenge", 
-          link: "/dashboard/student/practice-exam",
-          color: "bg-gradient-to-r from-yellow-400 to-amber-500"
+          text: "Take Challenge Exam", 
+          link: "/dashboard/student/practice-exam/2/start",
+          color: "bg-gradient-to-r from-yellow-400 to-amber-500",
+          icon: Trophy
         };
       case MoodType.MOTIVATED:
         return { 
           text: "Master New Concepts", 
           link: "/dashboard/student/concepts",
-          color: "bg-gradient-to-r from-green-500 to-emerald-600"
+          color: "bg-gradient-to-r from-green-500 to-emerald-600",
+          icon: BookOpen
         };
       case MoodType.FOCUSED:
         return { 
           text: "Complete Practice Exam", 
-          link: "/dashboard/student/practice-exam",
-          color: "bg-gradient-to-r from-blue-500 to-indigo-600"
+          link: "/dashboard/student/practice-exam/2/start",
+          color: "bg-gradient-to-r from-blue-500 to-indigo-600",
+          icon: Trophy
         };
       case MoodType.NEUTRAL:
         return { 
           text: "Follow Today's Plan", 
           link: "/dashboard/student/today",
-          color: "bg-gradient-to-r from-gray-500 to-slate-600"
+          color: "bg-gradient-to-r from-gray-500 to-slate-600",
+          icon: Calendar
         };
       case MoodType.TIRED:
         return { 
           text: "Review Simple Flashcards", 
-          link: "/dashboard/student/flashcards",
-          color: "bg-gradient-to-r from-orange-400 to-amber-500"
+          link: "/dashboard/student/flashcards/1/interactive",
+          color: "bg-gradient-to-r from-orange-400 to-amber-500",
+          icon: RotateCcw
         };
       case MoodType.ANXIOUS:
         return { 
           text: "Try Guided Relaxation", 
           link: "/dashboard/student/feel-good-corner",
-          color: "bg-gradient-to-r from-purple-500 to-violet-600"
+          color: "bg-gradient-to-r from-purple-500 to-violet-600",
+          icon: BookOpen
         };
       case MoodType.STRESSED:
         return { 
           text: "Take a Mindful Break", 
           link: "/dashboard/student/feel-good-corner",
-          color: "bg-gradient-to-r from-red-500 to-rose-600"
+          color: "bg-gradient-to-r from-red-500 to-rose-600",
+          icon: BookOpen
         };
       case MoodType.SAD:
         return { 
           text: "Visit Feel Good Corner", 
           link: "/dashboard/student/feel-good-corner",
-          color: "bg-gradient-to-r from-indigo-500 to-blue-600"
+          color: "bg-gradient-to-r from-indigo-500 to-blue-600",
+          icon: BookOpen
         };
       default:
         return { 
           text: "Follow Today's Plan", 
           link: "/dashboard/student/today",
-          color: "bg-gradient-to-r from-violet-500 to-purple-600"
+          color: "bg-gradient-to-r from-violet-500 to-purple-600",
+          icon: Calendar
         };
     }
   };
   
   const studyAction = getStudyAction();
+  const IconComponent = studyAction.icon;
   
   // Get mood-specific background styling
   const getMoodBackground = () => {
-    if (!currentMood) return "from-purple-50/80 to-indigo-50/60 dark:from-purple-950/30 dark:to-indigo-900/20";
+    if (!currentMood) return "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20";
     
     switch (currentMood) {
       case MoodType.HAPPY:
-        return "from-yellow-50/80 to-amber-50/60 dark:from-yellow-950/30 dark:to-amber-900/20";
+        return "from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20";
       case MoodType.MOTIVATED:
-        return "from-green-50/80 to-emerald-50/60 dark:from-green-950/30 dark:to-emerald-900/20";
+        return "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20";
       case MoodType.FOCUSED:
-        return "from-blue-50/80 to-indigo-50/60 dark:from-blue-950/30 dark:to-indigo-900/20";
+        return "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20";
       case MoodType.NEUTRAL:
-        return "from-gray-50/80 to-slate-50/60 dark:from-gray-800/30 dark:to-slate-800/30";
+        return "from-gray-50 to-slate-50 dark:from-gray-800/30 dark:to-slate-800/30";
       case MoodType.TIRED:
-        return "from-orange-50/80 to-amber-50/60 dark:from-orange-950/30 dark:to-amber-900/20";
+        return "from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20";
       case MoodType.ANXIOUS:
-        return "from-purple-50/80 to-violet-50/60 dark:from-purple-950/30 dark:to-violet-900/20";
+        return "from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20";
       case MoodType.STRESSED:
-        return "from-red-50/80 to-rose-50/60 dark:from-red-950/30 dark:to-rose-900/20";
+        return "from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20";
       case MoodType.SAD:
-        return "from-indigo-50/80 to-blue-50/60 dark:from-indigo-950/30 dark:to-blue-900/20";
+        return "from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20";
       default:
-        return "from-gray-50/80 to-blue-50/60 dark:from-gray-800/30 dark:to-blue-900/20";
+        return "from-gray-50 to-blue-50 dark:from-gray-800/30 dark:to-blue-900/20";
+    }
+  };
+
+  // Get mood-based study activities
+  const getMoodActivities = () => {
+    if (!currentMood) return [];
+    
+    const baseActivities = [
+      { name: "Study Concepts", link: "/dashboard/student/concepts", icon: BookOpen },
+      { name: "Practice Recall", link: "/dashboard/student/flashcards/1/interactive", icon: RotateCcw },
+      { name: "Take Practice Exam", link: "/dashboard/student/practice-exam/2/start", icon: Trophy }
+    ];
+
+    // Mood-specific additional activities
+    switch (currentMood) {
+      case MoodType.FOCUSED:
+      case MoodType.MOTIVATED:
+        return [
+          ...baseActivities,
+          { name: "Advanced Formula Lab", link: "/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab", icon: BookOpen }
+        ];
+      case MoodType.TIRED:
+      case MoodType.STRESSED:
+        return [
+          { name: "Light Review", link: "/dashboard/student/flashcards/1/interactive", icon: RotateCcw },
+          { name: "Feel Good Corner", link: "/dashboard/student/feel-good-corner", icon: BookOpen }
+        ];
+      default:
+        return baseActivities;
     }
   };
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-50/80 via-white to-purple-100/60 dark:from-purple-950/30 dark:via-gray-900 dark:to-purple-900/20 border border-purple-200/50 dark:border-purple-800/30">
-      <CardHeader className={`bg-gradient-to-r ${getMoodBackground()} pb-2 border-b border-purple-100/50 dark:border-purple-800/30`}>
+    <Card className="overflow-hidden border-0 shadow-md">
+      <CardHeader className={`bg-gradient-to-r ${getMoodBackground()} pb-2`}>
         <CardTitle className="text-lg flex items-center gap-2">
           <motion.span 
             className="text-xl"
@@ -126,7 +165,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
         <div className="flex flex-col gap-4">
           {!currentMood ? (
             <motion.div 
-              className="bg-purple-50/80 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-100/50 dark:border-purple-800/30 text-center"
+              className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800/30 text-center"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -180,7 +219,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
               </motion.div>
               
               <motion.div 
-                className="bg-gradient-to-r from-violet-50/80 to-purple-50/60 dark:from-violet-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-violet-100/50 dark:border-violet-800/30"
+                className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-violet-100 dark:border-violet-800/30"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -194,16 +233,42 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
                   <Button 
                     className={`w-full text-white ${studyAction.color || 'bg-gradient-to-r from-violet-500 to-purple-600'} hover:scale-105 transition-transform`}
                   >
-                    {studyAction.text} <ArrowRight className="h-4 w-4 ml-2" />
+                    <IconComponent className="h-4 w-4 mr-2" />
+                    {studyAction.text} 
+                    <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>
+              </motion.div>
+
+              {/* Mood-based study activities */}
+              <motion.div 
+                className="space-y-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <p className="text-sm font-medium mb-2">Recommended Activities</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {getMoodActivities().slice(0, 4).map((activity, index) => (
+                    <Link key={index} to={activity.link}>
+                      <motion.div
+                        className="p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <activity.icon className="h-4 w-4 mx-auto mb-1 text-blue-600" />
+                        <p className="text-xs font-medium">{activity.name}</p>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
               </motion.div>
             </>
           )}
           
           <div className="grid grid-cols-2 gap-2 mt-2">
             <motion.div 
-              className="bg-gradient-to-r from-green-50/80 to-emerald-50/60 dark:from-green-950/30 dark:to-emerald-900/20 p-3 rounded-lg border border-green-100/50 dark:border-green-800/30"
+              className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-3 rounded-lg border border-green-100 dark:border-green-800/30"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
@@ -216,7 +281,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
             </motion.div>
             
             <motion.div 
-              className="bg-gradient-to-r from-purple-50/80 to-blue-50/60 dark:from-purple-950/30 dark:to-blue-900/20 p-3 rounded-lg border border-purple-100/50 dark:border-purple-800/30"
+              className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-3 rounded-lg border border-purple-100 dark:border-purple-800/30"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
