@@ -17,12 +17,13 @@ interface ExamGoalCardProps {
 
 const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }) => {
   const examGoal = {
-    name: "NEET 2024",
+    name: "NEET 2026",
     targetScore: 650,
     currentEstimate: 580,
-    daysLeft: 85,
+    daysLeft: 338,
     progress: 78,
-    lastAssessment: "2 days ago"
+    pace: "Moderate",
+    style: "Visual"
   };
 
   const progressPercentage = (examGoal.currentEstimate / examGoal.targetScore) * 100;
@@ -31,9 +32,9 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.5 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
     >
-      <Card className="shadow-lg border-2 border-gradient-to-r from-green-200 to-emerald-200 dark:from-green-800 dark:to-emerald-800 overflow-hidden">
+      <Card className="premium-card shadow-xl border-2 border-gradient-to-r from-green-200 to-emerald-200 dark:from-green-800 dark:to-emerald-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -50,19 +51,9 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               >
                 <Target className="h-5 w-5 text-green-600" />
               </motion.div>
-              <motion.span
-                animate={{ 
-                  color: ["#059669", "#10b981", "#059669"]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="font-bold"
-              >
+              <span className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                 Exam Goal Tracker
-              </motion.span>
+              </span>
             </div>
             {onMoodChange && (
               <MoodLogButton 
@@ -76,7 +67,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
         </CardHeader>
         <CardContent className="pt-4">
           <div className="space-y-4">
-            {/* Exam Goal Info */}
+            {/* Goal Info */}
             <motion.div 
               className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-700"
               animate={{ 
@@ -88,71 +79,30 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 ease: "easeInOut"
               }}
             >
-              <h3 className="font-bold text-lg text-green-900 dark:text-green-100">{examGoal.name}</h3>
-              <div className="flex justify-center items-center gap-4 mt-2">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-700">{examGoal.currentEstimate}</p>
-                  <p className="text-xs text-gray-600">Current Score</p>
+              <h3 className="font-bold text-xl text-green-900 dark:text-green-100 mb-2">Goal - {examGoal.name}</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-600">Days Left:</p>
+                  <p className="font-bold text-lg text-green-700">{examGoal.daysLeft}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-900">{examGoal.targetScore}</p>
-                  <p className="text-xs text-gray-600">Target Score</p>
+                <div>
+                  <p className="text-gray-600">Pace:</p>
+                  <p className="font-bold text-lg text-green-700">{examGoal.pace}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Style:</p>
+                  <p className="font-bold text-lg text-green-700">{examGoal.style}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Progress:</p>
+                  <p className="font-bold text-lg text-green-700">{examGoal.progress}%</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Progress Section */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Goal Progress</span>
-                <Badge className="bg-green-100 text-green-800 border-green-300">
-                  {Math.round(progressPercentage)}%
-                </Badge>
-              </div>
-              <Progress value={progressPercentage} className="h-3" />
-              <div className="flex justify-between text-xs text-gray-600">
-                <span>Score gap: {examGoal.targetScore - examGoal.currentEstimate} points</span>
-                <span>Assessment: {examGoal.lastAssessment}</span>
-              </div>
-            </div>
-
-            {/* Days Left Counter */}
-            <motion.div 
-              className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700"
-              animate={{ 
-                backgroundColor: ["rgb(255 251 235)", "rgb(254 243 199)", "rgb(255 251 235)"]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <Calendar className="h-4 w-4 text-amber-600" />
-                <span className="font-bold text-lg text-amber-900">{examGoal.daysLeft}</span>
-                <span className="text-sm text-amber-700">days left</span>
-              </div>
-            </motion.div>
-
-            {/* Action Buttons */}
+            {/* Switch Exam & New Plan Buttons */}
             <div className="grid grid-cols-2 gap-2">
-              <Link to="/dashboard/student/practice-exam/2/start">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button 
-                    size="sm" 
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
-                  >
-                    <Trophy className="h-3 w-3 mr-1" />
-                    Take Mock Test
-                  </Button>
-                </motion.div>
-              </Link>
-              
-              <Link to="/dashboard/student/academic-advisor">
+              <Link to="/dashboard/student/academic">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -160,26 +110,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="w-full hover:bg-green-50 border-green-300"
-                  >
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    Optimize Plan
-                  </Button>
-                </motion.div>
-              </Link>
-            </div>
-
-            {/* Switch Exam / New Plan */}
-            <div className="grid grid-cols-2 gap-2 pt-2">
-              <Link to="/dashboard/student/academic-advisor">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full text-xs hover:bg-blue-50 border-blue-300"
+                    className="w-full hover:bg-blue-50 border-blue-300"
                   >
                     <Target className="h-3 w-3 mr-1" />
                     Switch Exam
@@ -187,7 +118,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 </motion.div>
               </Link>
               
-              <Link to="/dashboard/student/academic-advisor">
+              <Link to="/dashboard/student/academic">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -195,7 +126,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="w-full text-xs hover:bg-purple-50 border-purple-300"
+                    className="w-full hover:bg-purple-50 border-purple-300"
                   >
                     <Zap className="h-3 w-3 mr-1" />
                     New Plan
