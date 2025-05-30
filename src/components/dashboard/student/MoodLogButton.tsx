@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { MoodType } from '@/types/user/base';
+import { MoodType } from '@/types/mood';
 import { getMoodEmoji, getMoodLabel, getStudyRecommendationForMood, analyzeMoodTrends, updateStudyTimeAllocationsByMood } from './mood-tracking/moodUtils';
 import MoodSelectionDialog from './mood-tracking/MoodSelectionDialog';
 import { useToast } from '@/hooks/use-toast';
