@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap, Clock, TrendingUp } from 'lucide-react';
+import { Target, Calendar, BookOpen, Trophy, RotateCcw, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -21,26 +21,11 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     date: "May 5, 2026",
     daysLeft: 145,
     progress: 68,
-    readinessScore: 78,
-    timeProgress: 45, // Based on days passed vs total preparation time
-    studyProgress: 72, // Based on study hours completed
     subjects: [
       { name: "Physics", progress: 72, color: "blue" },
       { name: "Chemistry", progress: 65, color: "green" },
       { name: "Biology", progress: 71, color: "purple" }
     ]
-  };
-
-  const getProgressColor = (progress: number) => {
-    if (progress >= 80) return "text-green-600";
-    if (progress >= 60) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getProgressBgColor = (progress: number) => {
-    if (progress >= 80) return "bg-green-100 dark:bg-green-900/20";
-    if (progress >= 60) return "bg-yellow-100 dark:bg-yellow-900/20";
-    return "bg-red-100 dark:bg-red-900/20";
   };
 
   return (
@@ -70,68 +55,12 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
           </Badge>
         </div>
 
-        {/* Overall Progress Meters */}
-        <div className="space-y-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-          <h4 className="text-sm font-semibold flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-blue-600" />
-            Overall Progress Tracking
-          </h4>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {/* Exam Readiness Score */}
-            <div className={`p-3 rounded-lg ${getProgressBgColor(examData.readinessScore)}`}>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-medium">Exam Readiness</span>
-                <span className={`text-sm font-bold ${getProgressColor(examData.readinessScore)}`}>
-                  {examData.readinessScore}%
-                </span>
-              </div>
-              <Progress value={examData.readinessScore} className="h-2" />
-              <div className="text-xs text-gray-600 mt-1">Based on mock tests & practice</div>
-            </div>
-
-            {/* Time Progress */}
-            <div className={`p-3 rounded-lg ${getProgressBgColor(examData.timeProgress)}`}>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-medium flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  Time Progress
-                </span>
-                <span className={`text-sm font-bold ${getProgressColor(examData.timeProgress)}`}>
-                  {examData.timeProgress}%
-                </span>
-              </div>
-              <Progress value={examData.timeProgress} className="h-2" />
-              <div className="text-xs text-gray-600 mt-1">{examData.daysLeft} days remaining</div>
-            </div>
-
-            {/* Study Progress */}
-            <div className={`p-3 rounded-lg ${getProgressBgColor(examData.studyProgress)}`}>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-medium flex items-center gap-1">
-                  <BookOpen className="h-3 w-3" />
-                  Study Hours
-                </span>
-                <span className={`text-sm font-bold ${getProgressColor(examData.studyProgress)}`}>
-                  {examData.studyProgress}%
-                </span>
-              </div>
-              <Progress value={examData.studyProgress} className="h-2" />
-              <div className="text-xs text-gray-600 mt-1">of planned study completed</div>
-            </div>
-
-            {/* Overall Subject Progress */}
-            <div className={`p-3 rounded-lg ${getProgressBgColor(examData.progress)}`}>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-medium">Subject Mastery</span>
-                <span className={`text-sm font-bold ${getProgressColor(examData.progress)}`}>
-                  {examData.progress}%
-                </span>
-              </div>
-              <Progress value={examData.progress} className="h-2" />
-              <div className="text-xs text-gray-600 mt-1">Average across all subjects</div>
-            </div>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Overall Progress</span>
+            <span className="font-medium">{examData.progress}%</span>
           </div>
+          <Progress value={examData.progress} className="h-2" />
         </div>
 
         <div className="space-y-2">
