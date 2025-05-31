@@ -1,15 +1,29 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
+import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
   const [showSubjects, setShowSubjects] = useState(true);
+  const [showHighlight, setShowHighlight] = useState(false);
+  
+  useEffect(() => {
+    const hasSeenHighlight = localStorage.getItem('hasSeenNEETStrategyHighlight') === 'true';
+    if (!hasSeenHighlight) {
+      setShowHighlight(true);
+    }
+  }, []);
+
+  const handleCloseHighlight = () => {
+    setShowHighlight(false);
+    localStorage.setItem('hasSeenNEETStrategyHighlight', 'true');
+  };
+
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
@@ -45,10 +59,18 @@ const NEETStrategyCard: React.FC = () => {
 
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
+      <AnimatedHighlight
+        message="Your dynamic plan based on your profile - keeps changing based on performance"
+        position="top"
+        isVisible={showHighlight}
+        onClose={handleCloseHighlight}
+      />
+
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">

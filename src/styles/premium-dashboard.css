@@ -44,18 +44,58 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(99, 102, 241, 0.20), rgba(168, 85, 247, 0.20));
 }
 
+/* Smooth Page Transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+/* Fix text/code flash */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Prevent flash of unstyled content */
+body {
+  visibility: hidden;
+}
+
+body.loaded {
+  visibility: visible;
+}
+
+/* Route transition wrapper */
+.route-wrapper {
+  min-height: 100vh;
+  transition: opacity 0.3s ease-in-out;
+}
+
 /* Enhanced gradient borders */
 .border-gradient-to-r {
   background: linear-gradient(to right, var(--tw-gradient-stops));
   background-clip: border-box;
   border-radius: 16px;
-}
-
-/* Smooth text rendering and prevent flashing */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 /* Enhanced fade-in animation */

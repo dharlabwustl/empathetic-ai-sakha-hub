@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,8 +6,23 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Trophy, Target, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import AnimatedHighlight from './AnimatedHighlight';
 
 const StrongAreasCard: React.FC = () => {
+  const [showHighlight, setShowHighlight] = useState(false);
+
+  useEffect(() => {
+    const hasSeenHighlight = localStorage.getItem('hasSeenStrongAreasHighlight') === 'true';
+    if (!hasSeenHighlight) {
+      setShowHighlight(true);
+    }
+  }, []);
+
+  const handleCloseHighlight = () => {
+    setShowHighlight(false);
+    localStorage.setItem('hasSeenStrongAreasHighlight', 'true');
+  };
+
   const strongAreas = [
     {
       subject: "Mathematics",
@@ -43,10 +57,18 @@ const StrongAreasCard: React.FC = () => {
 
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
+      <AnimatedHighlight
+        message="Great work! Keep your momentum going"
+        position="top"
+        isVisible={showHighlight}
+        onClose={handleCloseHighlight}
+      />
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-green-700">

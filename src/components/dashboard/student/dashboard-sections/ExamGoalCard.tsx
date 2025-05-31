@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Target, Calendar, TrendingUp, Plus, RefreshCw } from 'lucide-react';
+import { Target, Calendar, TrendingUp, RotateCcw, Plus, BookOpen, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -19,7 +19,10 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     targetScore: 650,
     currentScore: 580,
     daysRemaining: 338,
-    status: "On Track"
+    status: "On Track",
+    weeklyHours: 42,
+    completedHours: 28,
+    studyStreak: 12
   };
 
   const getStatusColor = (status: string) => {
@@ -81,59 +84,79 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Target Exam</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.exam}</p>
+                <p className="font-bold text-sm text-green-700">{currentGoal.exam}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Days Remaining</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.daysRemaining}</p>
+                <p className="font-bold text-sm text-green-700">{currentGoal.daysRemaining}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Target Score</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.targetScore}/720</p>
+                <p className="font-bold text-sm text-green-700">{currentGoal.targetScore}/720</p>
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Current Score</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.currentScore}/720</p>
+                <p className="font-bold text-sm text-green-700">{currentGoal.currentScore}/720</p>
               </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-700">Progress to Target</span>
-                <span className="text-gray-700">{Math.round(progressPercentage)}%</span>
+            {/* KPI Stats */}
+            <div className="grid grid-cols-3 gap-2 bg-green-50 p-3 rounded-lg">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <Clock className="h-3 w-3 text-green-600" />
+                  <p className="text-xs text-gray-600">Weekly Hours</p>
+                </div>
+                <p className="font-bold text-sm text-green-700">{currentGoal.weeklyHours}h</p>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <motion.div 
-                  className="bg-gradient-to-r from-green-500 to-teal-500 h-3 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPercentage}%` }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                />
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <BookOpen className="h-3 w-3 text-green-600" />
+                  <p className="text-xs text-gray-600">Completed</p>
+                </div>
+                <p className="font-bold text-sm text-green-700">{currentGoal.completedHours}h</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <TrendingUp className="h-3 w-3 text-green-600" />
+                  <p className="text-xs text-gray-600">Streak</p>
+                </div>
+                <p className="font-bold text-sm text-green-700">{currentGoal.studyStreak} days</p>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Link to="/dashboard/student/academic" className="flex-1">
-                <Button 
-                  size="sm" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <RefreshCw className="h-3 w-3 mr-1" />
-                  Switch Plan
-                </Button>
-              </Link>
-              <Link to="/dashboard/student/academic" className="flex-1">
+            {/* Action Buttons Row */}
+            <div className="grid grid-cols-2 gap-2">
+              <a 
+                href="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/academic"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1"
+              >
                 <Button 
                   size="sm" 
                   variant="outline"
-                  className="w-full hover:bg-green-50"
+                  className="w-full hover:bg-green-50 text-xs"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Switch Exam
+                </Button>
+              </a>
+              <a 
+                href="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/academic"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1"
+              >
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="w-full hover:bg-green-50 text-xs"
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   New Plan
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </CardContent>
