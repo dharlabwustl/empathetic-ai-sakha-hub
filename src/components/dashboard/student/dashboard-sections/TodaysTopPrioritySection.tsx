@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Target, Clock, BookOpen, TrendingUp, AlertTriangle, Sparkles, X, RotateCcw, Zap, Trophy, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
+import UrgencyArrow from './UrgencyArrow';
 
 interface TodaysTopPrioritySectionProps {
   onClose?: () => void;
@@ -55,12 +54,6 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
       transition={{ duration: 0.6 }}
       data-tour="top-priority"
     >
-      <AnimatedHighlight
-        text="URGENT - Take Action!"
-        storageKey="priority_urgent"
-        variant="urgent"
-      />
-      
       <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-red-200 to-orange-200 dark:from-red-800 dark:to-orange-800 overflow-hidden">
         {/* Animated background pulse */}
         <motion.div
@@ -102,7 +95,7 @@ const TodaysTopPrioritySection: React.FC<TodaysTopPrioritySectionProps> = ({ onC
                 }}
                 className="font-bold"
               >
-                Today's Top Priority
+                Today's Top Priority - Take Action!
               </motion.span>
               {/* Animated arrow pointer */}
               <motion.div

@@ -7,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Trophy, Target, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
 
 const StrongAreasCard: React.FC = () => {
   const strongAreas = [
@@ -44,17 +43,10 @@ const StrongAreasCard: React.FC = () => {
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
-      <AnimatedHighlight
-        text="Keep up the great work!"
-        storageKey="strong_areas_motivation"
-        variant="success"
-      />
-      
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-green-700">

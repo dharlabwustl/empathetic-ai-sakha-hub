@@ -1,67 +1,92 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bot, MessageSquare, Lightbulb, TrendingUp, Zap, Brain, BookOpen } from 'lucide-react';
+import { Brain, MessageCircle, TrendingUp, Target, BookOpen, Users, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import AICoachArrow from './AICoachArrow';
 
 const AICoachCard: React.FC = () => {
+  const [showNewUserArrow, setShowNewUserArrow] = useState(false);
+
+  useEffect(() => {
+    // Check if user just completed onboarding
+    const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+    const hasSeenAICoachPrompt = localStorage.getItem('hasSeenAICoachPrompt') === 'true';
+    
+    if (isNewUser && !hasSeenAICoachPrompt) {
+      setShowNewUserArrow(true);
+    }
+  }, []);
+
+  const handleCloseArrow = () => {
+    setShowNewUserArrow(false);
+    localStorage.setItem('hasSeenAICoachPrompt', 'true');
+  };
+
   const coachInsights = [
     {
-      type: "Study Tip",
-      message: "Try the Feynman Technique for Chemistry concepts",
+      type: "Weakness Analysis",
+      message: "Focus more on Organic Chemistry - your weakest area",
       priority: "High",
-      icon: <Lightbulb className="h-4 w-4" />
+      action: "Study Now"
     },
     {
-      type: "Performance",
-      message: "Your Physics accuracy improved by 12% this week",
+      type: "Study Pattern",
+      message: "You perform better in morning sessions",
       priority: "Medium",
-      icon: <TrendingUp className="h-4 w-4" />
+      action: "Optimize Schedule"
     },
     {
-      type: "Motivation", 
-      message: "You're 78% ready for NEET - keep pushing!",
+      type: "Exam Prep",
+      message: "Take a practice test to identify knowledge gaps",
       priority: "High",
-      icon: <Zap className="h-4 w-4" />
+      action: "Take Test"
     }
   ];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'High': return 'bg-green-100 text-green-800 border-green-300';
-      case 'Medium': return 'bg-blue-100 text-blue-800 border-blue-300';
-      default: return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'High': return 'bg-red-100 text-red-800 border-red-300';
+      case 'Medium': return 'bg-orange-100 text-orange-800 border-orange-300';
+      default: return 'bg-yellow-100 text-yellow-800 border-yellow-300';
     }
   };
 
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.6 }}
+      transition={{ duration: 0.6, delay: 1.0 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-indigo-200 to-purple-200 dark:from-indigo-800 dark:to-purple-800">
-        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 pb-3">
+      {/* AI Coach Arrow for new users */}
+      <AICoachArrow 
+        isVisible={showNewUserArrow}
+        onClose={handleCloseArrow}
+      />
+
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-800 dark:to-pink-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 pb-3">
           <CardTitle className="flex items-center gap-2">
             <motion.div
               animate={{ 
-                scale: [1, 1.2, 1],
-                rotate: [0, 360, 0]
+                scale: [1, 1.1, 1],
+                rotate: [0, 3, -3, 0]
               }}
               transition={{ 
-                duration: 4, 
+                duration: 2, 
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
             >
-              <Bot className="h-5 w-5 text-indigo-600" />
+              <Brain className="h-5 w-5 text-purple-600" />
             </motion.div>
             <motion.span
               animate={{ 
-                color: ["#4f46e5", "#7c3aed", "#4f46e5"]
+                color: ["#7c3aed", "#ec4899", "#7c3aed"]
               }}
               transition={{ 
                 duration: 2, 
@@ -74,63 +99,62 @@ const AICoachCard: React.FC = () => {
             </motion.span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 pt-4">
-          {/* Coach Insights */}
+        <CardContent className="space-y-3">
           {coachInsights.map((insight, index) => (
             <motion.div
               key={index}
-              className="border rounded-lg p-3 bg-gradient-to-r from-indigo-50/50 to-purple-50/50"
-              initial={{ opacity: 0, x: -10 }}
+              className="border rounded-lg p-3 bg-gradient-to-r from-purple-50/50 to-pink-50/50"
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  {insight.icon}
-                  <span className="text-sm font-medium text-indigo-700">{insight.type}</span>
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                    {insight.type}
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    {insight.message}
+                  </p>
                 </div>
-                <Badge className={getPriorityColor(insight.priority)} size="sm">
+                <Badge className={getPriorityColor(insight.priority)}>
                   {insight.priority}
                 </Badge>
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{insight.message}</p>
+              
+              <div className="flex justify-end">
+                {insight.type === "Exam Prep" ? (
+                  <Link to="/dashboard/student/practice-exam/2/start">
+                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                      <Target className="h-3 w-3 mr-1" />
+                      {insight.action}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="hover:bg-purple-50"
+                  >
+                    <Zap className="h-3 w-3 mr-1" />
+                    {insight.action}
+                  </Button>
+                )}
+              </div>
             </motion.div>
           ))}
-
-          {/* Action Buttons */}
-          <div className="space-y-2 pt-2">
-            <Link to="/dashboard/student/tutor">
+          
+          <div className="text-center pt-2">
+            <Link to="/dashboard/student/ai-coach">
               <Button 
                 size="sm" 
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
               >
-                <MessageSquare className="h-3 w-3 mr-1" />
+                <MessageCircle className="h-4 w-4 mr-2" />
                 Chat with AI Coach
               </Button>
             </Link>
-            <div className="grid grid-cols-2 gap-2">
-              <Link to="/dashboard/student/tutor">
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="w-full hover:bg-indigo-50"
-                >
-                  <Brain className="h-3 w-3 mr-1" />
-                  Get Study Tips
-                </Button>
-              </Link>
-              <Link to="/dashboard/student/tutor">
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="w-full hover:bg-purple-50"
-                >
-                  <BookOpen className="h-3 w-3 mr-1" />
-                  Ask Question
-                </Button>
-              </Link>
-            </div>
           </div>
         </CardContent>
       </Card>

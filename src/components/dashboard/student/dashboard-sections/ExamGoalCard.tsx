@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Target, Calendar, TrendingUp, RefreshCw, Plus } from 'lucide-react';
+import { Target, Calendar, TrendingUp, Plus, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
@@ -37,7 +37,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.1 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
     >
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 pb-3">
@@ -56,7 +56,19 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               >
                 <Target className="h-5 w-5 text-green-600" />
               </motion.div>
-              <span className="font-bold text-green-700">Current Exam Goal</span>
+              <motion.span
+                animate={{ 
+                  color: ["#059669", "#0d9488", "#059669"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                Current Exam Goal
+              </motion.span>
             </div>
             <Badge className={getStatusColor(currentGoal.status)}>
               {currentGoal.status}
@@ -75,17 +87,13 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 <p className="text-xs text-gray-600 mb-1">Days Remaining</p>
                 <p className="font-bold text-lg text-green-700">{currentGoal.daysRemaining}</p>
               </div>
-            </div>
-
-            {/* Score Information */}
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Target Score</p>
-                <p className="font-bold text-green-700">{currentGoal.targetScore}/720</p>
+                <p className="font-bold text-lg text-green-700">{currentGoal.targetScore}/720</p>
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Current Score</p>
-                <p className="font-bold text-green-700">{currentGoal.currentScore}/720</p>
+                <p className="font-bold text-lg text-green-700">{currentGoal.currentScore}/720</p>
               </div>
             </div>
 
@@ -105,19 +113,26 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               </div>
             </div>
 
-            {/* Simple Action Buttons - Inline */}
-            <div className="flex gap-2 text-xs">
+            {/* Action Buttons */}
+            <div className="flex gap-2">
               <Link to="/dashboard/student/academic" className="flex-1">
-                <button className="w-full px-3 py-2 text-blue-600 hover:text-blue-700 border border-blue-200 rounded-md hover:bg-blue-50 transition-colors">
-                  <RefreshCw className="h-3 w-3 mr-1 inline" />
+                <Button 
+                  size="sm" 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
                   Switch Plan
-                </button>
+                </Button>
               </Link>
               <Link to="/dashboard/student/academic" className="flex-1">
-                <button className="w-full px-3 py-2 text-green-600 hover:text-green-700 border border-green-200 rounded-md hover:bg-green-50 transition-colors">
-                  <Plus className="h-3 w-3 mr-1 inline" />
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="w-full hover:bg-green-50"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
                   New Plan
-                </button>
+                </Button>
               </Link>
             </div>
           </div>
