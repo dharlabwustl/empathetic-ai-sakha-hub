@@ -1,26 +1,40 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-    <script>
-      // Prevent flash of unstyled content
-      document.addEventListener('DOMContentLoaded', function() {
-        document.body.classList.add('loaded');
-      });
+    <link rel="icon" type="image/png" href="/lovable-uploads/099ef0fb-e5b8-4c42-8ff8-dc9d9c0207d3.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="PREPZR is world's first emotionally aware, hyper-personalized exam preparation platform. Powered by AI, PREPZR adapts to your pace, style and stress levels — helping you prepare smarter for NEET, JEE, UPSC & Beyond." />
+    <title>PREPZR | Hyper-Personalized Exam Prep Platform for Smarter Success</title>
+    <style>
+      html {
+        font-size: 14px !important; /* Reduced base font size from 16px to 14px */
+        -webkit-text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
       
-      // Prevent text/code flash during route changes
-      window.addEventListener('beforeunload', function() {
-        document.body.style.opacity = '0';
-      });
-    </script>
+      body {
+        font-size: 14px !important; /* Reduced from 16px to 14px */
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      input, button, textarea, select {
+        font-size: 14px !important; /* Reduced from 16px to 14px */
+      }
+      
+      * {
+        max-height: 1000000px; /* Fix for font boosting */
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script async src="https://cdn.gpteng.co/gptengineer.js"></script>
   </body>
 </html>

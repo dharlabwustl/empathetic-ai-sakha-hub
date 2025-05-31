@@ -1,9 +1,7 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import { Sonner } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from './components/theme-provider';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
@@ -92,13 +90,9 @@ const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<a
   );
 };
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+function App() {
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
       <BrowserRouter>
         <AuthProvider>
           <AdminAuthProvider>
@@ -186,7 +180,7 @@ const App = () => (
               <Route path="/profile" element={<ProtectedSidebarRoute Component={ProfilePage} />} />
               
               {/* AI Tutor route */}
-              <Route path="/dashboard/student/tutor" element={<EnhancedTutorView />} />
+              <Route path="/dashboard/student/tutor" element={<ProtectedSidebarRoute Component={TutorView} />} />
               
               {/* Concept routes - Updated for direct linking */}
               <Route path="/dashboard/student/concepts/card/:id" element={<ProtectedSidebarRoute Component={ConceptCardDetail} />} />
@@ -228,11 +222,12 @@ const App = () => (
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <Toaster />
           </AdminAuthProvider>
         </AuthProvider>
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </ThemeProvider>
+  );
+}
 
 export default App;

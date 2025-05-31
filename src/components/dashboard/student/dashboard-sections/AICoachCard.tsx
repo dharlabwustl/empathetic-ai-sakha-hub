@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,21 +6,24 @@ import { Badge } from '@/components/ui/badge';
 import { Brain, MessageCircle, TrendingUp, Target, BookOpen, Users, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
+import AICoachArrow from './AICoachArrow';
 
 const AICoachCard: React.FC = () => {
-  const [showHighlight, setShowHighlight] = useState(false);
+  const [showNewUserArrow, setShowNewUserArrow] = useState(false);
 
   useEffect(() => {
-    const hasSeenHighlight = localStorage.getItem('hasSeenAICoachHighlight') === 'true';
-    if (!hasSeenHighlight) {
-      setShowHighlight(true);
+    // Check if user just completed onboarding
+    const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+    const hasSeenAICoachPrompt = localStorage.getItem('hasSeenAICoachPrompt') === 'true';
+    
+    if (isNewUser && !hasSeenAICoachPrompt) {
+      setShowNewUserArrow(true);
     }
   }, []);
 
-  const handleCloseHighlight = () => {
-    setShowHighlight(false);
-    localStorage.setItem('hasSeenAICoachHighlight', 'true');
+  const handleCloseArrow = () => {
+    setShowNewUserArrow(false);
+    localStorage.setItem('hasSeenAICoachPrompt', 'true');
   };
 
   const coachInsights = [
@@ -58,11 +62,10 @@ const AICoachCard: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 1.0 }}
     >
-      <AnimatedHighlight
-        message="Take exam prep to find knowledge gaps - start here!"
-        position="top"
-        isVisible={showHighlight}
-        onClose={handleCloseHighlight}
+      {/* AI Coach Arrow for new users */}
+      <AICoachArrow 
+        isVisible={showNewUserArrow}
+        onClose={handleCloseArrow}
       />
 
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-800 dark:to-pink-800 overflow-hidden">
@@ -143,7 +146,7 @@ const AICoachCard: React.FC = () => {
           ))}
           
           <div className="text-center pt-2">
-            <Link to="/dashboard/student/tutor">
+            <Link to="/dashboard/student/ai-coach">
               <Button 
                 size="sm" 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
