@@ -19,7 +19,10 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     targetScore: 650,
     currentScore: 580,
     daysRemaining: 338,
-    status: "On Track"
+    status: "On Track",
+    accuracyRate: 78,
+    conceptsCovered: 142,
+    totalConcepts: 180
   };
 
   const getStatusColor = (status: string) => {
@@ -97,6 +100,18 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               </div>
             </div>
 
+            {/* Additional KPIs */}
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Accuracy Rate</p>
+                <p className="font-bold text-sm text-green-700">{currentGoal.accuracyRate}%</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Concepts Covered</p>
+                <p className="font-bold text-sm text-green-700">{currentGoal.conceptsCovered}/{currentGoal.totalConcepts}</p>
+              </div>
+            </div>
+
             {/* Progress Bar */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -113,12 +128,13 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Simple Action Buttons */}
             <div className="flex gap-2">
               <Link to="/dashboard/student/academic" className="flex-1">
                 <Button 
                   size="sm" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="outline"
+                  className="w-full"
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />
                   Switch Plan
@@ -128,7 +144,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 <Button 
                   size="sm" 
                   variant="outline"
-                  className="w-full hover:bg-green-50"
+                  className="w-full"
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   New Plan
