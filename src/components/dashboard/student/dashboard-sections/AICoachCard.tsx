@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Brain, MessageCircle, TrendingUp, Target, BookOpen, Users, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AICoachArrow from './AICoachArrow';
+import AnimatedHighlight from './AnimatedHighlight';
 
 const AICoachCard: React.FC = () => {
   const [showNewUserArrow, setShowNewUserArrow] = useState(false);
@@ -62,10 +62,11 @@ const AICoachCard: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 1.0 }}
     >
-      {/* AI Coach Arrow for new users */}
-      <AICoachArrow 
-        isVisible={showNewUserArrow}
-        onClose={handleCloseArrow}
+      <AnimatedHighlight
+        id="ai_coach"
+        message="Get AI insights and take exam prep for knowledge gaps"
+        position="top-left"
+        arrowDirection="down"
       />
 
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-800 dark:to-pink-800 overflow-hidden">

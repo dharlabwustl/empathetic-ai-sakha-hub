@@ -161,3 +161,47 @@
     transform: translateY(-8px);
   }
 }
+
+/* Smooth page transitions to prevent text/code flash */
+.page-transition {
+  animation: pageTransition 0.3s ease-in-out;
+}
+
+@keyframes pageTransition {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Prevent flash of unstyled content */
+.fade-in-content {
+  opacity: 0;
+  animation: contentFadeIn 0.5s ease-in-out 0.1s forwards;
+}
+
+@keyframes contentFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Route transition wrapper */
+.route-transition {
+  animation: routeTransition 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes routeTransition {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, BookOpen, RotateCcw, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import AnimatedHighlight from './AnimatedHighlight';
 
 const WeakAreasCard: React.FC = () => {
   const weakAreas = [
@@ -43,10 +44,18 @@ const WeakAreasCard: React.FC = () => {
 
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
+      <AnimatedHighlight
+        id="weak_areas"
+        message="Focus on these weak areas to improve faster"
+        position="top-right"
+        arrowDirection="down"
+      />
+
       <Card className="premium-card shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-700">
@@ -83,9 +92,9 @@ const WeakAreasCard: React.FC = () => {
 
               <div className="flex gap-2">
                 <Link to={`/dashboard/student/concepts/${area.subject.toLowerCase()}`} className="flex-1">
-                  <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white">
                     <BookOpen className="h-3 w-3 mr-1" />
-                    Study
+                    Study Now
                   </Button>
                 </Link>
                 <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
@@ -97,7 +106,7 @@ const WeakAreasCard: React.FC = () => {
                 <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab" className="flex-1">
                   <Button size="sm" variant="outline" className="w-full">
                     <Zap className="h-3 w-3 mr-1" />
-                    Formula
+                    Formula Lab
                   </Button>
                 </Link>
               </div>

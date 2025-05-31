@@ -39,7 +39,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden h-full">
         <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -113,7 +113,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Same Row */}
             <div className="flex gap-2">
               <Link to="/dashboard/student/academic" className="flex-1">
                 <Button 
@@ -121,7 +121,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />
-                  Switch Plan
+                  Switch Exam
                 </Button>
               </Link>
               <Link to="/dashboard/student/academic" className="flex-1">

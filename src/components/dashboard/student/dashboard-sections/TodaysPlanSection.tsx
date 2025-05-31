@@ -2,12 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Calendar, Clock, BookOpen, Zap, RotateCcw, Trophy, ArrowRight, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
-import UrgencyArrow from './UrgencyArrow';
+import AnimatedHighlight from './AnimatedHighlight';
 
 interface TodaysPlanSectionProps {
   currentMood?: MoodType;
@@ -107,11 +106,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      {/* Live Plan Arrow */}
-      <UrgencyArrow 
-        message="LIVE & ACTIVE! Follow Now!" 
-        position="live-plan"
-        className="-top-20"
+      <AnimatedHighlight
+        id="live_plan"
+        message="LIVE & ACTIVE! Follow Now!"
+        position="top-left"
+        arrowDirection="down"
       />
 
       <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-green-200 to-blue-200 dark:from-green-800 dark:to-blue-800 overflow-hidden">

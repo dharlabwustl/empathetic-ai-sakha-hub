@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 export const studyPlanSchema = z.object({
@@ -31,6 +32,7 @@ export interface StudyPlanSubject {
   completed?: boolean;
   status?: 'completed' | 'in-progress' | 'not-started';
   topics?: string[];
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface StudyPlanEvent {
@@ -79,6 +81,15 @@ export interface StudyPlan {
   updatedAt: string;
   progressPercent?: number;
   progressPercentage?: number;
+  status?: 'active' | 'completed' | 'paused';
+  examGoal?: string;
+  examDate?: string;
+  daysLeft?: number;
+  studyHoursPerDay?: number;
+  weeklyHours?: number;
+  title?: string;
+  learningPace?: 'slow' | 'medium' | 'fast';
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening';
 }
 
 export interface NewStudyPlan {
@@ -94,4 +105,8 @@ export interface NewStudyPlan {
   progress: number;
   userId: string;
   examDate?: string;
+  examGoal?: string;
+  studyHoursPerDay?: number;
+  learningPace?: 'slow' | 'medium' | 'fast';
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening';
 }
