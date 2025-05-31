@@ -10,7 +10,7 @@ import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const [showSubjects, setShowSubjects] = useState(true);
+  const [showSubjects, setShowSubjects] = useState(false); // Set to false by default (hidden)
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
@@ -19,15 +19,15 @@ const NEETStrategyCard: React.FC = () => {
   const learningStyle = "Visual + Practical"; // Visual, Auditory, Kinesthetic, Mixed
   
   const subjects = [
-    { name: "Physics", progress: 75, status: "strong", color: "blue" },
-    { name: "Chemistry", progress: 45, status: "weak", color: "red" },
-    { name: "Biology", progress: 55, status: "weak", color: "orange" }
+    { name: "Physics", progress: 45, status: "medium", color: "blue" },
+    { name: "Chemistry", progress: 30, status: "weak", color: "red" },
+    { name: "Biology", progress: 65, status: "strong", color: "green" }
   ];
 
   const objectives = [
-    "Complete syllabus",
-    "Concept clarity", 
-    "Regular practice"
+    "Complete NEET 2026 syllabus",
+    "Master weak areas", 
+    "Regular mock tests"
   ];
 
   const getSubjectBadge = (subject: any) => {
@@ -105,7 +105,7 @@ const NEETStrategyCard: React.FC = () => {
                 }}
                 className="font-bold"
               >
-                NEET Strategy Card
+                NEET 2026 Strategy
               </motion.span>
             </div>
             <Button
@@ -127,7 +127,7 @@ const NEETStrategyCard: React.FC = () => {
               <Link to="/dashboard/student/study-plan">
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
-                  Adaptive Plan
+                  NEET 2026 Plan
                   <ArrowRight className="h-4 w-4 ml-auto" />
                 </Button>
               </Link>
@@ -154,7 +154,7 @@ const NEETStrategyCard: React.FC = () => {
                     ease: "easeInOut"
                   }}
                 >
-                  Personalized Strategy
+                  May 3, 2026 Target
                 </motion.span>
               </Badge>
             </motion.div>

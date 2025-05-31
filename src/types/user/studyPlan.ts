@@ -1,9 +1,18 @@
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'paused';
-export type StudyPlanStatus = 'draft' | 'active' | 'paused';
+export type StudyPlanStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 export type LearningPace = 'slow' | 'normal' | 'fast';
 export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
+
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  completed: boolean;
+  estimatedHours: number;
+  difficulty?: DifficultyLevel;
+  status?: SubjectStatus;
+}
 
 export interface StudyPlanSubject {
   id: string;
@@ -17,12 +26,7 @@ export interface StudyPlanSubject {
   completed: boolean;
   status?: SubjectStatus;
   difficulty?: DifficultyLevel;
-  topics?: Array<{
-    id: string;
-    name: string;
-    completed: boolean;
-    estimatedHours: number;
-  }>;
+  topics?: StudyPlanTopic[];
 }
 
 export interface StudyPlan {
@@ -43,6 +47,11 @@ export interface StudyPlan {
   preferredStudyTime: PreferredStudyTime;
   createdAt: string;
   updatedAt: string;
+  progressPercent?: number;
+  progressPercentage?: number;
+  progress?: number;
+  daysLeft?: number;
+  studyHoursPerDay?: number;
 }
 
 export interface NewStudyPlan {
@@ -57,4 +66,7 @@ export interface NewStudyPlan {
   hoursPerWeek?: number;
   learningPace?: LearningPace;
   preferredStudyTime?: PreferredStudyTime;
+  studyHoursPerDay?: number;
+  weeklyHours?: number;
+  status?: StudyPlanStatus;
 }
