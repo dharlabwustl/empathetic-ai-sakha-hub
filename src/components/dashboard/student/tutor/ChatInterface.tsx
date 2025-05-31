@@ -1,7 +1,6 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Clock, CheckCircle, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Send, Bot, User, Clock, CheckCircle, Copy, ThumbsUp, ThumbsDown, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -37,12 +36,65 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Initialize speech recognition
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      if (recognitionRef.current) {
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'en-US';
+        
+        recognitionRef.current.onresult = (event) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+          
+          if (finalTranscript) {
+            setInputMessage(finalTranscript);
+            setTranscript('');
+          } else {
+            setTranscript(interimTranscript);
+          }
+        };
+        
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+          setTranscript('');
+        };
+        
+        recognitionRef.current.onerror = (event) => {
+          setIsListening(false);
+          setTranscript('');
+          toast({
+            title: "Voice Recognition Error",
+            description: "Please try again or check your microphone permissions.",
+            variant: "destructive"
+          });
+        };
+      }
+    }
+  }, [toast]);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -80,6 +132,38 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
     }, 1500);
+  };
+
+  const toggleVoiceRecognition = async () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: "Voice Recognition Not Supported",
+        description: "Your browser doesn't support voice recognition.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        // Request microphone permission
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        recognitionRef.current.start();
+        setIsListening(true);
+        toast({
+          title: "Voice Recognition Started",
+          description: "Speak now and I'll convert it to text!",
+        });
+      } catch (error) {
+        toast({
+          title: "Microphone Access Denied",
+          description: "Please allow microphone access to use voice input.",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   const generateAIResponse = (userInput: string, feature: string): string => {
@@ -266,15 +350,53 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Input Area */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        {/* Voice Recognition Status */}
+        {isListening && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+          >
+            <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300">
+              <motion.div
+                className="w-2 h-2 bg-red-500 rounded-full"
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+              <span>Listening... {transcript && `"${transcript}"`}</span>
+            </div>
+          </motion.div>
+        )}
+        
         <div className="flex gap-2">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant={isListening ? "default" : "outline"}
+              size="icon"
+              onClick={toggleVoiceRecognition}
+              className={`flex-shrink-0 ${
+                isListening 
+                  ? 'bg-red-500 hover:bg-red-600 text-white' 
+                  : 'border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
+            >
+              {isListening ? (
+                <Mic className="h-4 w-4" />
+              ) : (
+                <MicOff className="h-4 w-4" />
+              )}
+            </Button>
+          </motion.div>
+          
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={`Ask about ${selectedFeature.replace('-', ' ')}...`}
+            placeholder={isListening ? "Listening..." : `Ask about ${selectedFeature.replace('-', ' ')}...`}
             className="flex-1"
-            disabled={isProcessing}
+            disabled={isProcessing || isListening}
           />
+          
           <Button
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isProcessing}
@@ -286,7 +408,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         
         <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
           <CheckCircle className="h-3 w-3" />
-          <span>Press Enter to send • Shift+Enter for new line</span>
+          <span>Press Enter to send • Click mic for voice input • Shift+Enter for new line</span>
         </div>
       </div>
     </div>
