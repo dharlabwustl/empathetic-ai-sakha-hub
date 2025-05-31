@@ -1,12 +1,12 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Clock, CheckCircle, Copy, ThumbsUp, ThumbsDown, Mic, MicOff } from 'lucide-react';
+import { Send, Bot, User, Clock, CheckCircle, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import VoiceChatInterface from './VoiceChatInterface';
 
 interface Message {
   id: string;
@@ -30,14 +30,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: `Hello! I'm your 24/7 AI Tutor. I'm here to help you excel in your exam preparation. You can type your questions or use the microphone below to speak with me. What would you like to study today?`,
+      content: `Hello! I'm your 24/7 AI Tutor. I'm here to help you excel in your exam preparation. What would you like to study today?`,
       role: 'assistant',
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [showVoiceChat, setShowVoiceChat] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -51,13 +50,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const handleSendMessage = async (messageText?: string) => {
-    const textToSend = messageText || inputMessage;
-    if (!textToSend.trim() || isProcessing) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isProcessing) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: textToSend,
+      content: inputMessage,
       role: 'user',
       timestamp: new Date()
     };
@@ -66,10 +64,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setInputMessage('');
     setIsTyping(true);
 
-    onSendMessage(textToSend);
+    // Send to parent component
+    onSendMessage(inputMessage);
 
+    // Simulate AI response based on selected feature
     setTimeout(() => {
-      const aiResponse = generateAIResponse(textToSend, selectedFeature);
+      const aiResponse = generateAIResponse(inputMessage, selectedFeature);
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: aiResponse,
@@ -80,10 +80,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
     }, 1500);
-  };
-
-  const handleVoiceInput = (text: string) => {
-    setInputMessage(text);
   };
 
   const generateAIResponse = (userInput: string, feature: string): string => {
@@ -131,177 +127,166 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Voice Chat Interface */}
-      <VoiceChatInterface
-        onVoiceInput={handleVoiceInput}
-        onSendMessage={handleSendMessage}
-        isProcessing={isProcessing}
-        selectedFeature={selectedFeature}
-      />
-
-      {/* Main Chat Interface */}
-      <div className="flex flex-col h-[600px] bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-        {/* Chat Header */}
-        <div className={`p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r ${getFeatureColor(selectedFeature)} text-white rounded-t-lg`}>
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border-2 border-white/20">
-              <AvatarFallback className="bg-white/20 text-white">
-                <Bot className="h-5 w-5" />
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="font-semibold">AI Tutor - {selectedFeature.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
-              <p className="text-sm opacity-90">Ready to help you excel</p>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm">Online</span>
-              </div>
+    <div className="flex flex-col h-[600px] bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      {/* Chat Header */}
+      <div className={`p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r ${getFeatureColor(selectedFeature)} text-white rounded-t-lg`}>
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10 border-2 border-white/20">
+            <AvatarFallback className="bg-white/20 text-white">
+              <Bot className="h-5 w-5" />
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="font-semibold">AI Tutor - {selectedFeature.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+            <p className="text-sm opacity-90">Ready to help you excel</p>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm">Online</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Messages Area */}
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
-            <AnimatePresence>
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {message.role === 'assistant' && (
-                    <Avatar className="h-8 w-8 mt-1">
-                      <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                        <Bot className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  
-                  <div className={`max-w-[70%] ${message.role === 'user' ? 'order-1' : ''}`}>
-                    <div className={`p-3 rounded-lg ${
-                      message.role === 'user'
-                        ? 'bg-blue-500 text-white ml-auto'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                    }`}>
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                    
-                    <div className={`flex items-center gap-2 mt-1 text-xs text-gray-500 ${
-                      message.role === 'user' ? 'justify-end' : 'justify-start'
-                    }`}>
-                      <Clock className="h-3 w-3" />
-                      <span>{formatTime(message.timestamp)}</span>
-                      
-                      {message.role === 'assistant' && (
-                        <div className="flex items-center gap-1 ml-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-                            onClick={() => copyMessage(message.content)}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-                          >
-                            <ThumbsUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-                          >
-                            <ThumbsDown className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {message.role === 'user' && (
-                    <Avatar className="h-8 w-8 mt-1">
-                      <AvatarFallback className="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            
-            {/* Typing Indicator */}
-            {isTyping && (
+      {/* Messages Area */}
+      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+        <div className="space-y-4">
+          <AnimatePresence>
+            {messages.map((message) => (
               <motion.div
+                key={message.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex gap-3"
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <Avatar className="h-8 w-8 mt-1">
-                  <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                    <Bot className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
-                  <div className="flex items-center gap-1">
-                    <div className="flex gap-1">
-                      <motion.div
-                        className="w-2 h-2 bg-gray-400 rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.8, repeat: Infinity, delay: 0 }}
-                      />
-                      <motion.div
-                        className="w-2 h-2 bg-gray-400 rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
-                      />
-                      <motion.div
-                        className="w-2 h-2 bg-gray-400 rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
-                      />
-                    </div>
-                    <span className="text-sm text-gray-500 ml-2">AI is thinking...</span>
+                {message.role === 'assistant' && (
+                  <Avatar className="h-8 w-8 mt-1">
+                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                      <Bot className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                
+                <div className={`max-w-[70%] ${message.role === 'user' ? 'order-1' : ''}`}>
+                  <div className={`p-3 rounded-lg ${
+                    message.role === 'user'
+                      ? 'bg-blue-500 text-white ml-auto'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                  }`}>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  </div>
+                  
+                  <div className={`flex items-center gap-2 mt-1 text-xs text-gray-500 ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  }`}>
+                    <Clock className="h-3 w-3" />
+                    <span>{formatTime(message.timestamp)}</span>
+                    
+                    {message.role === 'assistant' && (
+                      <div className="flex items-center gap-1 ml-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
+                          onClick={() => copyMessage(message.content)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        >
+                          <ThumbsUp className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        >
+                          <ThumbsDown className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
+                
+                {message.role === 'user' && (
+                  <Avatar className="h-8 w-8 mt-1">
+                    <AvatarFallback className="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
               </motion.div>
-            )}
-          </div>
-        </ScrollArea>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex gap-2">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={`Ask about ${selectedFeature.replace('-', ' ')}... or use voice chat above`}
-              className="flex-1"
-              disabled={isProcessing}
-            />
-            <Button
-              onClick={() => handleSendMessage()}
-              disabled={!inputMessage.trim() || isProcessing}
-              className={`bg-gradient-to-r ${getFeatureColor(selectedFeature)} hover:opacity-90 text-white`}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
+            ))}
+          </AnimatePresence>
           
-          <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-            <CheckCircle className="h-3 w-3" />
-            <span>Type your message, use voice chat above, or press Enter to send</span>
-          </div>
+          {/* Typing Indicator */}
+          {isTyping && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-3"
+            >
+              <Avatar className="h-8 w-8 mt-1">
+                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
+                <div className="flex items-center gap-1">
+                  <div className="flex gap-1">
+                    <motion.div
+                      className="w-2 h-2 bg-gray-400 rounded-full"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: 0 }}
+                    />
+                    <motion.div
+                      className="w-2 h-2 bg-gray-400 rounded-full"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
+                    />
+                    <motion.div
+                      className="w-2 h-2 bg-gray-400 rounded-full"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
+                    />
+                  </div>
+                  <span className="text-sm text-gray-500 ml-2">AI is thinking...</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </ScrollArea>
+
+      {/* Input Area */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex gap-2">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder={`Ask about ${selectedFeature.replace('-', ' ')}...`}
+            className="flex-1"
+            disabled={isProcessing}
+          />
+          <Button
+            onClick={handleSendMessage}
+            disabled={!inputMessage.trim() || isProcessing}
+            className={`bg-gradient-to-r ${getFeatureColor(selectedFeature)} hover:opacity-90 text-white`}
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+          <CheckCircle className="h-3 w-3" />
+          <span>Press Enter to send • Shift+Enter for new line</span>
         </div>
       </div>
     </div>
