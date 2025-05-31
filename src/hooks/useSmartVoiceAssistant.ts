@@ -22,6 +22,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   const inactivityTimerRef = useRef<number | null>(null);
   const greetingTimeoutRef = useRef<number | null>(null);
   const lastMessageTime = useRef<number>(0);
+  const lastMessage = useRef<string>('');
   
   // Track user activity with immediate pause on interaction
   const trackActivity = () => {
@@ -32,6 +33,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     if (isSpeaking && window.speechSynthesis) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      console.log('🔇 Voice stopped due to user activity');
     }
     
     // Reset user activity after 3 seconds of no interaction
@@ -68,14 +70,14 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     if (context === 'homepage') {
       const homepagePrompts = [
         "I'm here to help you explore PREPZR. Would you like to know about our features?",
-        "Ready to start your personalized journey? Sign up and get ready to conquer your exams with PREPZR.",
+        "Let's start your personalized journey. Sign up and get ready to conquer your exams with PREPZR.",
         "Need assistance? I can tell you about PREPZR's benefits for exam success.",
         "Wondering how PREPZR can help you? Just ask me anything!"
       ];
       promptMessage = homepagePrompts[promptCount % homepagePrompts.length];
     }
     
-    if (promptMessage && !userIsActive) {
+    if (promptMessage && !userIsActive && promptMessage !== lastMessage.current) {
       speak(promptMessage);
       setPromptCount(prev => prev + 1);
       resetInactivityTimer();
@@ -86,9 +88,16 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   const speak = (text: string, isGreeting = false): boolean => {
     if (!text || userIsActive) return false;
     
+    // Prevent repetition of same message
+    if (text === lastMessage.current && !isGreeting) {
+      console.log('🔇 Voice: Preventing message repetition');
+      return false;
+    }
+    
     // Enforce 60-second minimum gap between messages
     const now = Date.now();
     if (now - lastMessageTime.current < 60000 && !isGreeting) {
+      console.log('🔇 Voice: 60-second cooldown active');
       return false;
     }
     
@@ -108,15 +117,16 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
         }
         
         lastMessageTime.current = Date.now();
+        lastMessage.current = text;
         resetInactivityTimer();
       }
     );
     
     if (success) {
       lastMessageTime.current = now;
+      lastMessage.current = text;
     }
     
-    trackActivity();
     return success;
   };
   
@@ -132,11 +142,13 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
         break;
         
       case 'post-signup':
-        greetingMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
+        if (userName) {
+          greetingMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
+        }
         break;
         
       case 'dashboard':
-        // Dashboard greetings are handled by DashboardVoiceAssistant
+        // Dashboard greetings are handled separately
         return;
     }
     
@@ -187,7 +199,9 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   const processSignupCommand = (command: string): boolean => {
     if (command.includes('next step') || command.includes('what now')) {
-      speak(`I recommend starting with your exam readiness test to understand your current level, ${userName}, then exploring your personalized study plan.`);
+      if (userName) {
+        speak(`I recommend starting with your exam readiness test to understand your current level, ${userName}, then exploring your personalized study plan.`);
+      }
       return true;
     }
     
@@ -196,7 +210,9 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   const processDashboardCommand = (command: string): boolean => {
     if (command.includes('help') || command.includes('guide')) {
-      speak(`I'm here to help with your studies, ${userName}. You can ask about your progress, next topics to study, or get motivational support.`);
+      if (userName) {
+        speak(`I'm here to help with your studies, ${userName}. You can ask about your progress, next topics to study, or get motivational support.`);
+      }
       return true;
     }
     
@@ -218,11 +234,12 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     };
   }, []);
   
-  // Play greeting when context changes
+  // Play greeting when context changes and cleanup on route changes
   useEffect(() => {
     setHasGreeted(false);
     setPromptCount(0);
     setUserIsActive(false);
+    lastMessage.current = '';
     
     // Clear existing timers
     if (greetingTimeoutRef.current) {
