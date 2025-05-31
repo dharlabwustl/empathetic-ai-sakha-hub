@@ -12,7 +12,7 @@ interface PrepzrVoiceAssistantProps {
 }
 
 const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({ 
-  userName = 'there',
+  userName = '',
   language = 'en-US',
   isNewUser = false,
   lastActivity
@@ -20,175 +20,191 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
   const [hasGreeted, setHasGreeted] = useState(false);
   const [currentContext, setCurrentContext] = useState<string>('');
   const [messagesSent, setMessagesSent] = useState<Set<string>>(new Set());
+  const [lastMessageTime, setLastMessageTime] = useState(0);
+  const [isUserActive, setIsUserActive] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-  const messageCountRef = useRef(0);
-  const lastMessageTimeRef = useRef(0);
+  const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Track which messages have been spoken for this session
-  const spokenInSessionRef = useRef(new Set<string>());
+  // Minimum 60 seconds between messages
+  const MESSAGE_COOLDOWN = 60000;
   
-  const shouldPlayGreeting = location.pathname === '/' || 
-                            location.pathname.includes('/signup') ||
-                            location.pathname.includes('/welcome') ||
-                            location.pathname.includes('/dashboard');
-
-  // Get contextual message based on current page
-  const getContextMessage = (path: string, userName: string, isNewUser: boolean) => {
-    if (path === '/') {
-      const messageKey = 'home-intro';
-      if (!messagesSent.has(messageKey)) {
-        setMessagesSent(prev => new Set(prev).add(messageKey));
-        return `Hi ${userName}! I'm Prep Zer AI, your personal exam prep guide. Prep Zer isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`;
-      }
-      return null;
-    } else if (path.includes('/signup')) {
-      const messageKey = 'signup-help';
-      if (!messagesSent.has(messageKey)) {
-        setMessagesSent(prev => new Set(prev).add(messageKey));
-        return `Sign up to unlock a customized study journey. Prep Zer will guide you at every step.`;
-      }
-      return null;
-    } else if (path.includes('/dashboard')) {
-      if (isNewUser) {
-        const messageKey = 'dashboard-welcome';
-        if (!messagesSent.has(messageKey)) {
-          setMessagesSent(prev => new Set(prev).add(messageKey));
-          return `Congratulations, ${userName}! You've officially joined Prep Zer – your ultimate prep companion. Together, we'll build your confidence, track your progress, and make sure you're fully exam-ready.`;
-        }
-      } else {
-        const messageKey = 'dashboard-return';
-        if (!messagesSent.has(messageKey)) {
-          setMessagesSent(prev => new Set(prev).add(messageKey));
-          return lastActivity 
-            ? `Welcome back, ${userName}! Last time you were working on ${lastActivity}. Ready to pick up where you left off?`
-            : `Welcome back, ${userName}! Ready to continue your learning journey?`;
-        }
-      }
-      return null;
-    }
-    
-    return null;
-  };
-
-  // Smart suggestion system with intelligent breaks
-  const getSmartSuggestion = (path: string) => {
-    if (path === '/') {
-      const suggestions = [
-        { key: 'free-trial', text: "Want to try Prep Zer free before signing up? Just say 'Free trial'." },
-        { key: 'explain-prepzr', text: "Curious how Prep Zer is different from coaching centers? Ask me – I'll explain." },
-        { key: 'scholarship', text: "Looking for scholarships or readiness tests? I'll help you get started." }
-      ];
-      
-      const unspokenSuggestions = suggestions.filter(s => 
-        !messagesSent.has(`suggestion-${s.key}`)
-      );
-      
-      if (unspokenSuggestions.length > 0) {
-        const suggestion = unspokenSuggestions[0];
-        setMessagesSent(prev => new Set(prev).add(`suggestion-${suggestion.key}`));
-        return suggestion.text;
-      }
-      
-      // After all suggestions, offer to pause
-      const pauseKey = 'pause-offer';
-      if (!messagesSent.has(pauseKey)) {
-        setMessagesSent(prev => new Set(prev).add(pauseKey));
-        return "I'll pause now. Ask me anything when you're ready.";
-      }
-    }
-    
-    return null;
-  };
-
-  // Speak with intelligent timing and prevent repetition
-  const speakMessage = async (message: string) => {
-    const now = Date.now();
-    
-    // Prevent too frequent messages (minimum 5 seconds between messages)
-    if (now - lastMessageTimeRef.current < 5000) {
-      return;
-    }
-    
-    // Prevent repetition by checking if message was already sent
-    const messageKey = message.toLowerCase().trim();
-    if (messagesSent.has(messageKey)) {
-      return;
-    }
-    
-    const success = speakWithFemaleVoice(message, { language });
-    if (success) {
-      lastMessageTimeRef.current = now;
-      messageCountRef.current++;
-      setMessagesSent(prev => new Set(prev).add(messageKey));
-      
-      // After speaking, create an intelligent pause before next message
-      await createIntelligentPause(4000);
-    }
-  };
-
-  // Handle greetings and context-aware messages
+  // Track user activity (mouse, scroll, click)
   useEffect(() => {
-    if (!shouldPlayGreeting || hasGreeted) return;
-    
-    const handleContextualGreeting = async () => {
-      const contextMessage = getContextMessage(location.pathname, userName, isNewUser);
+    const handleUserActivity = () => {
+      setIsUserActive(true);
       
-      if (contextMessage) {
-        await speakMessage(contextMessage);
-        setHasGreeted(true);
-        setCurrentContext(location.pathname);
-        
-        // After greeting, provide smart suggestions with delay
-        if (location.pathname === '/') {
-          setTimeout(async () => {
-            const suggestion = getSmartSuggestion(location.pathname);
-            if (suggestion) {
-              await speakMessage(suggestion);
-            }
-          }, 6000);
-        }
+      // Stop any current speech
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Clear existing timeout
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+      
+      // Set user as inactive after 5 seconds of no activity
+      activityTimeoutRef.current = setTimeout(() => {
+        setIsUserActive(false);
+      }, 5000);
+    };
+
+    const events = ['mousemove', 'mousedown', 'scroll', 'keydown', 'click', 'touchstart'];
+    events.forEach(event => {
+      document.addEventListener(event, handleUserActivity);
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity);
+      });
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
       }
     };
-    
-    // Delay initial greeting slightly
-    setTimeout(handleContextualGreeting, 1500);
-  }, [location.pathname, userName, isNewUser, hasGreeted, shouldPlayGreeting]);
+  }, []);
 
-  // Reset context when changing routes but preserve message history
-  useEffect(() => {
-    if (location.pathname !== currentContext) {
-      setHasGreeted(false);
-      setCurrentContext('');
-      // Don't clear spoken messages - let them persist for the session
-    }
-  }, [location.pathname, currentContext]);
-
-  // Process voice commands (this would integrate with speech recognition)
-  const processVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('free trial')) {
-      speakMessage("Starting your free trial!");
-      navigate('/signup?trial=true');
-    } else if (lowerCommand.includes('explain prepzr') || lowerCommand.includes('how different')) {
-      speakMessage("Prep Zer is the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. Unlike traditional coaching centers, we understand your mindset, not just the exam content.");
-    } else if (lowerCommand.includes('scholarship') || lowerCommand.includes('readiness test')) {
-      speakMessage("Let's check your exam readiness!");
-      // Trigger exam analyzer
-      window.dispatchEvent(new Event('open-exam-analyzer'));
-    }
-  };
-
-  // Cleanup on unmount
+  // Stop speech on page change or logout
   useEffect(() => {
     return () => {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
     };
-  }, []);
+  }, [location.pathname]);
+
+  const shouldPlayMessage = () => {
+    const now = Date.now();
+    const allowedPages = ['/', '/dashboard', '/welcome'];
+    const isOnAllowedPage = allowedPages.some(page => 
+      location.pathname === page || location.pathname.startsWith('/dashboard/student')
+    );
+    
+    return (
+      isOnAllowedPage &&
+      !isUserActive &&
+      (now - lastMessageTime) >= MESSAGE_COOLDOWN
+    );
+  };
+
+  const speakMessage = async (message: string, messageKey: string) => {
+    if (!shouldPlayMessage() || messagesSent.has(messageKey)) {
+      return;
+    }
+
+    const personalizedMessage = userName ? message.replace('[StudentName]', userName) : message;
+    
+    const success = speakWithFemaleVoice(personalizedMessage, { language });
+    if (success) {
+      setLastMessageTime(Date.now());
+      setMessagesSent(prev => new Set(prev).add(messageKey));
+      
+      // Schedule next message after cooldown
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    }
+  };
+
+  // Home page behavior
+  useEffect(() => {
+    if (location.pathname === '/' && !hasGreeted) {
+      const messageKey = 'home-intro';
+      
+      setTimeout(() => {
+        speakMessage(
+          `Hi ${userName || 'there'}! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`,
+          messageKey
+        );
+        setHasGreeted(true);
+        
+        // Smart suggestions with 60s delay
+        messageTimeoutRef.current = setTimeout(() => {
+          if (shouldPlayMessage()) {
+            speakMessage(
+              "Want to try PREPZR free before signing up? Just say 'Free trial'.",
+              'suggestion-1'
+            );
+          }
+        }, MESSAGE_COOLDOWN);
+        
+      }, 1500);
+    }
+  }, [location.pathname, userName, hasGreeted]);
+
+  // Welcome screen behavior (after signup)
+  useEffect(() => {
+    if (location.pathname === '/welcome' && isNewUser && userName) {
+      const messageKey = 'welcome-congratulation';
+      
+      setTimeout(() => {
+        speakMessage(
+          `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`,
+          messageKey
+        );
+      }, 1500);
+    }
+  }, [location.pathname, isNewUser, userName]);
+
+  // Dashboard behavior
+  useEffect(() => {
+    if (location.pathname.startsWith('/dashboard') && userName) {
+      if (isNewUser) {
+        const messageKey = 'dashboard-first-time';
+        setTimeout(() => {
+          speakMessage(
+            `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`,
+            messageKey
+          );
+        }, 1500);
+      } else {
+        const messageKey = 'dashboard-returning';
+        setTimeout(() => {
+          const message = lastActivity 
+            ? `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`
+            : `Welcome back, ${userName}! Ready to continue your learning journey?`;
+          
+          speakMessage(message, messageKey);
+        }, 1500);
+      }
+    }
+  }, [location.pathname, userName, isNewUser, lastActivity]);
+
+  // Reset context when changing routes
+  useEffect(() => {
+    if (location.pathname !== currentContext) {
+      setHasGreeted(false);
+      setCurrentContext(location.pathname);
+      // Don't clear messagesSent - preserve session memory
+      
+      // Cancel any ongoing speech
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    }
+  }, [location.pathname, currentContext]);
+
+  // Voice command processing
+  const processVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('free trial')) {
+      speakMessage("Starting your free trial!", 'command-trial');
+      navigate('/signup?trial=true');
+    } else if (lowerCommand.includes('explain prepzr')) {
+      speakMessage("PREPZR is the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. Unlike traditional coaching centers, we understand your mindset, not just the exam content.", 'command-explain');
+    }
+  };
 
   return null; // This component only handles voice logic
 };

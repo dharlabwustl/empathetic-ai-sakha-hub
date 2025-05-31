@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { Target, TrendingUp, Calendar, Award, ChevronDown, ChevronUp, Brain, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
 
 const ExamReadinessScoreCard: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -18,8 +18,7 @@ const ExamReadinessScoreCard: React.FC = () => {
     maxScore: 720,
     daysRemaining: 338,
     targetExam: "NEET 2026",
-    status: "Good",
-    weeklyGrowth: 8, // New weekly growth percentage
+    status: "Good", // Need Improvement, Critical, Average, Good, Excellent
     subjectBreakdown: [
       { subject: "Physics", score: 68, color: "blue" },
       { subject: "Chemistry", score: 74, color: "green" },
@@ -92,20 +91,10 @@ const ExamReadinessScoreCard: React.FC = () => {
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.6 }}
     >
-      {/* Animated Highlight */}
-      <AnimatedHighlight
-        id="exam-readiness"
-        text="Keep checking how you are doing!"
-        position="top"
-        icon={<TrendingUp className="h-4 w-4" />}
-        className="mb-2"
-      />
-
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
@@ -160,22 +149,8 @@ const ExamReadinessScoreCard: React.FC = () => {
                     </Badge>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600 mb-1">Weekly Growth</p>
-                    <div className="flex items-center gap-1">
-                      <motion.div
-                        animate={{ 
-                          scale: [1, 1.2, 1],
-                        }}
-                        transition={{ 
-                          duration: 1.5, 
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      >
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                      </motion.div>
-                      <span className="font-bold text-lg text-green-600">+{readinessData.weeklyGrowth}%</span>
-                    </div>
+                    <p className="text-xs text-gray-600 mb-1">Confidence Level</p>
+                    <p className="font-bold text-lg text-blue-700">{readinessData.confidenceLevel}%</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600 mb-1">Predicted Score</p>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Trophy, Target, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
 
 const StrongAreasCard: React.FC = () => {
   const strongAreas = [
@@ -43,20 +43,10 @@ const StrongAreasCard: React.FC = () => {
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
-      {/* Animated Highlight */}
-      <AnimatedHighlight
-        id="strong-areas"
-        text="Keep momentum in these areas!"
-        position="top"
-        icon={<Trophy className="h-4 w-4" />}
-        className="mb-2"
-      />
-
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-green-700">

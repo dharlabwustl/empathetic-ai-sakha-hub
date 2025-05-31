@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, BookOpen, RotateCcw, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
 
 const WeakAreasCard: React.FC = () => {
   const weakAreas = [
@@ -43,20 +43,10 @@ const WeakAreasCard: React.FC = () => {
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Animated Highlight */}
-      <AnimatedHighlight
-        id="weak-areas"
-        text="Focus on these areas to improve!"
-        position="top"
-        icon={<AlertTriangle className="h-4 w-4" />}
-        className="mb-2"
-      />
-
       <Card className="premium-card shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-700">

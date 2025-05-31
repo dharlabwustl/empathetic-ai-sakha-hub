@@ -7,7 +7,7 @@ import { Calendar, Clock, BookOpen, Zap, RotateCcw, Trophy, ArrowRight, Play } f
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
-import AnimatedHighlight from './AnimatedHighlight';
+import UrgencyArrow from './UrgencyArrow';
 
 interface TodaysPlanSectionProps {
   currentMood?: MoodType;
@@ -107,13 +107,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      {/* Animated Highlight */}
-      <AnimatedHighlight
-        id="live-study-plan"
-        text="Live Study Plan - Follow for Success!"
-        position="top"
-        icon={<Calendar className="h-4 w-4" />}
-        className="mb-2"
+      {/* Live Plan Arrow */}
+      <UrgencyArrow 
+        message="LIVE & ACTIVE! Follow Now!" 
+        position="live-plan"
+        className="-top-20"
       />
 
       <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-green-200 to-blue-200 dark:from-green-800 dark:to-blue-800 overflow-hidden">
