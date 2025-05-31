@@ -7,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Trophy, Target, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
 
 const StrongAreasCard: React.FC = () => {
   const strongAreas = [
@@ -43,76 +42,70 @@ const StrongAreasCard: React.FC = () => {
   };
 
   return (
-    <AnimatedHighlight 
-      id="strong-areas" 
-      text="Keep up your momentum in these areas"
-      position="top"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-700">
-              <CheckCircle className="h-5 w-5" />
-              Strong Areas - Keep Momentum
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {strongAreas.map((area, index) => (
-              <motion.div
-                key={index}
-                className="border rounded-lg p-4 bg-green-50/50"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 className="font-medium text-green-900">{area.subject}: {area.topic}</h4>
-                    <p className="text-xs text-gray-600">Last studied: {area.lastStudied}</p>
-                  </div>
-                  <Badge className={getMasteryColor(area.mastery)}>
-                    {area.mastery}
-                  </Badge>
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-green-700">
+            <CheckCircle className="h-5 w-5" />
+            Strong Areas - Keep Momentum
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {strongAreas.map((area, index) => (
+            <motion.div
+              key={index}
+              className="border rounded-lg p-4 bg-green-50/50"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h4 className="font-medium text-green-900">{area.subject}: {area.topic}</h4>
+                  <p className="text-xs text-gray-600">Last studied: {area.lastStudied}</p>
                 </div>
-                
-                <div className="space-y-2 mb-3">
-                  <div className="flex justify-between text-sm">
-                    <span>Progress</span>
-                    <span>{area.progress}%</span>
-                  </div>
-                  <Progress value={area.progress} className="h-2" />
+                <Badge className={getMasteryColor(area.mastery)}>
+                  {area.mastery}
+                </Badge>
+              </div>
+              
+              <div className="space-y-2 mb-3">
+                <div className="flex justify-between text-sm">
+                  <span>Progress</span>
+                  <span>{area.progress}%</span>
                 </div>
+                <Progress value={area.progress} className="h-2" />
+              </div>
 
-                <div className="flex gap-2">
-                  <Link to="/dashboard/student/practice-exam/2/start" className="flex-1">
-                    <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 text-white">
-                      <Trophy className="h-3 w-3 mr-1" />
-                      Take Exam
-                    </Button>
-                  </Link>
-                  <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab" className="flex-1">
-                    <Button size="sm" variant="outline" className="w-full">
-                      <Zap className="h-3 w-3 mr-1" />
-                      Advanced
-                    </Button>
-                  </Link>
-                  <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
-                    <Button size="sm" variant="outline" className="w-full">
-                      <Target className="h-3 w-3 mr-1" />
-                      Review
-                    </Button>
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </CardContent>
-        </Card>
-      </motion.div>
-    </AnimatedHighlight>
+              <div className="flex gap-2">
+                <Link to="/dashboard/student/practice-exam/2/start" className="flex-1">
+                  <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 text-white">
+                    <Trophy className="h-3 w-3 mr-1" />
+                    Take Exam
+                  </Button>
+                </Link>
+                <Link to="/dashboard/student/concepts/Newton's%20Second%20Law/formula-lab" className="flex-1">
+                  <Button size="sm" variant="outline" className="w-full">
+                    <Zap className="h-3 w-3 mr-1" />
+                    Advanced
+                  </Button>
+                </Link>
+                <Link to="/dashboard/student/flashcards/1/interactive" className="flex-1">
+                  <Button size="sm" variant="outline" className="w-full">
+                    <Target className="h-3 w-3 mr-1" />
+                    Review
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

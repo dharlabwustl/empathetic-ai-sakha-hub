@@ -44,45 +44,6 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(99, 102, 241, 0.20), rgba(168, 85, 247, 0.20));
 }
 
-/* Smooth Page Transitions */
-.page-transition {
-  animation: fadeInPage 0.6s ease-out;
-}
-
-@keyframes fadeInPage {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Route transition effects */
-.route-transition-enter {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.route-transition-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity 300ms ease-out, transform 300ms ease-out;
-}
-
-.route-transition-exit {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.route-transition-exit-active {
-  opacity: 0;
-  transform: translateX(-30px);
-  transition: opacity 300ms ease-in, transform 300ms ease-in;
-}
-
 /* Enhanced gradient borders */
 .border-gradient-to-r {
   background: linear-gradient(to right, var(--tw-gradient-stops));
@@ -198,56 +159,5 @@
   }
   50% {
     transform: translateY(-8px);
-  }
-}
-
-/* Highlight notification styles */
-.highlight-notification {
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
-  color: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
-  animation: highlightPulse 2s ease-in-out infinite;
-}
-
-@keyframes highlightPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 12px 48px rgba(255, 107, 53, 0.6);
-  }
-}
-
-/* Voice interface animations */
-.voice-active {
-  animation: voicePulse 1.5s ease-in-out infinite;
-}
-
-@keyframes voicePulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-  50% {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-  }
-}
-
-/* Credit system styles */
-.credit-glow {
-  box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
-  animation: creditPulse 2s ease-in-out infinite;
-}
-
-@keyframes creditPulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
   }
 }

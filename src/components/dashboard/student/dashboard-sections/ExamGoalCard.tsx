@@ -23,11 +23,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     style: "Visual",
     overallProgress: 72,
     weeklyProgress: 85,
-    monthlyProgress: 68,
-    studyStreak: 12,
-    focusScore: 87,
-    weeklyHours: 24.5,
-    mockTestScore: 580
+    monthlyProgress: 68
   };
 
   return (
@@ -79,82 +75,66 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
         </CardHeader>
         <CardContent className="pt-4 pb-4">
           <div className="space-y-4">
-            {/* Goal Info with simplified layout */}
-            <div className="space-y-3">
-              <div>
+            {/* Goal Info with inline buttons */}
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
                 <h3 className="font-bold text-xl text-green-900 dark:text-green-100 mb-2">
                   Goal - {examGoal.name}
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-4 flex-wrap">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4 text-green-600" />
                     <span className="text-lg font-bold text-green-700">{examGoal.daysLeft}</span>
                     <span className="text-xs text-gray-600">Days Left</span>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-700">{examGoal.overallProgress}%</div>
-                    <div className="text-xs text-gray-600">Progress</div>
-                    <Progress value={examGoal.overallProgress} className="h-2 mt-1" />
+                  <Badge className="bg-green-100 text-green-800 border-green-300">
+                    Pace: {examGoal.pace}
+                  </Badge>
+                  <Badge className="bg-purple-100 text-purple-800 border-purple-300">
+                    Style: {examGoal.style}
+                  </Badge>
+                  
+                  {/* Inline Action Buttons */}
+                  <div className="flex gap-2 ml-auto">
+                    <Link to="/dashboard/student/academic-advisor">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="hover:bg-blue-50 border-blue-300"
+                        >
+                          <Target className="h-3 w-3 mr-1" />
+                          Switch Plan
+                        </Button>
+                      </motion.div>
+                    </Link>
+                    
+                    <Link to="/dashboard/student/academic-advisor">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="hover:bg-purple-50 border-purple-300"
+                        >
+                          <Zap className="h-3 w-3 mr-1" />
+                          New Plan
+                        </Button>
+                      </motion.div>
+                    </Link>
                   </div>
                 </div>
               </div>
-
-              {/* KPI Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-                  <div className="text-lg font-bold text-orange-600">🔥</div>
-                  <div className="text-sm font-bold">{examGoal.studyStreak} days</div>
-                  <div className="text-xs text-gray-600">Study Streak</div>
-                </div>
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-                  <div className="text-lg font-bold text-blue-600">🎯</div>
-                  <div className="text-sm font-bold">{examGoal.focusScore}%</div>
-                  <div className="text-xs text-gray-600">Focus Score</div>
-                </div>
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-                  <div className="text-lg font-bold text-green-600">⏰</div>
-                  <div className="text-sm font-bold">{examGoal.weeklyHours}h</div>
-                  <div className="text-xs text-gray-600">Weekly Hours</div>
-                </div>
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-                  <div className="text-lg font-bold text-purple-600">📊</div>
-                  <div className="text-sm font-bold">{examGoal.mockTestScore}/720</div>
-                  <div className="text-xs text-gray-600">Mock Score</div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <Badge className="bg-green-100 text-green-800 border-green-300">
-                  Pace: {examGoal.pace}
-                </Badge>
-                <Badge className="bg-purple-100 text-purple-800 border-purple-300">
-                  Style: {examGoal.style}
-                </Badge>
-                
-                <div className="flex gap-2 ml-auto">
-                  <Link to="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/academic">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="hover:bg-blue-50 border-blue-300"
-                    >
-                      <Target className="h-3 w-3 mr-1" />
-                      Switch Plan
-                    </Button>
-                  </Link>
-                  
-                  <Link to="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/academic">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="hover:bg-purple-50 border-purple-300"
-                    >
-                      <Zap className="h-3 w-3 mr-1" />
-                      New Plan
-                    </Button>
-                  </Link>
-                </div>
+              
+              <div className="text-center ml-4">
+                <div className="text-2xl font-bold text-green-700">{examGoal.overallProgress}%</div>
+                <div className="text-xs text-gray-600">Progress</div>
+                <Progress value={examGoal.overallProgress} className="h-2 mt-1 w-16" />
               </div>
             </div>
           </div>

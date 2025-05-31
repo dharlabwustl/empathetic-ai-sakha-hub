@@ -8,7 +8,6 @@ import { Calendar, Clock, BookOpen, Zap, RotateCcw, Trophy, ArrowRight, Play } f
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MoodType } from '@/types/user/base';
-import AnimatedHighlight from './AnimatedHighlight';
 
 interface TodaysPlanSectionProps {
   currentMood?: MoodType;
@@ -102,125 +101,119 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ currentMood }) =>
   };
 
   return (
-    <AnimatedHighlight 
-      id="live-study-plan" 
-      text="Your live study plan is active!"
-      position="top"
+    <motion.div
+      className="relative"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <motion.div
-        className="relative"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-      >
-        <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-green-200 to-blue-200 dark:from-green-800 dark:to-blue-800 overflow-hidden">
-          {/* Active animated background */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50"
-            animate={{
-              opacity: [0.3, 0.7, 0.3],
-            }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          
-          <CardHeader className="pb-3 relative z-10">
-            <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
-              <div className="flex items-center gap-2">
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 3, -3, 0]
-                  }}
-                  transition={{ 
-                    duration: 1.5, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <Calendar className="h-5 w-5 text-green-600" />
-                </motion.div>
-                <motion.span
-                  animate={{ 
-                    color: ["#059669", "#2563eb", "#059669"]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="font-bold"
-                >
-                  Live Daily NEET Plan - Active!
-                </motion.span>
-                {/* Animated active indicator */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [0.5, 1, 0.5]
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="w-3 h-3 bg-green-500 rounded-full"
-                />
-              </div>
-              <Link to="/dashboard/student/today">
-                <Button size="sm" variant="outline" className="hover:bg-green-50">
-                  View Full Plan
-                  <ArrowRight className="h-3 w-3 ml-1" />
-                </Button>
-              </Link>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 relative z-10">
-            {todaysPlan.map((plan, index) => (
+      <Card className="premium-card relative shadow-lg border-2 border-gradient-to-r from-green-200 to-blue-200 dark:from-green-800 dark:to-blue-800 overflow-hidden">
+        {/* Active animated background */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50"
+          animate={{
+            opacity: [0.3, 0.7, 0.3],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <CardHeader className="pb-3 relative z-10">
+          <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-white">
+            <div className="flex items-center gap-2">
               <motion.div
-                key={index}
-                className="border-2 rounded-lg p-3 bg-white/90 dark:bg-gray-800/90"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                style={{
-                  boxShadow: plan.priority === 'High' ? '0 0 15px rgba(34, 197, 94, 0.3)' : '0 0 10px rgba(59, 130, 246, 0.2)'
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 3, -3, 0]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
                 }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-sm font-medium text-green-700">
-                      <Clock className="h-3 w-3" />
-                      {plan.time}
-                    </div>
-                    <Badge className={getPriorityColor(plan.priority)}>
-                      {plan.priority}
-                    </Badge>
+                <Calendar className="h-5 w-5 text-green-600" />
+              </motion.div>
+              <motion.span
+                animate={{ 
+                  color: ["#059669", "#2563eb", "#059669"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                Live Daily NEET Plan - Active!
+              </motion.span>
+              {/* Animated active indicator */}
+              <motion.div
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.5, 1, 0.5]
+                }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="w-3 h-3 bg-green-500 rounded-full"
+              />
+            </div>
+            <Link to="/dashboard/student/today">
+              <Button size="sm" variant="outline" className="hover:bg-green-50">
+                View Full Plan
+                <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 relative z-10">
+          {todaysPlan.map((plan, index) => (
+            <motion.div
+              key={index}
+              className="border-2 rounded-lg p-3 bg-white/90 dark:bg-gray-800/90"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ scale: 1.02 }}
+              style={{
+                boxShadow: plan.priority === 'High' ? '0 0 15px rgba(34, 197, 94, 0.3)' : '0 0 10px rgba(59, 130, 246, 0.2)'
+              }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1 text-sm font-medium text-green-700">
+                    <Clock className="h-3 w-3" />
+                    {plan.time}
                   </div>
-                  <span className="text-xs text-gray-600">{plan.duration}</span>
+                  <Badge className={getPriorityColor(plan.priority)}>
+                    {plan.priority}
+                  </Badge>
+                </div>
+                <span className="text-xs text-gray-600">{plan.duration}</span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                    {plan.subject}: {plan.topic}
+                  </h4>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                      {plan.subject}: {plan.topic}
-                    </h4>
-                  </div>
-                  
-                  <div className="ml-3">
-                    {getActionButton(plan)}
-                  </div>
+                <div className="ml-3">
+                  {getActionButton(plan)}
                 </div>
-              </motion.div>
-            ))}
-          </CardContent>
-        </Card>
-      </motion.div>
-    </AnimatedHighlight>
+              </div>
+            </motion.div>
+          ))}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

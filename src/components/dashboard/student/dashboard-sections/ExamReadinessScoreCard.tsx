@@ -7,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { Target, TrendingUp, Calendar, Award, ChevronDown, ChevronUp, Brain, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
 
 const ExamReadinessScoreCard: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -20,7 +19,6 @@ const ExamReadinessScoreCard: React.FC = () => {
     daysRemaining: 338,
     targetExam: "NEET 2026",
     status: "Good", // Need Improvement, Critical, Average, Good, Excellent
-    weeklyGrowth: 8, // New weekly growth percentage
     subjectBreakdown: [
       { subject: "Physics", score: 68, color: "blue" },
       { subject: "Chemistry", score: 74, color: "green" },
@@ -92,148 +90,139 @@ const ExamReadinessScoreCard: React.FC = () => {
   };
 
   return (
-    <AnimatedHighlight 
-      id="exam-readiness" 
-      text="Keep checking how you are doing"
-      position="top"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.6 }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-      >
-        <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, -5, 0]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <Award className="h-5 w-5 text-blue-600" />
-                </motion.div>
-                <motion.span
-                  animate={{ 
-                    color: ["#2563eb", "#4338ca", "#2563eb"]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="font-bold"
-                >
-                  Exam Readiness Score
-                </motion.span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowDetails(!showDetails)}
-                className="h-6 w-6 p-0"
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 pb-3">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
               >
-                {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4 pb-4">
-            <div className="space-y-4">
-              {/* Main Score Display */}
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Status</p>
-                      <Badge className={getStatusColor(readinessData.status)}>
-                        {readinessData.status}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Weekly Growth</p>
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                        <p className="font-bold text-lg text-green-700">+{readinessData.weeklyGrowth}%</p>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Confidence Level</p>
-                      <p className="font-bold text-lg text-blue-700">{readinessData.confidenceLevel}%</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Predicted Score</p>
-                      <p className="font-bold text-lg text-blue-700">{readinessData.predictedScore}/{readinessData.maxScore}</p>
-                    </div>
+                <Award className="h-5 w-5 text-blue-600" />
+              </motion.div>
+              <motion.span
+                animate={{ 
+                  color: ["#2563eb", "#4338ca", "#2563eb"]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="font-bold"
+              >
+                Exam Readiness Score
+              </motion.span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowDetails(!showDetails)}
+              className="h-6 w-6 p-0"
+            >
+              {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 pb-4">
+          <div className="space-y-4">
+            {/* Main Score Display */}
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Status</p>
+                    <Badge className={getStatusColor(readinessData.status)}>
+                      {readinessData.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Confidence Level</p>
+                    <p className="font-bold text-lg text-blue-700">{readinessData.confidenceLevel}%</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Predicted Score</p>
+                    <p className="font-bold text-lg text-blue-700">{readinessData.predictedScore}/{readinessData.maxScore}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Days Remaining</p>
+                    <p className="font-bold text-lg text-blue-700">{readinessData.daysRemaining}</p>
                   </div>
                 </div>
-                
-                {/* Dynamic Circle */}
-                <div className="ml-4">
-                  <CircularProgress value={readinessData.overallReadiness} />
-                </div>
               </div>
+              
+              {/* Dynamic Circle */}
+              <div className="ml-4">
+                <CircularProgress value={readinessData.overallReadiness} />
+              </div>
+            </div>
 
-              {/* Detailed Analysis - Collapsible */}
-              {showDetails && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-4 border-t pt-4"
-                >
-                  {/* Subject Breakdown */}
+            {/* Detailed Analysis - Collapsible */}
+            {showDetails && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4 border-t pt-4"
+              >
+                {/* Subject Breakdown */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-blue-600" />
+                    Subject Breakdown
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {readinessData.subjectBreakdown.map((subject, index) => (
+                      <div key={index} className="text-center p-2 bg-gray-50 rounded">
+                        <p className="text-xs font-medium">{subject.subject}</p>
+                        <p className="text-sm font-bold text-blue-700">{subject.score}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Strengths & Improvements */}
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                      <Brain className="h-4 w-4 text-blue-600" />
-                      Subject Breakdown
-                    </h4>
-                    <div className="grid grid-cols-3 gap-2">
-                      {readinessData.subjectBreakdown.map((subject, index) => (
-                        <div key={index} className="text-center p-2 bg-gray-50 rounded">
-                          <p className="text-xs font-medium">{subject.subject}</p>
-                          <p className="text-sm font-bold text-blue-700">{subject.score}%</p>
-                        </div>
+                    <h5 className="text-xs font-semibold text-green-700 mb-2">Strengths</h5>
+                    <div className="space-y-1">
+                      {readinessData.strengths.slice(0, 2).map((strength, index) => (
+                        <Badge key={index} variant="outline" className="text-xs bg-green-50 text-green-700">
+                          {strength}
+                        </Badge>
                       ))}
                     </div>
                   </div>
-
-                  {/* Strengths & Improvements */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h5 className="text-xs font-semibold text-green-700 mb-2">Strengths</h5>
-                      <div className="space-y-1">
-                        {readinessData.strengths.slice(0, 2).map((strength, index) => (
-                          <Badge key={index} variant="outline" className="text-xs bg-green-50 text-green-700">
-                            {strength}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h5 className="text-xs font-semibold text-orange-700 mb-2">Focus Areas</h5>
-                      <div className="space-y-1">
-                        {readinessData.improvements.slice(0, 2).map((improvement, index) => (
-                          <Badge key={index} variant="outline" className="text-xs bg-orange-50 text-orange-700">
-                            {improvement}
-                          </Badge>
-                        ))}
-                      </div>
+                  <div>
+                    <h5 className="text-xs font-semibold text-orange-700 mb-2">Focus Areas</h5>
+                    <div className="space-y-1">
+                      {readinessData.improvements.slice(0, 2).map((improvement, index) => (
+                        <Badge key={index} variant="outline" className="text-xs bg-orange-50 text-orange-700">
+                          {improvement}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </AnimatedHighlight>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
