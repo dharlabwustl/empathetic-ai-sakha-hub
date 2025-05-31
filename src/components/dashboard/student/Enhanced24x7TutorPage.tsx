@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, Volume2, VolumeX, MessageCircle, Search, Brain, Zap, Eye, BarChart3, ShoppingCart, Star, Sparkles, Send } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { Mic, MicOff, Volume2, VolumeX, MessageCircle, Search, Brain, Zap, Eye, BarChart3, ShoppingCart, Star, Sparkles, Send, Bot, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface TutorFeature {
   id: string;
@@ -20,6 +21,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  id: string;
 }
 
 const Enhanced24x7TutorPage: React.FC = () => {
@@ -29,19 +31,21 @@ const Enhanced24x7TutorPage: React.FC = () => {
   const [userCredits, setUserCredits] = useState(15);
   const [messages, setMessages] = useState<Message[]>([
     {
+      id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m your 24/7 AI Tutor. I can help you with studying, practice questions, and advanced features. What would you like to work on today?',
+      content: 'Hello! I\'m your 24/7 AI Tutor powered by PREPZR AI. I can help you with studying, practice questions, and advanced features. What would you like to work on today?',
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   const features: TutorFeature[] = [
     {
       id: 'chat',
       name: 'Chat',
       icon: <MessageCircle className="h-4 w-4" />,
-      description: 'Basic tutoring conversation',
+      description: 'Basic tutoring conversation and Q&A',
       isPremium: false,
       available: true
     },
@@ -49,7 +53,7 @@ const Enhanced24x7TutorPage: React.FC = () => {
       id: 'search',
       name: 'Search',
       icon: <Search className="h-4 w-4" />,
-      description: 'Search through study materials',
+      description: 'Search through study materials and concepts',
       isPremium: false,
       available: true
     },
@@ -57,7 +61,7 @@ const Enhanced24x7TutorPage: React.FC = () => {
       id: 'insights',
       name: 'Insights',
       icon: <Brain className="h-4 w-4" />,
-      description: 'Get personalized study insights',
+      description: 'Get personalized study insights and recommendations',
       isPremium: false,
       available: true
     },
@@ -74,7 +78,7 @@ const Enhanced24x7TutorPage: React.FC = () => {
       id: 'interactive-visuals',
       name: 'Interactive Visuals',
       icon: <Eye className="h-4 w-4" />,
-      description: 'Dynamic visual explanations',
+      description: 'Dynamic visual explanations and diagrams',
       isPremium: true,
       credits: 3,
       available: userCredits >= 3
@@ -83,7 +87,7 @@ const Enhanced24x7TutorPage: React.FC = () => {
       id: 'advanced-analysis',
       name: 'Advanced Analysis',
       icon: <BarChart3 className="h-4 w-4" />,
-      description: 'Deep performance analysis',
+      description: 'Deep performance analysis and predictions',
       isPremium: true,
       credits: 5,
       available: userCredits >= 5
@@ -103,6 +107,7 @@ const Enhanced24x7TutorPage: React.FC = () => {
     setSelectedFeature(featureId);
     
     const systemMessage: Message = {
+      id: Date.now().toString(),
       role: 'assistant',
       content: `Switched to ${feature?.name} mode. ${feature?.description}`,
       timestamp: new Date()
@@ -114,6 +119,7 @@ const Enhanced24x7TutorPage: React.FC = () => {
     if (!inputMessage.trim()) return;
     
     const userMessage: Message = {
+      id: Date.now().toString(),
       role: 'user',
       content: inputMessage,
       timestamp: new Date()
@@ -121,83 +127,112 @@ const Enhanced24x7TutorPage: React.FC = () => {
     
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
+    setIsTyping(true);
     
+    // Simulate AI response
     setTimeout(() => {
       const responses = {
-        'chat': 'I can help you understand this concept better. What specific part would you like me to explain?',
-        'search': 'I found several relevant materials for your query. Let me show you the most important ones.',
-        'insights': 'Based on your study patterns, I recommend focusing on these weak areas first.',
-        '3d-models': 'Loading interactive 3D model... This will help visualize the molecular structure.',
-        'interactive-visuals': 'Creating dynamic visual explanation... This diagram will show the process step by step.',
-        'advanced-analysis': 'Performing deep analysis... Your performance indicates these specific improvement areas.'
+        'chat': 'I can help you understand this concept better. What specific part would you like me to explain in detail?',
+        'search': 'I found several relevant materials for your query. Here are the most important concepts and practice questions.',
+        'insights': 'Based on your study patterns, I recommend focusing on these weak areas first. Your performance shows improvement opportunities in molecular chemistry.',
+        '3d-models': '🔬 Loading interactive 3D model... This will help visualize the molecular structure and chemical bonds in detail.',
+        'interactive-visuals': '📊 Creating dynamic visual explanation... This diagram will show the process step by step with interactive elements.',
+        'advanced-analysis': '📈 Performing deep analysis... Your performance indicates specific improvement areas. Here\'s your detailed performance breakdown.'
       };
       
       const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: responses[selectedFeature as keyof typeof responses] || 'How can I assist you today?',
+        content: responses[selectedFeature as keyof typeof responses] || 'How can I assist you with your studies today?',
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, botMessage]);
-    }, 1000);
+      setIsTyping(false);
+    }, 1500);
   };
 
   const toggleListening = () => {
     setIsListening(!isListening);
+    if (!isListening) {
+      // Start voice recognition
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '🎤 I\'m listening... Please speak your question.',
+        timestamp: new Date()
+      }]);
+    }
   };
 
   const toggleSpeaking = () => {
     setIsSpeaking(!isSpeaking);
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   const selectedFeatureData = features.find(f => f.id === selectedFeature);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-6xl mx-auto"
+        className="max-w-7xl mx-auto"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-              >
-                <Brain className="h-8 w-8 text-purple-600" />
-              </motion.div>
-              24/7 AI Tutor
-            </h1>
-            <p className="text-gray-600 mt-1">Your personal AI learning companion</p>
+        {/* Enhanced Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+            >
+              <Brain className="h-8 w-8 text-white" />
+            </motion.div>
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-3">
+                24/7 AI Tutor
+                <Badge className="bg-green-100 text-green-800 text-sm">
+                  PREPZR AI Powered
+                </Badge>
+              </h1>
+              <p className="text-gray-600 mt-2 text-lg">Your intelligent learning companion with advanced AI capabilities</p>
+            </div>
           </div>
           
           <div className="flex items-center gap-4">
-            <Badge className="bg-purple-100 text-purple-800 px-3 py-1">
-              <Star className="h-3 w-3 mr-1" />
-              {userCredits} Credits
-            </Badge>
-            <Button variant="outline" size="sm">
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Buy Credits
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Badge className="bg-purple-100 text-purple-800 px-4 py-2 text-lg font-semibold">
+                <Star className="h-4 w-4 mr-2" />
+                {userCredits} Credits
+              </Badge>
+            </motion.div>
+            <Button variant="outline" size="lg" className="hover:bg-purple-50">
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              Buy More Credits
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Feature Selection Panel */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-purple-600" />
-                Features
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          {/* Enhanced Feature Selection Panel */}
+          <Card className="xl:col-span-1 shadow-lg border-purple-100">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
+              <CardTitle className="text-xl flex items-center gap-3">
+                <Sparkles className="h-6 w-6 text-purple-600" />
+                AI Features
               </CardTitle>
+              <p className="text-sm text-gray-600">Select your learning mode</p>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="p-4">
+              <div className="space-y-3">
                 {features.map((feature) => (
                   <motion.div
                     key={feature.id}
@@ -206,7 +241,11 @@ const Enhanced24x7TutorPage: React.FC = () => {
                   >
                     <Button
                       variant={selectedFeature === feature.id ? "default" : "ghost"}
-                      className={`w-full justify-start h-auto p-3 ${
+                      className={`w-full justify-start h-auto p-4 ${
+                        selectedFeature === feature.id 
+                          ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                          : 'hover:bg-gray-50'
+                      } ${
                         feature.isPremium && !feature.available 
                           ? 'opacity-50 cursor-not-allowed' 
                           : ''
@@ -215,19 +254,26 @@ const Enhanced24x7TutorPage: React.FC = () => {
                       disabled={feature.isPremium && !feature.available}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          {feature.icon}
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${
+                            selectedFeature === feature.id 
+                              ? 'bg-white/20' 
+                              : 'bg-gray-100'
+                          }`}>
+                            {feature.icon}
+                          </div>
                           <div className="text-left">
-                            <div className="font-medium text-sm">{feature.name}</div>
+                            <div className="font-semibold text-sm">{feature.name}</div>
+                            <div className="text-xs opacity-80 mt-1">{feature.description}</div>
                             {feature.isPremium && (
-                              <div className="text-xs text-orange-600">
-                                {feature.credits} credits
+                              <div className="text-xs mt-1 font-medium">
+                                💎 {feature.credits} credits
                               </div>
                             )}
                           </div>
                         </div>
                         {feature.isPremium && (
-                          <Badge variant="outline" className="bg-orange-50 text-orange-700 text-xs">
+                          <Badge variant="outline" className="bg-orange-50 text-orange-700 text-xs border-orange-200">
                             Premium
                           </Badge>
                         )}
@@ -239,84 +285,151 @@ const Enhanced24x7TutorPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Main Chat Interface */}
-          <Card className="lg:col-span-3">
-            <CardHeader>
+          {/* Enhanced Main Chat Interface */}
+          <Card className="xl:col-span-3 shadow-lg border-purple-100">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  {selectedFeatureData?.icon}
-                  {selectedFeatureData?.name} Mode
-                  {selectedFeatureData?.isPremium && (
-                    <Badge className="bg-orange-100 text-orange-800 text-xs">
-                      Premium Active
-                    </Badge>
-                  )}
-                </CardTitle>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    {selectedFeatureData?.icon}
+                  </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      {selectedFeatureData?.name} Mode
+                      {selectedFeatureData?.isPremium && (
+                        <Badge className="bg-orange-100 text-orange-800 text-xs">
+                          Premium Active
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {selectedFeatureData?.description}
+                    </p>
+                  </div>
+                </div>
                 
-                {/* Voice Controls */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={isListening ? "default" : "outline"}
-                    size="sm"
-                    onClick={toggleListening}
-                    className={isListening ? 'bg-red-500 hover:bg-red-600' : ''}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
+                {/* Enhanced Voice Controls */}
+                <div className="flex items-center gap-3">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant={isListening ? "default" : "outline"}
+                      size="lg"
+                      onClick={toggleListening}
+                      className={`${isListening ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'hover:bg-gray-50'}`}
+                    >
+                      {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                    </Button>
+                  </motion.div>
                   
-                  <Button
-                    variant={isSpeaking ? "default" : "outline"}
-                    size="sm"
-                    onClick={toggleSpeaking}
-                  >
-                    {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant={isSpeaking ? "default" : "outline"}
+                      size="lg"
+                      onClick={toggleSpeaking}
+                      className={`${isSpeaking ? 'bg-blue-500 hover:bg-blue-600 animate-pulse' : 'hover:bg-gray-50'}`}
+                    >
+                      {isSpeaking ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
-              
-              <p className="text-sm text-gray-600">
-                {selectedFeatureData?.description}
-              </p>
             </CardHeader>
             
-            <CardContent>
-              {/* Chat Messages */}
-              <div className="h-96 bg-gray-50 rounded-lg p-4 mb-4 overflow-y-auto">
-                {messages.map((message, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`mb-4 ${
-                      message.role === 'user' ? 'text-right' : 'text-left'
-                    }`}
-                  >
-                    <div
-                      className={`inline-block max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.role === 'user'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-white border border-gray-200'
+            <CardContent className="p-6">
+              {/* Enhanced Chat Messages */}
+              <div className="h-[500px] bg-gradient-to-b from-gray-50 to-white rounded-xl p-6 mb-6 overflow-y-auto border border-gray-100">
+                <AnimatePresence>
+                  {messages.map((message) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className={`mb-6 ${
+                        message.role === 'user' ? 'flex justify-end' : 'flex justify-start'
                       }`}
                     >
-                      {message.content}
+                      <div className={`flex items-start gap-3 max-w-[80%] ${
+                        message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+                      }`}>
+                        <div className={`p-2 rounded-full ${
+                          message.role === 'user' 
+                            ? 'bg-purple-100' 
+                            : 'bg-gradient-to-r from-blue-100 to-purple-100'
+                        }`}>
+                          {message.role === 'user' ? (
+                            <User className="h-5 w-5 text-purple-600" />
+                          ) : (
+                            <Bot className="h-5 w-5 text-blue-600" />
+                          )}
+                        </div>
+                        <div
+                          className={`px-6 py-4 rounded-2xl shadow-sm ${
+                            message.role === 'user'
+                              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
+                              : 'bg-white border border-gray-200'
+                          }`}
+                        >
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          <p className="text-xs opacity-70 mt-2">
+                            {message.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                
+                {/* Typing Indicator */}
+                {isTyping && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start mb-6"
+                  >
+                    <div className="flex items-start gap-3 max-w-[80%]">
+                      <div className="p-2 rounded-full bg-gradient-to-r from-blue-100 to-purple-100">
+                        <Bot className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div className="px-6 py-4 rounded-2xl bg-white border border-gray-200 shadow-sm">
+                        <div className="flex gap-2">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
-                ))}
+                )}
               </div>
               
-              {/* Input Area */}
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type your question or use voice..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <Button onClick={handleSendMessage} className="bg-purple-600 hover:bg-purple-700">
-                  <Send className="h-4 w-4" />
-                </Button>
+              {/* Enhanced Input Area */}
+              <div className="flex gap-3 items-end">
+                <div className="flex-1 relative">
+                  <Input
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Ask me anything about your studies..."
+                    className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                  />
+                  {isListening && (
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    </div>
+                  )}
+                </div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button 
+                    onClick={handleSendMessage} 
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-4 text-lg"
+                    disabled={!inputMessage.trim()}
+                  >
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </motion.div>
               </div>
             </CardContent>
           </Card>
