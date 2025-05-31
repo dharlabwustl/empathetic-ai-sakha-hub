@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -10,7 +11,8 @@ import {
   Lock,
   Zap,
   Crown,
-  Star
+  Star,
+  Sparkles
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,59 +27,66 @@ interface Feature {
   isPremium: boolean;
   credits?: number;
   category: 'communication' | 'analysis' | 'visual';
+  benefits: string[];
 }
 
 const features: Feature[] = [
   {
     id: 'chat',
     name: 'AI Chat',
-    description: 'Ask questions and get instant answers',
+    description: 'Ask questions and get instant answers from your personal AI tutor',
     icon: <MessageSquare className="h-6 w-6" />,
     isPremium: false,
-    category: 'communication'
+    category: 'communication',
+    benefits: ['Instant responses', 'Context-aware answers', 'Study guidance']
   },
   {
     id: 'search',
     name: 'Smart Search',
-    description: 'Find relevant study materials quickly',
+    description: 'Find relevant study materials quickly with AI-powered search',
     icon: <Search className="h-6 w-6" />,
     isPremium: false,
-    category: 'communication'
+    category: 'communication',
+    benefits: ['Fast results', 'Relevant content', 'Smart filtering']
   },
   {
     id: 'insights',
     name: 'Study Insights',
-    description: 'Get personalized learning recommendations',
+    description: 'Get personalized learning recommendations based on your performance',
     icon: <Lightbulb className="h-6 w-6" />,
     isPremium: false,
-    category: 'analysis'
+    category: 'analysis',
+    benefits: ['Personalized tips', 'Performance tracking', 'Smart recommendations']
   },
   {
     id: '3d-models',
     name: '3D Models',
-    description: 'Interactive 3D visualizations for complex concepts',
+    description: 'Interactive 3D visualizations for complex concepts and structures',
     icon: <Box className="h-6 w-6" />,
     isPremium: true,
     credits: 2,
-    category: 'visual'
+    category: 'visual',
+    benefits: ['Interactive models', 'Better understanding', 'Visual learning']
   },
   {
     id: 'interactive-visuals',
     name: 'Interactive Visuals',
-    description: 'Dynamic charts and interactive diagrams',
+    description: 'Dynamic charts, graphs, and interactive diagrams',
     icon: <BarChart3 className="h-6 w-6" />,
     isPremium: true,
     credits: 3,
-    category: 'visual'
+    category: 'visual',
+    benefits: ['Dynamic charts', 'Interactive elements', 'Data visualization']
   },
   {
     id: 'advanced-analysis',
     name: 'Advanced Analysis',
-    description: 'Deep learning analytics and performance insights',
+    description: 'Deep learning analytics and comprehensive performance insights',
     icon: <Brain className="h-6 w-6" />,
     isPremium: true,
     credits: 5,
-    category: 'analysis'
+    category: 'analysis',
+    benefits: ['Deep insights', 'Performance analytics', 'Predictive learning']
   }
 ];
 
@@ -187,9 +196,9 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
                         <div className="flex items-center gap-3">
                           <div className={`p-2 rounded-lg ${
                             isSelected 
-                              ? 'bg-blue-500 text-white' 
+                              ? 'bg-blue-500 text-white shadow-lg' 
                               : feature.isPremium 
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
                                 : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
                           }`}>
                             {feature.icon}
@@ -208,13 +217,13 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
                           <div className="flex flex-col items-end gap-1">
                             <Badge 
                               variant="secondary" 
-                              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs"
+                              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium"
                             >
                               <Star className="h-3 w-3 mr-1" />
                               Premium
                             </Badge>
                             {feature.credits && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs border-purple-300">
                                 {feature.credits} credits
                               </Badge>
                             )}
@@ -223,10 +232,20 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
                       </div>
                     </CardHeader>
                     
-                    <CardContent className="pt-0">
+                    <CardContent className="pt-0 space-y-3">
                       <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                         {feature.description}
                       </p>
+                      
+                      {/* Benefits List */}
+                      <div className="space-y-1">
+                        {feature.benefits.map((benefit, index) => (
+                          <div key={index} className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <Sparkles className="h-3 w-3 text-blue-500" />
+                            <span>{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
                       
                       {feature.isPremium && !canAfford && (
                         <div className="mt-3 flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">

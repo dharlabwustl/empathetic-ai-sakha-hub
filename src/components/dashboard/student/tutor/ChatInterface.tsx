@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Clock, CheckCircle, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Send, Bot, User, Clock, CheckCircle, Copy, ThumbsUp, ThumbsDown, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -37,12 +37,49 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Initialize speech recognition
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      if (recognitionRef.current) {
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = 'en-US';
+        
+        recognitionRef.current.onresult = (event) => {
+          const result = event.results[0][0].transcript;
+          setInputMessage(result);
+          setIsListening(false);
+        };
+        
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognitionRef.current.onerror = () => {
+          setIsListening(false);
+          toast({
+            title: "Voice Recognition Error",
+            description: "There was an issue with voice recognition. Please try again.",
+            variant: "destructive"
+          });
+        };
+      }
+    }
+  }, [toast]);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -79,6 +116,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
+      
+      // Speak the response if not muted
+      if (!isMuted) {
+        speakMessage(aiResponse);
+      }
     }, 1500);
   };
 
@@ -93,6 +135,62 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     };
 
     return responses[feature as keyof typeof responses] || responses['chat'];
+  };
+
+  const speakMessage = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setIsSpeaking(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleVoiceInput = async () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: "Voice Not Supported",
+        description: "Voice recognition is not supported in your browser.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        recognitionRef.current.start();
+        setIsListening(true);
+        toast({
+          title: "Listening...",
+          description: "Speak now, I'm listening to your question!"
+        });
+      } catch (error) {
+        toast({
+          title: "Microphone Access Denied",
+          description: "Please allow microphone access to use voice features.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (isSpeaking && !isMuted) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -130,17 +228,30 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     <div className="flex flex-col h-[600px] bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
       {/* Chat Header */}
       <div className={`p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r ${getFeatureColor(selectedFeature)} text-white rounded-t-lg`}>
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10 border-2 border-white/20">
-            <AvatarFallback className="bg-white/20 text-white">
-              <Bot className="h-5 w-5" />
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="font-semibold">AI Tutor - {selectedFeature.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
-            <p className="text-sm opacity-90">Ready to help you excel</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 border-2 border-white/20">
+              <AvatarFallback className="bg-white/20 text-white">
+                <Bot className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="font-semibold">AI Tutor - {selectedFeature.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+              <p className="text-sm opacity-90">Ready to help you excel</p>
+            </div>
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          
+          <div className="flex items-center gap-2">
+            {/* Voice Controls */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleMute}
+              className="text-white hover:bg-white/20"
+            >
+              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+            
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               <span className="text-sm">Online</span>
@@ -261,6 +372,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </div>
             </motion.div>
           )}
+          
+          {/* Speaking/Listening Indicators */}
+          {(isSpeaking || isListening) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-center"
+            >
+              <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+                isListening 
+                  ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400' 
+                  : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+              }`}>
+                <motion.div
+                  className={`w-2 h-2 rounded-full ${
+                    isListening ? 'bg-red-500' : 'bg-green-500'
+                  }`}
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+                <span className="text-sm font-medium">
+                  {isListening ? 'Listening...' : 'AI is speaking...'}
+                </span>
+              </div>
+            </motion.div>
+          )}
         </div>
       </ScrollArea>
 
@@ -271,13 +408,28 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={`Ask about ${selectedFeature.replace('-', ' ')}...`}
+            placeholder={`Ask about ${selectedFeature.replace('-', ' ')} or click mic to speak...`}
             className="flex-1"
-            disabled={isProcessing}
+            disabled={isProcessing || isListening}
           />
+          
+          {/* Voice Input Button */}
+          <Button
+            onClick={handleVoiceInput}
+            disabled={isProcessing}
+            variant={isListening ? "default" : "outline"}
+            className={`${
+              isListening 
+                ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            {isListening ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+          </Button>
+          
           <Button
             onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || isProcessing}
+            disabled={!inputMessage.trim() || isProcessing || isListening}
             className={`bg-gradient-to-r ${getFeatureColor(selectedFeature)} hover:opacity-90 text-white`}
           >
             <Send className="h-4 w-4" />
@@ -286,7 +438,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         
         <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
           <CheckCircle className="h-3 w-3" />
-          <span>Press Enter to send • Shift+Enter for new line</span>
+          <span>Press Enter to send • Click mic for voice input • Shift+Enter for new line</span>
         </div>
       </div>
     </div>
