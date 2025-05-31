@@ -1,24 +1,72 @@
 
+import { z } from "zod";
+
+export const studyPlanSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  exam: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  subjects: z.array(z.string()),
+  hoursPerWeek: z.number(),
+  totalHours: z.number(),
+  completedHours: z.number(),
+  progress: z.number(),
+  userId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type StudyPlanType = z.infer<typeof studyPlanSchema>;
+
 export type LearningPace = 'slow' | 'medium' | 'fast';
-export type StudyPlanStatus = 'active' | 'paused' | 'completed';
-export type SubjectStatus = 'not-started' | 'in-progress' | 'completed';
 export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
-export type StudyPlanPriority = 'low' | 'medium' | 'high';
-export type StudyPlanDifficulty = 'easy' | 'medium' | 'hard';
-export type SubjectProficiency = 'weak' | 'medium' | 'strong';
+export type StudyPlanStatus = 'active' | 'completed' | 'paused';
+export type SubjectStatus = 'completed' | 'in-progress' | 'not-started';
 
 export interface StudyPlanSubject {
   id: string;
   name: string;
   color: string;
-  hoursPerWeek: number;
   weeklyHours: number;
   progress: number;
-  priority: StudyPlanPriority;
-  proficiency: SubjectProficiency;
-  completed: boolean;
-  difficulty?: StudyPlanDifficulty;
+  hoursPerWeek?: number;
+  priority?: 'high' | 'medium' | 'low';
+  proficiency?: 'strong' | 'medium' | 'weak';
+  completed?: boolean;
   status?: SubjectStatus;
+  topics?: string[];
+  difficulty?: 'easy' | 'medium' | 'hard';
+}
+
+export interface StudyPlanEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  resourceId: string;
+  extendedProps: {
+    subject: string;
+    topic: string;
+    type: 'study' | 'practice' | 'exam';
+    description: string;
+  };
+}
+
+export interface AcademicGoal {
+  id: string;
+  title: string;
+  description: string;
+  exam: string;
+  targetScore: number;
+  currentScore: number;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  status: 'active' | 'completed' | 'paused';
+  userId: string;
 }
 
 export interface StudyPlan {
@@ -28,14 +76,25 @@ export interface StudyPlan {
   exam: string;
   startDate: string;
   endDate: string;
-  examDate: string;
   subjects: StudyPlanSubject[];
-  status: StudyPlanStatus;
   hoursPerWeek: number;
   totalHours: number;
   completedHours: number;
-  learningPace: LearningPace;
-  preferredStudyTime: PreferredStudyTime;
+  progress: number;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  progressPercent?: number;
+  progressPercentage?: number;
+  status?: StudyPlanStatus;
+  examGoal?: string;
+  examDate?: string;
+  daysLeft?: number;
+  studyHoursPerDay?: number;
+  weeklyHours?: number;
+  title?: string;
+  learningPace?: LearningPace;
+  preferredStudyTime?: PreferredStudyTime;
 }
 
 export interface NewStudyPlan {
@@ -44,11 +103,15 @@ export interface NewStudyPlan {
   exam: string;
   startDate: string;
   endDate: string;
-  examDate: string;
   subjects: StudyPlanSubject[];
   hoursPerWeek: number;
   totalHours: number;
   completedHours: number;
-  learningPace: LearningPace;
-  preferredStudyTime: PreferredStudyTime;
+  progress: number;
+  userId: string;
+  examDate?: string;
+  examGoal?: string;
+  studyHoursPerDay?: number;
+  learningPace?: LearningPace;
+  preferredStudyTime?: PreferredStudyTime;
 }
