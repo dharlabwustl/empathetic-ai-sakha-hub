@@ -44,56 +44,6 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(99, 102, 241, 0.20), rgba(168, 85, 247, 0.20));
 }
 
-/* Smooth Page Transitions */
-.page-transition-enter {
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
-}
-
-.page-transition-enter-active {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.page-transition-exit {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.page-transition-exit-active {
-  opacity: 0;
-  transform: translateY(-20px) scale(1.05);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Route transitions */
-.route-transition {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.route-enter {
-  opacity: 0;
-  transform: translateX(100px);
-}
-
-.route-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.route-exit {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.route-exit-active {
-  opacity: 0;
-  transform: translateX(-100px);
-}
-
-/* ... keep existing code (all other CSS rules) */
-
 /* Enhanced gradient borders */
 .border-gradient-to-r {
   background: linear-gradient(to right, var(--tw-gradient-stops));
