@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MessageSquare, 
   Search, 
   Lightbulb, 
-  Cube, 
+  Box, 
   BarChart3, 
   Brain,
   Lock,
@@ -57,7 +56,7 @@ const features: Feature[] = [
     id: '3d-models',
     name: '3D Models',
     description: 'Interactive 3D visualizations for complex concepts',
-    icon: <Cube className="h-6 w-6" />,
+    icon: <Box className="h-6 w-6" />,
     isPremium: true,
     credits: 2,
     category: 'visual'
@@ -135,7 +134,7 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
   const categoryIcons = {
     communication: <MessageSquare className="h-5 w-5" />,
     analysis: <Brain className="h-5 w-5" />,
-    visual: <Cube className="h-5 w-5" />
+    visual: <Box className="h-5 w-5" />
   };
 
   return (
