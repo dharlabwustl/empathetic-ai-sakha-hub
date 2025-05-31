@@ -97,34 +97,6 @@
   }
 }
 
-/* Page transition animations */
-.page-transition-enter {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.page-transition-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
-}
-
-.page-transition-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.page-transition-exit-active {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
-}
-
-/* Smooth route transitions */
-.route-transition {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* Shimmer effect for loading states */
 .shimmer {
   background: linear-gradient(90deg, 

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { Target, TrendingUp, Calendar, Award, ChevronDown, ChevronUp, Brain, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AnimatedHighlight from './AnimatedHighlight';
 
 const ExamReadinessScoreCard: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -91,20 +91,10 @@ const ExamReadinessScoreCard: React.FC = () => {
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.6 }}
     >
-      {/* Animated Highlight */}
-      <AnimatedHighlight
-        text="Keep checking how you are doing!"
-        storageKey="readiness-highlight-closed"
-        className="top-[-40px] right-0"
-        arrowPosition="bottom"
-        delay={1500}
-      />
-
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-800 dark:to-indigo-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { speakWithFemaleVoice, createIntelligentPause } from '@/utils/voiceConfig';
 
 interface PrepzrVoiceAssistantProps {
   userName?: string;
@@ -92,39 +93,6 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     );
   };
 
-  const speakWithFemaleVoice = (message: string) => {
-    if ('speechSynthesis' in window && shouldPlayMessage()) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(message);
-      
-      // Configure for confident, empathetic female voice
-      utterance.rate = 0.9;
-      utterance.pitch = 1.1;
-      utterance.volume = 0.8;
-      utterance.lang = language;
-      
-      // Try to get a female voice
-      const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('female') || 
-        voice.name.toLowerCase().includes('woman') ||
-        voice.name.toLowerCase().includes('samantha') ||
-        voice.name.toLowerCase().includes('karen') ||
-        voice.name.toLowerCase().includes('victoria')
-      );
-      
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
-      }
-      
-      window.speechSynthesis.speak(utterance);
-      return true;
-    }
-    return false;
-  };
-
   const speakMessage = async (message: string, messageKey: string) => {
     if (!shouldPlayMessage() || messagesSent.has(messageKey)) {
       return;
@@ -132,10 +100,15 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
 
     const personalizedMessage = userName ? message.replace('[StudentName]', userName) : message;
     
-    const success = speakWithFemaleVoice(personalizedMessage);
+    const success = speakWithFemaleVoice(personalizedMessage, { language });
     if (success) {
       setLastMessageTime(Date.now());
       setMessagesSent(prev => new Set(prev).add(messageKey));
+      
+      // Schedule next message after cooldown
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
     }
   };
 
@@ -145,18 +118,22 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       const messageKey = 'home-intro';
       
       setTimeout(() => {
-        if (userName) {
-          speakMessage(
-            `Hi ${userName}! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`,
-            messageKey
-          );
-        } else {
-          speakMessage(
-            `Hi there! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`,
-            messageKey
-          );
-        }
+        speakMessage(
+          `Hi ${userName || 'there'}! I'm PREPZR AI, your personal exam prep guide. PREPZR isn't just another study app – it's your smart companion, built to help you crack your exams with confidence, structure, and speed.`,
+          messageKey
+        );
         setHasGreeted(true);
+        
+        // Smart suggestions with 60s delay
+        messageTimeoutRef.current = setTimeout(() => {
+          if (shouldPlayMessage()) {
+            speakMessage(
+              "Want to try PREPZR free before signing up? Just say 'Free trial'.",
+              'suggestion-1'
+            );
+          }
+        }, MESSAGE_COOLDOWN);
+        
       }, 1500);
     }
   }, [location.pathname, userName, hasGreeted]);
@@ -204,6 +181,7 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
     if (location.pathname !== currentContext) {
       setHasGreeted(false);
       setCurrentContext(location.pathname);
+      // Don't clear messagesSent - preserve session memory
       
       // Cancel any ongoing speech
       if (window.speechSynthesis) {
@@ -215,6 +193,18 @@ const PrepzrVoiceAssistant: React.FC<PrepzrVoiceAssistantProps> = ({
       }
     }
   }, [location.pathname, currentContext]);
+
+  // Voice command processing
+  const processVoiceCommand = (command: string) => {
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('free trial')) {
+      speakMessage("Starting your free trial!", 'command-trial');
+      navigate('/signup?trial=true');
+    } else if (lowerCommand.includes('explain prepzr')) {
+      speakMessage("PREPZR is the world's first emotionally aware, hyper-personalized adaptive exam preparation platform. Unlike traditional coaching centers, we understand your mindset, not just the exam content.", 'command-explain');
+    }
+  };
 
   return null; // This component only handles voice logic
 };
