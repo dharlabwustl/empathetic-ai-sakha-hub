@@ -39,7 +39,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden h-full">
         <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -65,7 +65,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="font-bold"
+                className="font-bold text-sm"
               >
                 Current Exam Goal
               </motion.span>
@@ -77,35 +77,39 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
         </CardHeader>
         <CardContent className="pt-4 pb-4">
           <div className="space-y-4">
-            {/* Goal Overview */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Goal Overview - Compact */}
+            <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Target Exam</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.exam}</p>
+                <p className="font-bold text-green-700">{currentGoal.exam}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 mb-1">Days Remaining</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.daysRemaining}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Target Score</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.targetScore}/720</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Current Score</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.currentScore}/720</p>
+                <p className="text-xs text-gray-600 mb-1">Days Left</p>
+                <p className="font-bold text-green-700">{currentGoal.daysRemaining}</p>
               </div>
             </div>
 
-            {/* Progress Bar */}
+            {/* KPI Section */}
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p className="text-xs text-gray-600 dark:text-gray-400">Target Score</p>
+                <p className="font-bold text-green-700">{currentGoal.targetScore}/720</p>
+              </div>
+              <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
+                <p className="text-xs text-gray-600 dark:text-gray-400">Current Score</p>
+                <p className="font-bold text-teal-700">{currentGoal.currentScore}/720</p>
+              </div>
+            </div>
+
+            {/* Progress Bar - Compact */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-700">Progress to Target</span>
+                <span className="text-gray-700">Progress</span>
                 <span className="text-gray-700">{Math.round(progressPercentage)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <motion.div 
-                  className="bg-gradient-to-r from-green-500 to-teal-500 h-3 rounded-full"
+                  className="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercentage}%` }}
                   transition={{ duration: 1.5, ease: "easeOut" }}
@@ -113,12 +117,13 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Simple Action Buttons */}
             <div className="flex gap-2">
               <Link to="/dashboard/student/academic" className="flex-1">
                 <Button 
                   size="sm" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="outline"
+                  className="w-full text-xs"
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />
                   Switch Plan
@@ -128,7 +133,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 <Button 
                   size="sm" 
                   variant="outline"
-                  className="w-full hover:bg-green-50"
+                  className="w-full text-xs"
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   New Plan
