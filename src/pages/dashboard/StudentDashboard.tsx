@@ -12,11 +12,9 @@ import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 import WelcomeDashboardPrompt from "@/components/dashboard/student/WelcomeDashboardPrompt";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DashboardVoiceGreeting from "@/components/voice/DashboardVoiceGreeting";
 import SignupVoiceAssistant from "@/components/voice/SignupVoiceAssistant";
-import { FloatingVoiceButton as EnhancedFloatingVoiceButton } from "@/components/voice/EnhancedVoiceAnimations";
 import { FloatingVoiceButton } from '@/components/voice/EnhancedVoiceCircle';
 
 const StudentDashboard = () => {
