@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -90,13 +89,39 @@ const ProtectedSidebarRoute = ({ Component }: { Component: React.ComponentType<a
   );
 };
 
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20,
+    scale: 0.98
+  },
+  in: {
+    opacity: 1,
+    y: 0,
+    scale: 1
+  },
+  out: {
+    opacity: 0,
+    y: -20,
+    scale: 0.98
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.4
+};
+
 function App() {
+  const location = useLocation();
+
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
       <BrowserRouter>
         <AuthProvider>
           <AdminAuthProvider>
-            <Routes>
+            <Routes location={location}>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
@@ -181,6 +206,7 @@ function App() {
               
               {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<ProtectedSidebarRoute Component={TutorView} />} />
+              <Route path="/dashboard/student/enhanced-tutor" element={<ProtectedSidebarRoute Component={EnhancedTutorView} />} />
               
               {/* Concept routes - Updated for direct linking */}
               <Route path="/dashboard/student/concepts/card/:id" element={<ProtectedSidebarRoute Component={ConceptCardDetail} />} />

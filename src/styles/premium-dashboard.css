@@ -44,6 +44,29 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(99, 102, 241, 0.20), rgba(168, 85, 247, 0.20));
 }
 
+/* Page Transition Styles */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Enhanced gradient borders */
 .border-gradient-to-r {
   background: linear-gradient(to right, var(--tw-gradient-stops));
@@ -160,4 +183,31 @@
   50% {
     transform: translateY(-8px);
   }
+}
+
+/* Highlight animations */
+.highlight-arrow {
+  animation: bounceArrow 2s ease-in-out infinite;
+}
+
+@keyframes bounceArrow {
+  0%, 100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+button, .card, .badge, .progress {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles for accessibility */
+button:focus-visible, 
+input:focus-visible, 
+textarea:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.5);
+  outline-offset: 2px;
 }
