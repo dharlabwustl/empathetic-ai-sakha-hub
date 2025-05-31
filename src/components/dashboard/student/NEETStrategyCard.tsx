@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
@@ -46,17 +45,10 @@ const NEETStrategyCard: React.FC = () => {
 
   return (
     <motion.div
-      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <AnimatedHighlight 
-        message="Your dynamic plan based on your profile, keeps changing based on your learning performance!"
-        storageKey="neet-strategy-highlight-closed"
-        className="bg-gradient-to-r from-purple-500 to-blue-500 max-w-sm"
-      />
-      
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
@@ -227,7 +219,8 @@ const NEETStrategyCard: React.FC = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Button 
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs"
+                    size="sm" 
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                   >
                     <Calendar className="h-3 w-3 mr-1" />
                     View Plan
@@ -241,8 +234,9 @@ const NEETStrategyCard: React.FC = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Button 
+                    size="sm" 
                     variant="outline"
-                    className="w-full hover:bg-purple-50 border-purple-300 text-xs"
+                    className="w-full hover:bg-purple-50 border-purple-300"
                   >
                     <Sparkles className="h-3 w-3 mr-1" />
                     Optimize
