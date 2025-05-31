@@ -11,19 +11,34 @@ interface VoiceAssistantOptions {
 }
 
 export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
-  const { context, userName, inactivityTimeout = 45000, enableInactivityPrompts = true } = options;
+  const { context, userName, inactivityTimeout = 60000, enableInactivityPrompts = true } = options;
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
   const [promptCount, setPromptCount] = useState(0);
+  const [userIsActive, setUserIsActive] = useState(false);
   
   const location = useLocation();
   const inactivityTimerRef = useRef<number | null>(null);
   const greetingTimeoutRef = useRef<number | null>(null);
+  const lastMessageTime = useRef<number>(0);
   
-  // Track user activity
+  // Track user activity with immediate pause on interaction
   const trackActivity = () => {
     setLastActivityTime(Date.now());
+    setUserIsActive(true);
+    
+    // Immediately stop any ongoing speech when user interacts
+    if (isSpeaking && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+    
+    // Reset user activity after 3 seconds of no interaction
+    setTimeout(() => {
+      setUserIsActive(false);
+    }, 3000);
+    
     resetInactivityTimer();
   };
   
@@ -33,54 +48,49 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
       clearTimeout(inactivityTimerRef.current);
     }
     
-    if (enableInactivityPrompts && context !== 'dashboard') {
+    if (enableInactivityPrompts && context === 'homepage' && !userIsActive) {
       inactivityTimerRef.current = window.setTimeout(() => {
         handleInactivityPrompt();
       }, inactivityTimeout);
     }
   };
   
-  // Handle inactivity prompts based on context
+  // Handle inactivity prompts based on context (only homepage)
   const handleInactivityPrompt = () => {
-    if (isSpeaking) return;
+    if (isSpeaking || userIsActive) return;
+    
+    // Check 60-second minimum gap between messages
+    const now = Date.now();
+    if (now - lastMessageTime.current < 60000) return;
     
     let promptMessage = '';
     
-    switch (context) {
-      case 'homepage':
-        const homepagePrompts = [
-          "I'm here to help you explore Prep-Zer. Would you like to know about our features?",
-          "Ready to start your exam preparation journey? I can guide you through our free trial.",
-          "Need assistance? I can tell you about Prep-Zer's benefits for exam success.",
-          "Wondering how Prep-Zer can help you? Just ask me anything!"
-        ];
-        promptMessage = homepagePrompts[promptCount % homepagePrompts.length];
-        break;
-        
-      case 'post-signup':
-        const signupPrompts = [
-          "Ready to take the next step? I recommend starting with your exam readiness test.",
-          "Would you like me to guide you through your first study session?",
-          "Let's get you started on your personalized learning journey!"
-        ];
-        promptMessage = signupPrompts[promptCount % signupPrompts.length];
-        break;
-        
-      case 'dashboard':
-        // Dashboard is silent unless invoked
-        return;
+    if (context === 'homepage') {
+      const homepagePrompts = [
+        "I'm here to help you explore PREPZR. Would you like to know about our features?",
+        "Ready to start your personalized journey? Sign up and get ready to conquer your exams with PREPZR.",
+        "Need assistance? I can tell you about PREPZR's benefits for exam success.",
+        "Wondering how PREPZR can help you? Just ask me anything!"
+      ];
+      promptMessage = homepagePrompts[promptCount % homepagePrompts.length];
     }
     
-    if (promptMessage) {
+    if (promptMessage && !userIsActive) {
       speak(promptMessage);
       setPromptCount(prev => prev + 1);
       resetInactivityTimer();
     }
   };
   
-  // Enhanced speak function with context awareness
+  // Enhanced speak function with activity and timing checks
   const speak = (text: string, isGreeting = false): boolean => {
-    if (!text) return false;
+    if (!text || userIsActive) return false;
+    
+    // Enforce 60-second minimum gap between messages
+    const now = Date.now();
+    if (now - lastMessageTime.current < 60000 && !isGreeting) {
+      return false;
+    }
     
     const success = speakWithFemaleVoice(
       text,
@@ -95,10 +105,16 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
         
         if (isGreeting) {
           setHasGreeted(true);
-          resetInactivityTimer();
         }
+        
+        lastMessageTime.current = Date.now();
+        resetInactivityTimer();
       }
     );
+    
+    if (success) {
+      lastMessageTime.current = now;
+    }
     
     trackActivity();
     return success;
@@ -106,38 +122,30 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Context-specific greeting messages
   const playGreeting = () => {
-    if (hasGreeted || isSpeaking) return;
+    if (hasGreeted || isSpeaking || userIsActive) return;
     
     let greetingMessage = '';
     
     switch (context) {
       case 'homepage':
-        greetingMessage = `Welcome to Prep-Zer! I'm your A-I companion here to guide you through the world's first emotionally aware exam preparation platform. Prep-Zer helps students like you crack competitive exams with personalized study plans, smart practice, and confidence building.`;
+        greetingMessage = `Welcome to PREPZR! I'm your AI companion, here to guide you through the world's first emotionally aware exam preparation platform. PREPZR helps students like you crack competitive exams with personalized study plans, smart practice, and confidence building.`;
         break;
         
       case 'post-signup':
-        const userGreeting = userName ? `Welcome to Prep-Zer, ${userName}!` : 'Welcome to Prep-Zer!';
-        greetingMessage = `${userGreeting} Congratulations on joining our community! You've taken the first step towards exam success. I'm here to guide you through your personalized learning journey.`;
+        greetingMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
         break;
         
       case 'dashboard':
-        if (userName) {
-          const welcomeMessages = [
-            `Welcome back, ${userName}! Ready to continue your learning journey?`,
-            `Hi ${userName}! Let's make today productive.`,
-            `Great to see you back, ${userName}! Your dedication shows.`
-          ];
-          greetingMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
-        } else {
-          greetingMessage = "Welcome back! Ready to continue your studies?";
-        }
-        break;
+        // Dashboard greetings are handled by DashboardVoiceAssistant
+        return;
     }
     
     if (greetingMessage) {
       // Delay greeting slightly for better user experience
       greetingTimeoutRef.current = window.setTimeout(() => {
-        speak(greetingMessage, true);
+        if (!userIsActive) {
+          speak(greetingMessage, true);
+        }
       }, 1500);
     }
   };
@@ -160,27 +168,17 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   const processHomepageCommand = (command: string): boolean => {
     if (command.includes('features') || command.includes('what can prepzr do')) {
-      speak("Prep-Zer offers emotionally aware learning with personalized study plans, adaptive practice, A-I tutoring, and comprehensive exam preparation for N-E-E-T, J-E-E, and other competitive exams.");
+      speak("PREPZR offers emotionally aware learning with personalized study plans, adaptive practice, AI tutoring, and comprehensive exam preparation for NEET, JEE, and other competitive exams.");
       return true;
     }
     
     if (command.includes('free trial') || command.includes('trial')) {
-      speak("Great choice! Our free trial gives you full access to Prep-Zer's features for 7 days. You can explore personalized study plans, take practice tests, and experience our A-I guidance.");
+      speak("Great choice! Our free trial gives you full access to PREPZR's features for 7 days. You can explore personalized study plans, take practice tests, and experience our AI guidance.");
       return true;
     }
     
-    if (command.includes('exam readiness') || command.includes('readiness test')) {
-      speak("Our exam readiness analyzer evaluates your current preparation level across all subjects and provides personalized recommendations. It's a great way to understand where you stand!");
-      return true;
-    }
-    
-    if (command.includes('scholarship') || command.includes('discount')) {
-      speak("Prep-Zer offers scholarship opportunities based on your performance. Take our scholarship test to qualify for discounts and financial assistance!");
-      return true;
-    }
-    
-    if (command.includes('better than') || command.includes('why prepzr')) {
-      speak("Unlike traditional coaching or other platforms, Prep-Zer understands your emotions and adapts to your learning style. We provide personalized guidance, not one-size-fits-all solutions.");
+    if (command.includes('signup') || command.includes('join')) {
+      speak("Let's start your personalized journey. Sign up and get ready to conquer your exams with PREPZR.");
       return true;
     }
     
@@ -189,12 +187,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   const processSignupCommand = (command: string): boolean => {
     if (command.includes('next step') || command.includes('what now')) {
-      speak("I recommend starting with your exam readiness test to understand your current level, then exploring your personalized study plan.");
-      return true;
-    }
-    
-    if (command.includes('exam readiness') || command.includes('test')) {
-      speak("Perfect! The exam readiness test will analyze your strengths and areas for improvement. It's the best way to begin your journey.");
+      speak(`I recommend starting with your exam readiness test to understand your current level, ${userName}, then exploring your personalized study plan.`);
       return true;
     }
     
@@ -202,18 +195,17 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   };
   
   const processDashboardCommand = (command: string): boolean => {
-    // Dashboard commands will be context-aware based on user progress
     if (command.includes('help') || command.includes('guide')) {
-      speak("I'm here to help with your studies. You can ask about your progress, next topics to study, or get motivational support.");
+      speak(`I'm here to help with your studies, ${userName}. You can ask about your progress, next topics to study, or get motivational support.`);
       return true;
     }
     
     return false;
   };
   
-  // Setup activity listeners
+  // Setup activity listeners with comprehensive event tracking
   useEffect(() => {
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown'];
     
     events.forEach(event => {
       document.addEventListener(event, trackActivity, true);
@@ -230,6 +222,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   useEffect(() => {
     setHasGreeted(false);
     setPromptCount(0);
+    setUserIsActive(false);
     
     // Clear existing timers
     if (greetingTimeoutRef.current) {
@@ -239,13 +232,19 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
       clearTimeout(inactivityTimerRef.current);
     }
     
+    // Cancel any ongoing speech on route change
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+    
     // Play greeting for appropriate contexts
     if (context === 'homepage' || context === 'post-signup') {
       playGreeting();
     }
   }, [context, location.pathname]);
   
-  // Cleanup on unmount
+  // Cleanup on unmount and route changes
   useEffect(() => {
     return () => {
       if (greetingTimeoutRef.current) {

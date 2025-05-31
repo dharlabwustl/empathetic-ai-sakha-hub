@@ -67,7 +67,7 @@ export const getDefaultVoiceConfig = (): VoiceConfig => {
 // Enhanced message tracking with session-based prevention
 const spokenMessages = new Map<string, { timestamp: number; sessionId: string }>();
 const SESSION_ID = Date.now().toString();
-const MESSAGE_COOLDOWN = 300000; // 5 minutes cooldown for same message
+const MESSAGE_COOLDOWN = 60000; // 60 seconds cooldown for same message
 
 export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig>): SpeechSynthesisUtterance => {
   const defaultConfig = getDefaultVoiceConfig();
@@ -77,9 +77,9 @@ export const createFemaleUtterance = (text: string, config?: Partial<VoiceConfig
   
   // Enhanced pronunciation fixes for better clarity - FIXED PREPZR pronunciation
   const correctedText = text
-    .replace(/PREPZR/gi, 'Prep-Zer')  // Main brand pronunciation - FIXED
-    .replace(/prepzr/gi, 'prep-zer')
-    .replace(/Prepzr/g, 'Prep-Zer')
+    .replace(/PREPZR/gi, 'Prep Zer')  // Main brand pronunciation - FIXED
+    .replace(/prepzr/gi, 'prep zer')
+    .replace(/Prepzr/g, 'Prep Zer')
     .replace(/NEET/gi, 'N-E-E-T')    // Spell out NEET for clarity
     .replace(/JEE/gi, 'J-E-E')       // Spell out JEE for clarity
     .replace(/AI/gi, 'A-I');         // Spell out AI for clarity
@@ -105,15 +105,15 @@ export const speakWithFemaleVoice = (
 ): boolean => {
   if (!('speechSynthesis' in window)) return false;
   
-  // Enhanced repetition prevention
-  const messageKey = text.toLowerCase().trim().substring(0, 50); // Use first 50 chars as key
+  // Enhanced repetition prevention with 60-second minimum
+  const messageKey = text.toLowerCase().trim().substring(0, 50);
   const now = Date.now();
   const messageInfo = spokenMessages.get(messageKey);
   
   if (messageInfo && 
       messageInfo.sessionId === SESSION_ID && 
       (now - messageInfo.timestamp) < MESSAGE_COOLDOWN) {
-    console.log('🔇 Voice: Preventing repetition of message:', text.substring(0, 50) + '...');
+    console.log('🔇 Voice: Preventing repetition (60s cooldown):', text.substring(0, 50) + '...');
     return false;
   }
   
