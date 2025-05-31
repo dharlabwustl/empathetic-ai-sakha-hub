@@ -19,11 +19,13 @@ export interface StudyPlanSubject {
   difficulty?: SubjectDifficulty;
   completed: boolean;
   status?: SubjectStatus;
+  topics?: string[];
 }
 
 export interface StudyPlan {
   id: string;
   name: string;
+  title?: string;
   description: string;
   exam: string;
   examDate: string;
@@ -32,6 +34,7 @@ export interface StudyPlan {
   endDate: string;
   subjects: StudyPlanSubject[];
   hoursPerWeek: number;
+  weeklyHours?: number;
   totalHours: number;
   studyHoursPerDay?: number;
   status: StudyPlanStatus;
