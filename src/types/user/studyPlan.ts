@@ -5,6 +5,16 @@ export type StudyPlanStatus = 'draft' | 'active' | 'paused';
 export type LearningPace = 'slow' | 'normal' | 'fast';
 export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
 
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  completed: boolean;
+  estimatedHours: number;
+  difficulty?: DifficultyLevel;
+  status?: SubjectStatus;
+  priority?: 'high' | 'medium' | 'low';
+}
+
 export interface StudyPlanSubject {
   id: string;
   name: string;
@@ -17,12 +27,8 @@ export interface StudyPlanSubject {
   completed: boolean;
   status?: SubjectStatus;
   difficulty?: DifficultyLevel;
-  topics?: Array<{
-    id: string;
-    name: string;
-    completed: boolean;
-    estimatedHours: number;
-  }>;
+  isWeakSubject?: boolean;
+  topics?: StudyPlanTopic[];
 }
 
 export interface StudyPlan {

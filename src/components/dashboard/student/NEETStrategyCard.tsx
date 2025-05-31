@@ -10,7 +10,7 @@ import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const [showSubjects, setShowSubjects] = useState(true);
+  const [showSubjects, setShowSubjects] = useState(false); // Set to false by default (hidden mode)
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
@@ -19,15 +19,15 @@ const NEETStrategyCard: React.FC = () => {
   const learningStyle = "Visual + Practical"; // Visual, Auditory, Kinesthetic, Mixed
   
   const subjects = [
-    { name: "Physics", progress: 75, status: "strong", color: "blue" },
-    { name: "Chemistry", progress: 45, status: "weak", color: "red" },
-    { name: "Biology", progress: 55, status: "weak", color: "orange" }
+    { name: "Physics", progress: 45, status: "weak", color: "blue" },
+    { name: "Chemistry", progress: 62, status: "medium", color: "green" },
+    { name: "Biology", progress: 78, status: "strong", color: "orange" }
   ];
 
   const objectives = [
-    "Complete syllabus",
-    "Concept clarity", 
-    "Regular practice"
+    "Complete NEET 2026 syllabus",
+    "Strengthen weak concepts", 
+    "Regular mock tests"
   ];
 
   const getSubjectBadge = (subject: any) => {
@@ -40,10 +40,16 @@ const NEETStrategyCard: React.FC = () => {
           </Badge>
         </div>
       );
+    } else if (subject.status === "strong") {
+      return (
+        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+          Strong
+        </Badge>
+      );
     }
     return (
-      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
-        Strong
+      <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+        Medium
       </Badge>
     );
   };
@@ -72,7 +78,7 @@ const NEETStrategyCard: React.FC = () => {
     >
       <AnimatedHighlight
         id="neet_strategy"
-        message="Your personalized NEET preparation strategy"
+        message="Your personalized NEET 2026 preparation strategy"
         position="top-right"
         arrowDirection="down"
       />
@@ -105,7 +111,7 @@ const NEETStrategyCard: React.FC = () => {
                 }}
                 className="font-bold"
               >
-                NEET Strategy Card
+                NEET 2026 Strategy
               </motion.span>
             </div>
             <Button
@@ -127,7 +133,7 @@ const NEETStrategyCard: React.FC = () => {
               <Link to="/dashboard/student/study-plan">
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
-                  Adaptive Plan
+                  Adaptive NEET Plan
                   <ArrowRight className="h-4 w-4 ml-auto" />
                 </Button>
               </Link>
@@ -154,7 +160,7 @@ const NEETStrategyCard: React.FC = () => {
                     ease: "easeInOut"
                   }}
                 >
-                  Personalized Strategy
+                  May 3, 2026 Target
                 </motion.span>
               </Badge>
             </motion.div>
@@ -214,7 +220,7 @@ const NEETStrategyCard: React.FC = () => {
               </motion.p>
             </div>
             
-            {/* Subject Status with hide option */}
+            {/* Subject Status with hide option - Hidden by default */}
             {showSubjects && (
               <motion.div 
                 className="space-y-2"
