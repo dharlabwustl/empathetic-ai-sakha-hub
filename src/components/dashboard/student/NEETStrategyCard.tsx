@@ -117,7 +117,7 @@ const NEETStrategyCard: React.FC = () => {
                 className="font-bold"
               >
                 NEET 2026 Strategy
-              </motion.span>
+              </span>
             </div>
             <Button
               variant="ghost"
