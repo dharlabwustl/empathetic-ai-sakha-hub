@@ -105,6 +105,13 @@ export const speakWithFemaleVoice = (
 ): boolean => {
   if (!('speechSynthesis' in window)) return false;
   
+  // Check if muted
+  const savedMuteState = localStorage.getItem('prepzr_voice_muted');
+  if (savedMuteState && JSON.parse(savedMuteState)) {
+    console.log('🔇 Voice: Assistant is muted');
+    return false;
+  }
+  
   // Enhanced repetition prevention with 60-second minimum
   const messageKey = text.toLowerCase().trim().substring(0, 50);
   const now = Date.now();

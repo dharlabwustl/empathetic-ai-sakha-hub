@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { speakWithFemaleVoice, createIntelligentPause } from '@/utils/voiceConfig';
+import { speakWithFemaleVoice } from '@/utils/voiceConfig';
 
 interface VoiceAssistantOptions {
   context: 'homepage' | 'post-signup' | 'dashboard';
@@ -24,6 +24,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   const greetingTimeoutRef = useRef<number | null>(null);
   const lastMessageTime = useRef<number>(0);
   const lastMessage = useRef<string>('');
+  const sessionStorageKey = `voice_assistant_${context}`;
   
   // Listen for mute state changes
   useEffect(() => {
@@ -92,8 +93,8 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     
     if (context === 'homepage') {
       const homepagePrompts = [
-        "I'm here to help you explore PREPZR. Would you like to know about our features?",
         "Let's start your personalized journey. Sign up and get ready to conquer your exams with PREPZR.",
+        "I'm here to help you explore PREPZR. Would you like to know about our features?",
         "Need assistance? I can tell you about PREPZR's benefits for exam success.",
         "Wondering how PREPZR can help you? Just ask me anything!"
       ];
@@ -137,6 +138,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
         
         if (isGreeting) {
           setHasGreeted(true);
+          sessionStorage.setItem(`${sessionStorageKey}_greeted`, 'true');
         }
         
         lastMessageTime.current = Date.now();
@@ -155,7 +157,8 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Context-specific greeting messages
   const playGreeting = () => {
-    if (hasGreeted || isSpeaking || userIsActive || isMuted) return;
+    const hasGreetedInSession = sessionStorage.getItem(`${sessionStorageKey}_greeted`) === 'true';
+    if (hasGreeted || hasGreetedInSession || isSpeaking || userIsActive || isMuted) return;
     
     let greetingMessage = '';
     
@@ -171,8 +174,17 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
         break;
         
       case 'dashboard':
-        // Dashboard greetings are handled separately
-        return;
+        if (userName) {
+          // Check if this is a returning user
+          const isReturningUser = localStorage.getItem('user_last_activity');
+          if (isReturningUser) {
+            const lastActivity = localStorage.getItem('user_last_activity') || 'studying';
+            greetingMessage = `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`;
+          } else {
+            greetingMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
+          }
+        }
+        break;
     }
     
     if (greetingMessage) {
@@ -261,11 +273,6 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Play greeting when context changes and cleanup on route changes
   useEffect(() => {
-    setHasGreeted(false);
-    setPromptCount(0);
-    setUserIsActive(false);
-    lastMessage.current = '';
-    
     // Clear existing timers
     if (greetingTimeoutRef.current) {
       clearTimeout(greetingTimeoutRef.current);
@@ -280,11 +287,18 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
       setIsSpeaking(false);
     }
     
+    // Reset state for new context
+    const hasGreetedInSession = sessionStorage.getItem(`${sessionStorageKey}_greeted`) === 'true';
+    setHasGreeted(hasGreetedInSession);
+    setPromptCount(0);
+    setUserIsActive(false);
+    lastMessage.current = '';
+    
     // Play greeting for appropriate contexts
-    if ((context === 'homepage' || context === 'post-signup') && !isMuted) {
+    if ((context === 'homepage' || context === 'post-signup' || context === 'dashboard') && !isMuted) {
       playGreeting();
     }
-  }, [context, location.pathname, isMuted]);
+  }, [context, location.pathname, isMuted, userName]);
   
   // Cleanup on unmount and route changes
   useEffect(() => {

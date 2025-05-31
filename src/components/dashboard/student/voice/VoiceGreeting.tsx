@@ -31,6 +31,13 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       console.log('🔇 Voice Greeting: Skipping announcement - already spoken or too soon');
       return;
     }
+
+    // Check if muted
+    const savedMuteState = localStorage.getItem('prepzr_voice_muted');
+    if (savedMuteState && JSON.parse(savedMuteState)) {
+      console.log('🔇 Voice Greeting: Assistant is muted');
+      return;
+    }
     
     const speakGreeting = () => {
       if (!('speechSynthesis' in window)) return;

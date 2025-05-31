@@ -1,10 +1,8 @@
 
-export type SubjectProficiency = 'weak' | 'medium' | 'strong';
-export type SubjectPriority = 'low' | 'medium' | 'high';
-export type SubjectDifficulty = 'easy' | 'medium' | 'hard';
+export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'paused';
-export type StudyPlanStatus = 'draft' | 'active' | 'paused' | 'completed';
-export type LearningPace = 'slow' | 'medium' | 'fast';
+export type StudyPlanStatus = 'draft' | 'active' | 'paused';
+export type LearningPace = 'slow' | 'normal' | 'fast';
 export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
 
 export interface StudyPlanSubject {
@@ -14,30 +12,33 @@ export interface StudyPlanSubject {
   hoursPerWeek: number;
   weeklyHours: number;
   progress: number;
-  priority: SubjectPriority;
-  proficiency: SubjectProficiency;
-  difficulty?: SubjectDifficulty;
+  priority: 'high' | 'medium' | 'low';
+  proficiency: 'weak' | 'medium' | 'strong';
   completed: boolean;
   status?: SubjectStatus;
+  difficulty?: DifficultyLevel;
+  topics?: Array<{
+    id: string;
+    name: string;
+    completed: boolean;
+    estimatedHours: number;
+  }>;
 }
 
 export interface StudyPlan {
   id: string;
   name: string;
+  title: string;
   description: string;
   exam: string;
   examDate: string;
-  examGoal?: string;
+  examGoal: string;
   startDate: string;
   endDate: string;
   subjects: StudyPlanSubject[];
   hoursPerWeek: number;
-  totalHours: number;
-  studyHoursPerDay?: number;
+  weeklyHours: number;
   status: StudyPlanStatus;
-  progress: number;
-  progressPercent?: number;
-  daysLeft?: number;
   learningPace: LearningPace;
   preferredStudyTime: PreferredStudyTime;
   createdAt: string;
@@ -45,19 +46,15 @@ export interface StudyPlan {
 }
 
 export interface NewStudyPlan {
-  name: string;
-  description: string;
-  exam: string;
-  examDate: string;
+  name?: string;
+  description?: string;
+  exam?: string;
+  examDate?: string;
   examGoal?: string;
-  startDate: string;
-  endDate: string;
-  subjects: StudyPlanSubject[];
-  hoursPerWeek: number;
-  totalHours: number;
-  studyHoursPerDay?: number;
-  status: StudyPlanStatus;
-  progress: number;
-  learningPace: LearningPace;
-  preferredStudyTime: PreferredStudyTime;
+  startDate?: string;
+  endDate?: string;
+  subjects?: StudyPlanSubject[];
+  hoursPerWeek?: number;
+  learningPace?: LearningPace;
+  preferredStudyTime?: PreferredStudyTime;
 }
