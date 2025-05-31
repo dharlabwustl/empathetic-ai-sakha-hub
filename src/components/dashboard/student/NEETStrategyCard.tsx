@@ -10,13 +10,12 @@ import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const [showSubjects, setShowSubjects] = useState(false); // Set to false by default (hidden)
+  const [showSubjects, setShowSubjects] = useState(false); // Hidden by default
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
-  // Student's learning profile
-  const learningPace = "medium"; // medium, fast, slow
-  const learningStyle = "Visual + Practical"; // Visual, Auditory, Kinesthetic, Mixed
+  const learningPace = "normal";
+  const learningStyle = "Visual + Practical";
   
   const subjects = [
     { name: "Physics", progress: 45, status: "medium", color: "blue" },
