@@ -147,7 +147,7 @@ const AICoachCard: React.FC = () => {
           ))}
           
           <div className="text-center pt-2">
-            <Link to="/dashboard/student/tutor-enhanced">
+            <a href="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/tutor" target="_blank" rel="noopener noreferrer">
               <Button 
                 size="sm" 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
@@ -155,7 +155,7 @@ const AICoachCard: React.FC = () => {
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Chat with AI Coach
               </Button>
-            </Link>
+            </a>
           </div>
         </CardContent>
       </Card>

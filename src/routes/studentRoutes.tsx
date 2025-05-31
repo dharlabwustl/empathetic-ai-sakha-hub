@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
@@ -21,7 +22,7 @@ import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/Interacti
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
-import Enhanced24x7TutorView from '@/pages/dashboard/student/Enhanced24x7TutorView';
+import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -74,7 +75,6 @@ const StudentRoutes = () => {
           <FlashcardsPage />
         </SidebarLayout>
       } />
-      {/* CRITICAL: INTERACTIVE FLASHCARD ROUTE - MUST BE EXACT MATCH - FIXED TO /1/interactive */}
       <Route path="/flashcards/1/interactive" element={
         <SidebarLayout>
           <InteractiveFlashcard />
@@ -120,6 +120,11 @@ const StudentRoutes = () => {
           <TutorView />
         </SidebarLayout>
       } />
+      <Route path="/tutor-enhanced" element={
+        <SidebarLayout>
+          <Enhanced24x7TutorPage />
+        </SidebarLayout>
+      } />
       <Route path="/profile" element={
         <SidebarLayout>
           <StudentProfile />
@@ -131,11 +136,6 @@ const StudentRoutes = () => {
         </SidebarLayout>
       } />
       <Route path="/loading" element={<DashboardLoading />} />
-      <Route path="/tutor-enhanced" element={
-        <SidebarLayout>
-          <Enhanced24x7TutorView />
-        </SidebarLayout>
-      } />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

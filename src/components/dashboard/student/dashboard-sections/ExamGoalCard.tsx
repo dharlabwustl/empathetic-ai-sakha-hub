@@ -39,7 +39,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden h-full">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden h-[280px]">
         <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
