@@ -1,19 +1,9 @@
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
-export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'paused' | 'pending';
-export type StudyPlanStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived' | 'pending';
-export type LearningPace = 'slow' | 'normal' | 'fast' | 'moderate';
-export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening' | 'night';
-
-export interface StudyPlanTopic {
-  id: string;
-  name: string;
-  completed: boolean;
-  estimatedHours: number;
-  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  priority?: 'high' | 'medium' | 'low';
-  difficulty?: 'easy' | 'medium' | 'hard';
-}
+export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'paused';
+export type StudyPlanStatus = 'draft' | 'active' | 'paused';
+export type LearningPace = 'slow' | 'normal' | 'fast';
+export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
 
 export interface StudyPlanSubject {
   id: string;
@@ -27,8 +17,12 @@ export interface StudyPlanSubject {
   completed: boolean;
   status?: SubjectStatus;
   difficulty?: DifficultyLevel;
-  isWeakSubject?: boolean;
-  topics?: StudyPlanTopic[];
+  topics?: Array<{
+    id: string;
+    name: string;
+    completed: boolean;
+    estimatedHours: number;
+  }>;
 }
 
 export interface StudyPlan {
@@ -49,30 +43,18 @@ export interface StudyPlan {
   preferredStudyTime: PreferredStudyTime;
   createdAt: string;
   updatedAt: string;
-  userId?: string;
-  goal?: string;
-  studyHoursPerDay?: number;
-  progressPercent?: number;
-  progressPercentage?: number;
-  progress?: number;
-  daysLeft?: number;
 }
 
 export interface NewStudyPlan {
   name?: string;
-  title?: string;
   description?: string;
   exam?: string;
-  examDate?: string | Date;
+  examDate?: string;
   examGoal?: string;
-  goal?: string;
   startDate?: string;
   endDate?: string;
-  subjects?: Omit<StudyPlanSubject, 'topics'>[];
+  subjects?: StudyPlanSubject[];
   hoursPerWeek?: number;
-  weeklyHours?: number;
   learningPace?: LearningPace;
   preferredStudyTime?: PreferredStudyTime;
-  studyHoursPerDay?: number;
-  status: StudyPlanStatus;
 }

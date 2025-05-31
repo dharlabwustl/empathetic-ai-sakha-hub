@@ -8,17 +8,9 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
-interface NEETStrategyCardProps {
-  isHidden?: boolean;
-  onToggleVisibility?: () => void;
-}
-
-const NEETStrategyCard: React.FC<NEETStrategyCardProps> = ({ 
-  isHidden = false, 
-  onToggleVisibility 
-}) => {
+const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const [showSubjects, setShowSubjects] = useState(!isHidden);
+  const [showSubjects, setShowSubjects] = useState(true);
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
@@ -27,9 +19,9 @@ const NEETStrategyCard: React.FC<NEETStrategyCardProps> = ({
   const learningStyle = "Visual + Practical"; // Visual, Auditory, Kinesthetic, Mixed
   
   const subjects = [
-    { name: "Physics", progress: 65, status: "medium", color: "blue" },
+    { name: "Physics", progress: 75, status: "strong", color: "blue" },
     { name: "Chemistry", progress: 45, status: "weak", color: "red" },
-    { name: "Biology", progress: 70, status: "strong", color: "green" }
+    { name: "Biology", progress: 55, status: "weak", color: "orange" }
   ];
 
   const objectives = [
@@ -49,16 +41,9 @@ const NEETStrategyCard: React.FC<NEETStrategyCardProps> = ({
         </div>
       );
     }
-    if (subject.status === "strong") {
-      return (
-        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
-          Strong
-        </Badge>
-      );
-    }
     return (
-      <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
-        Medium
+      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+        Strong
       </Badge>
     );
   };
@@ -77,37 +62,6 @@ const NEETStrategyCard: React.FC<NEETStrategyCardProps> = ({
     if (style.includes('Kinesthetic')) return 'text-pink-600 bg-pink-100';
     return 'text-teal-600 bg-teal-100';
   };
-
-  if (isHidden) {
-    return (
-      <motion.div
-        className="relative"
-        initial={{ opacity: 0.5, scale: 0.95 }}
-        animate={{ opacity: 0.7, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Card className="border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900/50">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-gray-500">
-              <EyeOff className="h-4 w-4" />
-              <span className="text-sm">NEET Strategy Card (Hidden)</span>
-            </div>
-            {onToggleVisibility && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onToggleVisibility}
-                className="mt-2"
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                Show Card
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
-    );
-  }
 
   return (
     <motion.div
@@ -154,26 +108,14 @@ const NEETStrategyCard: React.FC<NEETStrategyCardProps> = ({
                 NEET Strategy Card
               </motion.span>
             </div>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSubjects(!showSubjects)}
-                className="h-6 w-6 p-0"
-              >
-                {showSubjects ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-              {onToggleVisibility && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onToggleVisibility}
-                  className="h-6 w-6 p-0"
-                >
-                  <EyeOff className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSubjects(!showSubjects)}
+              className="h-6 w-6 p-0"
+            >
+              {showSubjects ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4 pb-4">
@@ -212,7 +154,7 @@ const NEETStrategyCard: React.FC<NEETStrategyCardProps> = ({
                     ease: "easeInOut"
                   }}
                 >
-                  NEET 2026 • 456 days left
+                  Personalized Strategy
                 </motion.span>
               </Badge>
             </motion.div>
@@ -291,10 +233,7 @@ const NEETStrategyCard: React.FC<NEETStrategyCardProps> = ({
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     whileHover={{ scale: 1.02, backgroundColor: subject.status === "weak" ? "rgb(254 242 242)" : "rgb(240 253 244)" }}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{subject.name}</span>
-                      <span className="text-gray-500">{subject.progress}%</span>
-                    </div>
+                    <span className="font-medium">{subject.name}</span>
                     {getSubjectBadge(subject)}
                   </motion.div>
                 ))}
