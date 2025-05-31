@@ -146,7 +146,7 @@ const AICoachCard: React.FC = () => {
           ))}
           
           <div className="text-center pt-2">
-            <Link to="/dashboard/student/ai-coach">
+            <Link to="/dashboard/student/tutor-enhanced">
               <Button 
                 size="sm" 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
