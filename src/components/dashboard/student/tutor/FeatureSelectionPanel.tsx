@@ -35,7 +35,7 @@ const features: Feature[] = [
     id: 'chat',
     name: 'AI Chat',
     description: 'Ask questions and get instant answers from your personal AI tutor',
-    icon: <MessageSquare className="h-6 w-6" />,
+    icon: <MessageSquare className="h-5 w-5" />,
     isPremium: false,
     category: 'communication',
     benefits: ['Instant responses', 'Context-aware answers', 'Study guidance']
@@ -44,7 +44,7 @@ const features: Feature[] = [
     id: 'search',
     name: 'Smart Search',
     description: 'Find relevant study materials quickly with AI-powered search',
-    icon: <Search className="h-6 w-6" />,
+    icon: <Search className="h-5 w-5" />,
     isPremium: false,
     category: 'communication',
     benefits: ['Fast results', 'Relevant content', 'Smart filtering']
@@ -53,7 +53,7 @@ const features: Feature[] = [
     id: 'insights',
     name: 'Study Insights',
     description: 'Get personalized learning recommendations based on your performance',
-    icon: <Lightbulb className="h-6 w-6" />,
+    icon: <Lightbulb className="h-5 w-5" />,
     isPremium: false,
     category: 'analysis',
     benefits: ['Personalized tips', 'Performance tracking', 'Smart recommendations']
@@ -62,7 +62,7 @@ const features: Feature[] = [
     id: '3d-models',
     name: '3D Models',
     description: 'Interactive 3D visualizations for complex concepts and structures',
-    icon: <Box className="h-6 w-6" />,
+    icon: <Box className="h-5 w-5" />,
     isPremium: true,
     credits: 2,
     category: 'visual',
@@ -72,7 +72,7 @@ const features: Feature[] = [
     id: 'interactive-visuals',
     name: 'Interactive Visuals',
     description: 'Dynamic charts, graphs, and interactive diagrams',
-    icon: <BarChart3 className="h-6 w-6" />,
+    icon: <BarChart3 className="h-5 w-5" />,
     isPremium: true,
     credits: 3,
     category: 'visual',
@@ -82,7 +82,7 @@ const features: Feature[] = [
     id: 'advanced-analysis',
     name: 'Advanced Analysis',
     description: 'Deep learning analytics and comprehensive performance insights',
-    icon: <Brain className="h-6 w-6" />,
+    icon: <Brain className="h-5 w-5" />,
     isPremium: true,
     credits: 5,
     category: 'analysis',
@@ -135,38 +135,38 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
   }, {} as Record<string, Feature[]>);
 
   const categoryTitles = {
-    communication: 'Communication & Support',
-    analysis: 'Analysis & Insights',
-    visual: 'Visual Learning Tools'
+    communication: 'AI Communication',
+    analysis: 'Smart Analysis',
+    visual: 'Visual Learning'
   };
 
   const categoryIcons = {
-    communication: <MessageSquare className="h-5 w-5" />,
-    analysis: <Brain className="h-5 w-5" />,
-    visual: <Box className="h-5 w-5" />
+    communication: <MessageSquare className="h-4 w-4" />,
+    analysis: <Brain className="h-4 w-4" />,
+    visual: <Box className="h-4 w-4" />
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Choose Your Learning Tool
+    <div className="space-y-4">
+      <div className="text-center mb-4">
+        <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          AI Learning Tools
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Select the perfect AI-powered feature for your study session
+        <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+          Choose your perfect study companion
         </p>
       </div>
 
       {Object.entries(groupedFeatures).map(([category, categoryFeatures]) => (
-        <div key={category} className="space-y-3">
-          <div className="flex items-center gap-2 px-1">
+        <div key={category} className="space-y-2">
+          <div className="flex items-center gap-2 px-2">
             {categoryIcons[category as keyof typeof categoryIcons]}
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               {categoryTitles[category as keyof typeof categoryTitles]}
             </h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-2">
             {categoryFeatures.map((feature) => {
               const isSelected = selectedFeature === feature.id;
               const canAfford = !feature.isPremium || !feature.credits || userCredits >= feature.credits;
@@ -174,16 +174,16 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
               return (
                 <motion.div
                   key={feature.id}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   onHoverStart={() => setHoveredFeature(feature.id)}
                   onHoverEnd={() => setHoveredFeature(null)}
                 >
                   <Card 
-                    className={`cursor-pointer transition-all duration-300 ${
+                    className={`cursor-pointer transition-all duration-200 ${
                       isSelected 
-                        ? 'ring-2 ring-blue-500 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20' 
-                        : 'hover:shadow-md'
+                        ? 'ring-2 ring-blue-500 shadow-md bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20' 
+                        : 'hover:shadow-sm'
                     } ${
                       feature.isPremium && !canAfford
                         ? 'opacity-60 cursor-not-allowed'
@@ -191,79 +191,78 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
                     }`}
                     onClick={() => handleFeatureClick(feature)}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`p-2 rounded-lg flex-shrink-0 ${
                             isSelected 
-                              ? 'bg-blue-500 text-white shadow-lg' 
+                              ? 'bg-blue-500 text-white' 
                               : feature.isPremium 
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
+                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
                                 : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
                           }`}>
                             {feature.icon}
                           </div>
-                          <div>
-                            <CardTitle className="text-base font-semibold flex items-center gap-2">
-                              {feature.name}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-sm font-semibold truncate">
+                                {feature.name}
+                              </h4>
                               {feature.isPremium && (
-                                <Crown className="h-4 w-4 text-yellow-500" />
+                                <Crown className="h-3 w-3 text-yellow-500 flex-shrink-0" />
                               )}
-                            </CardTitle>
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                              {feature.description}
+                            </p>
+                            
+                            {/* Compact Benefits */}
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {feature.benefits.slice(0, 2).map((benefit, index) => (
+                                <div key={index} className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                  <Sparkles className="h-2 w-2 text-blue-500" />
+                                  <span className="truncate">{benefit}</span>
+                                  {index < 1 && <span className="text-gray-300">•</span>}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                         
-                        {feature.isPremium && (
-                          <div className="flex flex-col items-end gap-1">
-                            <Badge 
-                              variant="secondary" 
-                              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium"
-                            >
-                              <Star className="h-3 w-3 mr-1" />
-                              Premium
-                            </Badge>
-                            {feature.credits && (
-                              <Badge variant="outline" className="text-xs border-purple-300">
-                                {feature.credits} credits
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          {feature.isPremium && (
+                            <>
+                              <Badge 
+                                variant="secondary" 
+                                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs"
+                              >
+                                <Star className="h-2 w-2 mr-1" />
+                                Pro
                               </Badge>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="pt-0 space-y-3">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                        {feature.description}
-                      </p>
-                      
-                      {/* Benefits List */}
-                      <div className="space-y-1">
-                        {feature.benefits.map((benefit, index) => (
-                          <div key={index} className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                            <Sparkles className="h-3 w-3 text-blue-500" />
-                            <span>{benefit}</span>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {feature.isPremium && !canAfford && (
-                        <div className="mt-3 flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
-                          <Lock className="h-4 w-4" />
-                          <span>Need {feature.credits} more credits</span>
+                              {feature.credits && (
+                                <Badge variant="outline" className="text-xs">
+                                  {feature.credits}cr
+                                </Badge>
+                              )}
+                            </>
+                          )}
+                          
+                          {feature.isPremium && !canAfford && (
+                            <Lock className="h-3 w-3 text-amber-500" />
+                          )}
+                          
+                          {isSelected && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-medium"
+                            >
+                              <Zap className="h-3 w-3" />
+                              <span>Active</span>
+                            </motion.div>
+                          )}
                         </div>
-                      )}
-                      
-                      {isSelected && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="mt-3 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-medium"
-                        >
-                          <Zap className="h-4 w-4" />
-                          <span>Active</span>
-                        </motion.div>
-                      )}
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -273,26 +272,27 @@ const FeatureSelectionPanel: React.FC<FeatureSelectionPanelProps> = ({
         </div>
       ))}
 
-      {/* Credits Purchase CTA */}
+      {/* Compact Credits CTA */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800"
+        className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800"
       >
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="font-semibold text-purple-800 dark:text-purple-200">
-              Unlock Premium Features
+            <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200">
+              Unlock Premium
             </h4>
-            <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">
-              Get access to 3D models, interactive visuals, and advanced analysis
+            <p className="text-xs text-purple-600 dark:text-purple-400">
+              Access 3D models & advanced features
             </p>
           </div>
           <Button 
             onClick={onPurchaseCredits}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+            size="sm"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs"
           >
-            <Crown className="h-4 w-4 mr-2" />
+            <Crown className="h-3 w-3 mr-1" />
             Buy Credits
           </Button>
         </div>

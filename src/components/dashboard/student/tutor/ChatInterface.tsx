@@ -1,19 +1,30 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Clock, CheckCircle, Copy, ThumbsUp, ThumbsDown, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Send, 
+  Mic, 
+  MicOff, 
+  Volume2, 
+  VolumeX,
+  Bot,
+  User,
+  Sparkles,
+  MessageSquare,
+  Loader2
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
   content: string;
-  role: 'user' | 'assistant';
+  sender: 'user' | 'ai';
   timestamp: Date;
-  isTyping?: boolean;
+  feature?: string;
 }
 
 interface ChatInterfaceProps {
@@ -30,26 +41,30 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: `Hello! I'm your 24/7 AI Tutor. I'm here to help you excel in your exam preparation. What would you like to study today?`,
-      role: 'assistant',
-      timestamp: new Date()
+      content: 'Hello! I\'m your AI tutor. I\'m here to help you learn and understand complex concepts. What would you like to study today?',
+      sender: 'ai',
+      timestamp: new Date(),
+      feature: 'chat'
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const { toast } = useToast();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  // Initialize speech recognition
   useEffect(() => {
-    // Initialize speech recognition
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
@@ -60,9 +75,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         recognitionRef.current.lang = 'en-US';
         
         recognitionRef.current.onresult = (event) => {
-          const result = event.results[0][0].transcript;
-          setInputMessage(result);
-          setIsListening(false);
+          const transcript = event.results[0][0].transcript;
+          setInputMessage(transcript);
+          toast({
+            title: "Voice Input",
+            description: "Voice message transcribed successfully!",
+          });
         };
         
         recognitionRef.current.onend = () => {
@@ -73,7 +91,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           setIsListening(false);
           toast({
             title: "Voice Recognition Error",
-            description: "There was an issue with voice recognition. Please try again.",
+            description: "Could not process voice input. Please try again.",
             variant: "destructive"
           });
         };
@@ -81,188 +99,143 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   }, [toast]);
 
-  const scrollToBottom = () => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  };
+  const handleSendMessage = () => {
+    if (!inputMessage.trim()) return;
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isProcessing) return;
-
-    const userMessage: Message = {
+    const newMessage: Message = {
       id: Date.now().toString(),
       content: inputMessage,
-      role: 'user',
-      timestamp: new Date()
+      sender: 'user',
+      timestamp: new Date(),
+      feature: selectedFeature
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsTyping(true);
-
-    // Send to parent component
+    setMessages(prev => [...prev, newMessage]);
     onSendMessage(inputMessage);
+    setInputMessage('');
 
-    // Simulate AI response based on selected feature
+    // Simulate AI response
     setTimeout(() => {
-      const aiResponse = generateAIResponse(inputMessage, selectedFeature);
-      const assistantMessage: Message = {
+      const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: aiResponse,
-        role: 'assistant',
-        timestamp: new Date()
+        content: getAIResponse(inputMessage, selectedFeature),
+        sender: 'ai',
+        timestamp: new Date(),
+        feature: selectedFeature
       };
+      setMessages(prev => [...prev, aiResponse]);
       
-      setMessages(prev => [...prev, assistantMessage]);
-      setIsTyping(false);
-      
-      // Speak the response if not muted
-      if (!isMuted) {
-        speakMessage(aiResponse);
+      // Trigger voice response if enabled
+      if (isVoiceEnabled && !isSpeaking) {
+        speakMessage(aiResponse.content);
       }
     }, 1500);
   };
 
-  const generateAIResponse = (userInput: string, feature: string): string => {
+  const getAIResponse = (message: string, feature: string) => {
     const responses = {
-      'chat': `I understand you're asking about "${userInput}". Let me provide you with a comprehensive explanation tailored for your exam preparation...`,
-      'search': `I found relevant study materials for "${userInput}". Here are the key concepts and resources...`,
-      'insights': `Based on your question about "${userInput}", here are personalized insights to improve your understanding...`,
-      '3d-models': `I'll create an interactive 3D model to help visualize "${userInput}". This will make the concept much clearer!`,
-      'interactive-visuals': `Let me generate interactive charts and diagrams for "${userInput}" to enhance your learning experience.`,
-      'advanced-analysis': `Performing deep analysis on "${userInput}"... Here are advanced insights and performance correlations...`
+      'chat': "I understand your question. Let me help you with that concept. Based on your query, here are the key points you should focus on...",
+      'search': "I found several relevant resources for your search. Here are the most important materials that match your query...",
+      'insights': "Based on your learning pattern, I recommend focusing on these areas for maximum improvement...",
+      '3d-models': "Let me show you an interactive 3D model to help visualize this concept better...",
+      'interactive-visuals': "Here's an interactive visualization that will help you understand this topic more clearly...",
+      'advanced-analysis': "After analyzing your performance data, here are my detailed insights and recommendations..."
     };
+    return responses[feature as keyof typeof responses] || responses.chat;
+  };
 
-    return responses[feature as keyof typeof responses] || responses['chat'];
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+        setIsListening(true);
+        toast({
+          title: "Voice Input Active",
+          description: "Speak now... I'm listening!",
+        });
+      }
+    }
   };
 
   const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
+    if ('speechSynthesis' in window && isVoiceEnabled) {
       setIsSpeaking(true);
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.9;
-      utterance.pitch = 1.1;
+      utterance.pitch = 1;
       utterance.volume = 0.8;
       
       utterance.onend = () => {
         setIsSpeaking(false);
       };
       
-      window.speechSynthesis.speak(utterance);
+      speechSynthesis.speak(utterance);
     }
   };
 
-  const handleVoiceInput = async () => {
-    if (!recognitionRef.current) {
-      toast({
-        title: "Voice Not Supported",
-        description: "Voice recognition is not supported in your browser.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        recognitionRef.current.start();
-        setIsListening(true);
-        toast({
-          title: "Listening...",
-          description: "Speak now, I'm listening to your question!"
-        });
-      } catch (error) {
-        toast({
-          title: "Microphone Access Denied",
-          description: "Please allow microphone access to use voice features.",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (isSpeaking && !isMuted) {
-      window.speechSynthesis.cancel();
+  const toggleVoiceOutput = () => {
+    setIsVoiceEnabled(!isVoiceEnabled);
+    if (isSpeaking) {
+      speechSynthesis.cancel();
       setIsSpeaking(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const copyMessage = (content: string) => {
-    navigator.clipboard.writeText(content);
-    toast({
-      title: "Copied to clipboard",
-      description: "Message content copied successfully"
-    });
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const getFeatureColor = (feature: string) => {
-    const colors = {
-      'chat': 'from-blue-500 to-cyan-500',
-      'search': 'from-green-500 to-emerald-500',
-      'insights': 'from-yellow-500 to-orange-500',
-      '3d-models': 'from-purple-500 to-violet-500',
-      'interactive-visuals': 'from-pink-500 to-rose-500',
-      'advanced-analysis': 'from-indigo-500 to-purple-500'
+  const getFeatureBadge = (feature: string) => {
+    const featureConfig = {
+      'chat': { label: 'AI Chat', color: 'bg-blue-100 text-blue-700' },
+      'search': { label: 'Smart Search', color: 'bg-green-100 text-green-700' },
+      'insights': { label: 'Insights', color: 'bg-yellow-100 text-yellow-700' },
+      '3d-models': { label: '3D Models', color: 'bg-purple-100 text-purple-700' },
+      'interactive-visuals': { label: 'Visuals', color: 'bg-pink-100 text-pink-700' },
+      'advanced-analysis': { label: 'Analysis', color: 'bg-indigo-100 text-indigo-700' }
     };
-    return colors[feature as keyof typeof colors] || colors['chat'];
+    
+    const config = featureConfig[feature as keyof typeof featureConfig] || featureConfig.chat;
+    return <Badge className={`text-xs ${config.color}`}>{config.label}</Badge>;
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-      {/* Chat Header */}
-      <div className={`p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r ${getFeatureColor(selectedFeature)} text-white rounded-t-lg`}>
+    <Card className="h-[600px] flex flex-col">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border-2 border-white/20">
-              <AvatarFallback className="bg-white/20 text-white">
-                <Bot className="h-5 w-5" />
-              </AvatarFallback>
-            </Avatar>
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg">
+              <MessageSquare className="h-4 w-4 text-white" />
+            </div>
             <div>
-              <h3 className="font-semibold">AI Tutor - {selectedFeature.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
-              <p className="text-sm opacity-90">Ready to help you excel</p>
+              <CardTitle className="text-lg">AI Tutor Chat</CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {getFeatureBadge(selectedFeature)} Active
+              </p>
             </div>
           </div>
           
           <div className="flex items-center gap-2">
-            {/* Voice Controls */}
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={toggleMute}
-              className="text-white hover:bg-white/20"
+              onClick={toggleVoiceOutput}
+              className={isVoiceEnabled ? 'text-blue-600' : 'text-gray-400'}
             >
-              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {isVoiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </Button>
-            
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm">Online</span>
-            </div>
+            {isSpeaking && (
+              <div className="flex items-center gap-1 text-blue-600">
+                <Sparkles className="h-4 w-4 animate-pulse" />
+                <span className="text-xs">Speaking...</span>
+              </div>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        <div className="space-y-4">
+      </CardHeader>
+      
+      <CardContent className="flex-1 flex flex-col p-4 space-y-4">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
           <AnimatePresence>
             {messages.map((message) => (
               <motion.div
@@ -270,178 +243,111 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.role === 'assistant' && (
-                  <Avatar className="h-8 w-8 mt-1">
-                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                      <Bot className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                
-                <div className={`max-w-[70%] ${message.role === 'user' ? 'order-1' : ''}`}>
-                  <div className={`p-3 rounded-lg ${
-                    message.role === 'user'
-                      ? 'bg-blue-500 text-white ml-auto'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                <div className={`flex items-start gap-2 max-w-[80%] ${
+                  message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'
+                }`}>
+                  <div className={`p-2 rounded-full ${
+                    message.sender === 'user' 
+                      ? 'bg-blue-100 dark:bg-blue-900' 
+                      : 'bg-purple-100 dark:bg-purple-900'
                   }`}>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                  </div>
-                  
-                  <div className={`flex items-center gap-2 mt-1 text-xs text-gray-500 ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}>
-                    <Clock className="h-3 w-3" />
-                    <span>{formatTime(message.timestamp)}</span>
-                    
-                    {message.role === 'assistant' && (
-                      <div className="flex items-center gap-1 ml-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-                          onClick={() => copyMessage(message.content)}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-                        >
-                          <ThumbsUp className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-                        >
-                          <ThumbsDown className="h-3 w-3" />
-                        </Button>
-                      </div>
+                    {message.sender === 'user' ? (
+                      <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    ) : (
+                      <Bot className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     )}
                   </div>
+                  
+                  <div className={`p-3 rounded-lg ${
+                    message.sender === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                  }`}>
+                    <p className="text-sm">{message.content}</p>
+                    <p className="text-xs opacity-70 mt-1">
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
                 </div>
-                
-                {message.role === 'user' && (
-                  <Avatar className="h-8 w-8 mt-1">
-                    <AvatarFallback className="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
               </motion.div>
             ))}
           </AnimatePresence>
           
-          {/* Typing Indicator */}
-          {isTyping && (
+          {isProcessing && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex gap-3"
+              className="flex justify-start"
             >
-              <Avatar className="h-8 w-8 mt-1">
-                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
-                <div className="flex items-center gap-1">
-                  <div className="flex gap-1">
-                    <motion.div
-                      className="w-2 h-2 bg-gray-400 rounded-full"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 0.8, repeat: Infinity, delay: 0 }}
-                    />
-                    <motion.div
-                      className="w-2 h-2 bg-gray-400 rounded-full"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
-                    />
-                    <motion.div
-                      className="w-2 h-2 bg-gray-400 rounded-full"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
-                    />
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
+                  <Bot className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">AI is thinking...</span>
                   </div>
-                  <span className="text-sm text-gray-500 ml-2">AI is thinking...</span>
                 </div>
               </div>
             </motion.div>
           )}
           
-          {/* Speaking/Listening Indicators */}
-          {(isSpeaking || isListening) && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center"
-            >
-              <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${
-                isListening 
-                  ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400' 
-                  : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-              }`}>
-                <motion.div
-                  className={`w-2 h-2 rounded-full ${
-                    isListening ? 'bg-red-500' : 'bg-green-500'
-                  }`}
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                />
-                <span className="text-sm font-medium">
-                  {isListening ? 'Listening...' : 'AI is speaking...'}
-                </span>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </ScrollArea>
-
-      {/* Input Area */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex gap-2">
-          <Input
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={`Ask about ${selectedFeature.replace('-', ' ')} or click mic to speak...`}
-            className="flex-1"
-            disabled={isProcessing || isListening}
-          />
-          
-          {/* Voice Input Button */}
-          <Button
-            onClick={handleVoiceInput}
-            disabled={isProcessing}
-            variant={isListening ? "default" : "outline"}
-            className={`${
-              isListening 
-                ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
-                : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-            }`}
-          >
-            {isListening ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-          </Button>
-          
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || isProcessing || isListening}
-            className={`bg-gradient-to-r ${getFeatureColor(selectedFeature)} hover:opacity-90 text-white`}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+          <div ref={messagesEndRef} />
         </div>
         
-        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-          <CheckCircle className="h-3 w-3" />
-          <span>Press Enter to send • Click mic for voice input • Shift+Enter for new line</span>
+        {/* Input Area */}
+        <div className="border-t pt-4">
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <Textarea
+                placeholder="Ask me anything about your studies..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                className="min-h-[44px] max-h-[120px] resize-none pr-12"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleVoiceInput}
+                className={`absolute right-2 top-2 ${
+                  isListening ? 'text-red-500 animate-pulse' : 'text-gray-500 hover:text-blue-600'
+                }`}
+              >
+                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </Button>
+            </div>
+            
+            <Button 
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isProcessing}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          {isListening && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs text-blue-600 dark:text-blue-400 mt-2 flex items-center gap-1"
+            >
+              <Mic className="h-3 w-3 animate-pulse" />
+              Listening... Speak now
+            </motion.p>
+          )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
