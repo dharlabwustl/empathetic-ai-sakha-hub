@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
+import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff, User, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
@@ -13,6 +13,10 @@ const NEETStrategyCard: React.FC = () => {
   const [showSubjects, setShowSubjects] = useState(true);
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
+  
+  // Student's learning profile
+  const learningPace = "medium"; // medium, fast, slow
+  const learningStyle = "Visual + Practical"; // Visual, Auditory, Kinesthetic, Mixed
   
   const subjects = [
     { name: "Physics", progress: 75, status: "strong", color: "blue" },
@@ -42,6 +46,21 @@ const NEETStrategyCard: React.FC = () => {
         Strong
       </Badge>
     );
+  };
+
+  const getPaceColor = (pace: string) => {
+    switch (pace) {
+      case 'fast': return 'text-green-600 bg-green-100';
+      case 'slow': return 'text-orange-600 bg-orange-100';
+      default: return 'text-blue-600 bg-blue-100';
+    }
+  };
+
+  const getLearningStyleColor = (style: string) => {
+    if (style.includes('Visual')) return 'text-purple-600 bg-purple-100';
+    if (style.includes('Auditory')) return 'text-indigo-600 bg-indigo-100';
+    if (style.includes('Kinesthetic')) return 'text-pink-600 bg-pink-100';
+    return 'text-teal-600 bg-teal-100';
   };
 
   return (
@@ -139,6 +158,36 @@ const NEETStrategyCard: React.FC = () => {
                 </motion.span>
               </Badge>
             </motion.div>
+
+            {/* Learning Profile Section */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium flex items-center gap-2">
+                <User className="h-4 w-4 text-blue-600" />
+                Learning Profile
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                <motion.div 
+                  className={`p-2 rounded-lg text-xs text-center font-medium ${getPaceColor(learningPace)}`}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    <Timer className="h-3 w-3" />
+                    <span className="capitalize">{learningPace} Pace</span>
+                  </div>
+                </motion.div>
+                <motion.div 
+                  className={`p-2 rounded-lg text-xs text-center font-medium ${getLearningStyleColor(learningStyle)}`}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    <Brain className="h-3 w-3" />
+                    <span>{learningStyle}</span>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
             
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2">
