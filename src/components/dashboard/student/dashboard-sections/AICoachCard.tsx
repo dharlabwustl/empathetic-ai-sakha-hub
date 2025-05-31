@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Brain, MessageCircle, TrendingUp, Target, BookOpen, Users, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import AICoachArrow from './AICoachArrow';
+import AnimatedHighlight from './AnimatedHighlight';
 
 const AICoachCard: React.FC = () => {
   const [showNewUserArrow, setShowNewUserArrow] = useState(false);
@@ -62,12 +62,6 @@ const AICoachCard: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 1.0 }}
     >
-      {/* AI Coach Arrow for new users */}
-      <AICoachArrow 
-        isVisible={showNewUserArrow}
-        onClose={handleCloseArrow}
-      />
-
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-800 dark:to-pink-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 pb-3">
           <CardTitle className="flex items-center gap-2">
@@ -125,28 +119,30 @@ const AICoachCard: React.FC = () => {
               
               <div className="flex justify-end">
                 {insight.type === "Exam Prep" ? (
-                  <Link to="/dashboard/student/practice-exam/2/start">
+                  <Link to="/dashboard/student/tutor">
                     <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
                       <Target className="h-3 w-3 mr-1" />
                       {insight.action}
                     </Button>
                   </Link>
                 ) : (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="hover:bg-purple-50"
-                  >
-                    <Zap className="h-3 w-3 mr-1" />
-                    {insight.action}
-                  </Button>
+                  <Link to="/dashboard/student/tutor">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="hover:bg-purple-50"
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      {insight.action}
+                    </Button>
+                  </Link>
                 )}
               </div>
             </motion.div>
           ))}
           
           <div className="text-center pt-2">
-            <Link to="/dashboard/student/ai-coach">
+            <Link to="/dashboard/student/tutor">
               <Button 
                 size="sm" 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"

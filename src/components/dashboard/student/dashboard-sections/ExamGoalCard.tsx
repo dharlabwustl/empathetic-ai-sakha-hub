@@ -19,7 +19,8 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
     targetScore: 650,
     currentScore: 580,
     daysRemaining: 338,
-    status: "On Track"
+    status: "On Track",
+    progressPercentage: 89.2
   };
 
   const getStatusColor = (status: string) => {
@@ -30,8 +31,6 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
-
-  const progressPercentage = (currentGoal.currentScore / currentGoal.targetScore) * 100;
 
   return (
     <motion.div
@@ -77,16 +76,24 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
         </CardHeader>
         <CardContent className="pt-4 pb-4">
           <div className="space-y-4">
-            {/* Goal Overview */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Goal Overview - Grid layout matching name card */}
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Target Exam</p>
                 <p className="font-bold text-lg text-green-700">{currentGoal.exam}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 mb-1">Days Remaining</p>
+                <p className="text-xs text-gray-600 mb-1">Days Left</p>
                 <p className="font-bold text-lg text-green-700">{currentGoal.daysRemaining}</p>
               </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Progress</p>
+                <p className="font-bold text-lg text-green-700">{currentGoal.progressPercentage}%</p>
+              </div>
+            </div>
+
+            {/* Score Progress */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Target Score</p>
                 <p className="font-bold text-lg text-green-700">{currentGoal.targetScore}/720</p>
@@ -101,26 +108,26 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-700">Progress to Target</span>
-                <span className="text-gray-700">{Math.round(progressPercentage)}%</span>
+                <span className="text-gray-700">{Math.round((currentGoal.currentScore / currentGoal.targetScore) * 100)}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <motion.div 
                   className="bg-gradient-to-r from-green-500 to-teal-500 h-3 rounded-full"
                   initial={{ width: 0 }}
-                  animate={{ width: `${progressPercentage}%` }}
+                  animate={{ width: `${(currentGoal.currentScore / currentGoal.targetScore) * 100}%` }}
                   transition={{ duration: 1.5, ease: "easeOut" }}
                 />
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Simple Action Buttons */}
             <div className="flex gap-2">
               <Link to="/dashboard/student/academic" className="flex-1">
                 <Button 
                   size="sm" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="outline"
+                  className="w-full text-sm"
                 >
-                  <RefreshCw className="h-3 w-3 mr-1" />
                   Switch Plan
                 </Button>
               </Link>
@@ -128,9 +135,8 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                 <Button 
                   size="sm" 
                   variant="outline"
-                  className="w-full hover:bg-green-50"
+                  className="w-full text-sm"
                 >
-                  <Plus className="h-3 w-3 mr-1" />
                   New Plan
                 </Button>
               </Link>
