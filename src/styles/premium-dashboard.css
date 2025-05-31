@@ -44,18 +44,64 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(99, 102, 241, 0.20), rgba(168, 85, 247, 0.20));
 }
 
+/* Smooth Page Transitions - Fix text/code flash */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Page transition container */
+.page-transition {
+  animation: pageEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Route transition wrapper */
+.route-transition {
+  animation: routeEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes routeEnter {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Prevent flash of unstyled content */
+html {
+  visibility: hidden;
+  opacity: 0;
+}
+
+html.loaded {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
 /* Enhanced gradient borders */
 .border-gradient-to-r {
   background: linear-gradient(to right, var(--tw-gradient-stops));
   background-clip: border-box;
   border-radius: 16px;
-}
-
-/* Smooth text rendering and prevent flashing */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 /* Enhanced fade-in animation */
@@ -160,4 +206,26 @@
   50% {
     transform: translateY(-8px);
   }
+}
+
+/* Smooth link transitions */
+a {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button transitions */
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Form transitions */
+input, textarea, select {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Code block transitions */
+pre, code {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }

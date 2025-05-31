@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, TrendingUp, AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
+import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
@@ -45,10 +45,20 @@ const NEETStrategyCard: React.FC = () => {
 
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
+      {/* Animated Highlight */}
+      <AnimatedHighlight
+        id="neet-strategy"
+        text="Your dynamic plan - adapts to your performance!"
+        position="top"
+        icon={<Brain className="h-4 w-4" />}
+        className="mb-2"
+      />
+
       <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-800 dark:to-purple-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
@@ -228,7 +238,7 @@ const NEETStrategyCard: React.FC = () => {
                 </motion.div>
               </Link>
               
-              <Link to="/dashboard/student/academic-advisor">
+              <Link to="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/academic">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

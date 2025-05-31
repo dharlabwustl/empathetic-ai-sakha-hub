@@ -94,38 +94,28 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
                     Style: {examGoal.style}
                   </Badge>
                   
-                  {/* Inline Action Buttons */}
+                  {/* Simple Action Buttons - routed to academic advisor */}
                   <div className="flex gap-2 ml-auto">
-                    <Link to="/dashboard/student/academic-advisor">
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                    <Link to="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/academic">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="hover:bg-blue-50 border-blue-300"
                       >
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          className="hover:bg-blue-50 border-blue-300"
-                        >
-                          <Target className="h-3 w-3 mr-1" />
-                          Switch Plan
-                        </Button>
-                      </motion.div>
+                        <Target className="h-3 w-3 mr-1" />
+                        Switch Plan
+                      </Button>
                     </Link>
                     
-                    <Link to="/dashboard/student/academic-advisor">
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                    <Link to="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/academic">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="hover:bg-purple-50 border-purple-300"
                       >
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          className="hover:bg-purple-50 border-purple-300"
-                        >
-                          <Zap className="h-3 w-3 mr-1" />
-                          New Plan
-                        </Button>
-                      </motion.div>
+                        <Zap className="h-3 w-3 mr-1" />
+                        New Plan
+                      </Button>
                     </Link>
                   </div>
                 </div>

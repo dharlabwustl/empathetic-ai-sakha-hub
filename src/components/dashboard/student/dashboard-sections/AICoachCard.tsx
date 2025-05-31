@@ -3,12 +3,21 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Lightbulb, TrendingUp, Zap, ArrowRight } from 'lucide-react';
+import { Bot, Lightbulb, TrendingUp, Zap, ArrowRight, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import AnimatedHighlight from './AnimatedHighlight';
 
 const AICoachCard: React.FC = () => {
   const recommendations = [
+    {
+      type: "Exam Prep",
+      message: "Take exam prep to find knowledge gaps - Start here!",
+      action: "Take Exam",
+      priority: "high",
+      link: "/dashboard/student/practice-exam/2/start",
+      highlighted: true
+    },
     {
       type: "Study Strategy",
       message: "Focus on Chemistry - you've shown 23% improvement this week!",
@@ -22,13 +31,6 @@ const AICoachCard: React.FC = () => {
       action: "Adjust Schedule",
       priority: "medium",
       link: "/dashboard/student/academic-advisor"
-    },
-    {
-      type: "Exam Prep",
-      message: "Take a practice test to identify knowledge gaps",
-      action: "Start Exam",
-      priority: "high", 
-      link: "/dashboard/student/practice-exam/2/start"
     }
   ];
 
@@ -42,10 +44,20 @@ const AICoachCard: React.FC = () => {
 
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.3 }}
     >
+      {/* Animated Highlight */}
+      <AnimatedHighlight
+        id="ai-coach"
+        text="Take exam prep to find knowledge gaps - Start here!"
+        position="top"
+        icon={<Target className="h-4 w-4" />}
+        className="mb-2"
+      />
+
       <Card className="shadow-lg border-2 border-gradient-to-r from-purple-200 to-blue-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-purple-700">
@@ -69,7 +81,11 @@ const AICoachCard: React.FC = () => {
           {recommendations.map((rec, index) => (
             <motion.div
               key={index}
-              className="border rounded-lg p-4 bg-gradient-to-r from-purple-50 to-blue-50"
+              className={`border rounded-lg p-4 ${
+                rec.highlighted 
+                  ? 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200' 
+                  : 'bg-gradient-to-r from-purple-50 to-blue-50'
+              }`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -88,7 +104,15 @@ const AICoachCard: React.FC = () => {
               <p className="text-sm text-gray-700 mb-3">{rec.message}</p>
               
               <Link to={rec.link}>
-                <Button size="sm" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+                <Button 
+                  size="sm" 
+                  className={`w-full ${
+                    rec.highlighted 
+                      ? 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700' 
+                      : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700'
+                  } text-white`}
+                >
+                  {rec.highlighted && <Target className="h-3 w-3 mr-2" />}
                   <TrendingUp className="h-3 w-3 mr-2" />
                   {rec.action}
                   <ArrowRight className="h-3 w-3 ml-2" />
@@ -108,10 +132,10 @@ const AICoachCard: React.FC = () => {
               ease: "easeInOut"
             }}
           >
-            <Link to="/dashboard/student/academic-advisor">
+            <Link to="/dashboard/student/tutor">
               <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
                 <Zap className="h-4 w-4 mr-2" />
-                Get Full AI Analysis
+                Chat with AI Coach
               </Button>
             </Link>
           </motion.div>
