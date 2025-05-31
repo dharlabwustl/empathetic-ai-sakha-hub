@@ -11,6 +11,7 @@ import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SpeechRecognitionButton from "@/components/voice/SpeechRecognitionButton";
+import { usePrepzrVoiceAssistant } from "@/hooks/usePrepzrVoiceAssistant";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -75,6 +76,14 @@ const DashboardLayout = ({
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+  
+  // Use the enhanced voice assistant
+  const { isSpeaking } = usePrepzrVoiceAssistant({
+    userName: userProfile.name,
+    isLoggedIn: true,
+    isFirstTimeUser,
+    lastActivity: lastActivity?.description
+  });
   
   const handleOpenTour = () => {
     setShowTour(true);
