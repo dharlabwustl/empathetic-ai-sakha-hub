@@ -20,6 +20,11 @@ export const studyPlanSchema = z.object({
 
 export type StudyPlanType = z.infer<typeof studyPlanSchema>;
 
+export type LearningPace = 'slow' | 'medium' | 'fast';
+export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
+export type StudyPlanStatus = 'active' | 'completed' | 'paused';
+export type SubjectStatus = 'completed' | 'in-progress' | 'not-started';
+
 export interface StudyPlanSubject {
   id: string;
   name: string;
@@ -30,7 +35,7 @@ export interface StudyPlanSubject {
   priority?: 'high' | 'medium' | 'low';
   proficiency?: 'strong' | 'medium' | 'weak';
   completed?: boolean;
-  status?: 'completed' | 'in-progress' | 'not-started';
+  status?: SubjectStatus;
   topics?: string[];
   difficulty?: 'easy' | 'medium' | 'hard';
 }
@@ -81,15 +86,15 @@ export interface StudyPlan {
   updatedAt: string;
   progressPercent?: number;
   progressPercentage?: number;
-  status?: 'active' | 'completed' | 'paused';
+  status?: StudyPlanStatus;
   examGoal?: string;
   examDate?: string;
   daysLeft?: number;
   studyHoursPerDay?: number;
   weeklyHours?: number;
   title?: string;
-  learningPace?: 'slow' | 'medium' | 'fast';
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening';
+  learningPace?: LearningPace;
+  preferredStudyTime?: PreferredStudyTime;
 }
 
 export interface NewStudyPlan {
@@ -107,6 +112,6 @@ export interface NewStudyPlan {
   examDate?: string;
   examGoal?: string;
   studyHoursPerDay?: number;
-  learningPace?: 'slow' | 'medium' | 'fast';
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening';
+  learningPace?: LearningPace;
+  preferredStudyTime?: PreferredStudyTime;
 }

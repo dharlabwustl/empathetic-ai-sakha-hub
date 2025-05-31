@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, Volume2, VolumeX, MessageCircle, Search, Brain, Zap, Eye, BarChart3, ShoppingCart, Star, Sparkles, Send } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, MessageCircle, Search, Brain, Zap, Eye, BarChart3, ShoppingCart, Star, Sparkles, Send, BookOpen, Target, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface TutorFeature {
@@ -30,7 +30,7 @@ const Enhanced24x7TutorPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your 24/7 AI Tutor. I can help you with studying, practice questions, and advanced features. What would you like to work on today?',
+      content: 'Hello! I\'m your 24/7 AI Tutor for world-class exam preparation. I can help you with studying, practice questions, and advanced features. What would you like to work on today?',
       timestamp: new Date()
     }
   ]);
@@ -153,34 +153,64 @@ const Enhanced24x7TutorPage: React.FC = () => {
   const selectedFeatureData = features.find(f => f.id === selectedFeature);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-6xl mx-auto"
+        className="max-w-7xl mx-auto"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Enhanced Header */}
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-3">
               <motion.div
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                className="relative"
               >
-                <Brain className="h-8 w-8 text-purple-600" />
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-lg opacity-30"></div>
+                <Brain className="h-10 w-10 text-purple-600 relative z-10" />
               </motion.div>
               24/7 AI Tutor
+              <Badge className="bg-gradient-to-r from-gold-400 to-yellow-500 text-black text-xs px-2 py-1">
+                World Class
+              </Badge>
             </h1>
-            <p className="text-gray-600 mt-1">Your personal AI learning companion</p>
+            <p className="text-gray-600 mt-2 text-lg">Your personal AI learning companion for exam excellence</p>
+            
+            {/* Key Features Preview */}
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex items-center gap-1 text-sm text-purple-600">
+                <BookOpen className="h-4 w-4" />
+                <span>Comprehensive Study</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm text-blue-600">
+                <Target className="h-4 w-4" />
+                <span>Exam Focused</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm text-green-600">
+                <Users className="h-4 w-4" />
+                <span>Expert Guidance</span>
+              </div>
+            </div>
           </div>
           
           <div className="flex items-center gap-4">
-            <Badge className="bg-purple-100 text-purple-800 px-3 py-1">
-              <Star className="h-3 w-3 mr-1" />
-              {userCredits} Credits
-            </Badge>
-            <Button variant="outline" size="sm">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-2"
+            >
+              <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-4 py-2 text-sm">
+                <Star className="h-4 w-4 mr-1" />
+                {userCredits} Credits
+              </Badge>
+            </motion.div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:from-green-100 hover:to-emerald-100"
+            >
               <ShoppingCart className="h-4 w-4 mr-2" />
               Buy Credits
             </Button>
@@ -188,16 +218,17 @@ const Enhanced24x7TutorPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Feature Selection Panel */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
+          {/* Enhanced Feature Selection Panel */}
+          <Card className="lg:col-span-1 border-2 border-purple-100 shadow-xl">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-purple-600" />
-                Features
+                AI Features
               </CardTitle>
+              <p className="text-sm text-gray-600">Select your learning mode</p>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="p-4">
+              <div className="space-y-3">
                 {features.map((feature) => (
                   <motion.div
                     key={feature.id}
@@ -206,7 +237,11 @@ const Enhanced24x7TutorPage: React.FC = () => {
                   >
                     <Button
                       variant={selectedFeature === feature.id ? "default" : "ghost"}
-                      className={`w-full justify-start h-auto p-3 ${
+                      className={`w-full justify-start h-auto p-4 ${
+                        selectedFeature === feature.id 
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
+                          : 'hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50'
+                      } ${
                         feature.isPremium && !feature.available 
                           ? 'opacity-50 cursor-not-allowed' 
                           : ''
@@ -215,19 +250,22 @@ const Enhanced24x7TutorPage: React.FC = () => {
                       disabled={feature.isPremium && !feature.available}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          {feature.icon}
+                        <div className="flex items-center gap-3">
+                          <div className="p-1 rounded bg-white/20">
+                            {feature.icon}
+                          </div>
                           <div className="text-left">
                             <div className="font-medium text-sm">{feature.name}</div>
+                            <div className="text-xs opacity-80">{feature.description}</div>
                             {feature.isPremium && (
-                              <div className="text-xs text-orange-600">
+                              <div className="text-xs text-orange-600 dark:text-orange-400">
                                 {feature.credits} credits
                               </div>
                             )}
                           </div>
                         </div>
                         {feature.isPremium && (
-                          <Badge variant="outline" className="bg-orange-50 text-orange-700 text-xs">
+                          <Badge variant="outline" className="bg-orange-50 text-orange-700 text-xs border-orange-200">
                             Premium
                           </Badge>
                         )}
@@ -239,84 +277,131 @@ const Enhanced24x7TutorPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Main Chat Interface */}
-          <Card className="lg:col-span-3">
-            <CardHeader>
+          {/* Enhanced Main Chat Interface */}
+          <Card className="lg:col-span-3 border-2 border-blue-100 shadow-xl">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  {selectedFeatureData?.icon}
-                  {selectedFeatureData?.name} Mode
-                  {selectedFeatureData?.isPremium && (
-                    <Badge className="bg-orange-100 text-orange-800 text-xs">
-                      Premium Active
-                    </Badge>
-                  )}
-                </CardTitle>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                    {selectedFeatureData?.icon}
+                  </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      {selectedFeatureData?.name} Mode
+                      {selectedFeatureData?.isPremium && (
+                        <Badge className="bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 text-xs">
+                          Premium Active
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {selectedFeatureData?.description}
+                    </p>
+                  </div>
+                </div>
                 
-                {/* Voice Controls */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={isListening ? "default" : "outline"}
-                    size="sm"
-                    onClick={toggleListening}
-                    className={isListening ? 'bg-red-500 hover:bg-red-600' : ''}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
+                {/* Enhanced Voice Controls */}
+                <div className="flex items-center gap-3">
+                  <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                    <Button
+                      variant={isListening ? "default" : "outline"}
+                      size="sm"
+                      onClick={toggleListening}
+                      className={`relative ${
+                        isListening 
+                          ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white' 
+                          : 'hover:bg-red-50'
+                      }`}
+                    >
+                      {isListening && (
+                        <motion.div 
+                          className="absolute inset-0 bg-red-400 rounded opacity-30"
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        />
+                      )}
+                      {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    </Button>
+                  </motion.div>
                   
-                  <Button
-                    variant={isSpeaking ? "default" : "outline"}
-                    size="sm"
-                    onClick={toggleSpeaking}
-                  >
-                    {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                    <Button
+                      variant={isSpeaking ? "default" : "outline"}
+                      size="sm"
+                      onClick={toggleSpeaking}
+                      className={
+                        isSpeaking 
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white' 
+                          : 'hover:bg-green-50'
+                      }
+                    >
+                      {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
-              
-              <p className="text-sm text-gray-600">
-                {selectedFeatureData?.description}
-              </p>
             </CardHeader>
             
-            <CardContent>
-              {/* Chat Messages */}
-              <div className="h-96 bg-gray-50 rounded-lg p-4 mb-4 overflow-y-auto">
+            <CardContent className="p-6">
+              {/* Enhanced Chat Messages */}
+              <div className="h-[500px] bg-gradient-to-b from-gray-50 to-white rounded-xl p-6 mb-6 overflow-y-auto border shadow-inner">
                 {messages.map((message, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`mb-4 ${
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className={`mb-6 ${
                       message.role === 'user' ? 'text-right' : 'text-left'
                     }`}
                   >
                     <div
-                      className={`inline-block max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      className={`inline-block max-w-md px-6 py-4 rounded-2xl shadow-lg ${
                         message.role === 'user'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-white border border-gray-200'
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                          : 'bg-white border border-gray-200 text-gray-800'
                       }`}
                     >
-                      {message.content}
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className={`text-xs mt-2 ${
+                        message.role === 'user' ? 'text-purple-100' : 'text-gray-500'
+                      }`}>
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
               </div>
               
-              {/* Input Area */}
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type your question or use voice..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <Button onClick={handleSendMessage} className="bg-purple-600 hover:bg-purple-700">
-                  <Send className="h-4 w-4" />
-                </Button>
+              {/* Enhanced Input Area */}
+              <div className="flex gap-3">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    placeholder="Type your question or use voice..."
+                    className="w-full px-6 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-lg"
+                  />
+                  {isListening && (
+                    <motion.div 
+                      className="absolute right-4 top-1/2 -translate-y-1/2"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    </motion.div>
+                  )}
+                </div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button 
+                    onClick={handleSendMessage} 
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-6 py-4 rounded-xl shadow-lg"
+                  >
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </motion.div>
               </div>
             </CardContent>
           </Card>

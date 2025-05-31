@@ -104,12 +104,23 @@ const AICoachCard: React.FC = () => {
           {coachInsights.map((insight, index) => (
             <motion.div
               key={index}
-              className="border rounded-lg p-3 bg-gradient-to-r from-purple-50/50 to-pink-50/50"
+              className="border rounded-lg p-3 bg-gradient-to-r from-purple-50/50 to-pink-50/50 relative"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
             >
+              {insight.type === "Exam Prep" && (
+                <AnimatedHighlight
+                  id="take_test_highlight"
+                  message="Start as first step to find out your knowledge gaps!"
+                  position="top-right"
+                  arrowDirection="down"
+                  variant="important"
+                  className="z-10"
+                />
+              )}
+              
               <div className="flex justify-between items-start mb-2">
                 <div className="flex-1">
                   <h4 className="text-sm font-medium text-purple-900 dark:text-purple-100">
@@ -127,7 +138,7 @@ const AICoachCard: React.FC = () => {
               <div className="flex justify-end">
                 {insight.type === "Exam Prep" ? (
                   <Link to="/dashboard/student/practice-exam/2/start">
-                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                    <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg">
                       <Target className="h-3 w-3 mr-1" />
                       {insight.action}
                     </Button>
@@ -147,7 +158,7 @@ const AICoachCard: React.FC = () => {
           ))}
           
           <div className="text-center pt-2">
-            <a href="https://preview--empathetic-ai-sakha-hub.lovable.app/dashboard/student/tutor" target="_blank" rel="noopener noreferrer">
+            <Link to="/dashboard/student/tutor">
               <Button 
                 size="sm" 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
@@ -155,7 +166,7 @@ const AICoachCard: React.FC = () => {
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Chat with AI Coach
               </Button>
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>
