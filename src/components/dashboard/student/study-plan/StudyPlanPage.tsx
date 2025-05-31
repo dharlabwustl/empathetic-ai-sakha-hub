@@ -4,7 +4,7 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WeeklySchedule from './WeeklySchedule';
 import StudyGoals from './StudyGoals';
-import EnhancedStudyPlanPage from './EnhancedStudyPlanPage';
+import StudyTimeAllocation from './StudyTimeAllocation';
 import { useToast } from '@/hooks/use-toast';
 
 const StudyPlanPage = () => {
@@ -17,26 +17,23 @@ const StudyPlanPage = () => {
       variant: "default",
     });
     
+    // In a real app, this would update the backend
     console.log("New time allocations:", allocations);
   };
   
   return (
     <SharedPageLayout
-      title="NEET 2026 Study Plan"
-      subtitle="Personalize your study schedule and track your progress toward NEET 2026"
+      title="Study Plan"
+      subtitle="Personalize your study schedule and track your progress"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
-      <Tabs defaultValue="enhanced" className="w-full">
+      <Tabs defaultValue="schedule" className="w-full">
         <TabsList className="mb-6">
-          <TabsTrigger value="enhanced">Time Allocation</TabsTrigger>
           <TabsTrigger value="schedule">Weekly Schedule</TabsTrigger>
           <TabsTrigger value="goals">Study Goals</TabsTrigger>
+          <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="enhanced">
-          <EnhancedStudyPlanPage />
-        </TabsContent>
         
         <TabsContent value="schedule">
           <WeeklySchedule />
@@ -44,6 +41,13 @@ const StudyPlanPage = () => {
         
         <TabsContent value="goals">
           <StudyGoals />
+        </TabsContent>
+        
+        <TabsContent value="time-allocation">
+          <StudyTimeAllocation
+            weeklyTotal={40}
+            onSave={handleSaveTimeAllocation}
+          />
         </TabsContent>
       </Tabs>
     </SharedPageLayout>

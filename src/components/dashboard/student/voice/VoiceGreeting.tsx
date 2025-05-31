@@ -24,18 +24,11 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
     // Prevent multiple announcements within a short time period
     const now = Date.now();
     const timeSinceLastSpoken = now - lastSpokenTimeRef.current;
-    const MIN_INTERVAL = 60000; // 60 seconds minimum between announcements
+    const MIN_INTERVAL = 30000; // 30 seconds minimum between announcements
 
     // Only speak once per mount and respect time interval
     if (hasSpokenRef.current || timeSinceLastSpoken < MIN_INTERVAL) {
       console.log('🔇 Voice Greeting: Skipping announcement - already spoken or too soon');
-      return;
-    }
-
-    // Check if muted
-    const savedMuteState = localStorage.getItem('prepzr_voice_muted');
-    if (savedMuteState && JSON.parse(savedMuteState)) {
-      console.log('🔇 Voice Greeting: Assistant is muted');
       return;
     }
     
@@ -48,12 +41,22 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
       const isNewUserSignup = localStorage.getItem('new_user_signup') === 'true';
       const actuallyReturning = isReturningUser && !isNewUserSignup;
       
-      if (actuallyReturning && lastActivity) {
-        greeting = `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`;
+      if (actuallyReturning) {
+        greeting = `Welcome back to PREPZR, ${userName}! I'm your PREPZR AI assistant, ready to help you continue your studies today.`;
+        
+        if (lastActivity) {
+          greeting += ` Last time you were ${lastActivity}. `;
+        }
+        
+        if (pendingTasks.length > 0) {
+          greeting += `You have ${pendingTasks.length} pending activities waiting for you. `;
+        }
+        
+        greeting += `Let's make today productive!`;
       } else if (isFirstTimeUser || isNewUserSignup) {
-        greeting = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
+        greeting = `Congratulations ${userName}! Welcome to PREPZR! I'm your PREPZR AI assistant, and I'm excited to guide you on your exam preparation journey. PREPZR will be with you at every step, helping you become exam-ready with personalized study plans, adaptive learning, and continuous support. Let's start this amazing journey together and achieve your goals!`;
       } else {
-        greeting = `Hello ${userName}! Ready to continue your exam preparation journey today?`;
+        greeting = `Hello ${userName}! I'm your PREPZR AI assistant, ready to help you achieve your learning goals today.`;
       }
       
       // Use the centralized female voice function
@@ -93,7 +96,7 @@ const VoiceGreeting: React.FC<VoiceGreetingProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [isFirstTimeUser, userName, isReturningUser, lastActivity]);
+  }, [isFirstTimeUser, userName, isReturningUser, lastActivity, pendingTasks]);
 
   // This component doesn't render anything visible
   return null;

@@ -10,23 +10,24 @@ import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const [showSubjects, setShowSubjects] = useState(false); // Hidden by default
+  const [showSubjects, setShowSubjects] = useState(true);
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
-  const learningPace = "normal";
-  const learningStyle = "Visual + Practical";
+  // Student's learning profile
+  const learningPace = "medium"; // medium, fast, slow
+  const learningStyle = "Visual + Practical"; // Visual, Auditory, Kinesthetic, Mixed
   
   const subjects = [
-    { name: "Physics", progress: 45, status: "medium", color: "blue" },
-    { name: "Chemistry", progress: 30, status: "weak", color: "red" },
-    { name: "Biology", progress: 65, status: "strong", color: "green" }
+    { name: "Physics", progress: 75, status: "strong", color: "blue" },
+    { name: "Chemistry", progress: 45, status: "weak", color: "red" },
+    { name: "Biology", progress: 55, status: "weak", color: "orange" }
   ];
 
   const objectives = [
-    "Complete NEET 2026 syllabus",
-    "Master weak areas", 
-    "Regular mock tests"
+    "Complete syllabus",
+    "Concept clarity", 
+    "Regular practice"
   ];
 
   const getSubjectBadge = (subject: any) => {
@@ -104,7 +105,7 @@ const NEETStrategyCard: React.FC = () => {
                 }}
                 className="font-bold"
               >
-                NEET 2026 Strategy
+                NEET Strategy Card
               </motion.span>
             </div>
             <Button
@@ -126,7 +127,7 @@ const NEETStrategyCard: React.FC = () => {
               <Link to="/dashboard/student/study-plan">
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
-                  NEET 2026 Plan
+                  Adaptive Plan
                   <ArrowRight className="h-4 w-4 ml-auto" />
                 </Button>
               </Link>
@@ -153,7 +154,7 @@ const NEETStrategyCard: React.FC = () => {
                     ease: "easeInOut"
                   }}
                 >
-                  May 3, 2026 Target
+                  Personalized Strategy
                 </motion.span>
               </Badge>
             </motion.div>

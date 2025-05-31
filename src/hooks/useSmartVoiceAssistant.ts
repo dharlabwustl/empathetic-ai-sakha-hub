@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { speakWithFemaleVoice } from '@/utils/voiceConfig';
+import { speakWithFemaleVoice, createIntelligentPause } from '@/utils/voiceConfig';
 
 interface VoiceAssistantOptions {
   context: 'homepage' | 'post-signup' | 'dashboard';
@@ -17,36 +17,11 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
   const [promptCount, setPromptCount] = useState(0);
   const [userIsActive, setUserIsActive] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   
   const location = useLocation();
   const inactivityTimerRef = useRef<number | null>(null);
   const greetingTimeoutRef = useRef<number | null>(null);
   const lastMessageTime = useRef<number>(0);
-  const lastMessage = useRef<string>('');
-  const sessionStorageKey = `voice_assistant_${context}`;
-  
-  // Listen for mute state changes
-  useEffect(() => {
-    const savedMuteState = localStorage.getItem('prepzr_voice_muted');
-    if (savedMuteState) {
-      setIsMuted(JSON.parse(savedMuteState));
-    }
-
-    const handleMuteChange = (event: CustomEvent) => {
-      setIsMuted(event.detail.isMuted);
-      if (event.detail.isMuted && isSpeaking && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        setIsSpeaking(false);
-      }
-    };
-
-    window.addEventListener('voice-mute-changed', handleMuteChange as EventListener);
-    
-    return () => {
-      window.removeEventListener('voice-mute-changed', handleMuteChange as EventListener);
-    };
-  }, [isSpeaking]);
   
   // Track user activity with immediate pause on interaction
   const trackActivity = () => {
@@ -57,7 +32,6 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     if (isSpeaking && window.speechSynthesis) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
-      console.log('🔇 Voice stopped due to user activity');
     }
     
     // Reset user activity after 3 seconds of no interaction
@@ -74,7 +48,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
       clearTimeout(inactivityTimerRef.current);
     }
     
-    if (enableInactivityPrompts && context === 'homepage' && !userIsActive && !isMuted) {
+    if (enableInactivityPrompts && context === 'homepage' && !userIsActive) {
       inactivityTimerRef.current = window.setTimeout(() => {
         handleInactivityPrompt();
       }, inactivityTimeout);
@@ -83,7 +57,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Handle inactivity prompts based on context (only homepage)
   const handleInactivityPrompt = () => {
-    if (isSpeaking || userIsActive || isMuted) return;
+    if (isSpeaking || userIsActive) return;
     
     // Check 60-second minimum gap between messages
     const now = Date.now();
@@ -93,15 +67,15 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     
     if (context === 'homepage') {
       const homepagePrompts = [
-        "Let's start your personalized journey. Sign up and get ready to conquer your exams with PREPZR.",
         "I'm here to help you explore PREPZR. Would you like to know about our features?",
+        "Ready to start your personalized journey? Sign up and get ready to conquer your exams with PREPZR.",
         "Need assistance? I can tell you about PREPZR's benefits for exam success.",
         "Wondering how PREPZR can help you? Just ask me anything!"
       ];
       promptMessage = homepagePrompts[promptCount % homepagePrompts.length];
     }
     
-    if (promptMessage && !userIsActive && !isMuted && promptMessage !== lastMessage.current) {
+    if (promptMessage && !userIsActive) {
       speak(promptMessage);
       setPromptCount(prev => prev + 1);
       resetInactivityTimer();
@@ -110,18 +84,11 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Enhanced speak function with activity and timing checks
   const speak = (text: string, isGreeting = false): boolean => {
-    if (!text || userIsActive || isMuted) return false;
-    
-    // Prevent repetition of same message
-    if (text === lastMessage.current && !isGreeting) {
-      console.log('🔇 Voice: Preventing message repetition');
-      return false;
-    }
+    if (!text || userIsActive) return false;
     
     // Enforce 60-second minimum gap between messages
     const now = Date.now();
     if (now - lastMessageTime.current < 60000 && !isGreeting) {
-      console.log('🔇 Voice: 60-second cooldown active');
       return false;
     }
     
@@ -138,27 +105,24 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
         
         if (isGreeting) {
           setHasGreeted(true);
-          sessionStorage.setItem(`${sessionStorageKey}_greeted`, 'true');
         }
         
         lastMessageTime.current = Date.now();
-        lastMessage.current = text;
         resetInactivityTimer();
       }
     );
     
     if (success) {
       lastMessageTime.current = now;
-      lastMessage.current = text;
     }
     
+    trackActivity();
     return success;
   };
   
   // Context-specific greeting messages
   const playGreeting = () => {
-    const hasGreetedInSession = sessionStorage.getItem(`${sessionStorageKey}_greeted`) === 'true';
-    if (hasGreeted || hasGreetedInSession || isSpeaking || userIsActive || isMuted) return;
+    if (hasGreeted || isSpeaking || userIsActive) return;
     
     let greetingMessage = '';
     
@@ -168,29 +132,18 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
         break;
         
       case 'post-signup':
-        if (userName) {
-          greetingMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
-        }
+        greetingMessage = `Congratulations, ${userName}! You've officially joined PREPZR – your exam prep companion. From today, we'll be with you at every step, making you exam-ready with personalized support, mock tests, and expert strategies.`;
         break;
         
       case 'dashboard':
-        if (userName) {
-          // Check if this is a returning user
-          const isReturningUser = localStorage.getItem('user_last_activity');
-          if (isReturningUser) {
-            const lastActivity = localStorage.getItem('user_last_activity') || 'studying';
-            greetingMessage = `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`;
-          } else {
-            greetingMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
-          }
-        }
-        break;
+        // Dashboard greetings are handled by DashboardVoiceAssistant
+        return;
     }
     
     if (greetingMessage) {
       // Delay greeting slightly for better user experience
       greetingTimeoutRef.current = window.setTimeout(() => {
-        if (!userIsActive && !isMuted) {
+        if (!userIsActive) {
           speak(greetingMessage, true);
         }
       }, 1500);
@@ -199,8 +152,6 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Handle voice commands based on context
   const processCommand = (command: string) => {
-    if (isMuted) return false;
-    
     const lowerCommand = command.toLowerCase();
     
     switch (context) {
@@ -236,9 +187,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   const processSignupCommand = (command: string): boolean => {
     if (command.includes('next step') || command.includes('what now')) {
-      if (userName) {
-        speak(`I recommend starting with your exam readiness test to understand your current level, ${userName}, then exploring your personalized study plan.`);
-      }
+      speak(`I recommend starting with your exam readiness test to understand your current level, ${userName}, then exploring your personalized study plan.`);
       return true;
     }
     
@@ -247,9 +196,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   const processDashboardCommand = (command: string): boolean => {
     if (command.includes('help') || command.includes('guide')) {
-      if (userName) {
-        speak(`I'm here to help with your studies, ${userName}. You can ask about your progress, next topics to study, or get motivational support.`);
-      }
+      speak(`I'm here to help with your studies, ${userName}. You can ask about your progress, next topics to study, or get motivational support.`);
       return true;
     }
     
@@ -271,8 +218,12 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     };
   }, []);
   
-  // Play greeting when context changes and cleanup on route changes
+  // Play greeting when context changes
   useEffect(() => {
+    setHasGreeted(false);
+    setPromptCount(0);
+    setUserIsActive(false);
+    
     // Clear existing timers
     if (greetingTimeoutRef.current) {
       clearTimeout(greetingTimeoutRef.current);
@@ -287,18 +238,11 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
       setIsSpeaking(false);
     }
     
-    // Reset state for new context
-    const hasGreetedInSession = sessionStorage.getItem(`${sessionStorageKey}_greeted`) === 'true';
-    setHasGreeted(hasGreetedInSession);
-    setPromptCount(0);
-    setUserIsActive(false);
-    lastMessage.current = '';
-    
     // Play greeting for appropriate contexts
-    if ((context === 'homepage' || context === 'post-signup' || context === 'dashboard') && !isMuted) {
+    if (context === 'homepage' || context === 'post-signup') {
       playGreeting();
     }
-  }, [context, location.pathname, isMuted, userName]);
+  }, [context, location.pathname]);
   
   // Cleanup on unmount and route changes
   useEffect(() => {
@@ -318,7 +262,6 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   return {
     isSpeaking,
     hasGreeted,
-    isMuted,
     speak,
     playGreeting,
     processCommand,
