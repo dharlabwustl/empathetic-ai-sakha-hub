@@ -9,3 +9,13 @@ export interface CreditPack {
   isExamCredits?: boolean;
   features?: string[];
 }
+
+export interface TutorFeature {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  credits: number;
+  isFree: boolean;
+  isPremium: boolean;
+}
