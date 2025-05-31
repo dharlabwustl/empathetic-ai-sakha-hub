@@ -75,15 +75,27 @@ const DashboardLayout = ({
   
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
+  // Determine if this is a first-time user
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+  const hasCompletedWelcome = localStorage.getItem('hasSpokenWelcome') === 'true';
+  const loginCount = parseInt(localStorage.getItem('loginCount') || '1');
   
-  // Use the enhanced voice assistant
+  // Determine user type for voice assistant
+  const isReturningUser = loginCount > 1 && !isFirstTimeUser;
+  
+  // Use the enhanced voice assistant with proper user tracking
   const { isSpeaking } = usePrepzrVoiceAssistant({
     userName: userProfile.name,
     isLoggedIn: true,
-    isFirstTimeUser,
+    isFirstTimeUser: isFirstTimeUser && !hasCompletedWelcome,
     lastActivity: lastActivity?.description
   });
+  
+  // Update login count on mount
+  useEffect(() => {
+    const currentCount = parseInt(localStorage.getItem('loginCount') || '0');
+    localStorage.setItem('loginCount', (currentCount + 1).toString());
+  }, []);
   
   const handleOpenTour = () => {
     setShowTour(true);

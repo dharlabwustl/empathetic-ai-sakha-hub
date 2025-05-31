@@ -11,6 +11,8 @@ interface VoiceSession {
   hasSpokenHomepage: boolean;
   isUserActive: boolean;
   currentPage: string;
+  isFirstTimeUser: boolean;
+  isReturningUser: boolean;
 }
 
 interface VoiceAssistantConfig {
@@ -35,7 +37,9 @@ export const usePrepzrVoiceAssistant = (config: VoiceAssistantConfig = {}) => {
     hasSpokenDashboard: false,
     hasSpokenHomepage: false,
     isUserActive: false,
-    currentPage: location.pathname
+    currentPage: location.pathname,
+    isFirstTimeUser: isFirstTimeUser || false,
+    isReturningUser: false
   });
   
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -168,7 +172,7 @@ export const usePrepzrVoiceAssistant = (config: VoiceAssistantConfig = {}) => {
     }, 1500);
   }, [session, speak, userName, location.pathname, isSpeaking]);
 
-  // Dashboard behavior
+  // Dashboard behavior - distinguish between first-time and returning users
   const handleDashboardBehavior = useCallback(() => {
     if (session.hasSpokenDashboard || !userName || session.isUserActive || isSpeaking) return;
     
@@ -176,12 +180,24 @@ export const usePrepzrVoiceAssistant = (config: VoiceAssistantConfig = {}) => {
       if (!session.isUserActive && location.pathname.includes('dashboard')) {
         let dashboardMessage = '';
         
-        if (isFirstTimeUser) {
+        // Check if user has completed welcome flow
+        const hasCompletedWelcome = localStorage.getItem('hasSpokenWelcome') === 'true';
+        const loginCount = parseInt(localStorage.getItem('loginCount') || '1');
+        
+        if (isFirstTimeUser && !hasCompletedWelcome) {
+          // First-time dashboard message
           dashboardMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
-        } else if (lastActivity) {
+        } else if (loginCount > 1 && lastActivity) {
+          // Returning user message
           dashboardMessage = `Welcome back, ${userName}! Last time, you worked on ${lastActivity}. Let's pick up where you left off.`;
-        } else {
+          setSession(prev => ({ ...prev, isReturningUser: true }));
+        } else if (loginCount > 1) {
+          // Returning user without specific activity
           dashboardMessage = `Welcome back, ${userName}! Ready to continue your exam preparation journey?`;
+          setSession(prev => ({ ...prev, isReturningUser: true }));
+        } else {
+          // First-time after welcome
+          dashboardMessage = `Hi ${userName}, welcome to your dashboard. Let's explore how we'll help you prepare better every day.`;
         }
         
         speak(dashboardMessage, 'dashboard');
