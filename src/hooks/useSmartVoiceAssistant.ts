@@ -17,12 +17,35 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
   const [promptCount, setPromptCount] = useState(0);
   const [userIsActive, setUserIsActive] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   
   const location = useLocation();
   const inactivityTimerRef = useRef<number | null>(null);
   const greetingTimeoutRef = useRef<number | null>(null);
   const lastMessageTime = useRef<number>(0);
   const lastMessage = useRef<string>('');
+  
+  // Listen for mute state changes
+  useEffect(() => {
+    const savedMuteState = localStorage.getItem('prepzr_voice_muted');
+    if (savedMuteState) {
+      setIsMuted(JSON.parse(savedMuteState));
+    }
+
+    const handleMuteChange = (event: CustomEvent) => {
+      setIsMuted(event.detail.isMuted);
+      if (event.detail.isMuted && isSpeaking && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+    };
+
+    window.addEventListener('voice-mute-changed', handleMuteChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('voice-mute-changed', handleMuteChange as EventListener);
+    };
+  }, [isSpeaking]);
   
   // Track user activity with immediate pause on interaction
   const trackActivity = () => {
@@ -50,7 +73,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
       clearTimeout(inactivityTimerRef.current);
     }
     
-    if (enableInactivityPrompts && context === 'homepage' && !userIsActive) {
+    if (enableInactivityPrompts && context === 'homepage' && !userIsActive && !isMuted) {
       inactivityTimerRef.current = window.setTimeout(() => {
         handleInactivityPrompt();
       }, inactivityTimeout);
@@ -59,7 +82,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Handle inactivity prompts based on context (only homepage)
   const handleInactivityPrompt = () => {
-    if (isSpeaking || userIsActive) return;
+    if (isSpeaking || userIsActive || isMuted) return;
     
     // Check 60-second minimum gap between messages
     const now = Date.now();
@@ -77,7 +100,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
       promptMessage = homepagePrompts[promptCount % homepagePrompts.length];
     }
     
-    if (promptMessage && !userIsActive && promptMessage !== lastMessage.current) {
+    if (promptMessage && !userIsActive && !isMuted && promptMessage !== lastMessage.current) {
       speak(promptMessage);
       setPromptCount(prev => prev + 1);
       resetInactivityTimer();
@@ -86,7 +109,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Enhanced speak function with activity and timing checks
   const speak = (text: string, isGreeting = false): boolean => {
-    if (!text || userIsActive) return false;
+    if (!text || userIsActive || isMuted) return false;
     
     // Prevent repetition of same message
     if (text === lastMessage.current && !isGreeting) {
@@ -132,7 +155,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Context-specific greeting messages
   const playGreeting = () => {
-    if (hasGreeted || isSpeaking || userIsActive) return;
+    if (hasGreeted || isSpeaking || userIsActive || isMuted) return;
     
     let greetingMessage = '';
     
@@ -155,7 +178,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     if (greetingMessage) {
       // Delay greeting slightly for better user experience
       greetingTimeoutRef.current = window.setTimeout(() => {
-        if (!userIsActive) {
+        if (!userIsActive && !isMuted) {
           speak(greetingMessage, true);
         }
       }, 1500);
@@ -164,6 +187,8 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   
   // Handle voice commands based on context
   const processCommand = (command: string) => {
+    if (isMuted) return false;
+    
     const lowerCommand = command.toLowerCase();
     
     switch (context) {
@@ -256,10 +281,10 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
     }
     
     // Play greeting for appropriate contexts
-    if (context === 'homepage' || context === 'post-signup') {
+    if ((context === 'homepage' || context === 'post-signup') && !isMuted) {
       playGreeting();
     }
-  }, [context, location.pathname]);
+  }, [context, location.pathname, isMuted]);
   
   // Cleanup on unmount and route changes
   useEffect(() => {
@@ -279,6 +304,7 @@ export const useSmartVoiceAssistant = (options: VoiceAssistantOptions) => {
   return {
     isSpeaking,
     hasGreeted,
+    isMuted,
     speak,
     playGreeting,
     processCommand,
