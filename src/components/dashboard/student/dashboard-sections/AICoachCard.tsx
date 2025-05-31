@@ -132,27 +132,29 @@ const AICoachCard: React.FC = () => {
                     </Button>
                   </Link>
                 ) : (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="hover:bg-purple-50"
-                  >
-                    <Zap className="h-3 w-3 mr-1" />
-                    {insight.action}
-                  </Button>
+                  <Link to="/dashboard/student/ai-tutor">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="hover:bg-purple-50"
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      {insight.action}
+                    </Button>
+                  </Link>
                 )}
               </div>
             </motion.div>
           ))}
           
           <div className="text-center pt-2">
-            <Link to="/dashboard/student/ai-coach">
+            <Link to="/dashboard/student/ai-tutor">
               <Button 
                 size="sm" 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Chat with AI Coach
+                Chat with AI Tutor
               </Button>
             </Link>
           </div>

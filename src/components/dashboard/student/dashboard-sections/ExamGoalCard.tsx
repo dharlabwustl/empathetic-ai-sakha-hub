@@ -39,7 +39,7 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden">
+      <Card className="premium-card shadow-lg border-2 border-gradient-to-r from-green-200 to-teal-200 dark:from-green-800 dark:to-teal-800 overflow-hidden h-full">
         <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -77,63 +77,75 @@ const ExamGoalCard: React.FC<ExamGoalCardProps> = ({ currentMood, onMoodChange }
         </CardHeader>
         <CardContent className="pt-4 pb-4">
           <div className="space-y-4">
-            {/* Goal Overview */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+            {/* Goal Overview - Compact Grid */}
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <p className="text-xs text-gray-600 mb-1">Target Exam</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.exam}</p>
+                <p className="font-bold text-sm text-green-700">{currentGoal.exam}</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Days Remaining</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.daysRemaining}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Target Score</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.targetScore}/720</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Current Score</p>
-                <p className="font-bold text-lg text-green-700">{currentGoal.currentScore}/720</p>
+              <div className="p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
+                <p className="text-xs text-gray-600 mb-1">Days Left</p>
+                <p className="font-bold text-sm text-teal-700">{currentGoal.daysRemaining}</p>
               </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-700">Progress to Target</span>
-                <span className="text-gray-700">{Math.round(progressPercentage)}%</span>
+            {/* Score Progress */}
+            <div className="p-3 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs text-gray-600">Score Progress</span>
+                <span className="text-xs font-medium text-green-600">{currentGoal.currentScore}/{currentGoal.targetScore}</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <motion.div 
-                  className="bg-gradient-to-r from-green-500 to-teal-500 h-3 rounded-full"
+                  className="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercentage}%` }}
                   transition={{ duration: 1.5, ease: "easeOut" }}
                 />
               </div>
+              <div className="text-xs text-gray-600 mt-1 text-center">
+                {Math.round(progressPercentage)}% to target
+              </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Simple Action Buttons - No highlighting */}
             <div className="flex gap-2">
-              <Link to="/dashboard/student/academic" className="flex-1">
+              <Link to="/dashboard/student/academic-advisor" className="flex-1">
                 <Button 
                   size="sm" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="outline"
+                  className="w-full text-xs border-green-200 hover:bg-green-50 text-green-700"
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />
                   Switch Plan
                 </Button>
               </Link>
-              <Link to="/dashboard/student/academic" className="flex-1">
+              <Link to="/dashboard/student/academic-advisor" className="flex-1">
                 <Button 
                   size="sm" 
                   variant="outline"
-                  className="w-full hover:bg-green-50"
+                  className="w-full text-xs border-teal-200 hover:bg-teal-50 text-teal-700"
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   New Plan
                 </Button>
               </Link>
+            </div>
+
+            {/* Additional KPIs */}
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-200">
+              <div className="text-center">
+                <div className="text-lg font-bold text-green-600">78%</div>
+                <div className="text-xs text-gray-600">Readiness</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-blue-600">12</div>
+                <div className="text-xs text-gray-600">Day Streak</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-purple-600">24h</div>
+                <div className="text-xs text-gray-600">Week Hours</div>
+              </div>
             </div>
           </div>
         </CardContent>
