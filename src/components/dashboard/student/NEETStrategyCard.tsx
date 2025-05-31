@@ -10,7 +10,7 @@ import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const [showSubjects, setShowSubjects] = useState(true);
+  const [showSubjects, setShowSubjects] = useState(false); // Default to hidden
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
   
@@ -18,20 +18,24 @@ const NEETStrategyCard: React.FC = () => {
   const learningPace = "medium"; // medium, fast, slow
   const learningStyle = "Visual + Practical"; // Visual, Auditory, Kinesthetic, Mixed
   
+  // NEET 2026 specific data
+  const examDate = new Date('2026-05-03');
+  const daysLeft = Math.ceil((examDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  
   const subjects = [
-    { name: "Physics", progress: 75, status: "strong", color: "blue" },
-    { name: "Chemistry", progress: 45, status: "weak", color: "red" },
-    { name: "Biology", progress: 55, status: "weak", color: "orange" }
+    { name: "Physics", progress: 45, status: "medium", color: "blue", isWeak: false },
+    { name: "Chemistry", progress: 35, status: "weak", color: "red", isWeak: true },
+    { name: "Biology", progress: 60, status: "strong", color: "green", isWeak: false }
   ];
 
   const objectives = [
-    "Complete syllabus",
-    "Concept clarity", 
-    "Regular practice"
+    "Complete NEET 2026 syllabus",
+    "Strengthen Chemistry concepts", 
+    "Regular mock tests"
   ];
 
   const getSubjectBadge = (subject: any) => {
-    if (subject.status === "weak") {
+    if (subject.isWeak) {
       return (
         <div className="flex items-center gap-1">
           <AlertTriangle className="h-3 w-3 text-orange-600" />
@@ -41,9 +45,16 @@ const NEETStrategyCard: React.FC = () => {
         </div>
       );
     }
+    if (subject.status === "strong") {
+      return (
+        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+          Strong
+        </Badge>
+      );
+    }
     return (
-      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
-        Strong
+      <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+        Medium
       </Badge>
     );
   };
@@ -72,7 +83,7 @@ const NEETStrategyCard: React.FC = () => {
     >
       <AnimatedHighlight
         id="neet_strategy"
-        message="Your personalized NEET preparation strategy"
+        message="Your personalized NEET 2026 preparation strategy"
         position="top-right"
         arrowDirection="down"
       />
@@ -105,7 +116,7 @@ const NEETStrategyCard: React.FC = () => {
                 }}
                 className="font-bold"
               >
-                NEET Strategy Card
+                NEET 2026 Strategy
               </motion.span>
             </div>
             <Button
@@ -127,12 +138,13 @@ const NEETStrategyCard: React.FC = () => {
               <Link to="/dashboard/student/study-plan">
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
-                  Adaptive Plan
+                  NEET 2026 Plan
                   <ArrowRight className="h-4 w-4 ml-auto" />
                 </Button>
               </Link>
             </motion.div>
             
+            {/* Exam countdown */}
             <motion.div
               animate={{ 
                 backgroundColor: ["rgb(239 246 255)", "rgb(245 243 255)", "rgb(239 246 255)"]
@@ -142,21 +154,11 @@ const NEETStrategyCard: React.FC = () => {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
+              className="p-3 rounded-lg bg-blue-50 text-center"
             >
-              <Badge className="w-full justify-center bg-blue-100 text-blue-800 py-2">
-                <motion.span
-                  animate={{ 
-                    scale: [1, 1.05, 1]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  Personalized Strategy
-                </motion.span>
-              </Badge>
+              <div className="text-xs text-blue-600 mb-1">NEET 2026 Exam Date</div>
+              <div className="font-bold text-blue-800">May 3, 2026</div>
+              <div className="text-xs text-blue-600">{daysLeft} days remaining</div>
             </motion.div>
 
             {/* Learning Profile Section */}
@@ -231,7 +233,7 @@ const NEETStrategyCard: React.FC = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    whileHover={{ scale: 1.02, backgroundColor: subject.status === "weak" ? "rgb(254 242 242)" : "rgb(240 253 244)" }}
+                    whileHover={{ scale: 1.02, backgroundColor: subject.isWeak ? "rgb(254 242 242)" : "rgb(240 253 244)" }}
                   >
                     <span className="font-medium">{subject.name}</span>
                     {getSubjectBadge(subject)}

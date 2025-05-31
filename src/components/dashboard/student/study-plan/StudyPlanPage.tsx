@@ -13,18 +13,26 @@ const StudyPlanPage = () => {
   const handleSaveTimeAllocation = (allocations: any[]) => {
     toast({
       title: "Time allocation updated",
-      description: "Your weekly study plan has been adjusted based on your preferences.",
+      description: "Your NEET 2026 study plan has been optimized based on your preferences.",
       variant: "default",
     });
     
-    // In a real app, this would update the backend
-    console.log("New time allocations:", allocations);
+    // Update localStorage with NEET 2026 data
+    const neetPlanData = {
+      exam: 'NEET 2026',
+      examDate: '2026-05-03',
+      subjects: allocations,
+      lastUpdated: new Date().toISOString()
+    };
+    localStorage.setItem('neet_study_plan', JSON.stringify(neetPlanData));
+    
+    console.log("NEET 2026 time allocations saved:", allocations);
   };
   
   return (
     <SharedPageLayout
-      title="Study Plan"
-      subtitle="Personalize your study schedule and track your progress"
+      title="NEET 2026 Study Plan"
+      subtitle="Comprehensive preparation strategy for NEET 2026 - Physics, Chemistry & Biology"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
