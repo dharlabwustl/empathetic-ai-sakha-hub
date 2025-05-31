@@ -22,7 +22,7 @@ export interface StudyPlan {
   preferredStudyTime: "morning" | "afternoon" | "evening" | "night";
   learningPace: "slow" | "moderate" | "fast";
   weeklyHours: number;
-  status: "pending" | "active" | "completed" | "archived" | "paused" | "in-progress";
+  status: "pending" | "active" | "completed" | "archived";
   createdAt: string;
   examDate: string;
   progressPercent?: number;
@@ -39,6 +39,6 @@ export interface NewStudyPlan {
   preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
   learningPace?: "slow" | "moderate" | "fast";
   weeklyHours?: number;
-  status?: "pending" | "active" | "completed" | "archived" | "paused" | "in-progress";
+  status?: "pending" | "active" | "completed" | "archived";
   examDate?: string;
 }
