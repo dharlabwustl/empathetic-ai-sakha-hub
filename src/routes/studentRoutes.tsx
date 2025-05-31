@@ -117,7 +117,7 @@ const StudentRoutes = () => {
       } />
       <Route path="/tutor" element={
         <SidebarLayout>
-          <TutorView />
+          <Enhanced24x7TutorPage />
         </SidebarLayout>
       } />
       <Route path="/tutor-enhanced" element={
