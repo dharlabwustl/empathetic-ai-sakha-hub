@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
@@ -10,16 +9,22 @@ export const useAcademicPlans = (examGoal?: string) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
 
-  // State for plans - using mock data that conforms to the StudyPlan types
   const [activePlans, setActivePlans] = useState<StudyPlan[]>([{
     id: "plan-1",
+    name: "NEET Preparation",
     title: "NEET Preparation",
+    description: "Comprehensive NEET 2026 preparation plan",
+    exam: examGoal || "NEET",
+    examDate: "2026-05-03",
     examGoal: examGoal || "NEET",
-    examDate: "2024-12-15",
+    startDate: "2024-04-10",
+    endDate: "2026-05-03",
     createdAt: "2024-04-10",
     updatedAt: "2024-04-10",
     status: 'active',
-    weeklyHours: 42,
+    hoursPerWeek: 42,
+    totalHours: 2000,
+    progress: 35,
     progressPercent: 35,
     subjects: [
       {
@@ -27,44 +32,69 @@ export const useAcademicPlans = (examGoal?: string) => {
         name: "Physics",
         color: "#3b82f6",
         hoursPerWeek: 14,
+        weeklyHours: 14,
+        progress: 45,
         priority: "high",
         proficiency: "medium",
         completed: false,
+        topics: [
+          { id: "mechanics", name: "Mechanics", hoursAllocated: 4, status: 'in-progress', completed: false, progressPercent: 60 },
+          { id: "thermodynamics", name: "Thermodynamics", hoursAllocated: 3, status: 'not-started', completed: false, progressPercent: 0 }
+        ]
       },
       {
         id: "chem-1",
         name: "Chemistry",
         color: "#10b981",
         hoursPerWeek: 12,
+        weeklyHours: 12,
+        progress: 35,
         priority: "medium",
         proficiency: "weak",
         completed: false,
+        isWeakSubject: true,
+        topics: [
+          { id: "organic", name: "Organic Chemistry", hoursAllocated: 4, status: 'in-progress', completed: false, progressPercent: 40 }
+        ]
       },
       {
-        id: "math-1",
-        name: "Mathematics",
+        id: "bio-1",
+        name: "Biology",
         color: "#8b5cf6",
         hoursPerWeek: 16,
+        weeklyHours: 16,
+        progress: 60,
         priority: "high",
         proficiency: "strong",
         completed: false,
+        topics: [
+          { id: "botany", name: "Botany", hoursAllocated: 6, status: 'completed', completed: true, progressPercent: 100 }
+        ]
       }
     ],
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
-    learningPace: 'moderate'
+    learningPace: 'medium',
+    weeklyHours: 42,
+    daysLeft: Math.ceil((new Date('2026-05-03').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
   }]);
 
-  // State for completed plans
   const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([{
     id: "plan-old-1",
+    name: "Previous NEET Prep",
     title: "Previous NEET Prep",
-    examGoal: "NEET",
+    description: "Previous preparation attempt",
+    exam: "NEET",
     examDate: "2024-03-15",
+    examGoal: "NEET",
+    startDate: "2024-01-01",
+    endDate: "2024-03-15",
     createdAt: "2024-01-01",
     updatedAt: "2024-03-15",
     status: 'completed',
-    weeklyHours: 35,
+    hoursPerWeek: 35,
+    totalHours: 1500,
+    progress: 100,
     progressPercent: 100,
     subjects: [
       {
@@ -72,6 +102,8 @@ export const useAcademicPlans = (examGoal?: string) => {
         name: "Physics",
         color: "#3b82f6",
         hoursPerWeek: 10,
+        weeklyHours: 10,
+        progress: 100,
         priority: "medium",
         proficiency: "weak",
         completed: true,
@@ -81,15 +113,19 @@ export const useAcademicPlans = (examGoal?: string) => {
         name: "Chemistry",
         color: "#10b981",
         hoursPerWeek: 12,
+        weeklyHours: 12,
+        progress: 100,
         priority: "low",
         proficiency: "weak",
         completed: true,
       },
       {
-        id: "math-old",
-        name: "Mathematics",
+        id: "bio-old",
+        name: "Biology",
         color: "#8b5cf6",
         hoursPerWeek: 13,
+        weeklyHours: 13,
+        progress: 100,
         priority: "high",
         proficiency: "medium",
         completed: true,
@@ -97,7 +133,9 @@ export const useAcademicPlans = (examGoal?: string) => {
     ],
     studyHoursPerDay: 5,
     preferredStudyTime: 'morning',
-    learningPace: 'slow'
+    learningPace: 'slow',
+    weeklyHours: 35,
+    daysLeft: 0
   }]);
 
   const handleCreatePlan = () => {
@@ -112,32 +150,35 @@ export const useAcademicPlans = (examGoal?: string) => {
   };
 
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    // Create a new plan object that conforms to StudyPlan type
     const newPlan: StudyPlan = {
       id: uuidv4(),
-      title: `${plan.examGoal} Preparation Plan`,
-      examGoal: plan.examGoal,
-      examDate: typeof plan.examDate === 'string' ? plan.examDate : format(plan.examDate as Date, 'yyyy-MM-dd'),
+      name: plan.name,
+      title: `${plan.examGoal || plan.exam} Preparation Plan`,
+      description: plan.description,
+      exam: plan.exam,
+      examDate: plan.examDate,
+      examGoal: plan.examGoal || plan.exam,
+      startDate: plan.startDate,
+      endDate: plan.endDate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       status: 'active',
-      weeklyHours: plan.weeklyHours || 20,
+      hoursPerWeek: plan.hoursPerWeek || 20,
+      totalHours: plan.totalHours,
+      progress: 0,
       progressPercent: 0,
       subjects: plan.subjects.map(subject => ({
-        id: subject.id || `subject-${uuidv4()}`,
-        name: subject.name,
-        color: subject.color || "#3b82f6",
-        hoursPerWeek: subject.hoursPerWeek || 10,
-        priority: subject.priority || "medium",
-        proficiency: subject.proficiency || "medium",
-        completed: false,
+        ...subject,
+        weeklyHours: subject.weeklyHours || subject.hoursPerWeek || 10,
+        progress: subject.progress || 0,
       })),
       studyHoursPerDay: plan.studyHoursPerDay,
       preferredStudyTime: plan.preferredStudyTime,
-      learningPace: plan.learningPace
+      learningPace: plan.learningPace,
+      weeklyHours: plan.hoursPerWeek || 20,
+      daysLeft: Math.ceil((new Date(plan.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     };
     
-    // Move previous active plans to completed
     const updatedCompletedPlans = [...completedPlans];
     if (activePlans.length > 0) {
       const oldActivePlans = activePlans.map(plan => ({
@@ -147,11 +188,9 @@ export const useAcademicPlans = (examGoal?: string) => {
       updatedCompletedPlans.push(...oldActivePlans);
     }
     
-    // Add the new plan as the active one
     setActivePlans([newPlan]);
     setCompletedPlans(updatedCompletedPlans);
     
-    // Show toast
     toast({
       title: "Success",
       description: "Your new study plan has been created and is now active!",

@@ -11,6 +11,7 @@ import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import SpeechRecognitionButton from "@/components/voice/SpeechRecognitionButton";
+import { usePrepzrVoiceAssistant } from "@/hooks/usePrepzrVoiceAssistant";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -74,7 +75,24 @@ const DashboardLayout = ({
   
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
+  // Determine if this is a first-time user
   const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true';
+  const hasCompletedWelcome = localStorage.getItem('hasSpokenWelcome') === 'true';
+  const loginCount = parseInt(localStorage.getItem('loginCount') || '1');
+  
+  // Use the enhanced voice assistant with proper user tracking
+  const { isSpeaking, voiceEnabled, stopAllVoiceActivity } = usePrepzrVoiceAssistant({
+    userName: userProfile.name,
+    isLoggedIn: true,
+    isFirstTimeUser: isFirstTimeUser && !hasCompletedWelcome,
+    lastActivity: lastActivity?.description
+  });
+  
+  // Update login count on mount
+  useEffect(() => {
+    const currentCount = parseInt(localStorage.getItem('loginCount') || '0');
+    localStorage.setItem('loginCount', (currentCount + 1).toString());
+  }, []);
   
   const handleOpenTour = () => {
     setShowTour(true);
@@ -94,7 +112,34 @@ const DashboardLayout = ({
 
   const handleSpeechCommand = (command: string) => {
     console.log('Dashboard speech command received:', command);
-    // Commands are processed within the SpeechRecognitionButton component
+    
+    const lowerCommand = command.toLowerCase();
+    
+    // Handle navigation commands
+    if (lowerCommand.includes('study plan')) {
+      onTabChange('study-plan');
+      navigate('/dashboard/student/study-plan');
+    } else if (lowerCommand.includes('concept')) {
+      onTabChange('concepts');
+      navigate('/dashboard/student/concepts');
+    } else if (lowerCommand.includes('practice') || lowerCommand.includes('exam')) {
+      onTabChange('practice-exam');
+      navigate('/dashboard/student/practice-exam');
+    } else if (lowerCommand.includes('academic')) {
+      onTabChange('academic');
+      navigate('/dashboard/student/academic');
+    } else if (lowerCommand.includes('flashcard')) {
+      onTabChange('flashcards');
+      navigate('/dashboard/student/flashcards');
+    } else if (lowerCommand.includes('overview') || lowerCommand.includes('dashboard')) {
+      onTabChange('overview');
+      navigate('/dashboard/student');
+    }
+    
+    // Handle voice assistant commands
+    if (lowerCommand.includes('stop') || lowerCommand.includes('quiet') || lowerCommand.includes('silence')) {
+      stopAllVoiceActivity();
+    }
   };
 
   return (
@@ -138,7 +183,7 @@ const DashboardLayout = ({
         </main>
       </div>
       
-      {/* Speech Recognition Button positioned above voice assistant with higher z-index */}
+      {/* Enhanced Speech Recognition Button positioned above voice assistant with higher z-index */}
       <SpeechRecognitionButton
         position="dashboard"
         onCommand={handleSpeechCommand}

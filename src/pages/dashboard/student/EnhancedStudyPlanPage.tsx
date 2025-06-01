@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { StudyPlanSubject } from '@/types/user/studyPlan';
 
-const StudyPlanPage = () => {
+const EnhancedStudyPlanPage = () => {
   const [studyPlan, setStudyPlan] = useState({
     name: "NEET 2026 Preparation",
     examDate: "2026-05-03",
@@ -112,7 +112,7 @@ const StudyPlanPage = () => {
 
   return (
     <SharedPageLayout
-      title="Complete Study Plan"
+      title="Enhanced Study Plan"
       subtitle={`${studyPlan.name} • ${daysLeft} days remaining`}
     >
       <div className="space-y-6">
@@ -415,4 +415,4 @@ const StudyPlanPage = () => {
   );
 };
 
-export default StudyPlanPage;
+export default EnhancedStudyPlanPage;
