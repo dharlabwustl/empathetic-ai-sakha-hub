@@ -15,6 +15,8 @@ export interface StudyPlanTopic {
   difficulty?: 'easy' | 'medium' | 'hard';
   completed?: boolean;
   progressPercent?: number;
+  estimatedTime?: number;
+  conceptsCount?: number;
 }
 
 export interface StudyPlanSubject {
