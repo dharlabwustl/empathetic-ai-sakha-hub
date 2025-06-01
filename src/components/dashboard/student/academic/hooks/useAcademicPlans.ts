@@ -10,7 +10,6 @@ export const useAcademicPlans = (examGoal?: string) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
 
-  // State for plans - using mock data that conforms to the StudyPlan types
   const [activePlans, setActivePlans] = useState<StudyPlan[]>([{
     id: "plan-1",
     name: "NEET Preparation",
@@ -39,6 +38,10 @@ export const useAcademicPlans = (examGoal?: string) => {
         priority: "high",
         proficiency: "medium",
         completed: false,
+        topics: [
+          { id: "mechanics", name: "Mechanics", hoursAllocated: 4, status: 'in-progress', completed: false, progressPercent: 60 },
+          { id: "thermodynamics", name: "Thermodynamics", hoursAllocated: 3, status: 'not-started', completed: false, progressPercent: 0 }
+        ]
       },
       {
         id: "chem-1",
@@ -51,6 +54,9 @@ export const useAcademicPlans = (examGoal?: string) => {
         proficiency: "weak",
         completed: false,
         isWeakSubject: true,
+        topics: [
+          { id: "organic", name: "Organic Chemistry", hoursAllocated: 4, status: 'in-progress', completed: false, progressPercent: 40 }
+        ]
       },
       {
         id: "bio-1",
@@ -62,14 +68,18 @@ export const useAcademicPlans = (examGoal?: string) => {
         priority: "high",
         proficiency: "strong",
         completed: false,
+        topics: [
+          { id: "botany", name: "Botany", hoursAllocated: 6, status: 'completed', completed: true, progressPercent: 100 }
+        ]
       }
     ],
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
-    learningPace: 'medium'
+    learningPace: 'medium',
+    weeklyHours: 42,
+    daysLeft: Math.ceil((new Date('2026-05-03').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
   }]);
 
-  // State for completed plans
   const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([{
     id: "plan-old-1",
     name: "Previous NEET Prep",
@@ -124,7 +134,9 @@ export const useAcademicPlans = (examGoal?: string) => {
     ],
     studyHoursPerDay: 5,
     preferredStudyTime: 'morning',
-    learningPace: 'slow'
+    learningPace: 'slow',
+    weeklyHours: 35,
+    daysLeft: 0
   }]);
 
   const handleCreatePlan = () => {
@@ -139,7 +151,6 @@ export const useAcademicPlans = (examGoal?: string) => {
   };
 
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    // Create a new plan object that conforms to StudyPlan type
     const newPlan: StudyPlan = {
       id: uuidv4(),
       name: plan.name,
@@ -158,24 +169,17 @@ export const useAcademicPlans = (examGoal?: string) => {
       progress: 0,
       progressPercent: 0,
       subjects: plan.subjects.map(subject => ({
-        id: subject.id || `subject-${uuidv4()}`,
-        name: subject.name,
-        color: subject.color || "#3b82f6",
-        hoursPerWeek: subject.hoursPerWeek || 10,
+        ...subject,
         weeklyHours: subject.weeklyHours || subject.hoursPerWeek || 10,
         progress: subject.progress || 0,
-        priority: subject.priority || "medium",
-        proficiency: subject.proficiency || "medium",
-        completed: false,
-        isWeakSubject: subject.isWeakSubject,
-        topics: subject.topics,
       })),
       studyHoursPerDay: plan.studyHoursPerDay,
       preferredStudyTime: plan.preferredStudyTime,
-      learningPace: plan.learningPace
+      learningPace: plan.learningPace,
+      weeklyHours: plan.hoursPerWeek || 20,
+      daysLeft: Math.ceil((new Date(plan.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     };
     
-    // Move previous active plans to completed
     const updatedCompletedPlans = [...completedPlans];
     if (activePlans.length > 0) {
       const oldActivePlans = activePlans.map(plan => ({
@@ -185,11 +189,9 @@ export const useAcademicPlans = (examGoal?: string) => {
       updatedCompletedPlans.push(...oldActivePlans);
     }
     
-    // Add the new plan as the active one
     setActivePlans([newPlan]);
     setCompletedPlans(updatedCompletedPlans);
     
-    // Show toast
     toast({
       title: "Success",
       description: "Your new study plan has been created and is now active!",

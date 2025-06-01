@@ -13,6 +13,8 @@ export interface StudyPlanTopic {
   status?: SubjectStatus;
   priority?: Priority;
   difficulty?: 'easy' | 'medium' | 'hard';
+  completed?: boolean;
+  progressPercent?: number;
 }
 
 export interface StudyPlanSubject {
@@ -27,6 +29,7 @@ export interface StudyPlanSubject {
   completed: boolean;
   isWeakSubject?: boolean;
   topics?: StudyPlanTopic[];
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface StudyPlan {
@@ -50,6 +53,8 @@ export interface StudyPlan {
   studyHoursPerDay: number;
   preferredStudyTime: PreferredStudyTime;
   learningPace: LearningPace;
+  weeklyHours?: number;
+  daysLeft?: number;
 }
 
 export interface NewStudyPlan {
