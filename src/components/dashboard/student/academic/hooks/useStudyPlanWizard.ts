@@ -13,18 +13,18 @@ interface UseStudyPlanWizardProps {
 export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: UseStudyPlanWizardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [step, setStep] = useState(examGoal ? 2 : 1);
+  const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
   const [formData, setFormData] = useState<Partial<NewStudyPlan>>({
-    name: '',
-    exam: examGoal || '',
+    title: '',
+    goal: examGoal || '',
     examGoal: examGoal || '',
     subjects: [],
-    hoursPerWeek: 20,
-    totalHours: 1000,
+    weeklyHours: 20,
+    status: 'active',
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
-    learningPace: 'medium',
-    examDate: new Date().toISOString().split('T')[0]
+    learningPace: 'moderate',
+    examDate: new Date()
   });
 
   const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
@@ -78,8 +78,6 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         name: subject, 
         color: getRandomColor(),
         hoursPerWeek: formData.studyHoursPerDay || 4,
-        weeklyHours: formData.studyHoursPerDay || 4,
-        progress: 0,
         priority: 'medium' as const,
         proficiency: 'strong' as const,
         completed: false 
@@ -89,8 +87,6 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         name: subject, 
         color: getRandomColor(),
         hoursPerWeek: (formData.studyHoursPerDay || 4) * 1.2,
-        weeklyHours: (formData.studyHoursPerDay || 4) * 1.2,
-        progress: 0,
         priority: 'medium' as const,
         proficiency: 'medium' as const,
         completed: false 
@@ -100,35 +96,33 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         name: subject, 
         color: getRandomColor(),
         hoursPerWeek: (formData.studyHoursPerDay || 4) * 1.5,
-        weeklyHours: (formData.studyHoursPerDay || 4) * 1.5,
-        progress: 0,
         priority: 'high' as const,
         proficiency: 'weak' as const,
-        completed: false,
-        isWeakSubject: true
+        completed: false 
       }))
     ];
     return subjectsList;
   };
 
   const handlePaceChange = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
-    const learningPace: 'slow' | 'medium' | 'fast' = 
+    const learningPace: 'slow' | 'moderate' | 'fast' = 
       pace === 'Relaxed' ? 'slow' : 
-      pace === 'Balanced' ? 'medium' : 'fast';
+      pace === 'Balanced' ? 'moderate' : 'fast';
     setFormData(prev => ({ ...prev, learningPace }));
   };
 
-  const handleStudyTimeChange = (time: "Morning" | "Afternoon" | "Evening") => {
-    const preferredStudyTime = time.toLowerCase() as 'morning' | 'afternoon' | 'evening';
+  const handleStudyTimeChange = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
+    const preferredStudyTime = time.toLowerCase() as 'morning' | 'afternoon' | 'evening' | 'night';
     setFormData(prev => ({ ...prev, preferredStudyTime }));
   };
 
   const handleExamGoalSelect = (goal: string) => {
-    setFormData(prev => ({ ...prev, exam: goal, examGoal: goal, name: goal }));
+    setFormData(prev => ({ ...prev, goal, examGoal: goal, title: goal }));
+    // Clear subjects when changing exam goal
     setStrongSubjects([]);
     setWeakSubjects([]);
     setMediumSubjects([]);
-    setStep(2);
+    setStep(2); // Move to next step after goal selection
   };
 
   const handleNext = () => {
@@ -137,9 +131,10 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
     } else {
       const updatedFormData = {
         ...formData,
-        name: formData.examGoal || '',
+        title: formData.examGoal || '',
         subjects: getSubjectsProficiencyList(),
-        hoursPerWeek: formData.studyHoursPerDay ? formData.studyHoursPerDay * 7 : 20,
+        weeklyHours: formData.studyHoursPerDay ? formData.studyHoursPerDay * 7 : 20,
+        status: 'active' as const
       } as NewStudyPlan;
       
       onCreatePlan(updatedFormData);
@@ -148,16 +143,16 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
       setWeakSubjects([]);
       setMediumSubjects([]);
       setFormData({
-        name: '',
-        exam: '',
+        title: '',
+        goal: '',
         examGoal: '',
         subjects: [],
-        hoursPerWeek: 20,
-        totalHours: 1000,
+        weeklyHours: 20,
+        status: 'active',
         studyHoursPerDay: 6,
-        preferredStudyTime: 'evening',
-        learningPace: 'medium',
-        examDate: new Date().toISOString().split('T')[0]
+        preferredStudyTime: 'morning',
+        learningPace: 'moderate',
+        examDate: new Date()
       });
       onClose();
       toast({
@@ -165,6 +160,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
         description: "Your personalized study plan has been generated successfully.",
       });
       
+      // Navigate to the Academic Advisor view after creating a plan
       navigate('/dashboard/student/academic');
     }
   };
@@ -193,10 +189,20 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
   };
 };
 
+// Helper function to generate random pastel colors
 function getRandomColor(): string {
   const colors = [
-    '#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#2563EB',
-    '#EF4444', '#6366F1', '#14B8A6', '#F97316', '#8B5CF6'
+    '#8B5CF6', // Purple
+    '#EC4899', // Pink
+    '#10B981', // Green
+    '#F59E0B', // Yellow
+    '#2563EB', // Blue
+    '#EF4444', // Red
+    '#6366F1', // Indigo
+    '#14B8A6', // Teal
+    '#F97316', // Orange
+    '#8B5CF6', // Purple
   ];
+  
   return colors[Math.floor(Math.random() * colors.length)];
 }

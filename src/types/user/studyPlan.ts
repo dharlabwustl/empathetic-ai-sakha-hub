@@ -1,22 +1,21 @@
 
-export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft' | 'pending';
-export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'pending';
-export type Priority = 'low' | 'medium' | 'high';
-export type Proficiency = 'weak' | 'medium' | 'strong';
-export type LearningPace = 'slow' | 'medium' | 'fast' | 'moderate';
-export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening' | 'night';
+export type SubjectProficiency = 'weak' | 'medium' | 'strong';
+export type SubjectPriority = 'low' | 'medium' | 'high';
+export type SubjectDifficulty = 'easy' | 'medium' | 'hard';
+export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'paused';
+export type StudyPlanStatus = 'draft' | 'active' | 'paused' | 'completed';
+export type LearningPace = 'slow' | 'medium' | 'fast';
+export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
 
 export interface StudyPlanTopic {
   id: string;
   name: string;
-  hoursAllocated: number;
+  completed: boolean;
   status?: SubjectStatus;
-  priority?: Priority;
-  difficulty?: 'easy' | 'medium' | 'hard';
-  completed?: boolean;
+  priority?: SubjectPriority;
+  difficulty?: SubjectDifficulty;
+  hoursAllocated?: number;
   progressPercent?: number;
-  estimatedTime?: number;
-  conceptsCount?: number;
 }
 
 export interface StudyPlanSubject {
@@ -26,39 +25,36 @@ export interface StudyPlanSubject {
   hoursPerWeek: number;
   weeklyHours: number;
   progress: number;
-  priority: Priority;
-  proficiency: Proficiency;
+  priority: SubjectPriority;
+  proficiency: SubjectProficiency;
+  difficulty?: SubjectDifficulty;
   completed: boolean;
-  isWeakSubject?: boolean;
-  topics?: StudyPlanTopic[];
-  difficulty?: 'easy' | 'medium' | 'hard';
   status?: SubjectStatus;
+  topics?: StudyPlanTopic[];
+  isWeakSubject?: boolean;
 }
 
 export interface StudyPlan {
   id: string;
   name: string;
-  title: string;
   description: string;
   exam: string;
   examDate: string;
-  examGoal: string;
+  examGoal?: string;
   startDate: string;
   endDate: string;
-  createdAt: string;
-  updatedAt: string;
-  status: StudyPlanStatus;
+  subjects: StudyPlanSubject[];
   hoursPerWeek: number;
   totalHours: number;
+  studyHoursPerDay?: number;
+  status: StudyPlanStatus;
   progress: number;
-  progressPercent: number;
-  progressPercentage?: number;
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: PreferredStudyTime;
-  learningPace: LearningPace;
-  weeklyHours?: number;
+  progressPercent?: number;
   daysLeft?: number;
+  learningPace: LearningPace;
+  preferredStudyTime: PreferredStudyTime;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface NewStudyPlan {
@@ -66,27 +62,15 @@ export interface NewStudyPlan {
   description: string;
   exam: string;
   examDate: string;
-  examGoal: string;
+  examGoal?: string;
   startDate: string;
   endDate: string;
   subjects: StudyPlanSubject[];
-  hoursPerWeek?: number;
+  hoursPerWeek: number;
   totalHours: number;
-  studyHoursPerDay: number;
-  preferredStudyTime: PreferredStudyTime;
+  studyHoursPerDay?: number;
+  status: StudyPlanStatus;
+  progress: number;
   learningPace: LearningPace;
+  preferredStudyTime: PreferredStudyTime;
 }
-
-export interface CreditPack {
-  id: string;
-  name: string;
-  credits: number;
-  price: number;
-  description: string;
-  features: string[];
-  bestValue?: boolean;
-  isExamCredits?: boolean;
-}
-
-// Export alias for compatibility
-export type NewStudyPlanSubject = StudyPlanSubject;

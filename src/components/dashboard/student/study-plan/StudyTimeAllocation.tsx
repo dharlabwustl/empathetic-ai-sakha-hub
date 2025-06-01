@@ -1,25 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { StudyPlanSubject } from '@/types/user/studyPlan';
-import { Clock, Target, TrendingUp, AlertTriangle, BookOpen } from 'lucide-react';
+import { Clock, Target, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 
 interface StudyTimeAllocationProps {
   weeklyTotal: number;
-  subjects?: StudyPlanSubject[];
   onSave: (allocations: StudyPlanSubject[]) => void;
 }
 
-const StudyTimeAllocation: React.FC<StudyTimeAllocationProps> = ({ 
-  weeklyTotal, 
-  subjects: initialSubjects,
-  onSave 
-}) => {
-  const defaultSubjects: StudyPlanSubject[] = [
+const StudyTimeAllocation: React.FC<StudyTimeAllocationProps> = ({ weeklyTotal, onSave }) => {
+  const [subjects, setSubjects] = useState<StudyPlanSubject[]>([
     {
       id: 'physics',
       name: 'Physics',
@@ -31,6 +25,13 @@ const StudyTimeAllocation: React.FC<StudyTimeAllocationProps> = ({
       proficiency: 'medium',
       completed: false,
       isWeakSubject: false,
+      topics: [
+        { id: 'mechanics', name: 'Mechanics', completed: false, status: 'in-progress', hoursAllocated: 4 },
+        { id: 'thermodynamics', name: 'Thermodynamics', completed: false, status: 'not-started', hoursAllocated: 3 },
+        { id: 'electromagnetism', name: 'Electromagnetism', completed: false, status: 'not-started', hoursAllocated: 4 },
+        { id: 'optics', name: 'Optics', completed: false, status: 'not-started', hoursAllocated: 2 },
+        { id: 'modern-physics', name: 'Modern Physics', completed: false, status: 'not-started', hoursAllocated: 2 }
+      ]
     },
     {
       id: 'chemistry',
@@ -43,6 +44,11 @@ const StudyTimeAllocation: React.FC<StudyTimeAllocationProps> = ({
       proficiency: 'weak',
       completed: false,
       isWeakSubject: true,
+      topics: [
+        { id: 'physical-chemistry', name: 'Physical Chemistry', completed: false, status: 'in-progress', hoursAllocated: 4 },
+        { id: 'organic-chemistry', name: 'Organic Chemistry', completed: false, status: 'not-started', hoursAllocated: 4 },
+        { id: 'inorganic-chemistry', name: 'Inorganic Chemistry', completed: false, status: 'not-started', hoursAllocated: 4 }
+      ]
     },
     {
       id: 'biology',
@@ -55,16 +61,13 @@ const StudyTimeAllocation: React.FC<StudyTimeAllocationProps> = ({
       proficiency: 'strong',
       completed: false,
       isWeakSubject: false,
+      topics: [
+        { id: 'botany', name: 'Botany', completed: true, status: 'completed', hoursAllocated: 6 },
+        { id: 'zoology', name: 'Zoology', completed: false, status: 'in-progress', hoursAllocated: 4 },
+        { id: 'human-physiology', name: 'Human Physiology', completed: false, status: 'not-started', hoursAllocated: 3 }
+      ]
     }
-  ];
-
-  const [subjects, setSubjects] = useState<StudyPlanSubject[]>(initialSubjects || defaultSubjects);
-
-  useEffect(() => {
-    if (initialSubjects) {
-      setSubjects(initialSubjects);
-    }
-  }, [initialSubjects]);
+  ]);
 
   const totalAllocated = subjects.reduce((sum, subject) => sum + subject.hoursPerWeek, 0);
 
@@ -110,7 +113,7 @@ const StudyTimeAllocation: React.FC<StudyTimeAllocationProps> = ({
         <CardContent>
           <div className="space-y-6">
             {subjects.map((subject) => (
-              <div key={subject.id} className="space-y-4 p-4 border rounded-lg">
+              <div key={subject.id} className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div 
@@ -134,41 +137,20 @@ const StudyTimeAllocation: React.FC<StudyTimeAllocationProps> = ({
                     </div>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Weekly Hours:</span>
-                    <span>{subject.hoursPerWeek}h</span>
-                  </div>
-                  <Slider
-                    value={[subject.hoursPerWeek]}
-                    onValueChange={(value) => updateSubjectHours(subject.id, value[0])}
-                    max={25}
-                    min={5}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>5h</span>
-                    <span>25h</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Overall Progress:</span>
-                    <span>{subject.progress}%</span>
-                  </div>
-                  <Progress value={subject.progress} className="h-2" />
-                </div>
+                
+                <Slider
+                  value={[subject.hoursPerWeek]}
+                  onValueChange={(value) => updateSubjectHours(subject.id, value[0])}
+                  max={25}
+                  min={5}
+                  step={1}
+                  className="w-full"
+                />
                 
                 {/* Topic breakdown */}
-                {subject.topics && subject.topics.length > 0 && (
-                  <div className="space-y-2">
-                    <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                      <BookOpen className="h-3 w-3" />
-                      Topics:
-                    </h5>
+                {subject.topics && (
+                  <div className="ml-4 space-y-2">
+                    <h5 className="text-sm font-medium text-muted-foreground">Topics:</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {subject.topics.map((topic) => (
                         <div key={topic.id} className="flex items-center justify-between text-xs p-2 bg-gray-50 rounded">
