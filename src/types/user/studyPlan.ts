@@ -1,10 +1,10 @@
 
-export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft';
-export type SubjectStatus = 'not-started' | 'in-progress' | 'completed';
+export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft' | 'pending';
+export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'pending';
 export type Priority = 'low' | 'medium' | 'high';
 export type Proficiency = 'weak' | 'medium' | 'strong';
-export type LearningPace = 'slow' | 'medium' | 'fast';
-export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
+export type LearningPace = 'slow' | 'medium' | 'fast' | 'moderate';
+export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening' | 'night';
 
 export interface StudyPlanTopic {
   id: string;
@@ -30,6 +30,7 @@ export interface StudyPlanSubject {
   isWeakSubject?: boolean;
   topics?: StudyPlanTopic[];
   difficulty?: 'easy' | 'medium' | 'hard';
+  status?: SubjectStatus;
 }
 
 export interface StudyPlan {
@@ -49,6 +50,7 @@ export interface StudyPlan {
   totalHours: number;
   progress: number;
   progressPercent: number;
+  progressPercentage?: number; // Added for backward compatibility
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: PreferredStudyTime;
