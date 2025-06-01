@@ -6,12 +6,11 @@ import WeeklySchedule from './WeeklySchedule';
 import StudyGoals from './StudyGoals';
 import StudyTimeAllocation from './StudyTimeAllocation';
 import { useToast } from '@/hooks/use-toast';
-import { StudyPlanSubject } from '@/types/user/studyPlan';
 
 const StudyPlanPage = () => {
   const { toast } = useToast();
   
-  const handleSaveTimeAllocation = (allocations: StudyPlanSubject[]) => {
+  const handleSaveTimeAllocation = (allocations: any[]) => {
     toast({
       title: "Time allocation updated",
       description: "Your NEET 2026 study plan has been optimized based on your preferences.",

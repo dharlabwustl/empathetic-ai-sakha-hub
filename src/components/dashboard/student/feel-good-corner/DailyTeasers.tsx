@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Award, Trophy, Send, RefreshCw, Brain } from "lucide-react";
+import { Award, Trophy, Send, RefreshCw } from "lucide-react";
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,22 +31,22 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
       type: "Chemistry",
       question: "I'm a compound essential for life. I contain carbon, hydrogen, and oxygen. I'm formed by the condensation of two molecules, releasing water. I'm found in pasta, bread, and rice. What am I?",
       answer: "Carbohydrate",
-      hint: "I provide energy for the body and my simplest form is glucose.",
+      hint: "I provide energy for the body.",
       difficulty: "Medium"
     },
     {
-      type: "Physics", 
-      question: "I am a fundamental concept in physics. I can be potential or kinetic. According to a famous law, I cannot be created or destroyed, only transformed. Einstein showed I'm related to mass. What am I?",
+      type: "Physics",
+      question: "I am a fundamental concept in physics. I can be potential or kinetic. According to a famous law, I cannot be created or destroyed, only transformed. What am I?",
       answer: "Energy",
-      hint: "Think about E=mc² and the law of conservation.",
+      hint: "E = mc²",
       difficulty: "Easy"
     },
     {
-      type: "Biology",
-      question: "I'm the powerhouse of the cell. I have my own DNA and double membrane. I produce ATP through cellular respiration. Without me, complex life wouldn't exist. What am I?",
-      answer: "Mitochondria",
-      hint: "I'm often called the powerhouse and I'm involved in energy production.",
-      difficulty: "Medium"
+      type: "Mathematics",
+      question: "I am a number. When you multiply me by any number, the result remains unchanged. When you add me to any number, the result is that number. What number am I?",
+      answer: "0 and 1",
+      hint: "Think about the identity elements for multiplication and addition.",
+      difficulty: "Hard"
     }
   ];
 
@@ -58,7 +59,6 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
       title: "Answer Submitted!",
       description: "Your answer has been recorded. Check back later for results!",
     });
-    setUserAnswer('');
   };
 
   const handleGetHint = (index: number) => {
@@ -94,10 +94,7 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
       </div>
 
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-purple-600" />
-          <h2 className="text-lg font-medium">Daily Brain Teasers</h2>
-        </div>
+        <h2 className="text-lg font-medium">Daily Brain Teasers</h2>
         <Button variant="outline" size="sm" onClick={getNewTeaser} className="flex items-center gap-1">
           <RefreshCw className="h-3.5 w-3.5" />
           <span>Get New Teasers</span>
@@ -107,20 +104,14 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
       <Card>
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${
-                teasers[selectedTeaser].type === 'Chemistry' ? 'bg-green-500' :
-                teasers[selectedTeaser].type === 'Physics' ? 'bg-blue-500' : 'bg-orange-500'
-              }`} />
+            <CardTitle className="text-lg">
               {teasers[selectedTeaser].type} Teaser
             </CardTitle>
-            <Badge variant={teasers[selectedTeaser].difficulty === 'Easy' ? 'default' : 'secondary'}>
-              {teasers[selectedTeaser].difficulty}
-            </Badge>
+            <Badge>{teasers[selectedTeaser].difficulty}</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-muted-foreground leading-relaxed">{teasers[selectedTeaser].question}</p>
+          <p className="text-muted-foreground">{teasers[selectedTeaser].question}</p>
           
           <div className="pt-2">
             <Textarea 
@@ -166,16 +157,8 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
             key={index}
             variant={selectedTeaser === index ? "default" : "outline"} 
             size="sm"
-            onClick={() => {
-              setSelectedTeaser(index);
-              setUserAnswer('');
-            }}
-            className="flex items-center gap-1"
+            onClick={() => setSelectedTeaser(index)}
           >
-            <div className={`w-2 h-2 rounded-full ${
-              teaser.type === 'Chemistry' ? 'bg-green-500' :
-              teaser.type === 'Physics' ? 'bg-blue-500' : 'bg-orange-500'
-            }`} />
             {teaser.type}
           </Button>
         ))}
