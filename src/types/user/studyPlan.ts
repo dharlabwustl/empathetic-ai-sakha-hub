@@ -85,3 +85,6 @@ export interface CreditPack {
   bestValue?: boolean;
   isExamCredits?: boolean;
 }
+
+// Export alias for compatibility
+export type NewStudyPlanSubject = StudyPlanSubject;
