@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { Award, Trophy, Send, RefreshCw, Brain } from "lucide-react";
+import { Award, Trophy, Send, RefreshCw, Brain, Crown, Gift, Star } from "lucide-react";
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,6 +12,13 @@ interface DailyWinner {
   name: string;
   avatar: string;
   content: string;
+}
+
+interface PrizeWinner {
+  name: string;
+  avatar: string;
+  prize: string;
+  date: string;
 }
 
 interface DailyTeasersProps {
@@ -24,6 +31,21 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
   const [selectedTeaser, setSelectedTeaser] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [submitted, setSubmitted] = useState<boolean[]>([false, false, false]);
+
+  // Mock data for weekly and monthly winners
+  const weeklyWinner: PrizeWinner = {
+    name: "Priya Singh",
+    avatar: "/avatars/02.png",
+    prize: "PREPZR Backpack",
+    date: "Week 47, 2024"
+  };
+
+  const monthlyWinner: PrizeWinner = {
+    name: "Rahul Kumar",
+    avatar: "/avatars/03.png", 
+    prize: "Laptop",
+    date: "November 2024"
+  };
 
   const teasers = [
     {
@@ -77,6 +99,68 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
 
   return (
     <div className="space-y-6">
+      {/* Prize Winners Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {/* Weekly Winner */}
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-purple-700">
+              <Crown className="h-5 w-5 text-purple-600" />
+              Weekly Winner
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <Avatar className="h-12 w-12 border-2 border-purple-300">
+                <AvatarImage src={weeklyWinner.avatar} alt={weeklyWinner.name} />
+                <AvatarFallback className="bg-purple-100">{weeklyWinner.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h4 className="font-semibold text-purple-800">{weeklyWinner.name}</h4>
+                <p className="text-sm text-purple-600">{weeklyWinner.date}</p>
+              </div>
+            </div>
+            <div className="bg-white/60 rounded-lg p-3 border border-purple-200">
+              <div className="flex items-center gap-2">
+                <Gift className="h-4 w-4 text-purple-600" />
+                <span className="font-medium text-purple-800">{weeklyWinner.prize}</span>
+              </div>
+              <p className="text-xs text-purple-600 mt-1">Win weekly prizes by solving brain teasers!</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Monthly Winner */}
+        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-amber-700">
+              <Trophy className="h-5 w-5 text-amber-600" />
+              Monthly Winner
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <Avatar className="h-12 w-12 border-2 border-amber-300">
+                <AvatarImage src={monthlyWinner.avatar} alt={monthlyWinner.name} />
+                <AvatarFallback className="bg-amber-100">{monthlyWinner.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h4 className="font-semibold text-amber-800">{monthlyWinner.name}</h4>
+                <p className="text-sm text-amber-600">{monthlyWinner.date}</p>
+              </div>
+            </div>
+            <div className="bg-white/60 rounded-lg p-3 border border-amber-200">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-amber-600" />
+                <span className="font-medium text-amber-800">{monthlyWinner.prize}</span>
+              </div>
+              <p className="text-xs text-amber-600 mt-1">Amazing monthly prizes await champions!</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Daily Winner Section */}
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
         <div className="flex items-start space-x-4">
           <Avatar className="h-10 w-10 border-2 border-amber-300">
@@ -90,6 +174,21 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
             </div>
             <p className="text-sm text-amber-700">{dailyWinner.name} solved the {dailyWinner.content} in record time!</p>
           </div>
+        </div>
+      </div>
+
+      {/* Prize Information Banner */}
+      <div className="bg-gradient-to-r from-sky-100 to-purple-100 border border-sky-200 rounded-lg p-4 mb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-sky-800 mb-1">🎁 Win Amazing Prizes!</h3>
+            <p className="text-sm text-sky-700">
+              Weekly: PREPZR Bags, Gym Passes | Monthly: Laptops & More!
+            </p>
+          </div>
+          <Badge variant="secondary" className="bg-sky-200 text-sky-800">
+            Participate Daily
+          </Badge>
         </div>
       </div>
 

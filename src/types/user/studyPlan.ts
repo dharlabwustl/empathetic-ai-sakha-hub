@@ -1,10 +1,10 @@
 
-export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft' | 'pending';
-export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'pending';
+export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft';
+export type SubjectStatus = 'not-started' | 'in-progress' | 'completed';
 export type Priority = 'low' | 'medium' | 'high';
 export type Proficiency = 'weak' | 'medium' | 'strong';
-export type LearningPace = 'slow' | 'medium' | 'fast' | 'moderate';
-export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening' | 'night';
+export type LearningPace = 'slow' | 'medium' | 'fast';
+export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
 
 export interface StudyPlanTopic {
   id: string;
