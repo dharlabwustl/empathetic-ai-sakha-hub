@@ -50,7 +50,7 @@ export interface StudyPlan {
   totalHours: number;
   progress: number;
   progressPercent: number;
-  progressPercentage?: number; // Added for backward compatibility
+  progressPercentage?: number;
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: PreferredStudyTime;
