@@ -23,6 +23,7 @@ import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLab
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
+import DynamicStudyPlanPage from '@/components/dashboard/student/study-plan/DynamicStudyPlanPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -38,6 +39,16 @@ const StudentRoutes = () => {
       <Route path="/academic" element={
         <SidebarLayout>
           <AcademicAdvisorView />
+        </SidebarLayout>
+      } />
+      <Route path="/study-plan" element={
+        <SidebarLayout>
+          <DynamicStudyPlanPage />
+        </SidebarLayout>
+      } />
+      <Route path="/study-plan/adaptive" element={
+        <SidebarLayout>
+          <DynamicStudyPlanPage />
         </SidebarLayout>
       } />
       <Route path="/concepts" element={
