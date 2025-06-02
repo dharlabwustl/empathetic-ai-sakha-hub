@@ -19,6 +19,7 @@ interface PrizeWinner {
   avatar: string;
   prize: string;
   date: string;
+  prizeImage: string;
 }
 
 interface DailyTeasersProps {
@@ -32,20 +33,30 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
   const [userAnswer, setUserAnswer] = useState('');
   const [submitted, setSubmitted] = useState<boolean[]>([false, false, false]);
 
-  // Mock data for weekly and monthly winners
+  // Mock data for weekly and monthly winners with prize images
   const weeklyWinner: PrizeWinner = {
     name: "Priya Singh",
     avatar: "/avatars/02.png",
-    prize: "PREPZR Backpack",
-    date: "Week 47, 2024"
+    prize: "PREPZR Backpack & Study Kit",
+    date: "Week 47, 2024",
+    prizeImage: "/lovable-uploads/a15af77c-622c-408a-9ebb-7ee56d9b2e42.png"
   };
 
   const monthlyWinner: PrizeWinner = {
     name: "Rahul Kumar",
     avatar: "/avatars/03.png", 
     prize: "Laptop",
-    date: "November 2024"
+    date: "November 2024",
+    prizeImage: "/lovable-uploads/525745a8-28be-41e6-bfbb-ffb5d3b3ef39.png"
   };
+
+  // Weekly prizes showcase
+  const weeklyPrizes = [
+    { name: "PREPZR T-Shirt", image: "/lovable-uploads/43080c8f-4487-46b8-a789-d44d122d3d98.png" },
+    { name: "PREPZR Bags", image: "/lovable-uploads/f5761d30-2499-4bc1-9813-e0c95e33e700.png" },
+    { name: "Study Stationery", image: "/lovable-uploads/a802054f-3066-4d58-8534-d5849cba7ac9.png" },
+    { name: "Laptop Bags", image: "/lovable-uploads/0825eb99-40ce-447c-825b-975e20fcfde3.png" }
+  ];
 
   const teasers = [
     {
@@ -99,99 +110,137 @@ const DailyTeasers: React.FC<DailyTeasersProps> = ({ onLike, dailyWinner }) => {
 
   return (
     <div className="space-y-6">
+      {/* Prize Showcase Banner */}
+      <div className="bg-gradient-to-r from-purple-100 via-pink-100 to-amber-100 border-2 border-purple-300 rounded-xl p-6 mb-6">
+        <div className="text-center mb-4">
+          <h2 className="text-2xl font-bold text-purple-800 mb-2">🎁 Amazing Prizes Await!</h2>
+          <p className="text-purple-700">Solve brain teasers daily and win incredible PREPZR merchandise!</p>
+        </div>
+        
+        {/* Weekly Prizes Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          {weeklyPrizes.map((prize, index) => (
+            <div key={index} className="bg-white rounded-lg p-3 shadow-sm border border-purple-200">
+              <img 
+                src={prize.image} 
+                alt={prize.name}
+                className="w-full h-20 object-contain mb-2"
+              />
+              <p className="text-xs font-medium text-purple-800 text-center">{prize.name}</p>
+            </div>
+          ))}
+        </div>
+        
+        <div className="text-center">
+          <Badge className="bg-purple-600 text-white px-4 py-1">
+            Weekly: T-Shirts, Bags & More | Monthly: Laptops!
+          </Badge>
+        </div>
+      </div>
+
       {/* Prize Winners Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Weekly Winner */}
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 shadow-lg">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-purple-700">
-              <Crown className="h-5 w-5 text-purple-600" />
-              Weekly Winner
+              <Crown className="h-6 w-6 text-purple-600" />
+              Weekly Champion
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             <div className="flex items-center space-x-3">
-              <Avatar className="h-12 w-12 border-2 border-purple-300">
+              <Avatar className="h-14 w-14 border-3 border-purple-300">
                 <AvatarImage src={weeklyWinner.avatar} alt={weeklyWinner.name} />
-                <AvatarFallback className="bg-purple-100">{weeklyWinner.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback className="bg-purple-100 text-purple-800 font-bold">
+                  {weeklyWinner.name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div>
-                <h4 className="font-semibold text-purple-800">{weeklyWinner.name}</h4>
+                <h4 className="font-bold text-purple-800">{weeklyWinner.name}</h4>
                 <p className="text-sm text-purple-600">{weeklyWinner.date}</p>
               </div>
             </div>
-            <div className="bg-white/60 rounded-lg p-3 border border-purple-200">
-              <div className="flex items-center gap-2">
-                <Gift className="h-4 w-4 text-purple-600" />
-                <span className="font-medium text-purple-800">{weeklyWinner.prize}</span>
+            
+            <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
+              <div className="flex items-center gap-3 mb-2">
+                <img 
+                  src={weeklyWinner.prizeImage} 
+                  alt={weeklyWinner.prize}
+                  className="w-12 h-12 object-contain"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Gift className="h-4 w-4 text-purple-600" />
+                    <span className="font-bold text-purple-800">{weeklyWinner.prize}</span>
+                  </div>
+                  <p className="text-xs text-purple-600 mt-1">Solved 15 teasers this week!</p>
+                </div>
               </div>
-              <p className="text-xs text-purple-600 mt-1">Win weekly prizes by solving brain teasers!</p>
             </div>
           </CardContent>
         </Card>
 
         {/* Monthly Winner */}
-        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-amber-700">
-              <Trophy className="h-5 w-5 text-amber-600" />
-              Monthly Winner
+              <Trophy className="h-6 w-6 text-amber-600" />
+              Monthly Mega Winner
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             <div className="flex items-center space-x-3">
-              <Avatar className="h-12 w-12 border-2 border-amber-300">
+              <Avatar className="h-14 w-14 border-3 border-amber-300">
                 <AvatarImage src={monthlyWinner.avatar} alt={monthlyWinner.name} />
-                <AvatarFallback className="bg-amber-100">{monthlyWinner.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback className="bg-amber-100 text-amber-800 font-bold">
+                  {monthlyWinner.name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div>
-                <h4 className="font-semibold text-amber-800">{monthlyWinner.name}</h4>
+                <h4 className="font-bold text-amber-800">{monthlyWinner.name}</h4>
                 <p className="text-sm text-amber-600">{monthlyWinner.date}</p>
               </div>
             </div>
-            <div className="bg-white/60 rounded-lg p-3 border border-amber-200">
-              <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-amber-600" />
-                <span className="font-medium text-amber-800">{monthlyWinner.prize}</span>
+            
+            <div className="bg-white rounded-lg p-4 border-2 border-amber-200">
+              <div className="flex items-center gap-3 mb-2">
+                <img 
+                  src={monthlyWinner.prizeImage} 
+                  alt={monthlyWinner.prize}
+                  className="w-12 h-12 object-contain"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-600" />
+                    <span className="font-bold text-amber-800">{monthlyWinner.prize}</span>
+                  </div>
+                  <p className="text-xs text-amber-600 mt-1">60+ teasers solved this month!</p>
+                </div>
               </div>
-              <p className="text-xs text-amber-600 mt-1">Amazing monthly prizes await champions!</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Daily Winner Section */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-4">
         <div className="flex items-start space-x-4">
-          <Avatar className="h-10 w-10 border-2 border-amber-300">
+          <Avatar className="h-10 w-10 border-2 border-green-300">
             <AvatarImage src={dailyWinner.avatar} alt={dailyWinner.name} />
             <AvatarFallback>{dailyWinner.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
             <div className="flex items-center">
-              <h3 className="font-medium">Today's Teaser Winner</h3>
-              <Trophy className="h-4 w-4 text-amber-500 ml-2" />
+              <h3 className="font-medium">🏆 Today's Teaser Champion</h3>
+              <Trophy className="h-4 w-4 text-green-500 ml-2" />
             </div>
-            <p className="text-sm text-amber-700">{dailyWinner.name} solved the {dailyWinner.content} in record time!</p>
+            <p className="text-sm text-green-700">{dailyWinner.name} solved the {dailyWinner.content} in record time!</p>
           </div>
         </div>
       </div>
 
-      {/* Prize Information Banner */}
-      <div className="bg-gradient-to-r from-sky-100 to-purple-100 border border-sky-200 rounded-lg p-4 mb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-sky-800 mb-1">🎁 Win Amazing Prizes!</h3>
-            <p className="text-sm text-sky-700">
-              Weekly: PREPZR Bags, Gym Passes | Monthly: Laptops & More!
-            </p>
-          </div>
-          <Badge variant="secondary" className="bg-sky-200 text-sky-800">
-            Participate Daily
-          </Badge>
-        </div>
-      </div>
-
+      {/* Brain Teasers Section */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-purple-600" />

@@ -88,5 +88,4 @@ export interface CreditPack {
   isExamCredits?: boolean;
 }
 
-// Export alias for compatibility
 export type NewStudyPlanSubject = StudyPlanSubject;

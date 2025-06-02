@@ -2,17 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Target, Clock, Calendar, BookOpen, TrendingUp, AlertTriangle, Brain, Timer } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import WeeklySchedule from './WeeklySchedule';
 import StudyGoals from './StudyGoals';
 import StudyTimeAllocation from './StudyTimeAllocation';
 import { useToast } from '@/hooks/use-toast';
 import { StudyPlanSubject } from '@/types/user/studyPlan';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Target, Clock, Calendar, BookOpen, TrendingUp, AlertTriangle, Brain, Timer } from 'lucide-react';
 
 const StudyPlanPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // NEET 2026 specific subjects with enhanced data
   const [subjects, setSubjects] = useState<StudyPlanSubject[]>([
@@ -123,6 +127,15 @@ const StudyPlanPage = () => {
       subtitle="Comprehensive preparation strategy for NEET 2026 - Physics, Chemistry & Biology"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
+      actions={
+        <Button
+          onClick={() => navigate('/dashboard/student/study-plan/adaptive')}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        >
+          <Brain className="h-4 w-4 mr-2" />
+          Try Advanced Plan
+        </Button>
+      }
     >
       {/* NEET 2026 Overview Card */}
       <Card className="mb-6 border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50">
@@ -183,6 +196,27 @@ const StudyPlanPage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Enhanced Feature Banner */}
+      <Card className="mb-6 bg-gradient-to-r from-purple-100 to-pink-100 border-purple-200">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Brain className="h-8 w-8 text-purple-600" />
+              <div>
+                <h3 className="font-bold text-purple-800">🚀 Try Our Advanced Study Plan</h3>
+                <p className="text-sm text-purple-700">AI-powered adaptive planning with dynamic scheduling</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => navigate('/dashboard/student/study-plan/adaptive')}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              Explore Advanced Plan
+            </Button>
           </div>
         </CardContent>
       </Card>
