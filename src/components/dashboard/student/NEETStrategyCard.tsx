@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,11 +7,9 @@ import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, T
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
   const [showSubjects, setShowSubjects] = useState(false); // Default to hidden
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
@@ -117,7 +116,7 @@ const NEETStrategyCard: React.FC = () => {
                 }}
                 className="font-bold"
               >
-                {t('neetStrategy')}
+                NEET 2026 Strategy
               </motion.span>
             </div>
             <Button
@@ -136,7 +135,7 @@ const NEETStrategyCard: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Link to="/dashboard/student/study-plan/adaptive">
+              <Link to="/dashboard/student/study-plan">
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
                   NEET 2026 Plan
@@ -274,7 +273,7 @@ const NEETStrategyCard: React.FC = () => {
 
             {/* Enhanced CTA buttons */}
             <div className="grid grid-cols-2 gap-2 pt-2">
-              <Link to="/dashboard/student/study-plan/adaptive">
+              <Link to="/dashboard/student/study-plan">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -284,7 +283,7 @@ const NEETStrategyCard: React.FC = () => {
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                   >
                     <Calendar className="h-3 w-3 mr-1" />
-                    {t('viewPlan')}
+                    View Plan
                   </Button>
                 </motion.div>
               </Link>
@@ -300,7 +299,7 @@ const NEETStrategyCard: React.FC = () => {
                     className="w-full hover:bg-purple-50 border-purple-300"
                   >
                     <Sparkles className="h-3 w-3 mr-1" />
-                    {t('optimize')}
+                    Optimize
                   </Button>
                 </motion.div>
               </Link>

@@ -3,41 +3,94 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Calendar, Clock, CheckCircle, AlertCircle, BookOpen } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 export const AdaptivePlanTable = () => {
-  const [selectedWeek, setSelectedWeek] = useState(1);
-
-  const weeklyPlan = [
+  const [planData, setPlanData] = useState([
     {
-      week: 1,
-      days: [
-        { day: 'Monday', subject: 'Physics', topic: 'Mechanics - Laws of Motion', hours: 3, status: 'completed' },
-        { day: 'Tuesday', subject: 'Chemistry', topic: 'Atomic Structure', hours: 3, status: 'completed' },
-        { day: 'Wednesday', subject: 'Biology', topic: 'Cell Structure', hours: 3, status: 'in-progress' },
-        { day: 'Thursday', subject: 'Physics', topic: 'Work Energy Power', hours: 3, status: 'pending' },
-        { day: 'Friday', subject: 'Chemistry', topic: 'Chemical Bonding', hours: 3, status: 'pending' },
-        { day: 'Saturday', subject: 'Biology', topic: 'Biomolecules', hours: 3, status: 'pending' }
-      ]
+      id: 1,
+      date: '2024-06-03',
+      subject: 'Physics',
+      topics: ['Mechanics - Newton\'s Laws', 'Work & Energy'],
+      studyHours: 2.5,
+      timeOfStudy: 'Evening',
+      focusLevel: 'High',
+      status: 'Done'
+    },
+    {
+      id: 2,
+      date: '2024-06-04',
+      subject: 'Chemistry',
+      topics: ['Organic Chemistry - Hydrocarbons'],
+      studyHours: 2,
+      timeOfStudy: 'Evening',
+      focusLevel: 'Medium',
+      status: 'Pending'
+    },
+    {
+      id: 3,
+      date: '2024-06-05',
+      subject: 'Biology',
+      topics: ['Cell Biology', 'Photosynthesis'],
+      studyHours: 3,
+      timeOfStudy: 'Evening',
+      focusLevel: 'High',
+      status: 'Pending'
+    },
+    {
+      id: 4,
+      date: '2024-06-06',
+      subject: 'Physics',
+      topics: ['Thermodynamics - Laws'],
+      studyHours: 2,
+      timeOfStudy: 'Evening',
+      focusLevel: 'Medium',
+      status: 'Skipped'
     }
-  ];
+  ]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'in-progress': return <Clock className="h-4 w-4 text-yellow-600" />;
-      default: return <AlertCircle className="h-4 w-4 text-gray-400" />;
+      case 'Done':
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'Skipped':
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      default:
+        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, any> = {
-      'completed': 'default',
-      'in-progress': 'secondary',
-      'pending': 'outline'
+    const variants = {
+      'Done': 'default',
+      'Skipped': 'destructive',
+      'Pending': 'secondary'
     };
-    return <Badge variant={variants[status]}>{status}</Badge>;
+    return (
+      <Badge variant={variants[status as keyof typeof variants] as any} className="text-xs">
+        {status}
+      </Badge>
+    );
+  };
+
+  const getFocusLevelColor = (level: string) => {
+    switch (level) {
+      case 'High':
+        return 'text-red-600 bg-red-50';
+      case 'Medium':
+        return 'text-yellow-600 bg-yellow-50';
+      case 'Low':
+        return 'text-green-600 bg-green-50';
+      default:
+        return 'text-gray-600 bg-gray-50';
+    }
+  };
+
+  const updatePlanItem = (id: number, field: string, value: string) => {
+    setPlanData(planData.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
   };
 
   return (
@@ -46,53 +99,126 @@ export const AdaptivePlanTable = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Adaptive Weekly Study Plan
+            Adaptive Study Plan Table (Dynamic Grid)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex gap-2 mb-4">
-              {[1, 2, 3, 4].map((week) => (
-                <Button
-                  key={week}
-                  variant={selectedWeek === week ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedWeek(week)}
-                >
-                  Week {week}
-                </Button>
-              ))}
-            </div>
-
-            <div className="space-y-3">
-              {weeklyPlan[0].days.map((day, index) => (
-                <Card key={index} className="border border-gray-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {getStatusIcon(day.status)}
-                        <div>
-                          <div className="font-medium">{day.day}</div>
-                          <div className="text-sm text-gray-600">{day.subject} - {day.topic}</div>
-                        </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-3 font-medium">Date</th>
+                  <th className="text-left p-3 font-medium">Subject</th>
+                  <th className="text-left p-3 font-medium">Topics Planned</th>
+                  <th className="text-left p-3 font-medium">Study Hours</th>
+                  <th className="text-left p-3 font-medium">Time of Study</th>
+                  <th className="text-left p-3 font-medium">Focus Level</th>
+                  <th className="text-left p-3 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {planData.map((item) => (
+                  <tr key={item.id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-blue-600" />
+                        <span className="font-medium">
+                          {new Date(item.date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <Clock className="h-3 w-3" />
-                          {day.hours}h
-                        </div>
-                        {getStatusBadge(day.status)}
+                    </td>
+                    <td className="p-3">
+                      <Badge 
+                        variant="outline" 
+                        className={`
+                          ${item.subject === 'Physics' ? 'border-purple-300 text-purple-700' : ''}
+                          ${item.subject === 'Chemistry' ? 'border-green-300 text-green-700' : ''}
+                          ${item.subject === 'Biology' ? 'border-yellow-300 text-yellow-700' : ''}
+                        `}
+                      >
+                        {item.subject}
+                      </Badge>
+                    </td>
+                    <td className="p-3">
+                      <div className="space-y-1">
+                        {item.topics.map((topic, index) => (
+                          <div key={index} className="text-sm text-gray-700">
+                            • {topic}
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                    {day.status === 'in-progress' && (
-                      <div className="mt-3">
-                        <Progress value={60} className="h-2" />
-                        <div className="text-xs text-gray-600 mt-1">60% completed</div>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-orange-600" />
+                        <span className="font-medium">{item.studyHours}h</span>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                    </td>
+                    <td className="p-3">
+                      <Select 
+                        value={item.timeOfStudy} 
+                        onValueChange={(value) => updatePlanItem(item.id, 'timeOfStudy', value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Morning">Morning</SelectItem>
+                          <SelectItem value="Afternoon">Afternoon</SelectItem>
+                          <SelectItem value="Evening">Evening</SelectItem>
+                          <SelectItem value="Night">Night</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="p-3">
+                      <Select 
+                        value={item.focusLevel} 
+                        onValueChange={(value) => updatePlanItem(item.id, 'focusLevel', value)}
+                      >
+                        <SelectTrigger className="w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="High">High</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="Low">Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(item.status)}
+                        <Select 
+                          value={item.status} 
+                          onValueChange={(value) => updatePlanItem(item.id, 'status', value)}
+                        >
+                          <SelectTrigger className="w-24">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Done">Done</SelectItem>
+                            <SelectItem value="Skipped">Skipped</SelectItem>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+            <h4 className="font-medium mb-2">Auto-Adjustment Features</h4>
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>• Plan automatically adjusts based on your learning performance</p>
+              <p>• Weak subjects get more time allocation</p>
+              <p>• Skipped topics are rescheduled with higher priority</p>
+              <p>• Study hours adapt to your completion patterns</p>
             </div>
           </div>
         </CardContent>
