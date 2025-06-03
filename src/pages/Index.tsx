@@ -39,7 +39,6 @@ const Index = () => {
     navigate(route);
   };
 
-  // Listen for events
   useEffect(() => {
     const handleExamAnalyzerEvent = () => {
       setShowExamAnalyzer(true);
@@ -58,10 +57,8 @@ const Index = () => {
         <Header />
         
         <main>
-          {/* Enhanced 3D hero section with voice interaction */}
           <HeroSection onAnalyzeClick={handleOpenExamAnalyzer} />
           
-          {/* Smart Data section with animation and KPI stats */}
           <motion.section 
             className="container mx-auto px-4 py-16 mb-20"
             initial={{ opacity: 0 }}
@@ -77,15 +74,12 @@ const Index = () => {
             <KpiStats />
           </motion.section>
           
-          {/* Backed By Section with partner logos */}
           <BackedBySection />
           
-          {/* Add proper spacing between sections */}
           <div className="pt-12"></div>
                   
           <WhatIsSection />
           
-          {/* Champion Methodology Section */}
           <ChampionMethodologySection />
           
           <EcosystemAnimation />
@@ -109,14 +103,11 @@ const Index = () => {
         
         <Footer />
         
-        {/* Homepage Voice Assistant */}
         <HomepageVoiceAssistant onSpeakingChange={setIsSpeaking} />
 
-        {/* Enhanced Floating Voice Button with context awareness */}
         <FloatingVoiceButton 
           isSpeaking={isSpeaking}
           onClick={() => {
-            // Dispatch custom event to invoke voice assistant
             window.dispatchEvent(new CustomEvent('invoke-voice-assistant'));
           }}
         />

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   DropdownMenu,
@@ -27,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UnifiedVoiceAssistant from '@/components/voice/UnifiedVoiceAssistant';
+import LanguageSelector from '@/components/common/LanguageSelector';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TopNavigationControlsProps {
   hideSidebar?: boolean;
@@ -48,6 +49,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   formattedDate
 }) => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const [isMicActive, setIsMicActive] = useState(false);
@@ -86,17 +88,15 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   };
 
   const getCurrentPlan = () => {
-    // Simple fallback for subscription display
     return 'Free';
   };
   
   return (
     <div className="flex items-center justify-between w-full mb-4">
-      {/* Left side - Welcome message with subscription plan */}
       <div className="flex items-center gap-4">
         <div>
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Welcome back, {userName || user?.name || 'Student'}!
+            {t('welcome')}, {userName || user?.name || 'Student'}!
           </h1>
           <Button
             variant="ghost"
@@ -109,9 +109,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
         </div>
       </div>
 
-      {/* Right side - Controls */}
       <div className="flex items-center space-x-3">
-        {/* Time Display */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -126,29 +124,8 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Language Toggle */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-[80px] h-8">
-                  <Globe className="h-4 w-4" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en-US">EN</SelectItem>
-                  <SelectItem value="hi-IN">HI</SelectItem>
-                  <SelectItem value="es-ES">ES</SelectItem>
-                  <SelectItem value="fr-FR">FR</SelectItem>
-                </SelectContent>
-              </Select>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Voice Language</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <LanguageSelector />
 
-        {/* Voice Assistant Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -168,7 +145,6 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Study Plan Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -179,7 +155,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
                 className="gap-2"
               >
                 <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Study Plan</span>
+                <span className="hidden sm:inline">{t('studyPlan')}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
@@ -188,7 +164,6 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -202,7 +177,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/dashboard/student/profile')}>
-              Profile & Batch Management
+              {t('profile')} & Batch Management
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard/student/subscription')}>
               Subscription Plan
@@ -213,13 +188,12 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
-              Logout
+              {t('logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Unified Voice Assistant Modal */}
       <UnifiedVoiceAssistant 
         isOpen={isVoiceAssistantOpen}
         onClose={() => setIsVoiceAssistantOpen(false)}

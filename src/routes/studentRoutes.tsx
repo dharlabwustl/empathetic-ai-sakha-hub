@@ -37,7 +37,7 @@ const StudentRoutes = () => {
           <TodaysPlanView />
         </SidebarLayout>
       } />
-      <Route path="/academic" element={
+      <Route path="/academic-advisor" element={
         <SidebarLayout>
           <AcademicAdvisorView />
         </SidebarLayout>
