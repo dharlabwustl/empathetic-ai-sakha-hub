@@ -1,19 +1,34 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Settings, Bell, Clock, Target } from 'lucide-react';
+import { Settings, Bell, Palette, Clock } from 'lucide-react';
 
 export const SettingsCustomizationSection = () => {
+  const [settings, setSettings] = useState({
+    notifications: true,
+    autoSchedule: false,
+    studyReminders: true,
+    weekendStudy: false,
+    dailyHours: [6],
+    preferredTime: 'evening',
+    theme: 'light'
+  });
+
+  const updateSetting = (key: string, value: any) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            Study Plan Settings & Customization
+            Settings & Customization
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -21,110 +36,133 @@ export const SettingsCustomizationSection = () => {
             {/* Study Preferences */}
             <div>
               <h3 className="font-medium mb-4 flex items-center gap-2">
-                <Target className="h-4 w-4" />
+                <Clock className="h-4 w-4" />
                 Study Preferences
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Daily Study Hours</p>
-                    <p className="text-sm text-gray-600">Adjust your daily study target</p>
+                    <label className="font-medium">Daily Study Hours</label>
+                    <p className="text-sm text-gray-600">Target hours per day</p>
                   </div>
                   <div className="w-32">
-                    <Slider defaultValue={[6]} max={12} min={2} step={1} />
-                    <p className="text-xs text-center mt-1">6 hours</p>
+                    <Slider
+                      value={settings.dailyHours}
+                      onValueChange={(value) => updateSetting('dailyHours', value)}
+                      max={12}
+                      min={2}
+                      step={0.5}
+                    />
+                    <div className="text-center text-sm text-gray-600 mt-1">
+                      {settings.dailyHours[0]} hours
+                    </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Weekend Study</p>
-                    <p className="text-sm text-gray-600">Include weekends in study plan</p>
+                    <label className="font-medium">Preferred Study Time</label>
+                    <p className="text-sm text-gray-600">When you study best</p>
                   </div>
-                  <Switch defaultChecked />
+                  <Select value={settings.preferredTime} onValueChange={(value) => updateSetting('preferredTime', value)}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="morning">Morning</SelectItem>
+                      <SelectItem value="afternoon">Afternoon</SelectItem>
+                      <SelectItem value="evening">Evening</SelectItem>
+                      <SelectItem value="night">Night</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Adaptive Scheduling</p>
-                    <p className="text-sm text-gray-600">AI adjusts plan based on performance</p>
+                    <label className="font-medium">Weekend Study</label>
+                    <p className="text-sm text-gray-600">Include weekends in schedule</p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch
+                    checked={settings.weekendStudy}
+                    onCheckedChange={(checked) => updateSetting('weekendStudy', checked)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="font-medium">Auto-Schedule</label>
+                    <p className="text-sm text-gray-600">Automatically adjust plan based on performance</p>
+                  </div>
+                  <Switch
+                    checked={settings.autoSchedule}
+                    onCheckedChange={(checked) => updateSetting('autoSchedule', checked)}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Notification Settings */}
+            {/* Notifications */}
             <div>
               <h3 className="font-medium mb-4 flex items-center gap-2">
                 <Bell className="h-4 w-4" />
-                Notifications
+                Notification Settings
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Study Reminders</p>
-                    <p className="text-sm text-gray-600">Get notified about study sessions</p>
+                    <label className="font-medium">Push Notifications</label>
+                    <p className="text-sm text-gray-600">Receive study reminders and updates</p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch
+                    checked={settings.notifications}
+                    onCheckedChange={(checked) => updateSetting('notifications', checked)}
+                  />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Progress Updates</p>
-                    <p className="text-sm text-gray-600">Weekly progress summaries</p>
+                    <label className="font-medium">Study Reminders</label>
+                    <p className="text-sm text-gray-600">Daily study time reminders</p>
                   </div>
-                  <Switch defaultChecked />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">AI Recommendations</p>
-                    <p className="text-sm text-gray-600">Receive AI-powered study tips</p>
-                  </div>
-                  <Switch defaultChecked />
+                  <Switch
+                    checked={settings.studyReminders}
+                    onCheckedChange={(checked) => updateSetting('studyReminders', checked)}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Time Preferences */}
+            {/* Appearance */}
             <div>
               <h3 className="font-medium mb-4 flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Study Time Preferences
+                <Palette className="h-4 w-4" />
+                Appearance
               </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="h-auto py-3">
-                  <div className="text-center">
-                    <p className="font-medium">Morning</p>
-                    <p className="text-xs text-gray-600">6:00 - 10:00 AM</p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="font-medium">Theme</label>
+                    <p className="text-sm text-gray-600">Choose your preferred theme</p>
                   </div>
-                </Button>
-                <Button variant="outline" className="h-auto py-3">
-                  <div className="text-center">
-                    <p className="font-medium">Afternoon</p>
-                    <p className="text-xs text-gray-600">2:00 - 6:00 PM</p>
-                  </div>
-                </Button>
-                <Button variant="default" className="h-auto py-3 bg-blue-600">
-                  <div className="text-center">
-                    <p className="font-medium">Evening</p>
-                    <p className="text-xs">6:00 - 10:00 PM</p>
-                  </div>
-                </Button>
-                <Button variant="outline" className="h-auto py-3">
-                  <div className="text-center">
-                    <p className="font-medium">Night</p>
-                    <p className="text-xs text-gray-600">10:00 PM - 2:00 AM</p>
-                  </div>
-                </Button>
+                  <Select value={settings.theme} onValueChange={(value) => updateSetting('theme', value)}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">Light</SelectItem>
+                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="system">System</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-center pt-4">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
-                Save Settings
-              </Button>
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-4 border-t">
+              <Button>Save Settings</Button>
+              <Button variant="outline">Reset to Default</Button>
+              <Button variant="outline">Export Plan</Button>
             </div>
           </div>
         </CardContent>

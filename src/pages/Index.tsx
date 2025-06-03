@@ -1,5 +1,4 @@
 
-import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
