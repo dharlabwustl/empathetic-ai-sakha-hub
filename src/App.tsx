@@ -1,3 +1,4 @@
+
 import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,11 +11,10 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import SignUp from "./pages/SignUp";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import DatabaseExplorer from "./components/admin/database/DatabaseExplorer";
-import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import StudentRoutes from "./routes/studentRoutes";
 import LoadingScreen from "./components/common/LoadingScreen";
 
@@ -33,7 +33,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/signup" element={<SignUp />} />
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/database" element={<DatabaseExplorer />} />
