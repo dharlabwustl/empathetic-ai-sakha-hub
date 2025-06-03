@@ -2,24 +2,49 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Settings, Bell, Palette, Clock } from 'lucide-react';
+import { Settings, Save, RotateCcw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export const SettingsCustomizationSection = () => {
+  const { toast } = useToast();
   const [settings, setSettings] = useState({
-    notifications: true,
-    autoSchedule: false,
-    studyReminders: true,
-    weekendStudy: false,
-    dailyHours: [6],
-    preferredTime: 'evening',
-    theme: 'light'
+    studyHoursPerDay: 6,
+    availableDaysPerWeek: 6,
+    learningPace: 'medium',
+    weekendOff: true,
+    revisionDays: 2,
+    subjectRotation: 'daily',
+    breakTime: 15,
+    focusSessionLength: 45
   });
 
-  const updateSetting = (key: string, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+  const handleSaveSettings = () => {
+    // Save settings logic here
+    toast({
+      title: "Settings Updated",
+      description: "Your study plan settings have been successfully updated.",
+    });
+  };
+
+  const handleResetSettings = () => {
+    setSettings({
+      studyHoursPerDay: 6,
+      availableDaysPerWeek: 6,
+      learningPace: 'medium',
+      weekendOff: true,
+      revisionDays: 2,
+      subjectRotation: 'daily',
+      breakTime: 15,
+      focusSessionLength: 45
+    });
+    toast({
+      title: "Settings Reset",
+      description: "All settings have been reset to default values.",
+    });
   };
 
   return (
@@ -32,138 +57,128 @@ export const SettingsCustomizationSection = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            {/* Study Preferences */}
-            <div>
-              <h3 className="font-medium mb-4 flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Study Preferences
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Daily Study Hours</label>
-                    <p className="text-sm text-gray-600">Target hours per day</p>
-                  </div>
-                  <div className="w-32">
-                    <Slider
-                      value={settings.dailyHours}
-                      onValueChange={(value) => updateSetting('dailyHours', value)}
-                      max={12}
-                      min={2}
-                      step={0.5}
-                    />
-                    <div className="text-center text-sm text-gray-600 mt-1">
-                      {settings.dailyHours[0]} hours
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Preferred Study Time</label>
-                    <p className="text-sm text-gray-600">When you study best</p>
-                  </div>
-                  <Select value={settings.preferredTime} onValueChange={(value) => updateSetting('preferredTime', value)}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="morning">Morning</SelectItem>
-                      <SelectItem value="afternoon">Afternoon</SelectItem>
-                      <SelectItem value="evening">Evening</SelectItem>
-                      <SelectItem value="night">Night</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Weekend Study</label>
-                    <p className="text-sm text-gray-600">Include weekends in schedule</p>
-                  </div>
-                  <Switch
-                    checked={settings.weekendStudy}
-                    onCheckedChange={(checked) => updateSetting('weekendStudy', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Auto-Schedule</label>
-                    <p className="text-sm text-gray-600">Automatically adjust plan based on performance</p>
-                  </div>
-                  <Switch
-                    checked={settings.autoSchedule}
-                    onCheckedChange={(checked) => updateSetting('autoSchedule', checked)}
-                  />
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="font-medium text-lg">Study Schedule</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="studyHours">Study Hours per Day</Label>
+                <Input
+                  id="studyHours"
+                  type="number"
+                  min="1"
+                  max="12"
+                  value={settings.studyHoursPerDay}
+                  onChange={(e) => setSettings({...settings, studyHoursPerDay: parseInt(e.target.value)})}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="availableDays">Available Days per Week</Label>
+                <Input
+                  id="availableDays"
+                  type="number"
+                  min="1"
+                  max="7"
+                  value={settings.availableDaysPerWeek}
+                  onChange={(e) => setSettings({...settings, availableDaysPerWeek: parseInt(e.target.value)})}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="learningPace">Learning Pace</Label>
+                <Select 
+                  value={settings.learningPace} 
+                  onValueChange={(value) => setSettings({...settings, learningPace: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="slow">Slow & Steady</SelectItem>
+                    <SelectItem value="medium">Moderate</SelectItem>
+                    <SelectItem value="fast">Aggressive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label htmlFor="weekendOff">Weekend Off</Label>
+                <Switch
+                  id="weekendOff"
+                  checked={settings.weekendOff}
+                  onCheckedChange={(checked) => setSettings({...settings, weekendOff: checked})}
+                />
               </div>
             </div>
-
-            {/* Notifications */}
-            <div>
-              <h3 className="font-medium mb-4 flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Notification Settings
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Push Notifications</label>
-                    <p className="text-sm text-gray-600">Receive study reminders and updates</p>
-                  </div>
-                  <Switch
-                    checked={settings.notifications}
-                    onCheckedChange={(checked) => updateSetting('notifications', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Study Reminders</label>
-                    <p className="text-sm text-gray-600">Daily study time reminders</p>
-                  </div>
-                  <Switch
-                    checked={settings.studyReminders}
-                    onCheckedChange={(checked) => updateSetting('studyReminders', checked)}
-                  />
-                </div>
+            
+            <div className="space-y-4">
+              <h3 className="font-medium text-lg">Study Preferences</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="revisionDays">Revision Days per Week</Label>
+                <Input
+                  id="revisionDays"
+                  type="number"
+                  min="0"
+                  max="3"
+                  value={settings.revisionDays}
+                  onChange={(e) => setSettings({...settings, revisionDays: parseInt(e.target.value)})}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="subjectRotation">Subject Rotation</Label>
+                <Select 
+                  value={settings.subjectRotation} 
+                  onValueChange={(value) => setSettings({...settings, subjectRotation: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily Rotation</SelectItem>
+                    <SelectItem value="weekly">Weekly Focus</SelectItem>
+                    <SelectItem value="mixed">Mixed Approach</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="focusSession">Focus Session Length (minutes)</Label>
+                <Input
+                  id="focusSession"
+                  type="number"
+                  min="25"
+                  max="90"
+                  value={settings.focusSessionLength}
+                  onChange={(e) => setSettings({...settings, focusSessionLength: parseInt(e.target.value)})}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="breakTime">Break Time (minutes)</Label>
+                <Input
+                  id="breakTime"
+                  type="number"
+                  min="5"
+                  max="30"
+                  value={settings.breakTime}
+                  onChange={(e) => setSettings({...settings, breakTime: parseInt(e.target.value)})}
+                />
               </div>
             </div>
-
-            {/* Appearance */}
-            <div>
-              <h3 className="font-medium mb-4 flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Appearance
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Theme</label>
-                    <p className="text-sm text-gray-600">Choose your preferred theme</p>
-                  </div>
-                  <Select value={settings.theme} onValueChange={(value) => updateSetting('theme', value)}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-2 pt-4 border-t">
-              <Button>Save Settings</Button>
-              <Button variant="outline">Reset to Default</Button>
-              <Button variant="outline">Export Plan</Button>
-            </div>
+          </div>
+          
+          <div className="mt-6 flex gap-3">
+            <Button onClick={handleSaveSettings} className="bg-green-600 hover:bg-green-700">
+              <Save className="h-4 w-4 mr-2" />
+              Save Settings
+            </Button>
+            <Button variant="outline" onClick={handleResetSettings}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reset to Default
+            </Button>
           </div>
         </CardContent>
       </Card>

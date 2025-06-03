@@ -17,7 +17,7 @@ export interface StudyPlanTopic {
   progressPercent?: number;
   estimatedTime?: number;
   conceptsCount?: number;
-  confidenceLevel?: number;
+  confidenceLevel?: number; // 1-5 scale
   lastRevised?: string;
 }
 
@@ -35,7 +35,7 @@ export interface StudyPlanSubject {
   topics?: StudyPlanTopic[];
   difficulty?: 'easy' | 'medium' | 'hard';
   status?: SubjectStatus;
-  confidenceLevel?: number;
+  confidenceLevel?: number; // 1-5 scale
 }
 
 export interface StudyPlan {
@@ -99,6 +99,7 @@ export interface CreditPack {
 
 export type NewStudyPlanSubject = StudyPlanSubject;
 
+// Daily plan interfaces
 export interface DailyPlanItem {
   id: string;
   date: string;

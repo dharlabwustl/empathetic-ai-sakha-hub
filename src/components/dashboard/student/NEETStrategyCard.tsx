@@ -6,11 +6,9 @@ import { Target, BookOpen, Brain, CheckCircle, Zap, Sparkles, Clock, Calendar, T
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import AnimatedHighlight from './dashboard-sections/AnimatedHighlight';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const NEETStrategyCard: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
   const [showSubjects, setShowSubjects] = useState(false); // Default to hidden
   const urgencyLevel = "MODERATE";
   const strategy = "Foundation Building + Practice";
@@ -24,9 +22,9 @@ const NEETStrategyCard: React.FC = () => {
   const daysLeft = Math.ceil((examDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
   
   const subjects = [
-    { name: t('studyPlan.physics'), progress: 45, status: "medium", color: "blue", isWeak: false },
-    { name: t('studyPlan.chemistry'), progress: 35, status: "weak", color: "red", isWeak: true },
-    { name: t('studyPlan.biology'), progress: 60, status: "strong", color: "green", isWeak: false }
+    { name: "Physics", progress: 45, status: "medium", color: "blue", isWeak: false },
+    { name: "Chemistry", progress: 35, status: "weak", color: "red", isWeak: true },
+    { name: "Biology", progress: 60, status: "strong", color: "green", isWeak: false }
   ];
 
   const objectives = [
@@ -117,7 +115,7 @@ const NEETStrategyCard: React.FC = () => {
                 }}
                 className="font-bold"
               >
-                {t('studyPlan.neetStrategy')}
+                NEET 2026 Strategy
               </motion.span>
             </div>
             <Button
@@ -157,9 +155,9 @@ const NEETStrategyCard: React.FC = () => {
               }}
               className="p-3 rounded-lg bg-blue-50 text-center"
             >
-              <div className="text-xs text-blue-600 mb-1">{t('studyPlan.examDate')}</div>
+              <div className="text-xs text-blue-600 mb-1">NEET 2026 Exam Date</div>
               <div className="font-bold text-blue-800">May 3, 2026</div>
-              <div className="text-xs text-blue-600">{daysLeft} {t('studyPlan.daysLeft')}</div>
+              <div className="text-xs text-blue-600">{daysLeft} days remaining</div>
             </motion.div>
 
             {/* Learning Profile Section */}
@@ -284,7 +282,7 @@ const NEETStrategyCard: React.FC = () => {
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                   >
                     <Calendar className="h-3 w-3 mr-1" />
-                    {t('studyPlan.viewPlan')}
+                    View Plan
                   </Button>
                 </motion.div>
               </Link>
