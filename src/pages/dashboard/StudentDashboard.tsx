@@ -218,6 +218,9 @@ const StudentDashboard = () => {
     return null;
   };
 
+  // Enhanced voice greeting with user name
+  const userName = userProfile?.name || userProfile?.firstName || 'Student';
+
   return (
     <>
       <DashboardLayout
@@ -228,7 +231,7 @@ const StudentDashboard = () => {
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false} // Always false here since we handle it separately below
+        showWelcomeTour={false}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}

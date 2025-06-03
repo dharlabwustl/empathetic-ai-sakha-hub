@@ -1,75 +1,59 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, Lightbulb, TrendingUp, Clock, Target, Zap } from 'lucide-react';
+import { Brain, Lightbulb, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export const AIRecommendationsSection = () => {
-  const [recommendations] = useState([
+  const recommendations = [
     {
-      id: 1,
+      id: '1',
       type: 'focus',
-      title: 'Focus on Organic Chemistry',
-      description: 'Your performance in organic chemistry has been below average. Recommend increasing study time by 30%.',
+      title: 'Increase Chemistry Study Time',
+      description: 'Based on your performance, consider increasing Chemistry study time by 30% this week.',
       priority: 'high',
-      actionable: true,
-      impact: 'High'
+      actionable: true
     },
     {
-      id: 2,
-      type: 'time-allocation',
-      title: 'Adjust Study Schedule',
-      description: 'Consider shifting Physics study to morning hours when your focus is highest.',
-      priority: 'medium',
-      actionable: true,
-      impact: 'Medium'
-    },
-    {
-      id: 3,
+      id: '2',
       type: 'strategy',
-      title: 'Revision Strategy Update',
-      description: 'Implement spaced repetition for Biology topics you completed 2 weeks ago.',
+      title: 'Morning Study Sessions',
+      description: 'Your concentration is highest between 6-9 AM. Schedule difficult topics during this time.',
       priority: 'medium',
-      actionable: true,
-      impact: 'High'
+      actionable: true
     },
     {
-      id: 4,
+      id: '3',
       type: 'revision',
-      title: 'Revision Frequency Optimization',
-      description: 'Based on your retention patterns, revise Chemistry concepts every 3 days instead of weekly.',
-      priority: 'low',
-      actionable: false,
-      impact: 'Medium'
+      title: 'Review Thermodynamics',
+      description: 'Your last test showed weakness in thermodynamics. Plan a revision session this week.',
+      priority: 'high',
+      actionable: true
     }
-  ]);
+  ];
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return <Badge variant="destructive">High Priority</Badge>;
+      case 'medium':
+        return <Badge variant="secondary">Medium Priority</Badge>;
+      default:
+        return <Badge variant="outline">Low Priority</Badge>;
+    }
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'focus':
-        return <Target className="h-4 w-4" />;
-      case 'time-allocation':
-        return <Clock className="h-4 w-4" />;
+        return <TrendingUp className="h-4 w-4 text-blue-600" />;
       case 'strategy':
-        return <TrendingUp className="h-4 w-4" />;
+        return <Lightbulb className="h-4 w-4 text-yellow-600" />;
       case 'revision':
-        return <Zap className="h-4 w-4" />;
+        return <AlertTriangle className="h-4 w-4 text-red-600" />;
       default:
-        return <Lightbulb className="h-4 w-4" />;
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-700 border-red-300';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-      case 'low':
-        return 'bg-green-100 text-green-700 border-green-300';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-300';
+        return <Brain className="h-4 w-4 text-purple-600" />;
     }
   };
 
@@ -79,90 +63,44 @@ export const AIRecommendationsSection = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI-Powered Recommendations
+            AI-Powered Study Recommendations
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {recommendations.map((rec) => (
-              <Card key={rec.id} className="border border-gray-200">
+              <Card key={rec.id} className="border-2 border-gray-100">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {getTypeIcon(rec.type)}
-                      <h3 className="font-medium">{rec.title}</h3>
+                      <h3 className="font-semibold">{rec.title}</h3>
                     </div>
-                    <div className="flex gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className={getPriorityColor(rec.priority)}
-                      >
-                        {rec.priority.charAt(0).toUpperCase() + rec.priority.slice(1)} Priority
-                      </Badge>
-                      <Badge variant="secondary">
-                        {rec.impact} Impact
-                      </Badge>
-                    </div>
+                    {getPriorityBadge(rec.priority)}
                   </div>
                   
-                  <p className="text-sm text-gray-700 mb-3">{rec.description}</p>
+                  <p className="text-gray-600 mb-4">{rec.description}</p>
                   
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 capitalize">
-                        {rec.type.replace('-', ' ')} recommendation
-                      </span>
-                    </div>
-                    {rec.actionable && (
-                      <Button size="sm" variant="outline">
-                        Apply Recommendation
-                      </Button>
-                    )}
-                  </div>
+                  {rec.actionable && (
+                    <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
+                      Apply Recommendation
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
-          
-          {/* Weekly Strategy Updates */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="font-medium mb-2 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-blue-600" />
-              Weekly Strategy Updates
-            </h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span>Increase Chemistry study time based on recent performance</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Maintain current Biology schedule - excellent progress</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <span>Consider adding more practice tests for Physics</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Personalized Insights */}
-          <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
             <h4 className="font-medium mb-2 flex items-center gap-2">
-              <Brain className="h-4 w-4 text-purple-600" />
-              Personalized Insights
+              <Brain className="h-4 w-4 text-blue-600" />
+              AI Insights Summary
             </h4>
-            <div className="text-sm text-gray-700">
-              <p className="mb-2">
-                <strong>Learning Pattern:</strong> You perform best during evening study sessions with 45-minute focus blocks.
-              </p>
-              <p className="mb-2">
-                <strong>Retention Rate:</strong> Biology concepts stick better with visual aids, while Physics needs more problem-solving practice.
-              </p>
-              <p>
-                <strong>Weak Areas:</strong> Focus on Organic Chemistry mechanisms and Thermodynamics laws for maximum improvement.
-              </p>
-            </div>
+            <p className="text-sm text-gray-700">
+              Based on your study patterns and performance data, our AI recommends focusing on Chemistry 
+              while maintaining your strong Biology performance. Your optimal study time is early morning, 
+              and you should plan revision sessions for weaker topics.
+            </p>
           </div>
         </CardContent>
       </Card>
