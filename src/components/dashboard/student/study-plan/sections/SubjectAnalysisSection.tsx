@@ -1,50 +1,45 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Slider } from "@/components/ui/slider";
-import { BarChart3, TrendingDown, TrendingUp, Brain, Star } from 'lucide-react';
+import { BarChart3, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export const SubjectAnalysisSection = () => {
-  const [subjects, setSubjects] = useState([
+  const subjectData = [
     {
-      id: 'physics',
-      name: 'Physics',
-      color: '#8B5CF6',
-      strength: 'weak',
-      confidence: 3,
-      topics: ['Mechanics', 'Thermodynamics', 'Electromagnetism', 'Optics', 'Modern Physics']
+      name: "Physics",
+      progress: 65,
+      weakTopics: ["Thermodynamics", "Electromagnetism"],
+      strongTopics: ["Mechanics", "Optics"],
+      timeSpent: 180,
+      accuracy: 72,
+      recommendation: "Focus on problem-solving practice"
     },
     {
-      id: 'chemistry',
-      name: 'Chemistry', 
-      color: '#10B981',
-      strength: 'medium',
-      confidence: 4,
-      topics: ['Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry']
+      name: "Chemistry", 
+      progress: 45,
+      weakTopics: ["Organic Chemistry", "Chemical Bonding"],
+      strongTopics: ["Periodic Table"],
+      timeSpent: 150,
+      accuracy: 58,
+      recommendation: "Increase study time by 30%"
     },
     {
-      id: 'biology',
-      name: 'Biology',
-      color: '#F59E0B',
-      strength: 'strong',
-      confidence: 5,
-      topics: ['Botany', 'Zoology', 'Human Physiology', 'Genetics', 'Ecology']
+      name: "Biology",
+      progress: 78,
+      weakTopics: ["Genetics"],
+      strongTopics: ["Cell Biology", "Ecology", "Plant Physiology"],
+      timeSpent: 200,
+      accuracy: 85,
+      recommendation: "Maintain current pace"
     }
-  ]);
+  ];
 
-  const updateSubjectStrength = (subjectId: string, strength: string) => {
-    setSubjects(subjects.map(s => 
-      s.id === subjectId ? { ...s, strength } : s
-    ));
-  };
-
-  const updateConfidence = (subjectId: string, confidence: number) => {
-    setSubjects(subjects.map(s => 
-      s.id === subjectId ? { ...s, confidence } : s
-    ));
+  const getProgressColor = (progress: number) => {
+    if (progress >= 70) return "text-green-600";
+    if (progress >= 50) return "text-yellow-600";
+    return "text-red-600";
   };
 
   return (
@@ -53,107 +48,82 @@ export const SubjectAnalysisSection = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            Subject Analysis & Input
+            Subject-wise Analysis & Insights
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {subjects.map((subject) => (
-              <Card key={subject.id} className="border border-gray-200">
+            {subjectData.map((subject, index) => (
+              <Card key={index} className="border border-gray-200">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: subject.color }}
-                      />
-                      <h3 className="font-semibold">{subject.name}</h3>
-                    </div>
-                    <div className="flex gap-2">
-                      {['weak', 'medium', 'strong'].map((strength) => (
-                        <Button
-                          key={strength}
-                          variant={subject.strength === strength ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => updateSubjectStrength(subject.id, strength)}
-                          className={`
-                            ${strength === 'weak' ? 'border-red-300 text-red-600' : ''}
-                            ${strength === 'medium' ? 'border-yellow-300 text-yellow-600' : ''}
-                            ${strength === 'strong' ? 'border-green-300 text-green-600' : ''}
-                          `}
-                        >
-                          {strength === 'weak' && <TrendingDown className="h-3 w-3 mr-1" />}
-                          {strength === 'medium' && <Brain className="h-3 w-3 mr-1" />}
-                          {strength === 'strong' && <TrendingUp className="h-3 w-3 mr-1" />}
-                          {strength.charAt(0).toUpperCase() + strength.slice(1)}
-                        </Button>
-                      ))}
+                    <h3 className="text-lg font-semibold">{subject.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className={`font-bold ${getProgressColor(subject.progress)}`}>
+                        {subject.progress}%
+                      </span>
+                      <Badge variant={subject.progress >= 70 ? "default" : subject.progress >= 50 ? "secondary" : "destructive"}>
+                        {subject.progress >= 70 ? "Strong" : subject.progress >= 50 ? "Average" : "Needs Focus"}
+                      </Badge>
                     </div>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Confidence Level</span>
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 cursor-pointer ${
-                                star <= subject.confidence ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                              }`}
-                              onClick={() => updateConfidence(subject.id, star)}
-                            />
-                          ))}
-                          <span className="ml-2 text-sm text-gray-600">{subject.confidence}/5</span>
-                        </div>
-                      </div>
-                      <Progress value={subject.confidence * 20} className="h-2" />
+
+                  <Progress value={subject.progress} className="mb-4" />
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-sm text-gray-600">Time Spent</div>
+                      <div className="font-bold text-blue-600">{subject.timeSpent}h</div>
                     </div>
-                    
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-sm text-gray-600">Accuracy</div>
+                      <div className="font-bold text-green-600">{subject.accuracy}%</div>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-sm text-gray-600">Rank</div>
+                      <div className="font-bold text-purple-600">#{index + 1}</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <span className="text-sm font-medium mb-2 block">Key Topics</span>
-                      <div className="flex flex-wrap gap-1">
-                        {subject.topics.map((topic, index) => (
-                          <Badge 
-                            key={index} 
-                            variant="outline" 
-                            className="text-xs"
-                            style={{ borderColor: subject.color }}
-                          >
+                      <h4 className="font-medium text-red-600 mb-2 flex items-center gap-1">
+                        <AlertTriangle className="h-4 w-4" />
+                        Weak Topics
+                      </h4>
+                      <div className="space-y-1">
+                        {subject.weakTopics.map((topic, i) => (
+                          <Badge key={i} variant="destructive" className="mr-1 mb-1 text-xs">
+                            {topic}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-green-600 mb-2 flex items-center gap-1">
+                        <CheckCircle className="h-4 w-4" />
+                        Strong Topics
+                      </h4>
+                      <div className="space-y-1">
+                        {subject.strongTopics.map((topic, i) => (
+                          <Badge key={i} variant="default" className="mr-1 mb-1 text-xs bg-green-100 text-green-700">
                             {topic}
                           </Badge>
                         ))}
                       </div>
                     </div>
                   </div>
+
+                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <h4 className="font-medium text-yellow-800 mb-1 flex items-center gap-1">
+                      <TrendingUp className="h-4 w-4" />
+                      AI Recommendation
+                    </h4>
+                    <p className="text-sm text-yellow-700">{subject.recommendation}</p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
-          </div>
-          
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium mb-2">Analysis Summary</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-red-600">Weak Subjects:</span>
-                <span className="ml-2">
-                  {subjects.filter(s => s.strength === 'weak').map(s => s.name).join(', ') || 'None'}
-                </span>
-              </div>
-              <div>
-                <span className="font-medium text-yellow-600">Medium Subjects:</span>
-                <span className="ml-2">
-                  {subjects.filter(s => s.strength === 'medium').map(s => s.name).join(', ') || 'None'}
-                </span>
-              </div>
-              <div>
-                <span className="font-medium text-green-600">Strong Subjects:</span>
-                <span className="ml-2">
-                  {subjects.filter(s => s.strength === 'strong').map(s => s.name).join(', ') || 'None'}
-                </span>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
