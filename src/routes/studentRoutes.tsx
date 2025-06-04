@@ -13,7 +13,7 @@ import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
-import DashboardLoading from '@/pages/dashboard/student/DashboardLoading';
+import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
@@ -25,8 +25,6 @@ import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamRev
 import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
 import DynamicStudyPlanPage from '@/components/dashboard/student/study-plan/DynamicStudyPlanPage';
 import StudyPlanPage from '@/components/dashboard/student/study-plan/StudyPlanPage';
-import NotificationsPage from '@/pages/dashboard/student/NotificationsPage';
-import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -147,16 +145,6 @@ const StudentRoutes = () => {
       <Route path="/subscription" element={
         <SidebarLayout>
           <SubscriptionPage />
-        </SidebarLayout>
-      } />
-      <Route path="/notifications" element={
-        <SidebarLayout>
-          <NotificationsPage />
-        </SidebarLayout>
-      } />
-      <Route path="/formula-practice" element={
-        <SidebarLayout>
-          <FormulaPracticePage />
         </SidebarLayout>
       } />
       <Route path="/loading" element={<DashboardLoading />} />
