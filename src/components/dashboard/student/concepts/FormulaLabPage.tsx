@@ -1,367 +1,361 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Play, BookOpen, Brain, RefreshCw } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Calculator, 
+  BookOpen, 
+  Target, 
+  ChevronRight, 
+  ChevronLeft, 
+  Lightbulb,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+  Zap
+} from 'lucide-react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+
+interface ProblemStep {
+  id: number;
+  title: string;
+  description: string;
+  formula?: string;
+  hint?: string;
+  completed: boolean;
+  userAnswer?: string;
+  correctAnswer?: string;
+}
 
 const FormulaLabPage = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
+  const { conceptId } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  const [formula, setFormula] = useState("F = ma");
-  const [variables, setVariables] = useState<Record<string, string>>({
-    F: '',
-    m: '',
-    a: ''
-  });
-  const [result, setResult] = useState<string | null>(null);
-  const [solveFor, setSolveFor] = useState<string>('a');
-  
-  const handleInputChange = (variable: string, value: string) => {
-    setVariables({
-      ...variables,
-      [variable]: value
-    });
-    setResult(null); // Clear previous result
-  };
-  
-  const calculateResult = () => {
-    try {
-      // This is a simple implementation - in a real app, you'd use a proper formula parser
-      switch(formula) {
-        case "F = ma":
-          if (solveFor === 'F' && variables.m && variables.a) {
-            const m = parseFloat(variables.m);
-            const a = parseFloat(variables.a);
-            setResult(`F = ${m} × ${a} = ${(m * a).toFixed(2)} N`);
-          } else if (solveFor === 'm' && variables.F && variables.a) {
-            const F = parseFloat(variables.F);
-            const a = parseFloat(variables.a);
-            setResult(`m = ${F} ÷ ${a} = ${(F / a).toFixed(2)} kg`);
-          } else if (solveFor === 'a' && variables.F && variables.m) {
-            const F = parseFloat(variables.F);
-            const m = parseFloat(variables.m);
-            setResult(`a = ${F} ÷ ${m} = ${(F / m).toFixed(2)} m/s²`);
-          } else {
-            setResult("Please fill in the required variables");
-          }
-          break;
-        default:
-          setResult("Formula not supported yet");
-      }
-    } catch (error) {
-      setResult("Error in calculation. Please check your inputs.");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
+  const [generatedQuestion, setGeneratedQuestion] = useState<any>(null);
+
+  // Sample problem steps for Newton's Second Law
+  const [problemSteps, setProblemSteps] = useState<ProblemStep[]>([
+    {
+      id: 1,
+      title: "Identify Given Values",
+      description: "A 10 kg object accelerates at 5 m/s². Find the net force.",
+      hint: "Look for mass (m) and acceleration (a) in the problem statement",
+      completed: false
+    },
+    {
+      id: 2,
+      title: "Select the Correct Formula",
+      description: "Choose the appropriate formula for this problem",
+      formula: "F = ma",
+      hint: "Newton's Second Law relates force, mass, and acceleration",
+      completed: false
+    },
+    {
+      id: 3,
+      title: "Substitute Values",
+      description: "Replace variables with the given values",
+      hint: "m = 10 kg, a = 5 m/s²",
+      completed: false
+    },
+    {
+      id: 4,
+      title: "Calculate the Result",
+      description: "Perform the calculation to find the answer",
+      correctAnswer: "50 N",
+      completed: false
     }
-  };
-  
-  const handleReset = () => {
-    setVariables({
-      F: '',
-      m: '',
-      a: ''
-    });
-    setResult(null);
-  };
-  
-  const formulaVariables = {
-    "F = ma": [
-      { symbol: "F", name: "Force", unit: "N" },
-      { symbol: "m", name: "Mass", unit: "kg" },
-      { symbol: "a", name: "Acceleration", unit: "m/s²" }
+  ]);
+
+  const questionTemplates = {
+    easy: [
+      "A {mass} kg object has a force of {force} N applied to it. What is its acceleration?",
+      "If an object accelerates at {acceleration} m/s² with a mass of {mass} kg, what force is applied?"
     ],
-    "W = mg": [
-      { symbol: "W", name: "Weight", unit: "N" },
-      { symbol: "m", name: "Mass", unit: "kg" },
-      { symbol: "g", name: "Gravity", unit: "m/s²" }
+    medium: [
+      "A {mass} kg box is pushed across a frictionless surface with a force of {force} N. Calculate the acceleration.",
+      "Two forces of {force1} N and {force2} N act on a {mass} kg object in the same direction. Find the net acceleration."
     ],
-    "E = mc²": [
-      { symbol: "E", name: "Energy", unit: "J" },
-      { symbol: "m", name: "Mass", unit: "kg" },
-      { symbol: "c", name: "Speed of light", unit: "m/s" }
+    hard: [
+      "A {mass} kg object is pulled by a force of {force} N at an angle of {angle}° to the horizontal. Find the horizontal acceleration (ignore friction).",
+      "A {mass} kg block on an inclined plane of {angle}° has a force of {force} N applied parallel to the incline. Calculate the acceleration down the plane."
     ]
   };
-  
-  const availableFormulas = [
-    "F = ma",
-    "W = mg",
-    "E = mc²"
-  ];
-  
+
+  const handleStepComplete = (stepId: number, answer?: string) => {
+    setProblemSteps(prev => prev.map(step => 
+      step.id === stepId 
+        ? { ...step, completed: true, userAnswer: answer }
+        : step
+    ));
+    
+    if (currentStep < problemSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const generateQuestion = () => {
+    const templates = questionTemplates[selectedDifficulty as keyof typeof questionTemplates];
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    
+    // Generate random values based on difficulty
+    const values = {
+      mass: selectedDifficulty === 'easy' ? Math.floor(Math.random() * 10) + 1 : Math.floor(Math.random() * 50) + 5,
+      force: selectedDifficulty === 'easy' ? Math.floor(Math.random() * 50) + 10 : Math.floor(Math.random() * 200) + 50,
+      force1: Math.floor(Math.random() * 100) + 20,
+      force2: Math.floor(Math.random() * 80) + 10,
+      acceleration: Math.floor(Math.random() * 10) + 2,
+      angle: Math.floor(Math.random() * 60) + 15
+    };
+
+    let question = template;
+    Object.entries(values).forEach(([key, value]) => {
+      question = question.replace(`{${key}}`, value.toString());
+    });
+
+    setGeneratedQuestion({
+      question,
+      values,
+      difficulty: selectedDifficulty,
+      concept: conceptId
+    });
+  };
+
+  const currentStepData = problemSteps[currentStep];
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button variant="outline" onClick={() => navigate(`/dashboard/student/concepts/card/${conceptId}`)} className="mb-2">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Concept Card
-        </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Formula Lab</h1>
-        <p className="text-muted-foreground mt-1">
-          Explore, experiment, and visualize physics formulas
-        </p>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Interactive Formula Lab</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="calculator">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="calculator">Calculator</TabsTrigger>
-                  <TabsTrigger value="visualizer">Visualizer</TabsTrigger>
-                  <TabsTrigger value="practice">Practice</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="calculator" className="space-y-6">
-                  <div className="bg-muted/20 p-4 rounded-lg">
-                    <Label className="text-sm text-muted-foreground mb-2 block">Select Formula</Label>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {availableFormulas.map((f) => (
-                        <Button
-                          key={f}
-                          variant={formula === f ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => {
-                            setFormula(f);
-                            handleReset();
-                          }}
-                        >
-                          {f}
-                        </Button>
-                      ))}
-                    </div>
-                    
-                    <div className="bg-card p-6 rounded-lg border shadow-sm mb-4">
-                      <p className="text-center font-mono text-2xl mb-4">{formula}</p>
-                      
-                      <div className="mb-4">
-                        <Label className="text-sm mb-2 block">Solve for</Label>
-                        <div className="flex flex-wrap gap-2">
-                          {formulaVariables[formula as keyof typeof formulaVariables]?.map(({ symbol }) => (
-                            <Button
-                              key={symbol}
-                              variant={solveFor === symbol ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => {
-                                setSolveFor(symbol);
-                                setResult(null);
-                              }}
-                            >
-                              {symbol}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                        {formulaVariables[formula as keyof typeof formulaVariables]?.map(({ symbol, name, unit }) => (
-                          symbol !== solveFor && (
-                            <div key={symbol}>
-                              <Label htmlFor={`var-${symbol}`} className="text-sm mb-1 block">
-                                {name} ({symbol}) [{unit}]
-                              </Label>
-                              <Input
-                                id={`var-${symbol}`}
-                                type="number"
-                                value={variables[symbol] || ''}
-                                onChange={(e) => handleInputChange(symbol, e.target.value)}
-                                placeholder={`Enter ${name}`}
-                              />
-                            </div>
-                          )
-                        ))}
-                      </div>
-                      
-                      <div className="flex gap-3">
-                        <Button onClick={calculateResult} className="flex-1">
-                          Calculate
-                        </Button>
-                        <Button variant="outline" onClick={handleReset} className="gap-2">
-                          <RefreshCw className="h-4 w-4" />
-                          Reset
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {result && (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
-                        <h3 className="font-medium mb-1">Result:</h3>
-                        <p className="font-mono text-xl">{result}</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="bg-muted/20 p-4 rounded-lg">
-                    <h3 className="font-medium mb-2">Formula Explanation</h3>
-                    {formula === "F = ma" && (
-                      <div className="space-y-2">
-                        <p>Newton's Second Law of Motion states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.</p>
-                        <ul className="list-disc pl-5 space-y-1 text-sm">
-                          <li><strong>F</strong>: Force in Newtons (N)</li>
-                          <li><strong>m</strong>: Mass in kilograms (kg)</li>
-                          <li><strong>a</strong>: Acceleration in meters per second squared (m/s²)</li>
-                        </ul>
-                      </div>
-                    )}
-                    {formula === "W = mg" && (
-                      <div className="space-y-2">
-                        <p>The weight of an object is the force of gravity acting on it and is calculated as the product of its mass and the acceleration due to gravity.</p>
-                        <ul className="list-disc pl-5 space-y-1 text-sm">
-                          <li><strong>W</strong>: Weight in Newtons (N)</li>
-                          <li><strong>m</strong>: Mass in kilograms (kg)</li>
-                          <li><strong>g</strong>: Acceleration due to gravity (approximately 9.8 m/s² on Earth)</li>
-                        </ul>
-                      </div>
-                    )}
-                    {formula === "E = mc²" && (
-                      <div className="space-y-2">
-                        <p>Einstein's famous equation establishes the equivalence of mass and energy, showing that the energy of an object is equal to its mass multiplied by the square of the speed of light.</p>
-                        <ul className="list-disc pl-5 space-y-1 text-sm">
-                          <li><strong>E</strong>: Energy in Joules (J)</li>
-                          <li><strong>m</strong>: Mass in kilograms (kg)</li>
-                          <li><strong>c</strong>: Speed of light (approximately 3 × 10⁸ m/s)</li>
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="visualizer">
-                  <div className="aspect-video bg-muted/20 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <Play className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                      <Button>Launch Formula Visualization</Button>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Interactive visualization coming soon
-                      </p>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="practice">
-                  <div className="space-y-4">
-                    <div className="bg-muted/20 p-4 rounded-lg">
-                      <h3 className="font-medium mb-3">Practice Problems</h3>
-                      
-                      <div className="space-y-4">
-                        <div className="bg-card p-4 rounded-lg border">
-                          <h4 className="font-medium mb-2">Problem 1</h4>
-                          <p className="mb-3">A 5kg object experiences a force of 20N. Calculate its acceleration.</p>
-                          <div className="flex gap-3">
-                            <Button variant="outline" size="sm">
-                              <Brain className="h-4 w-4 mr-1" /> Show Solution
-                            </Button>
-                            <Button size="sm">
-                              <BookOpen className="h-4 w-4 mr-1" /> Solve Step by Step
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-card p-4 rounded-lg border">
-                          <h4 className="font-medium mb-2">Problem 2</h4>
-                          <p className="mb-3">A 1500kg car accelerates from 0 to 27 m/s in 10 seconds. Calculate the net force acting on the car.</p>
-                          <div className="flex gap-3">
-                            <Button variant="outline" size="sm">
-                              <Brain className="h-4 w-4 mr-1" /> Show Solution
-                            </Button>
-                            <Button size="sm">
-                              <BookOpen className="h-4 w-4 mr-1" /> Solve Step by Step
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-card p-4 rounded-lg border">
-                          <h4 className="font-medium mb-2">Problem 3</h4>
-                          <p className="mb-3">A net force of 400N produces an acceleration of 8 m/s². What is the mass of the object?</p>
-                          <div className="flex gap-3">
-                            <Button variant="outline" size="sm">
-                              <Brain className="h-4 w-4 mr-1" /> Show Solution
-                            </Button>
-                            <Button size="sm">
-                              <BookOpen className="h-4 w-4 mr-1" /> Solve Step by Step
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="lg:col-span-1">
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Related Formulas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {formula === "F = ma" && (
-                  <>
-                    <div className="p-3 bg-muted/20 rounded-lg">
-                      <div className="font-mono text-center mb-1">W = mg</div>
-                      <p className="text-sm">Weight equals mass times gravity</p>
-                    </div>
-                    <div className="p-3 bg-muted/20 rounded-lg">
-                      <div className="font-mono text-center mb-1">p = mv</div>
-                      <p className="text-sm">Momentum equals mass times velocity</p>
-                    </div>
-                  </>
-                )}
-                {formula === "W = mg" && (
-                  <>
-                    <div className="p-3 bg-muted/20 rounded-lg">
-                      <div className="font-mono text-center mb-1">F = ma</div>
-                      <p className="text-sm">Force equals mass times acceleration</p>
-                    </div>
-                    <div className="p-3 bg-muted/20 rounded-lg">
-                      <div className="font-mono text-center mb-1">PE = mgh</div>
-                      <p className="text-sm">Potential energy equals mass times gravity times height</p>
-                    </div>
-                  </>
-                )}
-                {formula === "E = mc²" && (
-                  <>
-                    <div className="p-3 bg-muted/20 rounded-lg">
-                      <div className="font-mono text-center mb-1">p = E/c</div>
-                      <p className="text-sm">Momentum equals energy divided by the speed of light</p>
-                    </div>
-                    <div className="p-3 bg-muted/20 rounded-lg">
-                      <div className="font-mono text-center mb-1">λ = h/p</div>
-                      <p className="text-sm">De Broglie wavelength equals Planck's constant divided by momentum</p>
-                    </div>
-                  </>
-                )}
+    <SharedPageLayout
+      title={`Formula Lab - ${conceptId?.replace('%20', ' ')}`}
+      subtitle="Interactive formula practice with step-by-step guidance"
+      showBackButton={true}
+      backButtonUrl={`/dashboard/student/concepts/${conceptId}`}
+    >
+      <Tabs defaultValue="practice" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="practice">Step-by-Step Practice</TabsTrigger>
+          <TabsTrigger value="generator">Question Generator</TabsTrigger>
+          <TabsTrigger value="formulas">Formula Reference</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="practice" className="space-y-6">
+          {/* Progress Bar */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Progress</span>
+                <span className="text-sm text-gray-600">{currentStep + 1} of {problemSteps.length}</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${((currentStep + 1) / problemSteps.length) * 100}%` }}
+                />
               </div>
             </CardContent>
           </Card>
-          
+
+          {/* Current Step */}
           <Card>
             <CardHeader>
-              <CardTitle>Exam Tips</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 font-bold">{currentStep + 1}</span>
+                  </div>
+                  {currentStepData?.title}
+                </CardTitle>
+                {currentStepData?.completed && (
+                  <Badge className="bg-green-100 text-green-800">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Completed
+                  </Badge>
+                )}
+              </div>
+              <CardDescription>{currentStepData?.description}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ul className="list-disc pl-5 space-y-2 text-sm">
-                <li>Always check your units when applying formulas</li>
-                <li>Practice rearranging equations to solve for different variables</li>
-                <li>Remember to convert units when necessary (e.g., kg to g, km to m)</li>
-                <li>Draw free-body diagrams to identify all forces acting on an object</li>
-                <li>Common mistakes include forgetting to square the speed of light in E=mc²</li>
-              </ul>
+            <CardContent className="space-y-4">
+              {currentStepData?.formula && (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calculator className="h-4 w-4 text-blue-600" />
+                    <span className="font-medium text-blue-800">Formula</span>
+                  </div>
+                  <div className="text-xl font-mono text-blue-900">{currentStepData.formula}</div>
+                </div>
+              )}
+
+              {currentStepData?.hint && (
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Lightbulb className="h-4 w-4 text-yellow-600" />
+                    <span className="font-medium text-yellow-800">Hint</span>
+                  </div>
+                  <p className="text-yellow-900">{currentStepData.hint}</p>
+                </div>
+              )}
+
+              {!currentStepData?.completed && (
+                <div className="space-y-3">
+                  <Label htmlFor="step-answer">Your Answer</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="step-answer"
+                      placeholder="Enter your answer here..."
+                      className="flex-1"
+                    />
+                    <Button onClick={() => handleStepComplete(currentStepData.id)}>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Complete Step
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+                  disabled={currentStep === 0}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  Previous
+                </Button>
+                <Button 
+                  onClick={() => setCurrentStep(Math.min(problemSteps.length - 1, currentStep + 1))}
+                  disabled={currentStep === problemSteps.length - 1}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
-    </div>
+
+          {/* Steps Overview */}
+          <Card>
+            <CardHeader>
+              <CardTitle>All Steps</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {problemSteps.map((step, index) => (
+                  <div 
+                    key={step.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      index === currentStep ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                    }`}
+                    onClick={() => setCurrentStep(index)}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
+                      step.completed ? 'bg-green-100 text-green-600' : 
+                      index === currentStep ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {step.completed ? <CheckCircle className="h-4 w-4" /> : index + 1}
+                    </div>
+                    <span className={step.completed ? 'line-through text-gray-500' : ''}>{step.title}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="generator" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-purple-600" />
+                Question Generator
+              </CardTitle>
+              <CardDescription>
+                Generate practice questions based on concept and difficulty level
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="difficulty">Difficulty Level</Label>
+                  <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button onClick={generateQuestion} className="w-full">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Generate Question
+                  </Button>
+                </div>
+              </div>
+
+              {generatedQuestion && (
+                <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">Generated Question</CardTitle>
+                      <Badge variant="secondary">{generatedQuestion.difficulty}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg mb-4">{generatedQuestion.question}</p>
+                    <div className="space-y-3">
+                      <Label htmlFor="generated-answer">Your Solution</Label>
+                      <Textarea 
+                        id="generated-answer"
+                        placeholder="Work through the problem step by step..."
+                        className="min-h-[100px]"
+                      />
+                      <Button className="w-full">Submit Solution</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="formulas" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+                Formula Reference - {conceptId?.replace('%20', ' ')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="font-semibold text-blue-800 mb-2">Newton's Second Law</h3>
+                  <div className="text-2xl font-mono text-blue-900 mb-2">F = ma</div>
+                  <p className="text-blue-700">Where F is force (N), m is mass (kg), and a is acceleration (m/s²)</p>
+                </div>
+                
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h3 className="font-semibold text-green-800 mb-2">Related Formulas</h3>
+                  <div className="space-y-2">
+                    <div className="font-mono">a = F/m</div>
+                    <div className="font-mono">m = F/a</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </SharedPageLayout>
   );
 };
 
