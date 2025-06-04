@@ -1,50 +1,35 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings, Save, RotateCcw } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { 
+  Settings, 
+  Clock, 
+  Calendar,
+  Target,
+  Save
+} from 'lucide-react';
 
 export const SettingsCustomizationSection = () => {
-  const { toast } = useToast();
   const [settings, setSettings] = useState({
     studyHoursPerDay: 6,
-    availableDaysPerWeek: 6,
     learningPace: 'medium',
-    weekendOff: true,
-    revisionDays: 2,
-    subjectRotation: 'daily',
-    breakTime: 15,
-    focusSessionLength: 45
+    weekendOff: false,
+    autoAdjustment: true,
+    revisionFrequency: 'weekly',
+    breakDuration: 15,
+    notificationsEnabled: true,
+    dailyReminders: true
   });
 
   const handleSaveSettings = () => {
     // Save settings logic here
-    toast({
-      title: "Settings Updated",
-      description: "Your study plan settings have been successfully updated.",
-    });
-  };
-
-  const handleResetSettings = () => {
-    setSettings({
-      studyHoursPerDay: 6,
-      availableDaysPerWeek: 6,
-      learningPace: 'medium',
-      weekendOff: true,
-      revisionDays: 2,
-      subjectRotation: 'daily',
-      breakTime: 15,
-      focusSessionLength: 45
-    });
-    toast({
-      title: "Settings Reset",
-      description: "All settings have been reset to default values.",
-    });
+    console.log('Settings saved:', settings);
   };
 
   return (
@@ -56,37 +41,35 @@ export const SettingsCustomizationSection = () => {
             Settings & Customization
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h3 className="font-medium text-lg">Study Schedule</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="studyHours">Study Hours per Day</Label>
-                <Input
-                  id="studyHours"
-                  type="number"
-                  min="1"
-                  max="12"
-                  value={settings.studyHoursPerDay}
-                  onChange={(e) => setSettings({...settings, studyHoursPerDay: parseInt(e.target.value)})}
-                />
+              <div>
+                <Label htmlFor="studyHours" className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4" />
+                  Study Hours per Day
+                </Label>
+                <div className="space-y-2">
+                  <Slider
+                    id="studyHours"
+                    value={[settings.studyHoursPerDay]}
+                    onValueChange={(value) => setSettings({...settings, studyHoursPerDay: value[0]})}
+                    max={12}
+                    min={1}
+                    step={0.5}
+                    className="w-full"
+                  />
+                  <div className="text-sm text-gray-600 text-center">
+                    {settings.studyHoursPerDay} hours
+                  </div>
+                </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="availableDays">Available Days per Week</Label>
-                <Input
-                  id="availableDays"
-                  type="number"
-                  min="1"
-                  max="7"
-                  value={settings.availableDaysPerWeek}
-                  onChange={(e) => setSettings({...settings, availableDaysPerWeek: parseInt(e.target.value)})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="learningPace">Learning Pace</Label>
+
+              <div>
+                <Label htmlFor="learningPace" className="flex items-center gap-2 mb-2">
+                  <Target className="h-4 w-4" />
+                  Learning Pace
+                </Label>
                 <Select 
                   value={settings.learningPace} 
                   onValueChange={(value) => setSettings({...settings, learningPace: value})}
@@ -101,7 +84,43 @@ export const SettingsCustomizationSection = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
+              <div>
+                <Label htmlFor="revisionFreq" className="flex items-center gap-2 mb-2">
+                  <Calendar className="h-4 w-4" />
+                  Revision Frequency
+                </Label>
+                <Select 
+                  value={settings.revisionFrequency} 
+                  onValueChange={(value) => setSettings({...settings, revisionFrequency: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="biweekly">Bi-weekly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="breakDuration" className="mb-2 block">
+                  Break Duration (minutes)
+                </Label>
+                <Input
+                  id="breakDuration"
+                  type="number"
+                  value={settings.breakDuration}
+                  onChange={(e) => setSettings({...settings, breakDuration: parseInt(e.target.value)})}
+                  min={5}
+                  max={60}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="weekendOff">Weekend Off</Label>
                 <Switch
@@ -110,75 +129,51 @@ export const SettingsCustomizationSection = () => {
                   onCheckedChange={(checked) => setSettings({...settings, weekendOff: checked})}
                 />
               </div>
-            </div>
-            
-            <div className="space-y-4">
-              <h3 className="font-medium text-lg">Study Preferences</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="revisionDays">Revision Days per Week</Label>
-                <Input
-                  id="revisionDays"
-                  type="number"
-                  min="0"
-                  max="3"
-                  value={settings.revisionDays}
-                  onChange={(e) => setSettings({...settings, revisionDays: parseInt(e.target.value)})}
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="autoAdjust">Auto-Adjustment</Label>
+                <Switch
+                  id="autoAdjust"
+                  checked={settings.autoAdjustment}
+                  onCheckedChange={(checked) => setSettings({...settings, autoAdjustment: checked})}
                 />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="subjectRotation">Subject Rotation</Label>
-                <Select 
-                  value={settings.subjectRotation} 
-                  onValueChange={(value) => setSettings({...settings, subjectRotation: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">Daily Rotation</SelectItem>
-                    <SelectItem value="weekly">Weekly Focus</SelectItem>
-                    <SelectItem value="mixed">Mixed Approach</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="focusSession">Focus Session Length (minutes)</Label>
-                <Input
-                  id="focusSession"
-                  type="number"
-                  min="25"
-                  max="90"
-                  value={settings.focusSessionLength}
-                  onChange={(e) => setSettings({...settings, focusSessionLength: parseInt(e.target.value)})}
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="notifications">Notifications</Label>
+                <Switch
+                  id="notifications"
+                  checked={settings.notificationsEnabled}
+                  onCheckedChange={(checked) => setSettings({...settings, notificationsEnabled: checked})}
                 />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="breakTime">Break Time (minutes)</Label>
-                <Input
-                  id="breakTime"
-                  type="number"
-                  min="5"
-                  max="30"
-                  value={settings.breakTime}
-                  onChange={(e) => setSettings({...settings, breakTime: parseInt(e.target.value)})}
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="dailyReminders">Daily Reminders</Label>
+                <Switch
+                  id="dailyReminders"
+                  checked={settings.dailyReminders}
+                  onCheckedChange={(checked) => setSettings({...settings, dailyReminders: checked})}
                 />
               </div>
             </div>
           </div>
-          
-          <div className="mt-6 flex gap-3">
-            <Button onClick={handleSaveSettings} className="bg-green-600 hover:bg-green-700">
+
+          <div className="border-t pt-4">
+            <Button onClick={handleSaveSettings} className="w-full">
               <Save className="h-4 w-4 mr-2" />
               Save Settings
             </Button>
-            <Button variant="outline" onClick={handleResetSettings}>
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Reset to Default
-            </Button>
+          </div>
+
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <h4 className="font-medium mb-2">Auto-Adjustment Features</h4>
+            <ul className="text-sm text-gray-700 space-y-1">
+              <li>• Plan automatically adjusts based on your performance</li>
+              <li>• Weak subjects get more time allocation</li>
+              <li>• Study schedule adapts to your completion patterns</li>
+              <li>• Break reminders based on study intensity</li>
+            </ul>
           </div>
         </CardContent>
       </Card>

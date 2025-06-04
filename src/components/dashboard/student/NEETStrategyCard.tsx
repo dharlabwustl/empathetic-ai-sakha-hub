@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -144,7 +143,6 @@ const NEETStrategyCard: React.FC = () => {
               </Link>
             </motion.div>
             
-            {/* Exam countdown */}
             <motion.div
               animate={{ 
                 backgroundColor: ["rgb(239 246 255)", "rgb(245 243 255)", "rgb(239 246 255)"]
@@ -161,7 +159,6 @@ const NEETStrategyCard: React.FC = () => {
               <div className="text-xs text-blue-600">{daysLeft} days remaining</div>
             </motion.div>
 
-            {/* Learning Profile Section */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <User className="h-4 w-4 text-blue-600" />
@@ -216,7 +213,6 @@ const NEETStrategyCard: React.FC = () => {
               </motion.p>
             </div>
             
-            {/* Subject Status with hide option */}
             {showSubjects && (
               <motion.div 
                 className="space-y-2"
@@ -271,7 +267,6 @@ const NEETStrategyCard: React.FC = () => {
               ))}
             </div>
 
-            {/* Enhanced CTA buttons */}
             <div className="grid grid-cols-2 gap-2 pt-2">
               <Link to="/dashboard/student/study-plan/adaptive">
                 <motion.div
