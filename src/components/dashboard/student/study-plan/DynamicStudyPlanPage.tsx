@@ -23,7 +23,8 @@ import {
   AlertCircle,
   XCircle,
   Star,
-  Award
+  Award,
+  Heart
 } from 'lucide-react';
 import { StudentProfileSection } from './sections/StudentProfileSection';
 import { SubjectAnalysisSection } from './sections/SubjectAnalysisSection';
@@ -33,6 +34,7 @@ import { AIRecommendationsSection } from './sections/AIRecommendationsSection';
 import { PerformanceTrackerSection } from './sections/PerformanceTrackerSection';
 import { ResourcesNotesSection } from './sections/ResourcesNotesSection';
 import { SettingsCustomizationSection } from './sections/SettingsCustomizationSection';
+import MoodCalendarSection from './sections/MoodCalendarSection';
 import { useToast } from '@/hooks/use-toast';
 
 const DynamicStudyPlanPage = () => {
@@ -101,7 +103,7 @@ const DynamicStudyPlanPage = () => {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 mb-6">
           <TabsTrigger value="profile" className="flex items-center gap-1">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Profile</span>
@@ -117,6 +119,10 @@ const DynamicStudyPlanPage = () => {
           <TabsTrigger value="dashboard" className="flex items-center gap-1">
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Dashboard</span>
+          </TabsTrigger>
+          <TabsTrigger value="mood" className="flex items-center gap-1">
+            <Heart className="h-4 w-4" />
+            <span className="hidden sm:inline">Mood</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="flex items-center gap-1">
             <Brain className="h-4 w-4" />
@@ -150,6 +156,10 @@ const DynamicStudyPlanPage = () => {
 
         <TabsContent value="dashboard">
           <WeeklyMonthlyDashboard />
+        </TabsContent>
+
+        <TabsContent value="mood">
+          <MoodCalendarSection />
         </TabsContent>
 
         <TabsContent value="ai">
