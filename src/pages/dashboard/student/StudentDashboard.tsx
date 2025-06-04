@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -10,10 +11,12 @@ import { MoodType } from "@/types/user/base";
 import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
 import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
 import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
+import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -47,6 +50,11 @@ const StudentDashboard = () => {
   const [shouldShowTour, setShouldShowTour] = useState(false);
 
   useEffect(() => {
+    // Check if user is new (just signed up)
+    const params = new URLSearchParams(location.search);
+    const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
+    setIsFirstTimeUser(isNew);
+    
     // Explicitly mark tour as seen to prevent it from appearing
     localStorage.setItem('sawWelcomeTour', 'true');
     localStorage.removeItem('new_user_signup');
@@ -157,7 +165,6 @@ const StudentDashboard = () => {
   };
 
   const studyStreak = 5;
-  const lastActivity = 'completed Physics concepts';
 
   // Force welcome tour to never show
   const modifiedShowWelcomeTour = false;
@@ -189,6 +196,13 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
+      {/* Voice Greeting for new users */}
+      <VoiceGreeting 
+        isFirstTimeUser={isFirstTimeUser} 
+        userName={userProfile.name || userProfile.firstName || 'Student'}
+        lastActivity={lastActivity}
+      />
+
       {/* Enhanced Dashboard Voice Assistant with user progress context */}
       <DashboardVoiceAssistant
         userName={userProfile.name}

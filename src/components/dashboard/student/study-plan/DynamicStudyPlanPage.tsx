@@ -34,9 +34,11 @@ import { PerformanceTrackerSection } from './sections/PerformanceTrackerSection'
 import { ResourcesNotesSection } from './sections/ResourcesNotesSection';
 import { SettingsCustomizationSection } from './sections/SettingsCustomizationSection';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const DynamicStudyPlanPage = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('profile');
 
   // Quick stats for the header
@@ -50,7 +52,7 @@ const DynamicStudyPlanPage = () => {
 
   return (
     <SharedPageLayout
-      title="Dynamic & Adaptive Study Plan"
+      title={t('adaptiveStudyPlan') || "Dynamic & Adaptive Study Plan"}
       subtitle="NEET 2026 - Personalized AI-Powered Study Strategy"
       showBackButton={true}
       backButtonUrl="/dashboard/student"

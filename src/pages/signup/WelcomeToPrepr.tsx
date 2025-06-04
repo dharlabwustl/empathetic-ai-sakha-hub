@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EnhancedWelcomeScreen from '@/components/welcome/EnhancedWelcomeScreen';
-import WelcomeVoiceGreeting from '@/components/welcome/WelcomeVoiceGreeting';
 
 const WelcomeToPrepr = () => {
   const navigate = useNavigate();
@@ -32,14 +31,11 @@ const WelcomeToPrepr = () => {
   };
 
   return (
-    <>
-      <WelcomeVoiceGreeting userName={userName} />
-      <EnhancedWelcomeScreen 
-        userName={userName}
-        isReturningUser={false}
-        onComplete={handleComplete}
-      />
-    </>
+    <EnhancedWelcomeScreen 
+      userName={userName}
+      isReturningUser={false}
+      onComplete={handleComplete}
+    />
   );
 };
 
