@@ -118,7 +118,8 @@ const AcademicAdvisorView: React.FC = () => {
   };
 
   const handleViewPlan = (planId: string) => {
-    navigate(`/dashboard/student/academic/plan/${planId}`);
+    // Navigate to the adaptive study plan page for all plan views
+    navigate("/dashboard/student/study-plan/adaptive");
   };
 
   return (
