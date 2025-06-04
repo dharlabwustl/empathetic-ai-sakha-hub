@@ -47,7 +47,11 @@ const StudentRoutes = () => {
           <StudyPlanPage />
         </SidebarLayout>
       } />
-      <Route path="/study-plan/adaptive" element={<DynamicStudyPlanPage />} />
+      <Route path="/study-plan/adaptive" element={
+        <SidebarLayout>
+          <DynamicStudyPlanPage />
+        </SidebarLayout>
+      } />
       <Route path="/concepts" element={
         <SidebarLayout>
           <ConceptsPage />

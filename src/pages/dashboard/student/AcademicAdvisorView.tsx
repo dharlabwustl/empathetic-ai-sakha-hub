@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -117,8 +118,7 @@ const AcademicAdvisorView: React.FC = () => {
   };
 
   const handleViewPlan = (planId: string) => {
-    // Navigate to the adaptive study plan page for all plan views
-    navigate("/dashboard/student/study-plan/adaptive");
+    navigate(`/dashboard/student/academic/plan/${planId}`);
   };
 
   return (
