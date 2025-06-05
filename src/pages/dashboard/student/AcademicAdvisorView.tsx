@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -113,11 +114,11 @@ const AcademicAdvisorView: React.FC = () => {
   const completedPlans = mockStudyPlans.filter(plan => plan.status === "completed");
 
   const handleCreatePlan = () => {
-    navigate("/dashboard/student/comprehensive-study-plan");
+    navigate("/dashboard/student/academic/create-plan");
   };
 
   const handleViewPlan = (planId: string) => {
-    navigate("/dashboard/student/comprehensive-study-plan");
+    navigate(`/dashboard/student/academic/plan/${planId}`);
   };
 
   return (
