@@ -113,11 +113,11 @@ const AcademicAdvisorView: React.FC = () => {
   const completedPlans = mockStudyPlans.filter(plan => plan.status === "completed");
 
   const handleCreatePlan = () => {
-    navigate("/dashboard/student/study-plan");
+    navigate("/dashboard/student/comprehensive-study-plan");
   };
 
   const handleViewPlan = (planId: string) => {
-    navigate("/dashboard/student/study-plan");
+    navigate("/dashboard/student/comprehensive-study-plan");
   };
 
   return (

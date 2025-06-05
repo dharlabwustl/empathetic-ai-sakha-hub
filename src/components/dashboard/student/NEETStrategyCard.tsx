@@ -134,7 +134,7 @@ const NEETStrategyCard: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Link to="/dashboard/student/study-plan">
+              <Link to="/dashboard/student/comprehensive-study-plan">
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
                   NEET 2026 Plan
@@ -272,7 +272,7 @@ const NEETStrategyCard: React.FC = () => {
 
             {/* Enhanced CTA buttons */}
             <div className="grid grid-cols-2 gap-2 pt-2">
-              <Link to="/dashboard/student/study-plan">
+              <Link to="/dashboard/student/comprehensive-study-plan">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

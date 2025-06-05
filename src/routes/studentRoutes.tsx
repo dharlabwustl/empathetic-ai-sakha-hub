@@ -23,6 +23,7 @@ import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTak
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
 import StudyPlanPage from '@/pages/dashboard/student/StudyPlanPage';
+import ComprehensiveStudyPlanPage from '@/pages/dashboard/student/ComprehensiveStudyPlanPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -41,6 +42,7 @@ const StudentRoutes = () => {
         </SidebarLayout>
       } />
       <Route path="/study-plan" element={<StudyPlanPage />} />
+      <Route path="/comprehensive-study-plan" element={<ComprehensiveStudyPlanPage />} />
       <Route path="/concepts" element={
         <SidebarLayout>
           <ConceptsPage />
