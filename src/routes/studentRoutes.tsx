@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
@@ -23,6 +22,7 @@ import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLab
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
+import StudyPlanPage from '@/pages/dashboard/student/StudyPlanPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -40,6 +40,7 @@ const StudentRoutes = () => {
           <AcademicAdvisorView />
         </SidebarLayout>
       } />
+      <Route path="/study-plan" element={<StudyPlanPage />} />
       <Route path="/concepts" element={
         <SidebarLayout>
           <ConceptsPage />

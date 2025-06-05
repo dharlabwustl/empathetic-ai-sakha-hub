@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -288,7 +287,7 @@ const NEETStrategyCard: React.FC = () => {
                 </motion.div>
               </Link>
               
-              <Link to="/dashboard/student/academic-advisor">
+              <Link to="/dashboard/student/academic">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
