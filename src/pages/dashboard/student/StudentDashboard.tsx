@@ -1,189 +1,97 @@
 
-import React, { useState, useEffect } from "react";
-import { useStudentDashboard } from "@/hooks/useStudentDashboard";
-import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
-import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
-import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
-import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation, useNavigate } from "react-router-dom";
-import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
-import { MoodType } from "@/types/user/base";
-import FloatingVoiceButton from "@/components/voice/FloatingVoiceButton";
-import InteractiveVoiceAssistant from "@/components/voice/InteractiveVoiceAssistant";
-import DashboardVoiceAssistant from "@/components/voice/DashboardVoiceAssistant";
-import VoiceGreeting from "@/components/dashboard/student/voice/VoiceGreeting";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import DashboardLayout from './DashboardLayout';
+import { UserProfileType, MoodType } from '@/types/user/base';
+import { useKpiTracking } from '@/hooks/useKpiTracking';
+import { useToast } from '@/hooks/use-toast';
+import SidebarLayout from '@/components/dashboard/SidebarLayout';
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
-  
-  const {
-    loading,
-    userProfile,
-    activeTab,
-    showWelcomeTour,
-    showOnboarding,
-    currentTime,
-    showStudyPlan,
-    hideTabsNav,
-    hideSidebar,
-    kpis,
-    nudges,
-    features,
-    lastActivity,
-    suggestedNextAction,
-    markNudgeAsRead,
-    handleTabChange,
-    handleSkipTour,
-    handleCompleteTour,
-    handleCompleteOnboarding,
-    handleViewStudyPlan,
-    handleCloseStudyPlan,
-    toggleSidebar,
-    toggleTabsNav
-  } = useStudentDashboard();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [hideSidebar, setHideSidebar] = useState(false);
+  const [hideTabsNav, setHideTabsNav] = useState(false);
+  const [showStudyPlan, setShowStudyPlan] = useState(false);
+  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
+  const [currentMood, setCurrentMood] = useState<MoodType>('neutral');
 
-  // Important: Force disable welcome tour completely
-  const [shouldShowTour, setShouldShowTour] = useState(false);
+  // Mock user profile
+  const userProfile: UserProfileType = {
+    id: '1',
+    name: 'Ananya Sharma',
+    email: 'ananya@example.com',
+    examGoal: 'NEET',
+    targetDate: '2025-05-15',
+    profileImage: '/placeholder.svg?height=100&width=100',
+    preferences: {
+      studyHoursPerDay: 6,
+      preferredStudyTime: 'morning',
+      learningPace: 'moderate'
+    },
+    goals: [
+      { title: 'NEET', targetDate: '2025-05-15', progress: 45 }
+    ],
+    loginCount: 1
+  };
 
-  useEffect(() => {
-    // Check if user is new (just signed up)
-    const params = new URLSearchParams(location.search);
-    const isNew = params.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
-    setIsFirstTimeUser(isNew);
-    
-    // Explicitly mark tour as seen to prevent it from appearing
-    localStorage.setItem('sawWelcomeTour', 'true');
-    localStorage.removeItem('new_user_signup');
-    
-    // Don't show splash screen for now
-    setShowSplash(false);
-    
-    // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      try {
-        const parsedData = JSON.parse(savedUserData);
-        if (parsedData.mood) {
-          setCurrentMood(parsedData.mood);
-        }
-      } catch (err) {
-        console.error("Error parsing user data from localStorage:", err);
-      }
-    }
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(userProfile.id);
 
-    // Ensure profile image is available
-    if (userProfile && userProfile.avatar) {
-      // Store the profile image in localStorage for persistence across sessions
-      localStorage.setItem('user_profile_image', userProfile.avatar);
-    }
-  }, [location, userProfile]);
-  
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-    sessionStorage.setItem("hasSeenSplash", "true");
-    
-    if (!currentMood) {
-      setCurrentMood(MoodType.Motivated);
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        try {
-          const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.Motivated;
-          localStorage.setItem("userData", JSON.stringify(parsedData));
-        } catch (err) {
-          console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
-        }
-      } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
-      }
-    }
+  const lastActivity = {
+    type: 'study',
+    description: 'Completed Physics Chapter 1'
+  };
+
+  const suggestedNextAction = 'Review Chemistry formulas';
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
+
+  const handleViewStudyPlan = () => {
+    setShowStudyPlan(true);
+  };
+
+  const handleToggleSidebar = () => {
+    setHideSidebar(!hideSidebar);
+  };
+
+  const handleToggleTabsNav = () => {
+    setHideTabsNav(!hideTabsNav);
+  };
+
+  const handleSkipTour = () => {
+    setShowWelcomeTour(false);
+  };
+
+  const handleCompleteTour = () => {
+    setShowWelcomeTour(false);
+  };
+
+  const handleCloseStudyPlan = () => {
+    setShowStudyPlan(false);
   };
 
   const handleMoodChange = (mood: MoodType) => {
     setCurrentMood(mood);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = mood;
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      } catch (err) {
-        console.error("Error updating mood in localStorage:", err);
-        localStorage.setItem("userData", JSON.stringify({ mood }));
-      }
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
   };
-
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
-  }
-
-  if (loading || !userProfile) {
-    return <DashboardLoading />;
-  }
-
-  if (showOnboarding) {
-    const defaultGoal = "IIT-JEE";
-    const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
-    
-    return (
-      <OnboardingFlow 
-        userProfile={userProfile} 
-        goalTitle={goalTitle}
-        onComplete={handleCompleteOnboarding}
-      />
-    );
-  }
-
-  // Ensure the profile has the correct image
-  const enhancedUserProfile = {
-    ...userProfile,
-    avatar: userProfile.avatar || localStorage.getItem('user_profile_image')
-  };
-
-  const getTabContent = () => {
-    if (activeTab === "overview") {
-      return <RedesignedDashboardOverview userProfile={enhancedUserProfile} kpis={kpis} />;
-    }
-    return null;
-  };
-
-  // Mock user progress data for voice assistant
-  const userProgressData = {
-    overallProgress: 68,
-    physicsProgress: 56,
-    chemistryProgress: 69,
-    biologyProgress: 72,
-    examReadinessScore: 78
-  };
-
-  const studyStreak = 5;
-
-  // Force welcome tour to never show
-  const modifiedShowWelcomeTour = false;
 
   return (
-    <>
+    <SidebarLayout>
       <DashboardLayout
-        userProfile={enhancedUserProfile}
-        hideSidebar={false}
-        hideTabsNav={true}
+        userProfile={userProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
         activeTab={activeTab}
         kpis={kpis}
         nudges={nudges}
         markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={modifiedShowWelcomeTour}
+        showWelcomeTour={showWelcomeTour}
         onTabChange={handleTabChange}
         onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
+        onToggleSidebar={handleToggleSidebar}
+        onToggleTabsNav={handleToggleTabsNav}
         onSkipTour={handleSkipTour}
         onCompleteTour={handleCompleteTour}
         showStudyPlan={showStudyPlan}
@@ -192,35 +100,8 @@ const StudentDashboard = () => {
         suggestedNextAction={suggestedNextAction}
         currentMood={currentMood}
         onMoodChange={handleMoodChange}
-      >
-        {getTabContent()}
-      </DashboardLayout>
-      
-      {/* Voice Greeting for new users */}
-      <VoiceGreeting 
-        isFirstTimeUser={isFirstTimeUser} 
-        userName={userProfile.name || userProfile.firstName || 'Student'}
-        lastActivity={lastActivity}
       />
-
-      {/* Enhanced Dashboard Voice Assistant with user progress context */}
-      <DashboardVoiceAssistant
-        userName={userProfile.name}
-        language="en-IN"
-        userMood={currentMood}
-        userProgress={userProgressData}
-        studyStreak={studyStreak}
-        lastActivity={lastActivity}
-      />
-
-      {/* Interactive Voice Assistant with enhanced navigation */}
-      <InteractiveVoiceAssistant 
-        userName={userProfile.name}
-        language="en-US"
-        onNavigationCommand={(route) => navigate(route)}
-        position="bottom-right"
-      />
-    </>
+    </SidebarLayout>
   );
 };
 

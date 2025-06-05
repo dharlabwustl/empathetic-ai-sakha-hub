@@ -20,11 +20,13 @@ import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import InteractiveFlashcard from '@/pages/dashboard/student/flashcards/InteractiveFlashcard';
 import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLabPage';
+import FormulaPracticePage from '@/pages/dashboard/student/FormulaPracticePage';
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
 import DynamicStudyPlanPage from '@/components/dashboard/student/study-plan/DynamicStudyPlanPage';
 import StudyPlanPage from '@/components/dashboard/student/study-plan/StudyPlanPage';
+import NotificationsPage from '@/pages/dashboard/student/NotificationsPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -75,6 +77,16 @@ const StudentRoutes = () => {
       <Route path="/concepts/:conceptId/formula-lab" element={
         <SidebarLayout>
           <FormulaLabPageWrapper />
+        </SidebarLayout>
+      } />
+      <Route path="/formula-practice" element={
+        <SidebarLayout>
+          <FormulaPracticePage />
+        </SidebarLayout>
+      } />
+      <Route path="/formula-practice/:conceptId" element={
+        <SidebarLayout>
+          <FormulaPracticePage />
         </SidebarLayout>
       } />
       <Route path="/concept-study/:conceptId" element={
@@ -145,6 +157,11 @@ const StudentRoutes = () => {
       <Route path="/subscription" element={
         <SidebarLayout>
           <SubscriptionPage />
+        </SidebarLayout>
+      } />
+      <Route path="/notifications" element={
+        <SidebarLayout>
+          <NotificationsPage />
         </SidebarLayout>
       } />
       <Route path="/loading" element={<DashboardLoading />} />
