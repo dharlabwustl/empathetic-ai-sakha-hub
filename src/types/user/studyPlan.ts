@@ -4,7 +4,7 @@ export type SubjectStatus = 'not-started' | 'in-progress' | 'completed';
 export type Priority = 'low' | 'medium' | 'high';
 export type Proficiency = 'weak' | 'medium' | 'strong';
 export type LearningPace = 'slow' | 'medium' | 'fast';
-export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening' | 'night';
+export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening';
 
 export interface StudyPlanTopic {
   id: string;
@@ -17,8 +17,6 @@ export interface StudyPlanTopic {
   progressPercent?: number;
   estimatedTime?: number;
   conceptsCount?: number;
-  confidenceLevel?: number; // 1-5 scale
-  lastRevised?: string;
 }
 
 export interface StudyPlanSubject {
@@ -35,7 +33,6 @@ export interface StudyPlanSubject {
   topics?: StudyPlanTopic[];
   difficulty?: 'easy' | 'medium' | 'hard';
   status?: SubjectStatus;
-  confidenceLevel?: number; // 1-5 scale
 }
 
 export interface StudyPlan {
@@ -62,9 +59,6 @@ export interface StudyPlan {
   learningPace: LearningPace;
   weeklyHours?: number;
   daysLeft?: number;
-  availableDaysPerWeek?: number;
-  preferredSubjectsPerDay?: number;
-  weekendOff?: boolean;
 }
 
 export interface NewStudyPlan {
@@ -81,9 +75,6 @@ export interface NewStudyPlan {
   studyHoursPerDay: number;
   preferredStudyTime: PreferredStudyTime;
   learningPace: LearningPace;
-  availableDaysPerWeek?: number;
-  preferredSubjectsPerDay?: number;
-  weekendOff?: boolean;
 }
 
 export interface CreditPack {
@@ -98,67 +89,3 @@ export interface CreditPack {
 }
 
 export type NewStudyPlanSubject = StudyPlanSubject;
-
-// Daily plan interfaces
-export interface DailyPlanItem {
-  id: string;
-  date: string;
-  subject: string;
-  topics: string[];
-  studyHours: number;
-  timeOfStudy: string;
-  focusLevel: 'high' | 'medium' | 'low';
-  status: 'done' | 'skipped' | 'pending';
-  actualTimeSpent?: number;
-  difficulty?: 'easy' | 'medium' | 'hard';
-}
-
-export interface WeeklyProgress {
-  week: string;
-  physics: number;
-  chemistry: number;
-  biology: number;
-  overallProgress: number;
-}
-
-export interface MockTest {
-  id: string;
-  name: string;
-  date: string;
-  syllabus: string[];
-  duration: number;
-  totalQuestions: number;
-  score?: number;
-  accuracy?: number;
-  status: 'upcoming' | 'completed' | 'missed';
-}
-
-export interface AIRecommendation {
-  id: string;
-  type: 'focus' | 'time-allocation' | 'strategy' | 'revision';
-  title: string;
-  description: string;
-  priority: Priority;
-  actionable: boolean;
-}
-
-export interface StudyResource {
-  id: string;
-  title: string;
-  type: 'video' | 'pdf' | 'notes' | 'practice';
-  subject: string;
-  topic: string;
-  url?: string;
-  isBookmarked?: boolean;
-  difficulty?: 'easy' | 'medium' | 'hard';
-}
-
-export interface DoubtEntry {
-  id: string;
-  subject: string;
-  topic: string;
-  question: string;
-  status: 'open' | 'resolved';
-  createdAt: string;
-  resolvedAt?: string;
-}

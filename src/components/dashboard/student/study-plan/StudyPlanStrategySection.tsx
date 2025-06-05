@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type SubjectAllocation = {
@@ -14,7 +14,6 @@ type SubjectAllocation = {
 
 const StudyPlanStrategySection = () => {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [isEditingTime, setIsEditingTime] = useState(false);
   const [allocations, setAllocations] = useState<SubjectAllocation[]>([
     { subject: 'Mathematics', percentage: 30, color: 'bg-blue-500' },
@@ -96,7 +95,10 @@ const StudyPlanStrategySection = () => {
   };
 
   const handleViewComplete = () => {
-    navigate('/dashboard/student/study-plan/adaptive');
+    toast({
+      title: "Complete Study Plan",
+      description: "Opening your comprehensive study plan",
+    });
   };
 
   return (
