@@ -1,15 +1,16 @@
 
-export interface BatchMemberInvite {
-  name: string;
-  email: string;
-  phone?: string;
-}
-
 export interface BatchCreationData {
   batchName: string;
-  examGoal: string;
-  targetYear: number;
-  allowProgressVisibility: boolean;
-  allowLeadershipTransfer: boolean;
-  invites: BatchMemberInvite[];
+  description?: string;
+  maxMembers: number;
+}
+
+export interface Batch {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  memberCount: number;
+  maxMembers: number;
+  leaderId: string;
 }
