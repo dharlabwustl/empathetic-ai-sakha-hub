@@ -1,22 +1,25 @@
 
 export enum MoodType {
   HAPPY = 'happy',
-  FOCUSED = 'focused',
-  MOTIVATED = 'motivated',
+  FOCUSED = 'focused', 
   TIRED = 'tired',
   STRESSED = 'stressed',
-  ANXIOUS = 'anxious'
+  CURIOUS = 'curious',
+  OKAY = 'okay',
+  OVERWHELMED = 'overwhelmed',
+  ANXIOUS = 'anxious',
+  MOTIVATED = 'motivated',
+  CONFUSED = 'confused',
+  NEUTRAL = 'neutral',
+  SAD = 'sad'
 }
 
 export interface MoodEntry {
-  date: string;
+  id: string;
   mood: MoodType;
+  timestamp: Date;
   note?: string;
-  studyPlanAdjustment?: string;
 }
 
-export interface MoodTheme {
-  background: string;
-  text: string;
-  icon: string;
-}
+// Helper type for string literal mood values
+export type MoodTypeValue = 'happy' | 'focused' | 'tired' | 'stressed' | 'curious' | 'okay' | 'overwhelmed' | 'anxious' | 'motivated' | 'confused' | 'neutral' | 'sad';

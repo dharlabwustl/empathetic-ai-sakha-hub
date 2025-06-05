@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -134,7 +135,7 @@ const NEETStrategyCard: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Link to="/dashboard/student/study-plan/adaptive">
+              <Link to="/dashboard/student/study-plan">
                 <Button variant="outline" className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-purple-300 transition-all">
                   <BookOpen className="h-4 w-4 mr-2" />
                   NEET 2026 Plan
@@ -143,6 +144,7 @@ const NEETStrategyCard: React.FC = () => {
               </Link>
             </motion.div>
             
+            {/* Exam countdown */}
             <motion.div
               animate={{ 
                 backgroundColor: ["rgb(239 246 255)", "rgb(245 243 255)", "rgb(239 246 255)"]
@@ -159,6 +161,7 @@ const NEETStrategyCard: React.FC = () => {
               <div className="text-xs text-blue-600">{daysLeft} days remaining</div>
             </motion.div>
 
+            {/* Learning Profile Section */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <User className="h-4 w-4 text-blue-600" />
@@ -213,6 +216,7 @@ const NEETStrategyCard: React.FC = () => {
               </motion.p>
             </div>
             
+            {/* Subject Status with hide option */}
             {showSubjects && (
               <motion.div 
                 className="space-y-2"
@@ -267,8 +271,9 @@ const NEETStrategyCard: React.FC = () => {
               ))}
             </div>
 
+            {/* Enhanced CTA buttons */}
             <div className="grid grid-cols-2 gap-2 pt-2">
-              <Link to="/dashboard/student/study-plan/adaptive">
+              <Link to="/dashboard/student/study-plan">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -283,7 +288,7 @@ const NEETStrategyCard: React.FC = () => {
                 </motion.div>
               </Link>
               
-              <Link to="/dashboard/student/academic">
+              <Link to="/dashboard/student/academic-advisor">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

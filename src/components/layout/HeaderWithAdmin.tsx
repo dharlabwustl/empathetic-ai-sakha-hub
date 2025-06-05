@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Menu, X, User } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import LanguageSelector from '@/components/common/LanguageSelector';
 import { useToast } from '@/hooks/use-toast';
 import authService from '@/services/auth/authService';
 import adminAuthService from '@/services/auth/adminAuthService';
@@ -122,6 +123,7 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            <LanguageSelector />
             {isLoggedIn ? (
               <div className="flex space-x-2 items-center">
                 <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800">
@@ -154,7 +156,8 @@ const Header = () => {
           </div>
           
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageSelector />
             <Button variant="ghost" size="icon" onClick={toggleMenu}>
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>

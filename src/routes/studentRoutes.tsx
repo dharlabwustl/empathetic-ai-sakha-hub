@@ -13,7 +13,7 @@ import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import ExamSyllabusPage from '@/pages/dashboard/student/ExamSyllabusPage';
 import PreviousYearAnalysisPage from '@/pages/dashboard/student/PreviousYearAnalysisPage';
 import SidebarLayout from '@/components/dashboard/SidebarLayout';
-import { DashboardLoading } from '@/pages/dashboard/student/DashboardLoading';
+import DashboardLoading from '@/pages/dashboard/student/DashboardLoading';
 import NotFoundPage from '@/pages/NotFound';
 import ConceptDetailPage from '@/pages/dashboard/student/ConceptDetailPage';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
@@ -25,8 +25,6 @@ import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamRev
 import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
 import DynamicStudyPlanPage from '@/components/dashboard/student/study-plan/DynamicStudyPlanPage';
 import StudyPlanPage from '@/components/dashboard/student/study-plan/StudyPlanPage';
-import EnhancedProfilePage from '@/pages/dashboard/student/EnhancedProfilePage';
-import BatchManagementPage from '@/pages/dashboard/student/BatchManagementPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -141,12 +139,7 @@ const StudentRoutes = () => {
       } />
       <Route path="/profile" element={
         <SidebarLayout>
-          <EnhancedProfilePage />
-        </SidebarLayout>
-      } />
-      <Route path="/batch-management" element={
-        <SidebarLayout>
-          <BatchManagementPage />
+          <StudentProfile />
         </SidebarLayout>
       } />
       <Route path="/subscription" element={
