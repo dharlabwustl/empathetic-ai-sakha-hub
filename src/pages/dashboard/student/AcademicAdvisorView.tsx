@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -106,6 +105,104 @@ const mockStudyPlans: StudyPlan[] = [
   }
 ];
 
+interface StudyPlanCardProps {
+  plan: StudyPlan;
+  onViewDetails: () => void;
+}
+
+const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onViewDetails }) => {
+  // Calculate days left for active plans
+  const getDaysLeft = () => {
+    if (plan.status === "completed") return null;
+    
+    const endDate = new Date(plan.endDate);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : 0;
+  };
+  
+  const daysLeft = getDaysLeft();
+
+  return (
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg truncate">{plan.title}</CardTitle>
+          <Badge variant={plan.status === "active" ? "default" : "outline"}>
+            {plan.status === "active" ? "Active" : "Completed"}
+          </Badge>
+        </div>
+        <CardDescription className="line-clamp-2">{plan.description}</CardDescription>
+      </CardHeader>
+      
+      <CardContent className="flex-grow">
+        <div className="space-y-3">
+          {plan.subjects.map(subject => (
+            <div key={subject.id} className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span>{subject.name}</span>
+                <span>{subject.progressPercent}%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full ${subject.color}`} 
+                  style={{ width: `${subject.progressPercent}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
+          <Calendar className="h-4 w-4" />
+          <span>
+            {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
+          </span>
+        </div>
+        
+        {daysLeft !== null && (
+          <div className="flex items-center gap-2 mt-2 text-sm">
+            <Clock className="h-4 w-4" />
+            <span className={daysLeft <= 7 ? "text-amber-600" : "text-gray-500"}>
+              {daysLeft} {daysLeft === 1 ? "day" : "days"} remaining
+            </span>
+          </div>
+        )}
+        
+        <div className="mt-4">
+          <div className="flex justify-between text-sm mb-1">
+            <span>Overall Progress</span>
+            <span>{plan.progressPercent}%</span>
+          </div>
+          <Progress value={plan.progressPercent} className="h-2" />
+        </div>
+      </CardContent>
+      
+      <CardFooter>
+        <Button 
+          onClick={() => window.location.href = '/dashboard/student/study-plan/adaptive'} 
+          className="w-full"
+          variant={plan.status === "active" ? "default" : "outline"}
+        >
+          {plan.status === "active" ? (
+            <>
+              <BookMarked className="mr-2 h-4 w-4" />
+              View Plan
+            </>
+          ) : (
+            <>
+              <FileText className="mr-2 h-4 w-4" />
+              View Details
+            </>
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
 const AcademicAdvisorView: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("active-plans");
@@ -118,7 +215,7 @@ const AcademicAdvisorView: React.FC = () => {
   };
 
   const handleViewPlan = (planId: string) => {
-    navigate(`/dashboard/student/academic/plan/${planId}`);
+    navigate("/dashboard/student/study-plan/adaptive");
   };
 
   return (
@@ -222,104 +319,6 @@ const AcademicAdvisorView: React.FC = () => {
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
-
-interface StudyPlanCardProps {
-  plan: StudyPlan;
-  onViewDetails: () => void;
-}
-
-const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onViewDetails }) => {
-  // Calculate days left for active plans
-  const getDaysLeft = () => {
-    if (plan.status === "completed") return null;
-    
-    const endDate = new Date(plan.endDate);
-    const today = new Date();
-    const diffTime = endDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    return diffDays > 0 ? diffDays : 0;
-  };
-  
-  const daysLeft = getDaysLeft();
-
-  return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg truncate">{plan.title}</CardTitle>
-          <Badge variant={plan.status === "active" ? "default" : "outline"}>
-            {plan.status === "active" ? "Active" : "Completed"}
-          </Badge>
-        </div>
-        <CardDescription className="line-clamp-2">{plan.description}</CardDescription>
-      </CardHeader>
-      
-      <CardContent className="flex-grow">
-        <div className="space-y-3">
-          {plan.subjects.map(subject => (
-            <div key={subject.id} className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>{subject.name}</span>
-                <span>{subject.progressPercent}%</span>
-              </div>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full ${subject.color}`} 
-                  style={{ width: `${subject.progressPercent}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
-          <Calendar className="h-4 w-4" />
-          <span>
-            {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
-          </span>
-        </div>
-        
-        {daysLeft !== null && (
-          <div className="flex items-center gap-2 mt-2 text-sm">
-            <Clock className="h-4 w-4" />
-            <span className={daysLeft <= 7 ? "text-amber-600" : "text-gray-500"}>
-              {daysLeft} {daysLeft === 1 ? "day" : "days"} remaining
-            </span>
-          </div>
-        )}
-        
-        <div className="mt-4">
-          <div className="flex justify-between text-sm mb-1">
-            <span>Overall Progress</span>
-            <span>{plan.progressPercent}%</span>
-          </div>
-          <Progress value={plan.progressPercent} className="h-2" />
-        </div>
-      </CardContent>
-      
-      <CardFooter>
-        <Button 
-          onClick={onViewDetails} 
-          className="w-full"
-          variant={plan.status === "active" ? "default" : "outline"}
-        >
-          {plan.status === "active" ? (
-            <>
-              <BookMarked className="mr-2 h-4 w-4" />
-              View Plan
-            </>
-          ) : (
-            <>
-              <FileText className="mr-2 h-4 w-4" />
-              View Details
-            </>
-          )}
-        </Button>
-      </CardFooter>
-    </Card>
   );
 };
 
