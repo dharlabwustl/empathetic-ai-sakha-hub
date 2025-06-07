@@ -1,227 +1,263 @@
 
-import React, { useState, useEffect } from 'react';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Calendar } from "@/components/ui/calendar";
-import { User, Target, Calendar as CalendarIcon, Clock, Brain, TrendingUp, BookOpen, Settings, Award, AlertTriangle } from 'lucide-react';
+import { 
+  User, 
+  Target, 
+  Calendar, 
+  Clock, 
+  BookOpen, 
+  Brain, 
+  TrendingUp,
+  Settings,
+  BarChart3,
+  Award,
+  Download,
+  Bell,
+  Plus,
+  Edit,
+  Star,
+  CheckCircle,
+  AlertCircle,
+  XCircle
+} from 'lucide-react';
+import { SharedPageLayout } from '../SharedPageLayout';
 import { useToast } from '@/hooks/use-toast';
 
-interface StudentProfile {
-  name: string;
-  examGoal: string;
-  targetDate: string;
-  learningPace: 'slow' | 'medium' | 'fast';
-  preferredTime: 'morning' | 'afternoon' | 'evening';
-  studyHoursPerDay: number;
-  availableDaysPerWeek: number;
-  preferredSubjectsPerDay: number;
-}
-
-interface SubjectAnalysis {
-  id: string;
-  name: string;
-  type: 'weak' | 'strong';
-  confidence: number;
-  color: string;
-  topics: string[];
-  progress: number;
-}
-
-interface StudyPlanItem {
-  date: string;
-  subject: string;
-  topics: string[];
-  studyHours: number;
-  timeOfStudy: string;
-  focusLevel: 'high' | 'medium' | 'low';
-  status: 'done' | 'skipped' | 'pending';
-}
-
-const AdaptiveStudyPlanPage: React.FC = () => {
+const AdaptiveStudyPlanPage = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
-  
-  // Student profile state
-  const [profile, setProfile] = useState<StudentProfile>({
-    name: 'Student',
-    examGoal: 'NEET 2026',
-    targetDate: '2026-05-03',
-    learningPace: 'medium',
-    preferredTime: 'morning',
+
+  // Student Profile State
+  const [profile, setProfile] = useState({
+    name: "Alex Johnson",
+    examGoal: "NEET 2026",
+    targetDate: "2026-05-03",
+    learningPace: "moderate",
+    preferredStudyTime: "evening",
     studyHoursPerDay: 6,
     availableDaysPerWeek: 6,
-    preferredSubjectsPerDay: 2
+    preferredSubjectsPerDay: 2,
+    weekendOff: true
   });
 
-  // Subject analysis state
-  const [subjects, setSubjects] = useState<SubjectAnalysis[]>([
+  // Subject Analysis State
+  const [subjects, setSubjects] = useState([
     {
       id: 'physics',
       name: 'Physics',
-      type: 'weak',
-      confidence: 3,
       color: '#8B5CF6',
-      topics: ['Mechanics', 'Thermodynamics', 'Electromagnetism'],
-      progress: 45
+      strength: 'weak',
+      confidence: 3,
+      topics: ['Mechanics', 'Thermodynamics', 'Electromagnetism', 'Optics', 'Modern Physics']
     },
     {
       id: 'chemistry',
-      name: 'Chemistry',
-      type: 'weak',
-      confidence: 2,
+      name: 'Chemistry', 
       color: '#10B981',
-      topics: ['Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry'],
-      progress: 35
+      strength: 'medium',
+      confidence: 4,
+      topics: ['Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry']
     },
     {
       id: 'biology',
       name: 'Biology',
-      type: 'strong',
-      confidence: 4,
       color: '#F59E0B',
-      topics: ['Botany', 'Zoology', 'Human Physiology'],
-      progress: 65
+      strength: 'strong',
+      confidence: 5,
+      topics: ['Botany', 'Zoology', 'Human Physiology', 'Genetics', 'Ecology']
     }
   ]);
 
-  // Study plan items
-  const [studyPlan, setStudyPlan] = useState<StudyPlanItem[]>([
+  // Adaptive Plan Table State
+  const [planData, setPlanData] = useState([
     {
-      date: '2024-12-03',
+      id: 1,
+      date: '2024-06-07',
       subject: 'Physics',
-      topics: ['Mechanics - Laws of Motion'],
-      studyHours: 3,
-      timeOfStudy: 'Morning',
-      focusLevel: 'high',
-      status: 'done'
+      topics: ['Mechanics - Newton\'s Laws', 'Work & Energy'],
+      studyHours: 2.5,
+      timeOfStudy: 'Evening',
+      focusLevel: 'High',
+      status: 'Pending'
     },
     {
-      date: '2024-12-03',
+      id: 2,
+      date: '2024-06-08',
       subject: 'Chemistry',
-      topics: ['Physical Chemistry - Thermodynamics'],
+      topics: ['Organic Chemistry - Hydrocarbons'],
       studyHours: 2,
-      timeOfStudy: 'Afternoon',
-      focusLevel: 'medium',
-      status: 'pending'
+      timeOfStudy: 'Evening',
+      focusLevel: 'Medium',
+      status: 'Pending'
     },
     {
-      date: '2024-12-04',
+      id: 3,
+      date: '2024-06-09',
       subject: 'Biology',
-      topics: ['Botany - Plant Physiology'],
-      studyHours: 2,
-      timeOfStudy: 'Morning',
-      focusLevel: 'high',
-      status: 'pending'
+      topics: ['Cell Biology', 'Photosynthesis'],
+      studyHours: 3,
+      timeOfStudy: 'Evening',
+      focusLevel: 'High',
+      status: 'Pending'
     }
   ]);
 
-  const [weekendOff, setWeekendOff] = useState(true);
-
-  const daysLeft = Math.ceil((new Date(profile.targetDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const overallProgress = Math.round(subjects.reduce((sum, s) => sum + s.progress, 0) / subjects.length);
-  const weakSubjects = subjects.filter(s => s.type === 'weak');
-  const strongSubjects = subjects.filter(s => s.type === 'strong');
-
-  const updateProfile = (field: keyof StudentProfile, value: any) => {
-    setProfile(prev => ({ ...prev, [field]: value }));
-    toast({
-      title: "Profile Updated",
-      description: `${field} has been updated successfully.`,
-    });
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'Done':
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'Skipped':
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      default:
+        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
+    }
   };
 
-  const updateSubjectConfidence = (subjectId: string, confidence: number) => {
-    setSubjects(prev => prev.map(s => 
-      s.id === subjectId ? { ...s, confidence } : s
+  const updatePlanItem = (id: number, field: string, value: string) => {
+    setPlanData(planData.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
     ));
   };
 
-  const toggleSubjectType = (subjectId: string) => {
-    setSubjects(prev => prev.map(s => 
-      s.id === subjectId ? { 
-        ...s, 
-        type: s.type === 'weak' ? 'strong' : 'weak' 
-      } : s
+  const updateSubjectStrength = (subjectId: string, strength: string) => {
+    setSubjects(subjects.map(s => 
+      s.id === subjectId ? { ...s, strength } : s
+    ));
+  };
+
+  const updateConfidence = (subjectId: string, confidence: number) => {
+    setSubjects(subjects.map(s => 
+      s.id === subjectId ? { ...s, confidence } : s
     ));
   };
 
   return (
     <SharedPageLayout
-      title="Dynamic & Adaptive Study Plan"
-      subtitle="AI-powered personalized study planning for NEET 2026"
+      title="AI-Powered Study Plan"
+      subtitle="Personalized & Adaptive Learning Journey for NEET 2026"
       showBackButton={true}
       backButtonUrl="/dashboard/student"
+      actions={
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Bell className="h-4 w-4 mr-2" />
+            Reminders
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export Plan
+          </Button>
+          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
+            <Settings className="h-4 w-4 mr-2" />
+            Customize
+          </Button>
+        </div>
+      }
     >
+      {/* Quick Stats Header */}
+      <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <Calendar className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <div className="text-xs text-gray-600 mb-1">Days Left</div>
+              <div className="text-2xl font-bold text-blue-600">497</div>
+              <div className="text-xs text-gray-500">Till NEET 2026</div>
+            </div>
+            <div className="text-center">
+              <Target className="h-6 w-6 mx-auto mb-2 text-green-600" />
+              <div className="text-xs text-gray-600 mb-1">Progress</div>
+              <div className="text-2xl font-bold text-green-600">45%</div>
+              <Progress value={45} className="h-2 mt-1" />
+            </div>
+            <div className="text-center">
+              <Clock className="h-6 w-6 mx-auto mb-2 text-orange-600" />
+              <div className="text-xs text-gray-600 mb-1">Today</div>
+              <div className="text-2xl font-bold text-orange-600">3.5h</div>
+              <div className="text-xs text-gray-500">of 6h target</div>
+            </div>
+            <div className="text-center">
+              <Award className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+              <div className="text-xs text-gray-600 mb-1">Streak</div>
+              <div className="text-2xl font-bold text-purple-600">15</div>
+              <div className="text-xs text-gray-500">days</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="subjects">Subjects</TabsTrigger>
-          <TabsTrigger value="plan">Study Plan</TabsTrigger>
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
+          <TabsTrigger value="profile">🧑‍🎓 Profile</TabsTrigger>
+          <TabsTrigger value="analysis">📊 Analysis</TabsTrigger>
+          <TabsTrigger value="plan">📅 Plan</TabsTrigger>
+          <TabsTrigger value="dashboard">📆 Dashboard</TabsTrigger>
+          <TabsTrigger value="ai">🤖 AI</TabsTrigger>
+          <TabsTrigger value="performance">📈 Performance</TabsTrigger>
+          <TabsTrigger value="resources">📚 Resources</TabsTrigger>
+          <TabsTrigger value="settings">⚙️ Settings</TabsTrigger>
         </TabsList>
 
         {/* Student Profile Section */}
-        <TabsContent value="profile" className="space-y-4">
+        <TabsContent value="profile">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Student Profile
+                🧑‍🎓 Student Profile Section
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <Label>Student Name</Label>
-                    <Input 
-                      value={profile.name}
-                      onChange={(e) => updateProfile('name', e.target.value)}
-                    />
+                    <Label>Name</Label>
+                    <Input value={profile.name} onChange={(e) => setProfile({...profile, name: e.target.value})} />
                   </div>
                   
                   <div>
                     <Label>Exam Goal</Label>
-                    <Select value={profile.examGoal} onValueChange={(value) => updateProfile('examGoal', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="NEET 2026">NEET 2026</SelectItem>
-                        <SelectItem value="JEE 2026">JEE 2026</SelectItem>
-                        <SelectItem value="CAT 2026">CAT 2026</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                      <Target className="h-4 w-4 text-blue-600" />
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        {profile.examGoal}
+                      </Badge>
+                    </div>
                   </div>
-
+                  
+                  <div>
+                    <Label>Target Exam Date</Label>
+                    <Input type="date" value={profile.targetDate} onChange={(e) => setProfile({...profile, targetDate: e.target.value})} />
+                  </div>
+                  
                   <div>
                     <Label>Learning Pace</Label>
-                    <Select value={profile.learningPace} onValueChange={(value: 'slow' | 'medium' | 'fast') => updateProfile('learningPace', value)}>
+                    <Select value={profile.learningPace} onValueChange={(value) => setProfile({...profile, learningPace: value})}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="slow">Slow & Steady</SelectItem>
-                        <SelectItem value="medium">Moderate</SelectItem>
-                        <SelectItem value="fast">Aggressive</SelectItem>
+                        <SelectItem value="slow">Slow</SelectItem>
+                        <SelectItem value="moderate">Moderate</SelectItem>
+                        <SelectItem value="aggressive">Aggressive</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-
+                </div>
+                
+                <div className="space-y-4">
                   <div>
                     <Label>Preferred Study Time</Label>
-                    <Select value={profile.preferredTime} onValueChange={(value: 'morning' | 'afternoon' | 'evening') => updateProfile('preferredTime', value)}>
+                    <Select value={profile.preferredStudyTime} onValueChange={(value) => setProfile({...profile, preferredStudyTime: value})}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -229,56 +265,38 @@ const AdaptiveStudyPlanPage: React.FC = () => {
                         <SelectItem value="morning">Morning</SelectItem>
                         <SelectItem value="afternoon">Afternoon</SelectItem>
                         <SelectItem value="evening">Evening</SelectItem>
+                        <SelectItem value="night">Night</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-
-                <div className="space-y-4">
+                  
                   <div>
-                    <Label>Study Hours per Day: {profile.studyHoursPerDay}</Label>
-                    <Slider
-                      value={[profile.studyHoursPerDay]}
-                      onValueChange={(value) => updateProfile('studyHoursPerDay', value[0])}
-                      max={12}
-                      min={2}
-                      step={1}
-                      className="mt-2"
+                    <Label>Total Study Hours per Day</Label>
+                    <Input 
+                      type="number" 
+                      value={profile.studyHoursPerDay}
+                      onChange={(e) => setProfile({...profile, studyHoursPerDay: parseInt(e.target.value)})}
                     />
                   </div>
-
+                  
                   <div>
-                    <Label>Available Days per Week: {profile.availableDaysPerWeek}</Label>
-                    <Slider
-                      value={[profile.availableDaysPerWeek]}
-                      onValueChange={(value) => updateProfile('availableDaysPerWeek', value[0])}
-                      max={7}
-                      min={4}
-                      step={1}
-                      className="mt-2"
+                    <Label>Available Days per Week</Label>
+                    <Input 
+                      type="number" 
+                      max="7" 
+                      value={profile.availableDaysPerWeek}
+                      onChange={(e) => setProfile({...profile, availableDaysPerWeek: parseInt(e.target.value)})}
                     />
                   </div>
-
+                  
                   <div>
-                    <Label>Preferred Subjects per Day: {profile.preferredSubjectsPerDay}</Label>
-                    <Slider
-                      value={[profile.preferredSubjectsPerDay]}
-                      onValueChange={(value) => updateProfile('preferredSubjectsPerDay', value[0])}
-                      max={3}
-                      min={1}
-                      step={1}
-                      className="mt-2"
+                    <Label>Preferred Subjects per Day</Label>
+                    <Input 
+                      type="number" 
+                      max="3" 
+                      value={profile.preferredSubjectsPerDay}
+                      onChange={(e) => setProfile({...profile, preferredSubjectsPerDay: parseInt(e.target.value)})}
                     />
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Target className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium text-blue-800">Exam Details</span>
-                    </div>
-                    <p className="text-sm text-blue-700">Target: {profile.examGoal}</p>
-                    <p className="text-sm text-blue-700">Date: {new Date(profile.targetDate).toLocaleDateString()}</p>
-                    <p className="text-sm text-blue-700">Days Left: {daysLeft}</p>
                   </div>
                 </div>
               </div>
@@ -287,54 +305,70 @@ const AdaptiveStudyPlanPage: React.FC = () => {
         </TabsContent>
 
         {/* Subject Analysis Section */}
-        <TabsContent value="subjects" className="space-y-4">
+        <TabsContent value="analysis">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5" />
-                Subject Analysis & Confidence
+                <BarChart3 className="h-5 w-5" />
+                📊 Subject Analysis Input
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-6">
                 {subjects.map((subject) => (
-                  <Card key={subject.id} className="border-2" style={{ borderColor: subject.color + '40' }}>
+                  <Card key={subject.id} className="border border-gray-200">
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-bold" style={{ color: subject.color }}>{subject.name}</h3>
-                        <Button
-                          size="sm"
-                          variant={subject.type === 'weak' ? 'destructive' : 'default'}
-                          onClick={() => toggleSubjectType(subject.id)}
-                        >
-                          {subject.type === 'weak' ? 'Weak' : 'Strong'}
-                        </Button>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-4 h-4 rounded-full"
+                            style={{ backgroundColor: subject.color }}
+                          />
+                          <h3 className="font-semibold">{subject.name}</h3>
+                        </div>
+                        <div className="flex gap-2">
+                          {['weak', 'medium', 'strong'].map((strength) => (
+                            <Button
+                              key={strength}
+                              variant={subject.strength === strength ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => updateSubjectStrength(subject.id, strength)}
+                            >
+                              {strength.charAt(0).toUpperCase() + strength.slice(1)}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                       
                       <div className="space-y-3">
                         <div>
-                          <Label className="text-sm">Confidence Level: {subject.confidence}/5</Label>
-                          <Slider
-                            value={[subject.confidence]}
-                            onValueChange={(value) => updateSubjectConfidence(subject.id, value[0])}
-                            max={5}
-                            min={1}
-                            step={1}
-                            className="mt-1"
-                          />
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium">Confidence Level (1-5)</span>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-4 w-4 cursor-pointer ${
+                                    star <= subject.confidence ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                                  }`}
+                                  onClick={() => updateConfidence(subject.id, star)}
+                                />
+                              ))}
+                              <span className="ml-2 text-sm text-gray-600">{subject.confidence}/5</span>
+                            </div>
+                          </div>
                         </div>
                         
                         <div>
-                          <Label className="text-sm">Progress</Label>
-                          <Progress value={subject.progress} className="mt-1" />
-                          <span className="text-xs text-gray-500">{subject.progress}%</span>
-                        </div>
-                        
-                        <div>
-                          <Label className="text-sm">Key Topics</Label>
-                          <div className="flex flex-wrap gap-1 mt-1">
+                          <span className="text-sm font-medium mb-2 block">Topics</span>
+                          <div className="flex flex-wrap gap-1">
                             {subject.topics.map((topic, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <Badge 
+                                key={index} 
+                                variant="outline" 
+                                className="text-xs"
+                                style={{ borderColor: subject.color }}
+                              >
                                 {topic}
                               </Badge>
                             ))}
@@ -349,194 +383,190 @@ const AdaptiveStudyPlanPage: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Adaptive Study Plan Table */}
-        <TabsContent value="plan" className="space-y-4">
+        {/* Adaptive Plan Table */}
+        <TabsContent value="plan">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5" />
-                Adaptive Study Plan
+                <Calendar className="h-5 w-5" />
+                📅 Adaptive Study Plan Table (Dynamic Grid)
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-200">
+                <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-50">
-                      <th className="border border-gray-200 p-2 text-left">Date</th>
-                      <th className="border border-gray-200 p-2 text-left">Subject</th>
-                      <th className="border border-gray-200 p-2 text-left">Topics</th>
-                      <th className="border border-gray-200 p-2 text-left">Hours</th>
-                      <th className="border border-gray-200 p-2 text-left">Time</th>
-                      <th className="border border-gray-200 p-2 text-left">Focus</th>
-                      <th className="border border-gray-200 p-2 text-left">Status</th>
+                    <tr className="border-b">
+                      <th className="text-left p-3 font-medium">Date</th>
+                      <th className="text-left p-3 font-medium">Subject</th>
+                      <th className="text-left p-3 font-medium">Topics Planned</th>
+                      <th className="text-left p-3 font-medium">Study Hours</th>
+                      <th className="text-left p-3 font-medium">Time of Study</th>
+                      <th className="text-left p-3 font-medium">Focus Level</th>
+                      <th className="text-left p-3 font-medium">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {studyPlan.map((item, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="border border-gray-200 p-2">{item.date}</td>
-                        <td className="border border-gray-200 p-2">
+                    {planData.map((item) => (
+                      <tr key={item.id} className="border-b hover:bg-gray-50">
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium">
+                              {new Date(item.date).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-3">
                           <Badge variant="outline">{item.subject}</Badge>
                         </td>
-                        <td className="border border-gray-200 p-2">
-                          {item.topics.map((topic, i) => (
-                            <div key={i} className="text-sm">{topic}</div>
-                          ))}
+                        <td className="p-3">
+                          <div className="space-y-1">
+                            {item.topics.map((topic, index) => (
+                              <div key={index} className="text-sm text-gray-700">
+                                • {topic}
+                              </div>
+                            ))}
+                          </div>
                         </td>
-                        <td className="border border-gray-200 p-2">{item.studyHours}h</td>
-                        <td className="border border-gray-200 p-2">{item.timeOfStudy}</td>
-                        <td className="border border-gray-200 p-2">
-                          <Badge 
-                            variant={item.focusLevel === 'high' ? 'default' : 'secondary'}
-                          >
-                            {item.focusLevel}
-                          </Badge>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-orange-600" />
+                            <span className="font-medium">{item.studyHours}h</span>
+                          </div>
                         </td>
-                        <td className="border border-gray-200 p-2">
-                          <Badge
-                            variant={
-                              item.status === 'done' ? 'default' :
-                              item.status === 'skipped' ? 'destructive' : 'secondary'
-                            }
+                        <td className="p-3">
+                          <Select 
+                            value={item.timeOfStudy} 
+                            onValueChange={(value) => updatePlanItem(item.id, 'timeOfStudy', value)}
                           >
-                            {item.status}
-                          </Badge>
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Morning">Morning</SelectItem>
+                              <SelectItem value="Afternoon">Afternoon</SelectItem>
+                              <SelectItem value="Evening">Evening</SelectItem>
+                              <SelectItem value="Night">Night</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="p-3">
+                          <Select 
+                            value={item.focusLevel} 
+                            onValueChange={(value) => updatePlanItem(item.id, 'focusLevel', value)}
+                          >
+                            <SelectTrigger className="w-24">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="High">High</SelectItem>
+                              <SelectItem value="Medium">Medium</SelectItem>
+                              <SelectItem value="Low">Low</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(item.status)}
+                            <Select 
+                              value={item.status} 
+                              onValueChange={(value) => updatePlanItem(item.id, 'status', value)}
+                            >
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Done">Done</SelectItem>
+                                <SelectItem value="Skipped">Skipped</SelectItem>
+                                <SelectItem value="Pending">Pending</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+              
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-medium mb-2">Auto-Adjustment Features</h4>
+                <p className="text-sm text-gray-700">Plan automatically adjusts based on your learning performance and mood tracking.</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Weekly & Monthly Dashboard */}
-        <TabsContent value="dashboard" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <TrendingUp className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                <div className="text-2xl font-bold">{overallProgress}%</div>
-                <div className="text-sm text-gray-600">Overall Progress</div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Clock className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                <div className="text-2xl font-bold">{daysLeft}</div>
-                <div className="text-sm text-gray-600">Days Left</div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4 text-center">
-                <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                <div className="text-2xl font-bold">{weakSubjects.length}</div>
-                <div className="text-sm text-gray-600">Weak Subjects</div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Award className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                <div className="text-2xl font-bold">{strongSubjects.length}</div>
-                <div className="text-sm text-gray-600">Strong Subjects</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Syllabus Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {subjects.map((subject) => (
-                  <div key={subject.id} className="mb-4">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium">{subject.name}</span>
-                      <span className="text-sm">{subject.progress}%</span>
-                    </div>
-                    <Progress value={subject.progress} className="h-2" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>AI Recommendations</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-800">📚 Focus more on Chemistry - your weakest subject</p>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm text-green-800">⏰ Increase study hours to 7/day for better progress</p>
-                </div>
-                <div className="p-3 bg-purple-50 rounded-lg">
-                  <p className="text-sm text-purple-800">🔄 Revise Biology topics from last week</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Performance Tracker */}
-        <TabsContent value="performance" className="space-y-4">
+        {/* Dashboard Tab - Placeholder for now */}
+        <TabsContent value="dashboard">
           <Card>
             <CardHeader>
-              <CardTitle>Performance Analytics</CardTitle>
+              <CardTitle>📆 Weekly & Monthly Dashboard</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <BookOpen className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">Performance tracking will be available after taking mock tests</p>
-                <Button className="mt-4">Take Your First Mock Test</Button>
-              </div>
+              <p>Weekly and monthly dashboard with study calendar will be implemented here.</p>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Settings & Customization */}
-        <TabsContent value="settings" className="space-y-4">
+        {/* AI Recommendations Tab - Placeholder */}
+        <TabsContent value="ai">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Study Plan Settings
-              </CardTitle>
+              <CardTitle>🤖 AI-Powered Recommendations</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <Label>Weekend Off</Label>
-                <Switch checked={weekendOff} onCheckedChange={setWeekendOff} />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label>Auto-adjust difficulty based on performance</Label>
-                  <Switch defaultChecked className="mt-2" />
-                </div>
-                <div>
-                  <Label>Send daily study reminders</Label>
-                  <Switch defaultChecked className="mt-2" />
-                </div>
-                <div>
-                  <Label>Include revision days</Label>
-                  <Switch defaultChecked className="mt-2" />
-                </div>
-                <div>
-                  <Label>Smart subject rotation</Label>
-                  <Switch defaultChecked className="mt-2" />
-                </div>
-              </div>
+            <CardContent>
+              <p>AI recommendations will be implemented here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-              <div className="pt-4 border-t">
-                <Button className="w-full">Save Settings & Regenerate Plan</Button>
+        {/* Performance Tab - Placeholder */}
+        <TabsContent value="performance">
+          <Card>
+            <CardHeader>
+              <CardTitle>📈 Performance Tracker</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Performance tracking will be implemented here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Resources Tab - Placeholder */}
+        <TabsContent value="resources">
+          <Card>
+            <CardHeader>
+              <CardTitle>📚 Resources & Notes Section</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Resources and notes section will be implemented here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Settings Tab */}
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>⚙️ Settings & Customization</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Weekend Off</Label>
+                  <Switch
+                    checked={profile.weekendOff}
+                    onCheckedChange={(checked) => setProfile({...profile, weekendOff: checked})}
+                  />
+                </div>
+                <Button onClick={() => toast({title: "Settings saved successfully!"})}>
+                  Save Settings
+                </Button>
               </div>
             </CardContent>
           </Card>
