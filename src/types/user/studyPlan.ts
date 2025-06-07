@@ -1,9 +1,9 @@
 
 export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft';
-export type SubjectStatus = 'not-started' | 'in-progress' | 'completed';
+export type SubjectStatus = 'not-started' | 'in-progress' | 'completed' | 'pending';
 export type Priority = 'low' | 'medium' | 'high';
 export type Proficiency = 'weak' | 'medium' | 'strong';
-export type LearningPace = 'slow' | 'medium' | 'fast';
+export type LearningPace = 'slow' | 'medium' | 'fast' | 'moderate';
 export type PreferredStudyTime = 'morning' | 'afternoon' | 'evening' | 'night';
 
 export interface StudyPlanTopic {
@@ -111,6 +111,7 @@ export interface DailyPlanItem {
   status: 'done' | 'skipped' | 'pending';
   actualTimeSpent?: number;
   difficulty?: 'easy' | 'medium' | 'hard';
+  mood?: 'excellent' | 'good' | 'okay' | 'tired' | 'stressed';
 }
 
 export interface WeeklyProgress {
@@ -140,6 +141,8 @@ export interface AIRecommendation {
   description: string;
   priority: Priority;
   actionable: boolean;
+  impact?: string;
+  timeframe?: string;
 }
 
 export interface StudyResource {
@@ -151,6 +154,8 @@ export interface StudyResource {
   url?: string;
   isBookmarked?: boolean;
   difficulty?: 'easy' | 'medium' | 'hard';
+  rating?: number;
+  downloads?: number;
 }
 
 export interface DoubtEntry {
@@ -161,4 +166,24 @@ export interface DoubtEntry {
   status: 'open' | 'resolved';
   createdAt: string;
   resolvedAt?: string;
+}
+
+export interface Milestone {
+  id: string;
+  title: string;
+  date: string;
+  type: 'exam' | 'revision' | 'test' | 'goal';
+  status: 'upcoming' | 'completed' | 'missed';
+  completed?: boolean;
+  description?: string;
+}
+
+export interface CustomReminder {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  type: 'study' | 'test' | 'revision' | 'break';
+  recurring?: boolean;
 }
