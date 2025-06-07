@@ -1,3 +1,4 @@
+
 export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft';
 export type SubjectStatus = 'not-started' | 'in-progress' | 'completed';
 export type Priority = 'low' | 'medium' | 'high';
