@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
@@ -22,9 +23,8 @@ import FormulaLabPageWrapper from '@/pages/dashboard/student/concepts/FormulaLab
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import Enhanced24x7TutorPage from '@/components/dashboard/student/Enhanced24x7TutorPage';
-import DynamicStudyPlanPage from '@/components/dashboard/student/study-plan/DynamicStudyPlanPage';
-import ComprehensiveStudyPlanPage from '@/pages/dashboard/student/ComprehensiveStudyPlanPage';
 import StudyPlanPage from '@/components/dashboard/student/study-plan/StudyPlanPage';
+import DynamicStudyPlanPage from '@/components/dashboard/student/study-plan/DynamicStudyPlanPage';
 
 const StudentRoutes = () => {
   console.log('🚨 STUDENT ROUTES - Component loaded');
@@ -50,11 +50,6 @@ const StudentRoutes = () => {
       <Route path="/study-plan/adaptive" element={
         <SidebarLayout>
           <DynamicStudyPlanPage />
-        </SidebarLayout>
-      } />
-      <Route path="/comprehensive-study-plan" element={
-        <SidebarLayout>
-          <ComprehensiveStudyPlanPage />
         </SidebarLayout>
       } />
       <Route path="/concepts" element={
