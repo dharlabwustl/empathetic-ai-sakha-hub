@@ -6,17 +6,41 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Target, Clock, Calendar, BookOpen, TrendingUp, AlertTriangle, Brain, Timer } from 'lucide-react';
+import { 
+  Target, 
+  Clock, 
+  Calendar, 
+  BookOpen, 
+  TrendingUp, 
+  AlertTriangle, 
+  Brain, 
+  Timer,
+  User,
+  BarChart3,
+  Settings,
+  FileText,
+  Award,
+  Lightbulb
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WeeklySchedule from './WeeklySchedule';
 import StudyGoals from './StudyGoals';
 import StudyTimeAllocation from './StudyTimeAllocation';
+import { StudentProfileSection } from './sections/StudentProfileSection';
+import { SubjectAnalysisSection } from './sections/SubjectAnalysisSection';
+import { AdaptivePlanTable } from './sections/AdaptivePlanTable';
+import { WeeklyMonthlyDashboard } from './sections/WeeklyMonthlyDashboard';
+import { AIRecommendationsSection } from './sections/AIRecommendationsSection';
+import { PerformanceTrackerSection } from './sections/PerformanceTrackerSection';
+import { ResourcesNotesSection } from './sections/ResourcesNotesSection';
+import { SettingsCustomizationSection } from './sections/SettingsCustomizationSection';
 import { useToast } from '@/hooks/use-toast';
 import { StudyPlanSubject } from '@/types/user/studyPlan';
 
 const StudyPlanPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
   
   // NEET 2026 specific subjects with enhanced data
   const [subjects, setSubjects] = useState<StudyPlanSubject[]>([
@@ -121,6 +145,15 @@ const StudyPlanPage = () => {
   const strongSubjects = subjects.filter(s => s.proficiency === 'strong');
   const averageProgress = Math.round(subjects.reduce((sum, s) => sum + s.progress, 0) / subjects.length);
   
+  // Quick stats for the header
+  const quickStats = {
+    examDate: '2026-05-03',
+    daysLeft: daysLeft,
+    totalProgress: averageProgress,
+    todayProgress: 3.5,
+    weeklyTarget: totalWeeklyHours
+  };
+
   return (
     <SharedPageLayout
       title="NEET 2026 Study Plan"
@@ -128,49 +161,49 @@ const StudyPlanPage = () => {
       showBackButton={true}
       backButtonUrl="/dashboard/student"
       actions={
-        <Button
-          onClick={() => navigate('/dashboard/student/study-plan/adaptive')}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-        >
-          <Brain className="h-4 w-4 mr-2" />
-          Try Advanced Plan
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <FileText className="h-4 w-4 mr-2" />
+            Export Plan
+          </Button>
+          <Button
+            onClick={() => navigate('/dashboard/student/study-plan/adaptive')}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          >
+            <Brain className="h-4 w-4 mr-2" />
+            Try Adaptive Plan
+          </Button>
+        </div>
       }
     >
-      {/* NEET 2026 Overview Card */}
-      <Card className="mb-6 border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-blue-600" />
-            NEET 2026 Exam Overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+      {/* Quick Overview Header */}
+      <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="text-center">
               <Calendar className="h-5 w-5 mx-auto mb-1 text-blue-600" />
-              <div className="text-sm font-medium">Exam Date</div>
-              <div className="text-lg font-bold text-blue-600">May 3, 2026</div>
+              <div className="text-xs text-gray-600">Exam Date</div>
+              <div className="font-bold text-blue-600">May 3, 2026</div>
             </div>
-            <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-              <Clock className="h-5 w-5 mx-auto mb-1 text-green-600" />
-              <div className="text-sm font-medium">Days Left</div>
-              <div className="text-lg font-bold text-green-600">{daysLeft}</div>
+            <div className="text-center">
+              <Clock className="h-5 w-5 mx-auto mb-1 text-red-600" />
+              <div className="text-xs text-gray-600">Days Left</div>
+              <div className="font-bold text-red-600">{quickStats.daysLeft}</div>
             </div>
-            <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-              <BookOpen className="h-5 w-5 mx-auto mb-1 text-purple-600" />
-              <div className="text-sm font-medium">Weekly Hours</div>
-              <div className="text-lg font-bold text-purple-600">{totalWeeklyHours}</div>
+            <div className="text-center">
+              <TrendingUp className="h-5 w-5 mx-auto mb-1 text-green-600" />
+              <div className="text-xs text-gray-600">Overall Progress</div>
+              <div className="font-bold text-green-600">{quickStats.totalProgress}%</div>
             </div>
-            <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-              <TrendingUp className="h-5 w-5 mx-auto mb-1 text-orange-600" />
-              <div className="text-sm font-medium">Avg Progress</div>
-              <div className="text-lg font-bold text-orange-600">{averageProgress}%</div>
+            <div className="text-center">
+              <BookOpen className="h-5 w-5 mx-auto mb-1 text-orange-600" />
+              <div className="text-xs text-gray-600">Today's Hours</div>
+              <div className="font-bold text-orange-600">{quickStats.todayProgress}h</div>
             </div>
-            <div className="text-center p-3 bg-white rounded-lg shadow-sm">
-              <AlertTriangle className="h-5 w-5 mx-auto mb-1 text-red-600" />
-              <div className="text-sm font-medium">Weak Subjects</div>
-              <div className="text-lg font-bold text-red-600">{weakSubjects.length}</div>
+            <div className="text-center">
+              <Target className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+              <div className="text-xs text-gray-600">Weekly Target</div>
+              <div className="font-bold text-purple-600">{quickStats.weeklyTarget}h</div>
             </div>
           </div>
           
@@ -207,41 +240,90 @@ const StudyPlanPage = () => {
             <div className="flex items-center gap-3">
               <Brain className="h-8 w-8 text-purple-600" />
               <div>
-                <h3 className="font-bold text-purple-800">🚀 Try Our Advanced Study Plan</h3>
-                <p className="text-sm text-purple-700">AI-powered adaptive planning with dynamic scheduling</p>
+                <h3 className="font-bold text-purple-800">🚀 Try Our Advanced Adaptive Study Plan</h3>
+                <p className="text-sm text-purple-700">AI-powered adaptive planning with dynamic scheduling & detailed analytics</p>
               </div>
             </div>
             <Button
               onClick={() => navigate('/dashboard/student/study-plan/adaptive')}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
-              Explore Advanced Plan
+              Explore Adaptive Plan
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="time-allocation" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="time-allocation">Time Allocation</TabsTrigger>
-          <TabsTrigger value="schedule">Weekly Schedule</TabsTrigger>
-          <TabsTrigger value="goals">Study Goals</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
+          <TabsTrigger value="overview" className="flex items-center gap-1">
+            <Target className="h-4 w-4" />
+            <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="profile" className="flex items-center gap-1">
+            <User className="h-4 w-4" />
+            <span className="hidden sm:inline">Profile</span>
+          </TabsTrigger>
+          <TabsTrigger value="analysis" className="flex items-center gap-1">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Analysis</span>
+          </TabsTrigger>
+          <TabsTrigger value="schedule" className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Schedule</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center gap-1">
+            <Brain className="h-4 w-4" />
+            <span className="hidden sm:inline">AI</span>
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center gap-1">
+            <Award className="h-4 w-4" />
+            <span className="hidden sm:inline">Performance</span>
+          </TabsTrigger>
+          <TabsTrigger value="resources" className="flex items-center gap-1">
+            <BookOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">Resources</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-1">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">Settings</span>
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="time-allocation">
+        <TabsContent value="overview">
           <StudyTimeAllocation
             weeklyTotal={totalWeeklyHours}
             subjects={subjects}
             onSave={handleSaveTimeAllocation}
           />
         </TabsContent>
+
+        <TabsContent value="profile">
+          <StudentProfileSection />
+        </TabsContent>
+
+        <TabsContent value="analysis">
+          <SubjectAnalysisSection />
+        </TabsContent>
         
         <TabsContent value="schedule">
           <WeeklySchedule />
         </TabsContent>
         
-        <TabsContent value="goals">
-          <StudyGoals />
+        <TabsContent value="ai">
+          <AIRecommendationsSection />
+        </TabsContent>
+
+        <TabsContent value="performance">
+          <PerformanceTrackerSection />
+        </TabsContent>
+
+        <TabsContent value="resources">
+          <ResourcesNotesSection />
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <SettingsCustomizationSection />
         </TabsContent>
       </Tabs>
     </SharedPageLayout>

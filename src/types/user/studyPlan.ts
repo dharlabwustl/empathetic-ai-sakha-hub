@@ -1,4 +1,3 @@
-
 export type StudyPlanStatus = 'active' | 'completed' | 'paused' | 'draft';
 export type SubjectStatus = 'not-started' | 'in-progress' | 'completed';
 export type Priority = 'low' | 'medium' | 'high';
@@ -17,7 +16,7 @@ export interface StudyPlanTopic {
   progressPercent?: number;
   estimatedTime?: number;
   conceptsCount?: number;
-  confidenceLevel?: number; // 1-5 scale
+  confidenceLevel?: number;
   lastRevised?: string;
 }
 
@@ -35,7 +34,7 @@ export interface StudyPlanSubject {
   topics?: StudyPlanTopic[];
   difficulty?: 'easy' | 'medium' | 'hard';
   status?: SubjectStatus;
-  confidenceLevel?: number; // 1-5 scale
+  confidenceLevel?: number;
 }
 
 export interface StudyPlan {
